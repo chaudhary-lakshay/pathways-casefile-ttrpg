@@ -2,8 +2,8 @@
  "sourceLines": {
   "3": [
    [
-    714,
-    744
+    768,
+    806
    ]
   ]
  },
@@ -11,42 +11,42 @@
   {
    "level": "Attractive",
    "points": 1,
-   "reactionModifier": 1
+   "effect": "People are subtly warmer to you; first impressions lean positive at the GM's discretion"
   },
   {
    "level": "Handsome / Beautiful",
    "points": 4,
-   "reactionModifier": 2
+   "effect": "NPCs notice and treat you favourably; more inclined to listen and help (GM discretion)"
   },
   {
    "level": "Very Handsome / Very Beautiful",
    "points": 8,
-   "reactionModifier": 3
+   "effect": "Your appearance draws attention; neutral NPCs tend to assume the best of you (GM discretion)"
   },
   {
    "level": "Unattractive",
    "points": -4,
-   "reactionModifier": -1
+   "effect": "People are less inclined to engage with you favourably (GM discretion)"
   },
   {
    "level": "Ugly",
    "points": -8,
-   "reactionModifier": -2
+   "effect": "NPCs are put off by your looks; first impressions suffer (GM discretion)"
   },
   {
    "level": "Hideous",
    "points": -16,
-   "reactionModifier": -4
+   "effect": "Most people react with visible discomfort or avoidance (GM discretion)"
   },
   {
    "level": "Monstrous",
    "points": -20,
-   "reactionModifier": -5
+   "effect": "Your appearance frightens or revolts ordinary people on sight (GM discretion)"
   },
   {
    "level": "Horrific",
    "points": -24,
-   "reactionModifier": -6
+   "effect": "Your presence causes instinctive fear or revulsion in nearly everyone (GM discretion)"
   }
  ]
 }

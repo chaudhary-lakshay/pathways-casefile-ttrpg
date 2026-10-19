@@ -1,9 +1,9 @@
 {
  "sourceLines": {
-  "8": [
+  "10": [
    [
-    5062,
-    5310
+    4381,
+    4629
    ]
   ]
  },
@@ -472,7 +472,7 @@
    "name": "Velvet shawl",
    "cost": "12s",
    "category": "Clothing & Protective",
-   "notes": "Warmth; +1 to reaction from romantic interests",
+   "notes": "Warmth; romantic interests may find you more appealing (GM discretion)",
    "skills": []
   },
   {

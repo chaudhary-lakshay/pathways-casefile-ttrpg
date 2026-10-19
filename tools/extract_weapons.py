@@ -52,8 +52,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "8"
-WEAPON_RANGE = (4977, 5042)
+CHAPTER = "10"
+WEAPON_RANGE = (4296, 4361)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {

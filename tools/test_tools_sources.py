@@ -13,17 +13,17 @@ def test_extract_pdf_produces_pages_and_chapters():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
 
     pages = json.loads((OUT / "pages.json").read_text(encoding="utf-8"))
-    assert len(pages) == 170
+    assert len(pages) == 156
     assert pages[0]["page"] == 1
     assert "POWERED BY GURPS" in pages[0]["text"]
 
     chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
     ids = [c["id"] for c in chapters]
-    assert "3" in ids and "9" in ids and "12" in ids
+    assert "3" in ids and "9" in ids and "12" in ids and "17" in ids
 
     ch3 = next(c for c in chapters if c["id"] == "3")
     assert ch3["title"] == "Character Creation"
-    assert ch3["startPage"] == 10
+    assert ch3["startPage"] == 11
 
     # ranges must be contiguous and non-overlapping
     for a, b in zip(chapters, chapters[1:]):
@@ -95,14 +95,14 @@ def test_coverage_reports_every_chapter():
     subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
     report = (OUT / "coverage.md").read_text(encoding="utf-8")
     assert "| 3 | Character Creation |" in report
-    assert "| 9 | Sequence 9 Potion Effects |" in report
+    assert "| 11 | Sequence 9 Potion Effects |" in report
     # EVERY chapter, which is what the name says. Until 6ee this ended with
     # `assert "0.0%" in report` under a comment that had been false since M1
     # ("with no content extracted yet, every chapter is 0% claimed") -- and
     # "100.0%" contains "0.0%", so it could not fail either.
     chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
     missing = [c["id"] for c in chapters if f"| {c['id']} | {c['title']} |" not in report]
-    assert len(chapters) == 22 and missing == []
+    assert len(chapters) == 21 and missing == []
 
 @needs_pdf
 def test_coverage_intersects_claims_with_mechanical_lines():
@@ -195,9 +195,12 @@ def test_coverage_glob_is_recursive_over_nested_content_dirs():
 
     lines_data = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
     chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
-    ch3 = next(c for c in chapters if c["id"] == "3")
-    ch3_lines = [line for line in lines_data if ch3["startPage"] <= line["page"] <= ch3["endPage"]]
-    claim_start, claim_end = ch3_lines[0]["n"], ch3_lines[-1]["n"]
+    sys.path.insert(0, str(ROOT / "tools"))
+    import coverage as coverage_tool
+    # The chapter is measured between its HEADING and the next one, which in
+    # v6.9i runs past chapter 3's last declared page onto p.34.
+    heads = coverage_tool.heading_lines(lines_data, chapters)
+    claim_start, claim_end = heads["3"], heads["4"] - 1
 
     content_dir = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
     nested_dir = content_dir / "nested_subdir_regression_test"
@@ -458,11 +461,11 @@ def test_every_committed_span_agrees_with_the_heading_partition():
 def test_the_two_pool_tables_are_filed_under_the_chapters_that_print_them():
     """`extract_pools` hardcoded CHAPTER = "5" and filed BOTH tables under
     Combat. The SPI ladder prints in chapter 4 (Spirituality, heading at line
-    2247) and only the HP one is chapter 5's (heading 2361), so b1c8c4e had to
-    refile lines 2346-2356 by hand -- and a re-run put them back. The chapter
+    2332) and only the HP one is chapter 5's (heading 2438), so b1c8c4e had to
+    refile the SPI lines by hand -- and a re-run put them back. The chapter
     a line belongs to is asked of the headings now, at this site too."""
-    spans = extract_pools.chapter_spans({"3": 443, "4": 2247, "5": 2361, "6": 2995})
-    assert spans == {"4": [[2346, 2356]], "5": [[2697, 2708]]}
+    spans = extract_pools.chapter_spans({"3": 516, "4": 2332, "5": 2438, "6": 3140})
+    assert spans == {"4": [[2424, 2431]], "5": [[2800, 2814]]}
     # a range no heading precedes must raise: a None key writes JSON "null",
     # which is a chapter nobody can claim and nothing would report
     with pytest.raises(ValueError, match="no chapter heading precedes"):
@@ -521,7 +524,7 @@ def test_pathways_json_covers_88_blocks_across_22_pathways():
     for pathway in pathways:
         seqs = sorted(e["sequence"] for e in entries if e["pathway"] == pathway)
         assert seqs == [6, 7, 8, 9], f"{pathway} has {seqs}"
-    assert set(data["sourceLines"]) == {"9", "10", "11", "12"}
+    assert set(data["sourceLines"]) == {"11", "12", "13", "14"}
 
 
 def test_every_granted_skill_resolves_against_the_chapter_3_skill_list():
@@ -576,7 +579,9 @@ def test_every_skill_carries_the_category_banner_it_was_printed_under():
     The banners PARTITION the list: every skill sits under exactly one, so a
     missing category is a parse failure rather than a row to default."""
     skills = json.loads((CONTENT / "skills.json").read_text(encoding="utf-8"))["entries"]
-    assert len(skills) == 158
+    # v6.9i deleted Spiritual Intuition and Spiritual Perception (now
+    # universal abilities), so 158 became 156.
+    assert len(skills) == 156
     missing = [e["name"] for e in skills if not e.get("category")]
     assert missing == [], f"skills with no category banner: {missing}"
     assert {e["category"] for e in skills} == extract_content.SKILL_CATEGORIES
@@ -603,30 +608,25 @@ def test_the_social_banner_holds_its_sixteen_printed_members():
     assert "Streetwise" in by_category["KNOWLEDGE SKILLS"]
 
 
-def test_the_book_distinguishes_a_social_skill_roll_from_a_reaction_roll():
+def test_social_skill_rolls_are_the_banner_and_social_rolls_name_nothing():
     """The warrant for applying "social skill rolls" to the SOCIAL banner, and
     for refusing the bare phrase "social rolls".
 
-    Line 6522 prints both in ONE bracket -- "(-1 to all emotional reaction
-    rolls and social skill rolls)" -- so they are two different things in the
-    book's own sentence. "social rolls" is never defined, never a banner, and
-    the rows using it read like reactions ("first-impression", "people look out
-    for you"), while this book prints no reaction roll procedure at all. So
-    those rows are refused rather than read as this banner.
+    v6.9d's line 6522 printed both "reaction rolls" and "social skill rolls"
+    in one bracket, which made them two things in the book's own sentence.
+    v6.9i dropped that bracket and prints no "reaction roll" anywhere -- the
+    reaction modifiers left Appearance and Wealth too. What still holds: the
+    banner is the only place the book GROUPS skills as social, and "social
+    rolls" is never a banner. The refusal now rests on that alone.
 
-    If that bracket ever loses one of its two phrases, the split has to be
-    argued again rather than inherited."""
+    If "social rolls" ever becomes a banner or the book defines it, the
+    refusal has to be argued again rather than inherited."""
     lines = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
-    text = [(l["text"] if isinstance(l, dict) else l) for l in lines]
-    bracket = text[6521]
-    assert "reaction rolls" in bracket and "social skill rolls" in bracket, bracket
-    # And the banner is the only place the book GROUPS skills as social. The
-    # phrase occurs three times in all: line 155 is descriptive prose about
-    # what IQ covers, 787 is a language clause, and 1728 is the banner -- so
-    # nothing else could be the referent of "social skill rolls".
-    grouped = [i + 1 for i, t in enumerate(text) if "social skills" in t.lower()]
-    assert grouped == [155, 787, 1728], grouped
-    assert text[1727].strip() == "— SOCIAL SKILLS —"
-
-
-# --- CoR tables (Ch. 6 p. 45, Ch. 7 p. 68) ---------------------------------
+    text = {l["n"]: l["text"] for l in lines}
+    assert not any("reaction roll" in t for t in text.values())
+    # "social skills" occurs three times: IQ's description (151), a language
+    # clause (855), and the banner (1825).
+    grouped = sorted(n for n, t in text.items() if "social skills" in t.lower())
+    assert grouped == [151, 855, 1825], grouped
+    assert text[1825].strip() == "— SOCIAL SKILLS —"
+    assert not any(t.strip() == "— SOCIAL ROLLS —" for t in text.values())

@@ -2,48 +2,52 @@
  "sourceLines": {
   "3": [
    [
-    1131,
-    1175
-   ],
-   [
-    1180,
-    1207
-   ],
-   [
     1210,
-    1235
+    1251
    ],
    [
-    1240,
-    1284
+    1254,
+    1256
    ],
    [
-    1287,
-    1361
+    1261,
+    1314
    ],
    [
-    1364,
-    1384
+    1319,
+    1324
    ],
    [
-    1392,
-    1418
+    1327,
+    1402
    ],
    [
-    1423,
-    1434
+    1405,
+    1476
    ],
    [
-    1437,
-    1472
+    1486,
+    1512
    ],
    [
-    1477,
-    1513
+    1517,
+    1552
    ],
    [
-    1520,
-    1569
+    1555,
+    1566
+   ],
+   [
+    1571,
+    1607
+   ],
+   [
+    1612,
+    1628
+   ],
+   [
+    1631,
+    1664
    ]
   ]
  },
@@ -51,12 +55,12 @@
   {
    "name": "Wealth: Poor",
    "cost": 15,
-   "notes": "Start with 5 soli; boarding house; barely afford basic food. Status −1 → −1 reaction from status-conscious NPCs."
+   "notes": "Start with 5 soli; boarding house; barely afford basic food. Status −1 — status-conscious NPCs look down on you (GM discretion)."
   },
   {
    "name": "Wealth: Dead Broke",
    "cost": 25,
-   "notes": "Start with £0; no home; beg or steal for every meal. Status −2 → −2 reaction from status-conscious NPCs."
+   "notes": "Start with £0; no home; beg or steal for every meal. Status −2 — most NPCs treat you with suspicion or disdain (GM discretion)."
   },
   {
    "name": "Wealth: Struggling",
@@ -229,6 +233,17 @@
    }
   },
   {
+   "name": "Addiction (specify)",
+   "costMin": 0,
+   "costMax": 40,
+   "notes": "Compulsive dependence on a substance. Value reflects the substance's cost, the severity of its effects, and its legality: cheap legal vices are mild (e.g., Tobacco, -3), costly or mildly illegal habits run about -10 (e.g., Laudanum), and ruinously expensive, dangerous, or strictly illegal dependencies reach -20 to -40. Must roll vs. Will to resist the urge to use whenever the substance is available.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
+  },
+  {
    "name": "Addiction: Laudanum",
    "cost": 10,
    "notes": "Must use daily or suffer -2 to all rolls from withdrawal; supply costs drain income."
@@ -239,8 +254,18 @@
    "notes": "Minor withdrawal irritability (-1 to Will) if unable to smoke for a full day."
   },
   {
+   "name": "Alcoholism",
+   "cost": 15,
+   "notes": "Addicted to alcohol. Must roll vs. Will to refuse a drink when one is offered or available; failure means you indulge. Deprived of alcohol long enough, withdrawal applies -2 to all rolls until you can drink.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
+  },
+  {
    "name": "Chronic Insomnia",
-   "cost": 5,
+   "cost": 10,
    "notes": "Lose 1 FP each morning that cannot be recovered through rest; rolls requiring sustained concentration at -1."
   },
   {
@@ -317,11 +342,11 @@
   {
    "name": "Reputation: Troublemaker",
    "cost": 5,
-   "notes": "Employers, landlords, and officials treat you with pre-emptive suspicion; -2 to first reactions in formal settings."
+   "notes": "Employers, landlords, and officials treat you with pre-emptive suspicion (GM discretion)."
   },
   {
    "name": "Social Anxiety",
-   "cost": 5,
+   "cost": 10,
    "notes": "-2 to social skill rolls in groups of 6+; -3 when addressing strangers of higher status."
   },
   {
@@ -336,7 +361,7 @@
   },
   {
    "name": "Superstitious (mundane)",
-   "cost": 3,
+   "cost": 5,
    "notes": "If warding routine is disrupted, -1 to all rolls for the day; will go out of their way to observe superstitions."
   },
   {
@@ -433,12 +458,11 @@
   },
   {
    "name": "Charity",
-   "cost": 10,
-   "notes": "Cannot ignore genuine need. Must roll vs. Will to avoid helping anyone who asks for assistance you can reasonably provide. May be exploited.",
+   "cost": 15,
+   "notes": "Cannot ignore genuine need. Must roll vs. 12 or help anyone who asks for assistance you can reasonably provide. May be exploited.",
    "selfControl": {
-    "attribute": "Will",
-    "offset": 0,
-    "source": "effect"
+    "target": 12,
+    "source": "both"
    }
   },
   {
@@ -517,12 +541,12 @@
   {
    "name": "Aura Leak",
    "cost": 10,
-   "notes": "Spiritual body radiates faintly even suppressed. Beyonders with Spiritual Perception detect you automatically within 20 meters."
+   "notes": "Spiritual body radiates faintly even suppressed. Beyonders with Spiritual Perception (Ch. 4) detect you automatically within 20 meters."
   },
   {
    "name": "Bleed-Through Visions",
    "cost": 10,
-   "notes": "Spirit Vision activates involuntarily in emotionally charged locations. Roll vs. Will or be briefly incapacitated by the vision.",
+   "notes": "If you have Spirit Vision, it activates involuntarily in emotionally charged locations. Roll vs. Will or be briefly incapacitated by the vision.",
    "selfControl": {
     "attribute": "Will",
     "offset": 0,
@@ -562,7 +586,7 @@
   {
    "name": "Residual Contamination",
    "cost": 10,
-   "notes": "Spiritual residue from a forbidden item or ritual. Seers and Spiritual Perception users detect 'something wrong' about you."
+   "notes": "Spiritual residue from a forbidden item or ritual. Seers and Spiritual Perception (Ch. 4) users detect 'something wrong' about you."
   },
   {
    "name": "Soul Scar",
@@ -643,7 +667,7 @@
   {
    "name": "Unsettling Appearance",
    "cost": 4,
-   "notes": "-1 to all reaction rolls. Your presence instinctively disturbs or repels others — a common consequence of Abyss and Chained Pathway potions."
+   "notes": "Your presence instinctively disturbs or repels others — a common consequence of Abyss and Chained Pathway potions. NPCs react with unease or distrust (GM discretion)."
   },
   {
    "name": "Entity Fixation",

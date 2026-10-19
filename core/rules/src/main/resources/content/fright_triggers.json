@@ -2,8 +2,8 @@
  "sourceLines": {
   "5": [
    [
-    2904,
-    2915
+    2969,
+    3000
    ]
   ]
  },
@@ -19,21 +19,65 @@
    "modifier": 0
   },
   {
-   "trigger": "Encountering a monster or undead creature",
-   "printed": "-2 to -6",
-   "modifier": -2,
-   "worstCase": -6
+   "trigger": "Encountering a Seq 9 equivalent monster",
+   "printed": "-2",
+   "modifier": -2
   },
   {
-   "trigger": "Witnessing a supernatural death",
+   "trigger": "Encountering a Seq 8 equivalent monster",
+   "printed": "-3",
+   "modifier": -3
+  },
+  {
+   "trigger": "Encountering a Seq 7 equivalent monster",
    "printed": "-4",
    "modifier": -4
   },
   {
+   "trigger": "Encountering a Seq 6 equivalent monster",
+   "printed": "-5",
+   "modifier": -5
+  },
+  {
+   "trigger": "Encountering a Seq 5 equivalent monster",
+   "printed": "-6",
+   "modifier": -6
+  },
+  {
+   "trigger": "Encountering a Seq 4 equivalent monster (Saint)",
+   "printed": "-7",
+   "modifier": -7
+  },
+  {
+   "trigger": "Encountering a Seq 3 equivalent monster (Saint)",
+   "printed": "-8",
+   "modifier": -8
+  },
+  {
+   "trigger": "Encountering a Seq 2 equivalent monster (Angel)",
+   "printed": "-10",
+   "modifier": -10
+  },
+  {
+   "trigger": "Encountering a Seq 1 equivalent monster (Angel)",
+   "printed": "-12",
+   "modifier": -12
+  },
+  {
+   "trigger": "Encountering a Seq 0 equivalent (God)",
+   "printed": "-15",
+   "modifier": -15
+  },
+  {
    "trigger": "Outer God influence or manifestation",
-   "printed": "-8 or worse",
-   "modifier": -8,
+   "printed": "-20 or worse",
+   "modifier": -20,
    "openEnded": true
+  },
+  {
+   "trigger": "Frightening situations with no Beyonder influence",
+   "printed": "GM discretion",
+   "gmDiscretion": true
   }
  ]
 }

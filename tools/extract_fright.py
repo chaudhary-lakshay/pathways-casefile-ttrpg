@@ -41,8 +41,8 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
-TRIGGER_RANGE = (2904, 2915)
-EFFECT_RANGE = (2924, 2994)
+TRIGGER_RANGE = (2969, 3000)
+EFFECT_RANGE = (3009, 3079)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {"Trigger", "Will Modifier", "Roll", "Fright", "Awe", "Confusion"}
@@ -53,6 +53,10 @@ MINUS = "-−"
 MODIFIER = re.compile(
     rf"^([+{MINUS}]?\d+)(?:\s*to\s*([+{MINUS}]?\d+)|\s*(or worse))?$"
 )
+# v6.9i's last trigger prints no number at all: "Frightening situations with
+# no Beyonder influence" / "GM discretion". The row ships with its printed cell
+# and no modifier -- absent, not zero, because +0 is a different row's value.
+GM_DISCRETION = "GM discretion"
 # "4-9", "12", "35+" -- an en dash separates the ends of a band.
 BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+)|(\+))?$")
 # The only abbreviation in the effects table that ends in a period.
@@ -120,6 +124,9 @@ def parse_triggers(lines):
     rows = []
     for i in range(0, len(lines) - 1, 2):
         label, value = lines[i], lines[i + 1]
+        if value == GM_DISCRETION:
+            rows.append({"trigger": label, "printed": value, "gmDiscretion": True})
+            continue
         match = MODIFIER.match(value)
         if not match:
             raise ValueError(f"unparsed fright modifier for {label!r}: {value!r}")
@@ -237,8 +244,10 @@ def parse_effects(lines):
 
 
 def verify(triggers, effects):
-    if len(triggers) != 5:
-        raise ValueError(f"expected 5 trigger rows, got {len(triggers)}")
+    # v6.9d printed 5 triggers; v6.9i grades a monster by its Sequence, Seq 9
+    # at -2 down to a god at -15, and moves the Outer God row to -20.
+    if len(triggers) != 14:
+        raise ValueError(f"expected 14 trigger rows, got {len(triggers)}")
     bands = [(r["low"], r["high"]) for r in effects]
     if bands != EXPECTED_BANDS:
         raise ValueError(f"fright bands changed: {bands} != {EXPECTED_BANDS}")

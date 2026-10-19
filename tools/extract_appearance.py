@@ -1,4 +1,4 @@
-"""Extract the Appearance table (Ch. 3, p. 13-14, global 714-744).
+"""Extract the Appearance table (Ch. 3, p. 15-16, global 768-806).
 
 THE TRAIT LISTS PRINT NONE OF THESE
 -----------------------------------
@@ -19,16 +19,15 @@ here is therefore this book's, and a reviewer who reaches for the GURPS 4e
 values (where Attractive is 4 points, not 1) would be correcting the book
 with its own source material. NOTE_PHRASE pins the sentence.
 
-THE COST CELL IS THE ANCHOR, AND IT IS SIGNED
----------------------------------------------
-Three columns: Level, Cost, Reaction Modifier. Both numeric cells are signed
-integers, so neither can be told from the other by shape -- but the ORDER is
-fixed and the level name is neither. A row is therefore a name followed by
-exactly two signed cells, and a group of three is a row.
-
-The reaction modifier is NOT derivable from the cost: +1pt gives +1 and +4pts
-gives +2, while -4pts gives -1 and -24pts gives -6. The two columns are
-independent and both are read.
+THE THIRD COLUMN IS PROSE NOW, AND THE GM'S
+------------------------------------------
+v6.9d printed Level, Cost, Reaction Modifier: "+2 to reaction rolls". v6.9i
+replaced the third column with Effect -- "NPCs notice and treat you
+favourably; more inclined to listen and help (GM discretion)" -- and the
+intro now says the levels "guide the GM in determining realistic NPC
+responses". There is no number left to read, so the row stores the effect as
+printed, wrapped lines joined. A row is a level name, its signed cost, then
+every line up to the next level name.
 
 WHAT IS DELIBERATELY NOT EXTRACTED
 ----------------------------------
@@ -44,14 +43,12 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "3"
-APPEARANCE_RANGE = (714, 744)
+APPEARANCE_RANGE = (768, 806)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
-HEADER = {"Appearance", "Level", "Cost", "Reaction Modifier"}
-# " +1 pt" / " -24 pts". Both numeric columns are signed, so shape alone
-# cannot tell cost from modifier -- only their order can.
+HEADER = {"Appearance", "Level", "Cost", "Effect"}
+# " +1 pt" / " -24 pts".
 COST_CELL = re.compile(r"^([+-]?\d+)\s*pts?$")
-MODIFIER_CELL = re.compile(r"^([+−-]?\d+) to reaction rolls$")
 # The prose that closes the section. The prose that OPENS it is not matched by
 # a prefix: it wraps mid-sentence onto a second line ("...levels of App" /
 # "reactions from others:"), and the second line starts with nothing a rule
@@ -94,36 +91,27 @@ def signed(text):
 
 
 def parse(cells):
-    """Groups of three: a name, a signed cost, a signed reaction modifier.
-
-    The table starts one cell before the FIRST cost cell, because the intro
-    prose wraps mid-sentence and its second line ("reactions from others:")
-    has no shape a rule could name. Anchoring on the cost cell uses the
-    table's own structure instead of guessing where the prose stopped.
-    """
-    first_cost = next(
-        (i for i, c in enumerate(cells) if COST_CELL.fullmatch(c)),
-        None,
-    )
-    if first_cost is None or first_cost == 0:
-        raise ValueError("no cost cell with a level name before it; the table changed")
-    cells = cells[first_cost - 1:]
-
+    """A level name, its signed cost, then its effect lines up to the next
+    name. The intro prose is dropped by starting at the first level name."""
+    try:
+        cells = cells[cells.index(EXPECTED_LEVELS[0]):]
+    except ValueError:
+        raise ValueError("the first level is gone; the table changed")
     rows = []
-    for i in range(0, len(cells), 3):
-        group = cells[i:i + 3]
-        if len(group) != 3:
-            raise ValueError(f"trailing cells with no row to join: {group!r}")
-        name, cost, modifier = group
-        cost_match = COST_CELL.fullmatch(cost)
-        modifier_match = MODIFIER_CELL.fullmatch(modifier)
-        if not cost_match or not modifier_match:
-            raise ValueError(f"row {group!r} is not name / cost / modifier")
-        rows.append({
-            "level": name,
-            "points": signed(cost_match.group(1)),
-            "reactionModifier": signed(modifier_match.group(1)),
-        })
+    for cell in cells:
+        if cell in EXPECTED_LEVELS:
+            rows.append({"level": cell, "points": None, "effect": []})
+        elif rows[-1]["points"] is None:
+            cost = COST_CELL.fullmatch(cell)
+            if not cost:
+                raise ValueError(f"{rows[-1]['level']} has no cost cell: {cell!r}")
+            rows[-1]["points"] = signed(cost.group(1))
+        else:
+            rows[-1]["effect"].append(cell)
+    for row in rows:
+        if not row["effect"]:
+            raise ValueError(f"{row['level']} prints no effect")
+        row["effect"] = " ".join(row["effect"])
     return rows
 
 
@@ -144,32 +132,17 @@ def verify(rows, note):
         raise ValueError(f"the appearance ladder changed: {got} != {EXPECTED_LEVELS}")
 
     points = [r["points"] for r in rows]
-    modifiers = [r["reactionModifier"] for r in rows]
     if len(set(points)) != len(points):
         raise ValueError(f"two levels share a cost: {points}")
-
-    # A level that costs points reads better than one it refunds, and a level
-    # that refunds them reads worse. No row may cross the two.
-    for row in rows:
-        if row["points"] > 0 and row["reactionModifier"] <= 0:
-            raise ValueError(f"{row['level']} costs points and does not help: {row}")
-        if row["points"] < 0 and row["reactionModifier"] >= 0:
-            raise ValueError(f"{row['level']} refunds points and does not hurt: {row}")
-
-    # The two halves each worsen away from the middle, so a row read out of
-    # order would show up here rather than as a plausible-looking number.
-    good = [m for m in modifiers if m > 0]
-    bad = [m for m in modifiers if m < 0]
-    if good != sorted(good) or bad != sorted(bad, reverse=True):
-        raise ValueError(f"the reaction column is out of order: {modifiers}")
-
-    # The reaction modifier is NOT the cost. If it ever became derivable, the
-    # second column would be redundant, and that is a finding about the book.
-    if all(r["reactionModifier"] == r["points"] for r in rows):
-        raise ValueError(
-            "every reaction modifier now equals its cost; the two columns used "
-            "to be independent (+4 pts gives +2), so the table has changed"
-        )
+    # Each half worsens away from the middle: the costs order the faces.
+    good = [p for p in points if p > 0]
+    bad = [p for p in points if p < 0]
+    if good != sorted(good) or bad != sorted(bad, reverse=True) or len(good) + len(bad) != len(points):
+        raise ValueError(f"the cost column is out of order: {points}")
+    # The number left the table in v6.9i; a reaction modifier coming back is
+    # a finding about the book, not a cell to drop.
+    if any("reaction roll" in r["effect"] for r in rows):
+        raise ValueError("an effect prints a reaction modifier again")
 
     named = appearance_named_traits()
     if named != [NOT_AN_APPEARANCE_LEVEL]:
@@ -200,8 +173,7 @@ def main():
 
     print(f"appearance: {len(rows)} rows")
     for row in rows:
-        print(f"  {row['level']:32} {row['points']:+4} pts  "
-              f"reaction {row['reactionModifier']:+d}")
+        print(f"  {row['level']:32} {row['points']:+4} pts  {row['effect']}")
     print(f"note: {note}")
     return 0
 

@@ -1,0 +1,55 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    400,
+    428
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "level": 0,
+   "name": "None",
+   "maxLoadBl": 1,
+   "movePenalty": 0,
+   "dodgePenalty": 0
+  },
+  {
+   "level": 1,
+   "name": "Light",
+   "maxLoadBl": 2,
+   "movePenalty": -1,
+   "dodgePenalty": -1
+  },
+  {
+   "level": 2,
+   "name": "Medium",
+   "maxLoadBl": 3,
+   "movePenalty": -2,
+   "dodgePenalty": -2
+  },
+  {
+   "level": 3,
+   "name": "Heavy",
+   "maxLoadBl": 6,
+   "movePenalty": -3,
+   "dodgePenalty": -3
+  },
+  {
+   "level": 4,
+   "name": "Very Heavy",
+   "maxLoadBl": 10,
+   "movePenalty": -4,
+   "dodgePenalty": -4
+  },
+  {
+   "level": 5,
+   "name": "Overload",
+   "maxLoadBl": 15,
+   "movePenalty": -5,
+   "dodgePenalty": -5,
+   "cannotRun": true
+  }
+ ]
+}

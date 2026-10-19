@@ -35,9 +35,9 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
-MANEUVER_RANGE = (2384, 2437)
-EXTRA_EFFORT_RANGE = (2438, 2442)
-ATTACK_OPTION_RANGE = (2443, 2451)
+MANEUVER_RANGE = (2461, 2514)
+EXTRA_EFFORT_RANGE = (2515, 2519)
+ATTACK_OPTION_RANGE = (2520, 2528)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 # This PDF prints its list bullets as U+007F, which survives text extraction.

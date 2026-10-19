@@ -37,7 +37,7 @@ CHAPTER = "5"
 
 # One span per rule. Each is the whole sentence and nothing else: the lines
 # either side belong to rules other files already claim or deliberately leave.
-SPANS = [(2377, 2377), (2453, 2453), (2686, 2688)]
+SPANS = [(2454, 2454), (2530, 2530), (2781, 2783)]
 
 # The cause each span defines, in the order the spans are listed. The KEY is
 # what com.pathways.rules.DefenseRefusal names; the book prints no key, so

@@ -1,6 +1,6 @@
 """Extract Ch. 6.5's Sec. 1-4 -- the TARGET's half of anti-divination.
 
-Five files, one section (global 3755-3937):
+Five files, one section (global 3717-3848):
 
   divination_awareness.json      who notices without rolling (Sec. 1)
   detection_outcomes.json        what noticing tells you (Sec. 2)
@@ -124,13 +124,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "6.5"
-QUICK_REFERENCE_RANGE = (3737, 3754)  # pinned, not extracted
-AWARENESS_RANGE = (3755, 3807)
-OUTCOME_RANGE = (3808, 3830)
-MODIFIER_RANGE = (3831, 3844)
-TECHNIQUE_RANGE = (3845, 3903)
-ITEM_RANGE = (3904, 3937)
+CHAPTER = "8"
+QUICK_REFERENCE_RANGE = (3700, 3716)  # pinned, not extracted
+AWARENESS_RANGE = (3717, 3769)
+OUTCOME_RANGE = (3770, 3792)
+MODIFIER_RANGE = (3793, 3808)
+TECHNIQUE_RANGE = (3809, 3825)
+ITEM_RANGE = (3826, 3848)
 
 BULLET = "\x7f"
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
@@ -217,13 +217,13 @@ TECHNIQUE_SPI = re.compile(r"^(\d+) SPI$")
 EFFECT_PENALTY = re.compile(rf"divination[^.]*?\bat ({SIGNED})")
 DETECTION_BONUS = re.compile(r"\+(\d+) on detection rolls")
 STACK_PHRASE = "their penalties add together"
-EXPECTED_TECHNIQUES = ["3A", "3B", "3C", "3D", "3E", "3F"]
+EXPECTED_TECHNIQUES = ["3A", "3B"]
 # The only two rows that price a divination attempt. Both even -- see the
 # module docstring on why that is the whole warrant for summing before halving.
-PENALTY_TECHNIQUES = {"3A": -2, "3B": -4}
+PENALTY_TECHNIQUES = {"3A": -2}
 
 # --- Sec. 4 ----------------------------------------------------------------
-ITEM_HEADERS = {"Item", "Effect", "Cost"}
+ITEM_HEADERS = {"Item", "Effect"}
 EXPECTED_ITEMS = [
     "Concealment Pendant (Darkness charm)",
     "Eyes of the Spirit World (Hermit charm)",
@@ -477,36 +477,38 @@ def build_technique(t):
 # Sec. 4 -- Items
 # ---------------------------------------------------------------------------
 def parse_items(lines):
-    """Name / Effect / Cost, with the six names as the anchor.
+    """Name / Effect, with the six names as the anchor.
 
+    v6.9i dropped the Cost column, so an effect cell runs to the next name.
     The name cells wrap in three shapes and none of them is distinguishable
     from an effect cell by shape alone, so the closed set is what cuts them --
-    the same anchor the eight divination method names are (6p).
+    the same anchor the divination method names are (6p).
     """
     cells = [(ind, t) for ind, t in lines if t not in ITEM_HEADERS]
     wanted = {normalise(n): n for n in EXPECTED_ITEMS}
-    start = first_name(cells, wanted)
-    rows, i = [], start
+    i = first_name(cells, wanted)
+    rows = []
     while i < len(cells):
         name, i = take_name(cells, i, wanted)
         effect = []
-        while i < len(cells) and not ITEM_COST.match(cells[i][1]):
+        while i < len(cells) and not starts_name(cells, i, wanted):
             effect.append(cells[i][1])
             i += 1
-        if i == len(cells):
-            raise ValueError(f"{name!r} has no cost cell")
-        cost = [cells[i][1]]
-        i += 1
-        # The cost cell wraps indented (" charge", " uses)"); an item name is
-        # never indented, so the indent closes the cell.
-        while i < len(cells) and cells[i][0]:
-            cost.append(cells[i][1])
-            i += 1
-        rows.append(build_item(name, normalise(" ".join(effect)),
-                               normalise(" ".join(cost))))
+        if not effect:
+            raise ValueError(f"{name!r} has no effect cell")
+        rows.append(build_item(name, normalise(" ".join(effect))))
     if not rows:
         raise ValueError("no anti-divination items found")
     return rows
+
+
+def starts_name(cells, i, wanted):
+    parts = []
+    for j in range(i, min(i + 4, len(cells))):
+        parts.append(cells[j][1])
+        if normalise(" ".join(parts)) in wanted:
+            return True
+    return False
 
 
 def first_name(cells, wanted):
@@ -527,8 +529,8 @@ def take_name(cells, i, wanted):
     raise ValueError(f"no item name starts at {cells[i][1]!r}")
 
 
-def build_item(name, effect, cost):
-    row = {"name": name, "effect": effect, "cost": cost}
+def build_item(name, effect):
+    row = {"name": name, "effect": effect}
     bonus = ITEM_DETECTION_BONUS.match(effect)
     if bonus:
         row["detectionBonus"] = int(bonus.group(1))

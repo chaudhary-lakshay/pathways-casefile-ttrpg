@@ -46,9 +46,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "6.5"
-IMMUNITY_RANGE = (3938, 3963)
-COUNTER_RANGE = (3964, 3976)
+CHAPTER = "8"
+IMMUNITY_RANGE = (3849, 3874)
+COUNTER_RANGE = (3875, 3887)
 
 # This PDF prints list bullets as U+007F. See extract_defenses.py.
 BULLET = "\x7f"

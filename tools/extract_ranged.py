@@ -41,8 +41,8 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
-RANGE_RANGE = (2648, 2664)
-MODIFIER_RANGE = (2665, 2685)
+RANGE_RANGE = (2743, 2759)
+MODIFIER_RANGE = (2760, 2780)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {

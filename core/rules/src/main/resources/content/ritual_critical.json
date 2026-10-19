@@ -1,9 +1,9 @@
 {
  "sourceLines": {
-  "7": [
+  "9": [
    [
-    4361,
-    4384
+    4040,
+    4061
    ]
   ]
  },
@@ -12,58 +12,58 @@
    "low": 3,
    "high": 4,
    "printed": "3-4",
-   "outcome": "Backlash. Take damage equal to the ritual's SPI cost as injury bypassing DR. Stunned 1d minutes."
+   "outcome": "Backlash. Take damage equal to SPI cost as injury bypassing DR. Stunned 1d minutes."
   },
   {
    "low": 5,
    "high": 6,
    "printed": "5-6",
-   "outcome": "Wrong Attention. Something external noticed the ritual. The GM decides what, and when it acts."
+   "outcome": "Wrong Attention. Something external noticed the ritual. GM decides what and when."
   },
   {
    "low": 7,
    "high": 8,
    "printed": "7-8",
-   "outcome": "Distortion. The effect activates in a twisted or reversed form. GM defines how."
+   "outcome": "Distortion. Effect activates in twisted form. GM defines how."
   },
   {
    "low": 9,
    "high": 10,
    "printed": "9-10",
-   "outcome": "Spiritual Drain. Lose double the SPI cost. Lose 1d SPI from maximum until a full rest. Stunned 1d minutes."
+   "outcome": "Spiritual Drain. Lose double the SPI cost. Lose 1d SPI from max until full rest. Stunned 1d min."
   },
   {
    "low": 11,
    "high": 12,
    "printed": "11-12",
-   "outcome": "Wrong Arrival. For summoning/communication: something else responds. Otherwise: an unintended entity becomes aware of you."
+   "outcome": "Wrong Arrival. For summoning/communication: something else responds. Otherwise: unintended entity notices you."
   },
   {
    "low": 13,
    "high": 14,
    "printed": "13-14",
-   "outcome": "Corruption. Gain 1 CoR. The ritual still fails.",
+   "outcome": "Corruption. Gain 1 CoR. Ritual still fails.",
    "corGained": 1
   },
   {
    "low": 15,
    "high": 16,
    "printed": "15-16",
-   "outcome": "Shatter. All ward or protection effects on the caster are dispelled. Gain 1 CoR.",
+   "outcome": "Shatter. All ward/protection effects on caster dispelled. Gain 1 CoR.",
    "corGained": 1
   },
   {
    "low": 17,
    "high": 17,
    "printed": "17",
-   "outcome": "Soul Exposure. Caster's spiritual self is partially exposed to the entity invoked. Gain 2 CoR. Nightmares for 1d weeks.",
+   "outcome": "Soul Exposure. Spiritual self partially exposed. Gain 2 CoR. Nightmares for 1d weeks.",
    "corGained": 2
   },
   {
    "low": 18,
    "high": 18,
    "printed": "18",
-   "outcome": "Catastrophe. The GM invents something terrible. It will be remembered. Possible entity arrival."
+   "outcome": "Catastrophe. GM invents something terrible. Possible entity arrival."
   }
  ]
 }

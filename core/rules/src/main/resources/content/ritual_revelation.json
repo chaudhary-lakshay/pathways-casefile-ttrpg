@@ -1,0 +1,24 @@
+{
+ "sourceLines": {
+  "9": [
+   [
+    4008,
+    4025
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "entity": "Seven Lights of the Divine Throne",
+   "penalty": -20,
+   "reduction": "-5 per sacrifice made to appease them (GM adjudicates what counts; rare ingredients, significant SPI expenditure, or personal memories are typical)",
+   "perSacrifice": 5
+  },
+  {
+   "entity": "Deities (Orthodox or Hidden)",
+   "penalty": -40,
+   "reduction": "Reducible to -10 if the caster possesses the Blessed by Deity advantage (the deity's favour offsets the burden)",
+   "reducibleTo": -10
+  }
+ ]
+}

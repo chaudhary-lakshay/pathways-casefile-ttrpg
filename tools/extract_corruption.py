@@ -22,9 +22,12 @@ all four, so `minimum` is the only figure every row can honestly carry;
 rather than resolved -- a parser that turned "1d CoR" into 3.5 would be
 inventing an average the book never prints.
 
-"Corruption from Ritual Work" (Ch. 7, p. 68, global lines 4388-4397): the
-3/5/8/10 threshold ladder. The book files these under ritual work explicitly
--- "Additional ritual-specific thresholds" -- so the scope is carried by the
+"CoR Thresholds from Ritual Work" (Ch. 6, p. 48, global lines 3194-3198): the
+3/5/8/10 threshold ladder. v6.9d printed it as a two-column table in the
+ritual chapter; v6.9i moves it under the CoR table as one paragraph of
+"N CoR = effect." sentences, and the ritual chapter now only points here. The
+book still files these under ritual work explicitly -- "CoR Thresholds from
+Ritual Work" -- so the scope is carried by the
 name all the way through: ritual_cor_thresholds.json, loaded by
 ContentLoader.ritualCorThresholds(). No caller can reach for them as general
 CoR effects by accident. The design spec (section 5) paraphrases them as
@@ -38,19 +41,22 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 GAINED_CHAPTER = "6"
-GAINED_RANGE = (3061, 3074)
-THRESHOLD_CHAPTER = "7"
-THRESHOLD_RANGE = (4388, 4397)
+GAINED_RANGE = (3178, 3191)
+THRESHOLD_CHAPTER = "6"
+THRESHOLD_RANGE = (3194, 3198)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {"Action", "CoR Gained", "CoR Total", "Additional Ritual Effect"}
 # En dash, em dash and hyphen all appear as the range separator in this PDF.
 DASH = "–—-"
 GAIN = re.compile(
-    rf"^(?:(\d+)(?:[{DASH}](\d+))?(\+?)|(\d+d))\s+CoR(?:\s+per\s+(.+))?$",
+    rf"^(?:(\d+)(?:[{DASH}](\d+))?(\+?)|(\d+d\d*))\s+CoR(?:\s+per\s+(.+))?$",
     re.IGNORECASE,
 )
-THRESHOLD = re.compile(r"^(\d+)\s+CoR$")
+# "3 CoR = -1 to all ritual rolls." -- one sentence per rung, up to the next
+# rung or the "Reduction:" sentence that closes the paragraph.
+THRESHOLD = re.compile(r"(\d+) CoR = (.+?\.)(?= \d+ CoR = | Reduction:|$)")
+THRESHOLD_LEAD = "CoR Thresholds from Ritual Work:"
 
 
 def load_lines():
@@ -100,13 +106,14 @@ def parse_gained(lines):
 
 
 def parse_thresholds(lines):
-    """Rows of the CoR Total / Additional Ritual Effect ladder."""
+    """The N CoR = effect sentences of the one paragraph."""
+    text = " ".join(lines)
+    if not text.startswith(THRESHOLD_LEAD):
+        raise ValueError(f"the paragraph no longer opens {THRESHOLD_LEAD!r}: {text[:60]!r}")
     rows = []
-    for i in range(0, len(lines) - 1, 2):
-        match = THRESHOLD.match(lines[i])
-        if not match:
-            raise ValueError(f"unparsed CoR threshold: {lines[i]!r}")
-        rows.append({"cor": int(match.group(1)), "effect": lines[i + 1]})
+    for match in THRESHOLD.finditer(text):
+        effect = match.group(2)
+        rows.append({"cor": int(match.group(1)), "effect": effect[0].upper() + effect[1:]})
     return rows
 
 
@@ -114,10 +121,9 @@ def verify(gained, thresholds):
     if len(gained) != 6:
         raise ValueError(f"expected 6 CoR-gained rows, got {len(gained)}")
     advancing = [r for r in gained if r["action"].startswith("Advancing sequence")]
-    if len(advancing) != 1 or advancing[0].get("minimum") != 10:
-        raise ValueError(f"advancing-without-digestion row is not a 10+ floor: {advancing}")
-    if "maximum" in advancing[0]:
-        raise ValueError("the book prints '10+ CoR' with no ceiling; one was parsed")
+    # v6.9d printed "10+ CoR"; v6.9i prints "1d6 CoR".
+    if len(advancing) != 1 or advancing[0].get("dice") != "1d6":
+        raise ValueError(f"advancing-without-digestion row is not 1d6: {advancing}")
 
     ladder = [r["cor"] for r in thresholds]
     if ladder != [3, 5, 8, 10]:

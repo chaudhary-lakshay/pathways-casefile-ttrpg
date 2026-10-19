@@ -2,60 +2,60 @@
  "sourceLines": {
   "3": [
    [
-    537,
-    554
+    589,
+    600
    ],
    [
-    561,
-    632
+    603,
+    608
    ],
    [
-    752,
-    769
+    613,
+    677
    ],
    [
-    772,
-    819
+    680,
+    688
    ],
    [
-    824,
-    836
+    816,
+    883
    ],
    [
-    841,
-    844
+    886,
+    889
    ],
    [
-    847,
-    876
+    894,
+    906
    ],
    [
-    881,
-    924
+    911,
+    944
    ],
    [
-    927,
-    949
+    949,
+    959
    ],
    [
-    958,
-    995
+    962,
+    1020
    ],
    [
-    998,
-    1001
+    1029,
+    1033
    ],
    [
-    1006,
-    1032
+    1036,
+    1079
    ],
    [
-    1037,
-    1066
+    1084,
+    1110
    ],
    [
-    1069,
-    1097
+    1117,
+    1176
    ]
   ]
  },
@@ -100,7 +100,7 @@
    "name": "Charisma",
    "cost": 5,
    "perLevel": true,
-   "notes": "+1/level to reaction rolls and Influence skills (Leadership, Panhandling, Public Speaking, Savoir-Faire, Sex Appeal, Streetwise) [max 4 levels]"
+   "notes": "+1/level to Influence skills (Leadership, Panhandling, Public Speaking, Savoir-Faire, Sex Appeal, Streetwise); NPCs are predisposed to trust and listen to you [max 4 levels]"
   },
   {
    "name": "Contact",
@@ -118,9 +118,9 @@
   },
   {
    "name": "Official Beyonder",
-   "cost": 15,
+   "cost": 40,
    "perLevel": false,
-   "notes": "You operate under the sanction of a recognised church or organisation. Benefits: Revolver +2, Ritualistic Magic +1, Hidden Lore (Beyonders) +3, Occultism +2, Hermes Language (Broken). You have Legal Enforcement Powers as a sanctioned investigator. Drawback: Duty (to your organisation) — you can be called upon for assignments and must follow institutional protocol."
+   "notes": "You operate under the sanction of a recognised church or organisation. Benefits: Spirit Vision (see Chapter 4: Universal Beyonder Ability — Spirit Vision), Revolver +2, Ritualistic Magic +1, Hidden Lore (Beyonders) +3, Occultism +2, Hermes Language (Broken). You hold Legal Enforcement Powers as a sanctioned investigator. Drawback: Duty (to your organisation) — you can be called upon for assignments and must follow institutional protocol."
   },
   {
    "name": "Eidetic Memory",
@@ -132,7 +132,7 @@
    "name": "Empathy",
    "cost": 15,
    "perLevel": false,
-   "notes": "Sense emotions; +3 to social skill rolls"
+   "notes": "+3 to social skill rolls"
   },
   {
    "name": "Language Talent",
@@ -186,7 +186,7 @@
    "name": "Lightning Calculator",
    "cost": 5,
    "perLevel": false,
-   "notes": "Perfect mental arithmetic; quick estimates at no penalty; numerical puzzles and mental maths at +2."
+   "notes": "Numerical puzzles and mental maths at +2."
   },
   {
    "name": "Absolute Direction",
@@ -229,6 +229,12 @@
    "cost": 5,
    "perLevel": false,
    "notes": "Known in criminal circles. Relevant NPCs start cautious; Intimidation in these circles is at +2."
+  },
+  {
+   "name": "Falsified Identity",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "A fully documented second identity in official records, distinct from your real one. Holds under regular police scrutiny and superficial investigation; fails if an investigator or official Beyonder peers deeper. Requires arranging papers (see Hired Allies & Services)."
   },
   {
    "name": "Local Legend",
@@ -282,19 +288,19 @@
    "name": "Fit",
    "cost": 5,
    "perLevel": false,
-   "notes": "+1 to all HT rolls; recover FP at twice the normal rate"
+   "notes": "+1 to all HT rolls; Allows you to Burn FP during combat."
   },
   {
    "name": "Very Fit",
    "cost": 15,
    "perLevel": false,
-   "notes": "+2 to all HT rolls; lose FP at half the normal rate; recover FP at twice the normal rate"
+   "notes": "+2 to all HT rolls; recover FP at twice the normal rate. Prerequisite: Fit. Allows you to Burn FP during combat and out of combat."
   },
   {
    "name": "Wealth: Comfortable",
    "cost": 5,
    "perLevel": false,
-   "notes": "Good income; start with £5. Status 1 → +1 reaction from those impressed by wealth."
+   "notes": "Good income; start with £5. Status 1 — those impressed by wealth treat you better (GM discretion)."
   },
   {
    "name": "Hunting License",
@@ -450,13 +456,19 @@
    "name": "Double-Jointed",
    "cost": 15,
    "perLevel": false,
-   "notes": "+5 to Climbing and Escape; ignore up to -5 close-quarters penalties; any body part bends any way."
+   "notes": "+5 to Climbing and Escape; ignore up to -5 close-quarters penalties for wrestling or grappling; any body part bends any way."
   },
   {
    "name": "Acute Vision",
-   "cost": 2,
+   "cost": 5,
    "perLevel": false,
    "notes": "+2 to Vision rolls; notice details at a distance, read lips, spot hidden objects."
+  },
+  {
+   "name": "Incisive Vision",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "Prerequisite: Acute Vision. +4 to all Vision rolls."
   },
   {
    "name": "Acute Hearing",
@@ -538,6 +550,12 @@
    "notes": "Once per scene the GM may offer one true impression about a target's emotional condition or hidden motive. Cannot be triggered deliberately."
   },
   {
+   "name": "Spirit Vision",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "See the non-physical aspects of beings — Ether Body (health), Spirit Body (emotions), and auras — as well as ghosts and spirits. Activate by expending 1 SPI (see Chapter 4: The Spirituality (SPI) Attribute). May instead be learned in-game from someone who teaches the technique, provided you have a minimum total of 4 SPI."
+  },
+  {
    "name": "Anchored Soul",
    "cost": 10,
    "perLevel": false,
@@ -581,13 +599,13 @@
   },
   {
    "name": "Luck",
-   "cost": 10,
+   "cost": 15,
    "perLevel": false,
    "notes": "1 reroll per session — may reroll any one failed roll."
   },
   {
    "name": "Beckoning Luck",
-   "cost": 20,
+   "cost": 30,
    "perLevel": false,
    "notes": "2 rerolls per session — reroll any failed roll, usable at any time. If the re-roll also fails there is no additional effect — and fate may balance later."
   },
@@ -632,7 +650,7 @@
    "name": "Knows the Acting Method",
    "cost": 15,
    "perLevel": false,
-   "notes": "You innately understand the Acting Method for your Pathway. Doubles your digestion speed — all Digestion Gain Per Session is doubled (e.g. Exemplary +15–20% becomes +30–40%)."
+   "notes": "You innately understand the Acting Method for your Pathway. At the end of each session, roll 3d6 — the result is the percentage of digestion progress you gain toward your current potion, in addition to your normal Digestion Gain Per Session."
   },
   {
    "name": "Marked by Ritual",

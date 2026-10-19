@@ -1,13 +1,13 @@
 {
  "sourceLines": {
-  "7": [
+  "9": [
    [
-    4337,
-    4345
+    3897,
+    3917
    ],
    [
-    4318,
-    4335
+    3925,
+    3945
    ]
   ]
  },
@@ -15,21 +15,31 @@
   {
    "weight": "Light",
    "modifier": 0,
-   "categories": "Divination (1–2 SPI via Divination Arts), Communication (minor), Warding (simple)",
-   "spi": 2
+   "baseTime": "15 min",
+   "spi": 2,
+   "categories": "Spirit creature summoning, minor communication, simple warding, basic prayer"
   },
   {
    "weight": "Moderate",
    "modifier": -2,
-   "categories": "Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing, Protection/Warding",
+   "baseTime": "30 min",
    "spi": 4,
-   "spiMax": 6
+   "spiMax": 6,
+   "categories": "Enhancement, curse, cleansing, marking, fabrication, concealment, oath-sealing, protection, warding"
   },
   {
    "weight": "Heavy",
    "modifier": -4,
-   "categories": "Summoning, Binding, Unraveling, Affliction, Transference, Soul-Anchoring",
+   "baseTime": "1 hr",
    "spi": 8,
+   "spiOpen": true,
+   "categories": "Binding, unraveling, affliction, transference, soul-anchoring, permanent enchantment"
+  },
+  {
+   "weight": "Major",
+   "modifier": -6,
+   "baseTime": "3 hr",
+   "spi": 12,
    "spiOpen": true
   }
  ]

@@ -2,8 +2,8 @@
  "sourceLines": {
   "6": [
    [
-    3061,
-    3074
+    3178,
+    3191
    ]
   ]
  },
@@ -23,7 +23,7 @@
    "per": "session"
   },
   {
-   "action": "Witnessing higher-Sequence powers (Seq 6 or above)",
+   "action": "Witnessing higher-Sequence powers (Seq 4 or above)",
    "gain": "1–4 CoR",
    "minimum": 1,
    "maximum": 4
@@ -36,8 +36,8 @@
   },
   {
    "action": "Advancing sequence without full digestion",
-   "gain": "10+ CoR",
-   "minimum": 10
+   "gain": "1d6 CoR",
+   "dice": "1d6"
   },
   {
    "action": "Ritual magic critical failure",

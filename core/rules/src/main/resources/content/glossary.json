@@ -2,8 +2,8 @@
  "sourceLines": {
   "G": [
    [
-    10156,
-    10213
+    9411,
+    9474
    ]
   ]
  },
@@ -90,11 +90,19 @@
   },
   {
    "term": "SPI — Spirituality",
-   "definition": "A spiritual stat (not a buyable attribute). Measures connection to the spirit world. Fixed at 0 for mortals; increased only by Beyonder potions or supernatural means. Used for Spirit Vision, Ritualistic Magic (as a resource), and Beyonder abilities."
+   "definition": "A spiritual stat (not a buyable attribute). Measures connection to the spirit world. Fixed at 0 for mortals; increased only by Beyonder potions or supernatural means. Used for Spirit Vision, Spiritual Intuition, Spiritual Perception, Ritualistic Magic (as a resource), and Beyonder abilities."
   },
   {
    "term": "Spirit Vision",
-   "definition": "A Beyonder ability that reveals auras, Ether Bodies, Astral Bodies, and supernatural entities. Costs 1 SPI per minute to maintain."
+   "definition": "A universal Beyonder ability that reveals auras, Ether Bodies, Astral Bodies, and supernatural entities. Learned as a 10-point advantage (see Chapter 3) or in-game from a teacher once you have 4+ total SPI (see Chapter 4). Costs 1 SPI per activation regardless of duration."
+  },
+  {
+   "term": "Spiritual Intuition",
+   "definition": "A universal Beyonder ability (see Chapter 4): the soul's early-warning system. Roll 3d6 — the difficulty class is your current SPI (1 SPI needs a critical 3–4; 9 SPI needs 9 or lower)."
+  },
+  {
+   "term": "Spiritual Perception",
+   "definition": "A universal Beyonder ability (see Chapter 4): acute awareness of the spiritual world — ghosts, auras, traces of magic — that peers into the Astral and Spiritual Bodies of beings. Roll 3d6 — the difficulty class is your current SPI (1 SPI needs a critical 3–4; 9 SPI needs 9 or lower)."
   },
   {
    "term": "Sea of Collective Subconscious",

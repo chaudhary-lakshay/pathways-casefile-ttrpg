@@ -31,14 +31,14 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "13"
-SKILL_RANGE = (8933, 8934)
-PARAMETER_RANGE = (8936, 8937)
-REQUIREMENT_RANGE = (8926, 8931)
+CHAPTER = "15"
+SKILL_RANGE = (8164, 8165)
+PARAMETER_RANGE = (8167, 8168)
+REQUIREMENT_RANGE = (8157, 8162)
 # Runs across the page break; the two furniture lines between are stripped, so
 # the boon-level bullet rejoins with its tail on p. 145.
-MODIFIER_RANGE = (8942, 8950)
-CONSEQUENCE_RANGE = (8954, 8962)
+MODIFIER_RANGE = (8173, 8181)
+CONSEQUENCE_RANGE = (8185, 8193)
 
 BULLET = "\x7f"
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")

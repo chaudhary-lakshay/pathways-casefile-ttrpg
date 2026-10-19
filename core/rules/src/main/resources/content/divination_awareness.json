@@ -1,9 +1,9 @@
 {
  "sourceLines": {
-  "6.5": [
+  "8": [
    [
-    3755,
-    3807
+    3717,
+    3769
    ]
   ]
  },
@@ -59,7 +59,7 @@
   {
    "pathway": "Any pathway",
    "sequence": "Seq 4+ (Demigod)",
-   "detection": "Automatic awareness. A demigod always knows when someone of weaker Sequence attempts to divine them. Equal or stronger Sequence requires a Quick Contest of SPI vs the diviner's Divination Arts or Ritualistic Magic.",
+   "detection": "Automatic awareness. A demigod always knows when someone of weaker Sequence attempts to divine them. Equal or stronger Sequence requires a Quick Contest of SPI vs the diviner's Divination Arts.",
    "isAutomatic": true
   }
  ]

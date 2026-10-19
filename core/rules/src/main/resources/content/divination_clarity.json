@@ -1,9 +1,9 @@
 {
  "sourceLines": {
-  "6.5": [
+  "8": [
    [
-    3711,
-    3736
+    3676,
+    3699
    ]
   ]
  },
@@ -43,7 +43,7 @@
   {
    "result": "Critical Failure",
    "clarity": "Backlash",
-   "effect": "Roll on the Critical Failure Table (Chapter 7, Section VI) — treat as a ritual critical failure.",
+   "effect": "Roll on the Critical Failure Table (Chapter 9, Section V) — treat as a ritual critical failure.",
    "isCritical": true
   }
  ]

@@ -35,7 +35,7 @@ import extract_pools as pools
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-RANGE = (2860, 2868)
+RANGE = (2927, 2935)
 CELLS = ("method", "recovered", "notes")
 
 EXPECTED = [

@@ -64,7 +64,7 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "A"
-TABLE_RANGE = (9725, 9745)
+TABLE_RANGE = (8980, 9000)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+|Common Modifiers)$")
 HEADERS = {"Situation", "Modifier"}

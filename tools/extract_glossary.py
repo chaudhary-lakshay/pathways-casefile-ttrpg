@@ -1,9 +1,9 @@
-"""Extract the Glossary of Terms (p. 167-168).
+"""Extract the Glossary of Terms (p. 154-155).
 
 WHY A GLOSSARY IS WORTH EXTRACTING AT ALL
 ------------------------------------------
 It defines no rule this engine did not already implement, so nothing here
-reaches the dice. What it is, is the first REFERENCE surface: 25 terms the app
+reaches the dice. What it is, is the first REFERENCE surface: 27 terms the app
 can put in front of a player who is not holding the book. Chapter G read 0.0%
 because nothing claimed it, and no percentage was ever going to move until
 something did.
@@ -72,7 +72,7 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 CHAPTER = "G"
 # The glossary proper: the heading and its intro through the closing note.
 # NOT the whole chapter -- see the docstring on the table of contents reprint.
-GLOSSARY_RANGE = (10156, 10213)
+GLOSSARY_RANGE = (9411, 9474)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 
@@ -82,8 +82,8 @@ FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 # line from the output AND from the expected value, so the guard stayed green
 # while a definition silently shortened. Measured, not feared.
 #
-# There is ONE page break inside the range, p.167 -> p.168, falling between
-# the second and third lines of the SPI entry. The p.166 -> p.167 break is
+# There is ONE page break inside the range, p.154 -> p.155, falling between
+# the SPI entry and the Spirit Vision entry. The p.153 -> p.154 break is
 # two lines ABOVE the heading and so is not in range -- which the first
 # version of this got wrong, and this assertion is what said so.
 #
@@ -92,8 +92,8 @@ FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 # to read exactly like the page header would be dropped in its place while the
 # real header went unnoticed. The line number is what makes each drop exact.
 FURNITURE_IN_RANGE = {
-    10201: "Powered by GURPS: Pathways — Lord of the Mysteries",
-    10202: "Page 168",
+    9456: "Powered by GURPS: Pathways — Lord of the Mysteries",
+    9457: "Page 155",
 }
 
 HEADING = "Glossary of Terms"
@@ -103,7 +103,7 @@ BACK_COVER = "GURPS: VEILED EPOCH"
 # A term starts a line, is short, and is followed by a colon and a space.
 #
 # The load-bearing condition is the FULL STOP the character class omits, and
-# that was measured rather than argued. Add `.` to the class and line 10172,
+# that was measured rather than argued. Add `.` to the class and line 9427,
 # "Disadvantages give points back. Starting budget: 70 points.", parses as a
 # term named "Disadvantages give points back. Starting budget" -- stealing
 # Character Points' continuation line. Add `,` instead and nothing changes.
@@ -120,7 +120,7 @@ NOT_TERMS = {
                 "name; the glossary defines no term called Examples",
 }
 
-# The 25 terms, in the book's order -- which is not alphabetical, see above.
+# The 27 terms, in the book's order -- which is not alphabetical, see above.
 # Named, not counted: verify() asserts this list and so states the query that
 # produced it, which a number cannot.
 TERMS = [
@@ -146,6 +146,8 @@ TERMS = [
     "Sequence",
     "SPI — Spirituality",
     "Spirit Vision",
+    "Spiritual Intuition",
+    "Spiritual Perception",
     "Sea of Collective Subconscious",
     "3d6",
     "Will",
@@ -159,8 +161,8 @@ def load_lines():
 def stream(byn, first, last):
     """The glossary's lines, with page furniture dropped.
 
-    A page break falls inside the entry for SPI, between its second and third
-    lines, so furniture goes before the entries are walked rather than after.
+    A page break falls between two entries, so furniture goes before the
+    entries are walked rather than after.
     """
     out = []
     for n in range(first, last + 1):

@@ -32,13 +32,13 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 CHAPTER = "5"
 # (skill, first line, last line) -- the two damage-dealing melee tables.
 TABLES = (
-    ("Brawling", 2545, 2572),
-    ("Boxing", 2577, 2596),
+    ("Brawling", 2620, 2647),
+    ("Boxing", 2654, 2673),
 )
 # The sentence com.pathways.rules.Damage reads Boxing's bonus from. It
 # wraps, so it is a range: "Damage Bonus: +1 to all Boxing" / "attacks at
 # DX+1; ...".
-BONUS_RANGE = (2575, 2576)
+BONUS_RANGE = (2652, 2653)
 BONUS_PHRASE = "+1 to all Boxing attacks at DX+1; +2 at DX+2"
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
@@ -56,13 +56,15 @@ EXPECTED = {
 # The Wrestling table: Maneuver / Roll / Opposed Roll / Notes, four columns
 # where the two above have Attack / Roll / Damage / Notes.
 GRAPPLING_SKILL = "Wrestling"
-GRAPPLING_RANGE = (2602, 2621)
+GRAPPLING_RANGE = (2686, 2707)
 # The anchor is the OPPOSED ROLL column, not the Roll column the two damage
 # tables use. The Roll column here names two skills, and one of them is spelled
 # exactly like a MANEUVER in the column beside it -- "Escape" the maneuver
 # above "Escape-2" the roll -- so anchoring there reads a note as a maneuver
 # name. The opposed column is the closed shape this table actually has.
-GRAPPLING_OPPOSED = re.compile(r"^DX or (Wrestling|Escape)$")
+# v6.9i's Pin is resisted by "Highest of ST or DX" rather than "DX or
+# Wrestling" -- the one row whose opposed roll is a choice of attributes.
+GRAPPLING_OPPOSED = re.compile(r"^(DX or (Wrestling|Escape)|Highest of ST or DX)$")
 GRAPPLING_ROLL = re.compile(r"^(Wrestling|Escape)(-\d+)?$")
 GRAPPLING_PRINTED = ["Grapple", "Takedown", "Pin", "Escape"]
 # The row whose subject is the person BEING held rather than the one acting on
@@ -73,7 +75,7 @@ GRAPPLED_ROW = "Escape"
 # The Wrestling table prints no Damage column at all. Its rows carry the
 # summary table's own cell for the skill, READ from the book rather than typed
 # here, and no damage parts -- Shove's shape.
-SUMMARY_DAMAGE_LINE = 2640
+SUMMARY_DAMAGE_LINE = 2724
 SUMMARY_DAMAGE = "None (grapple only)"
 
 

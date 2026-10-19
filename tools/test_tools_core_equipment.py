@@ -16,30 +16,26 @@ def core_entries(name):
 
 
 def test_chapter_two_prints_two_burnable_pools():
-    """One capped, one explicitly uncapped."""
+    """v6.9i: neither pool is capped any more ("Max +5" is gone), and each
+    is gated -- FP by Fit / Very Fit, SPI to combat. The gates are stored as
+    data; the cap is absent rather than a large number."""
     fp, spi = core_entries("effort_burn")
-    assert (fp["pool"], fp["kind"], fp["max"]) == ("FP", "physical", 5)
+    assert (fp["pool"], fp["kind"]) == ("FP", "physical")
     assert (spi["pool"], spi["kind"]) == ("SPI", "mystical")
-    # Absent, not a large number: "There is no cap". A ceiling here would be
-    # one this app invented, the distinction RitualCritical.corGained draws
-    # between printing nothing and printing zero.
-    assert "max" not in spi
+    assert "max" not in fp and "max" not in spi
     assert fp["perPoint"] == spi["perPoint"] == 1
+    assert fp["combatTraits"] == ["Fit", "Very Fit"]
+    assert fp["outOfCombatTraits"] == ["Very Fit"]
+    assert spi["combatTraits"] == [] and "outOfCombatTraits" not in spi
 
 
 def test_both_burn_scopes_survive_their_wrap():
-    """Both scope cells wrap mid-bracket, and one wraps inside "vs.".
-
-    A truncated cell still parses and still reads plausibly -- "(Ritualistic
-    Magic, Spiritual" -- so the closing bracket is what proves the example
-    list survived. Splitting on ". " instead cut SPI's list at "Occultism vs.",
-    the same trap extract_fright.py had to be taught.
-    """
-    for row in core_entries("effort_burn"):
+    """FP's scope cell keeps its bracketed example list whole."""
+    fp, spi = core_entries("effort_burn")
+    for row in (fp, spi):
         assert row["scope"].count("(") == row["scope"].count(")"), row["scope"]
-        assert row["scope"].endswith(")"), row["scope"]
-    _, spi = core_entries("effort_burn")
-    assert "Occultism vs. Beyonder phenomena" in spi["scope"]
+    assert fp["scope"].endswith("lifting, etc.)"), fp["scope"]
+    assert spi["scope"] == "any SPI-based or supernatural skill roll"
 
 
 def test_chapter_two_tabulates_the_margin_bands_appendix_a_names():
@@ -92,14 +88,13 @@ def test_the_core_rules_verify_against_the_book():
 
 
 @needs_pdf
-def test_a_capped_spi_burn_is_refused():
-    """The SPI row says "There is no cap"; growing one is a finding."""
+def test_a_burn_cap_coming_back_is_refused():
+    """v6.9i deleted v6.9d's "Max +5" on FP; a cap reappearing is a finding."""
     bands, pools, rows, defs, secs = extract_core_rules.extract()
-    pools = [dict(p) for p in pools]
-    pools[1]["max"] = 5
-    with pytest.raises(AssertionError):
-        extract_core_rules.verify(
-            bands, pools, rows, defs, secs, extract_core_rules.load_lines())
+    byn = dict(extract_core_rules.load_lines())
+    byn[463] = byn[463] + " Max +5 per roll."
+    with pytest.raises(AssertionError, match="burn cap"):
+        extract_core_rules.verify(bands, pools, rows, defs, secs, byn)
 
 
 # --- The Seven Orthodox Gods Blessings (Ch. 3, p. 19) ----------------------
@@ -110,10 +105,10 @@ import extract_blessings as ebl
 def _blessing_lines():
     """The table's row range, as the book prints it."""
     return {
-        1103: "Goddess of Evernight",
-        1104: "Dream Lucidity, Concealment. Most divination fails against you.",
-        1105: "God of Combat",
-        1106: "Herculean strength & catlike reflexes. +3 ST, +3 DX, +3 HT.",
+        1184: "Goddess of Evernight",
+        1185: "Dream Lucidity, Concealment. Most divination fails against you.",
+        1186: "God of Combat",
+        1187: "Herculean strength & catlike reflexes. +3 ST, +3 DX, +3 HT.",
     }
 
 
@@ -122,8 +117,8 @@ def test_a_wrapped_effect_cell_stays_with_its_deity():
     a continuation line joins the row above rather than opening a new one.
     Counting two lines per row works today and breaks on the first wrap."""
     byn = dict(_blessing_lines())
-    byn[1106] = "Herculean strength & catlike reflexes."
-    byn[1107] = "+3 ST, +3 DX, +3 HT."
+    byn[1187] = "Herculean strength & catlike reflexes."
+    byn[1188] = "+3 ST, +3 DX, +3 HT."
     rows = ebl.parse(byn)
     assert [r["deity"] for r in rows] == ["Goddess of Evernight", "God of Combat"]
     assert rows[1]["effect"].endswith("+3 ST, +3 DX, +3 HT.")
@@ -134,7 +129,7 @@ def test_an_effect_that_lost_its_full_stop_fails_rather_than_shifting_the_table(
     changes the row count, which verify() refuses -- rather than shipping a
     table whose cells have all moved up one."""
     byn = dict(_blessing_lines())
-    byn[1106] = "Herculean strength & catlike reflexes, +3 ST, +3 DX, +3 HT"
+    byn[1187] = "Herculean strength & catlike reflexes, +3 ST, +3 DX, +3 HT"
     rows = ebl.parse(byn)
     assert len(rows) == 3  # the effect became a deity of its own
 
@@ -145,7 +140,7 @@ def test_the_price_has_no_source_if_its_one_sentence_goes():
     byn = ebl.load_lines()
     payload = ebl.build(byn)
     broken = dict(byn)
-    broken[1099] = "The Seven Orthodox Churches bless their faithful."
+    broken[1178] = "The Seven Orthodox Churches bless their faithful."
     with pytest.raises(ValueError, match="75-point sentence"):
         ebl.verify(broken, payload, [], [], _knowledge_skills())
 
@@ -363,7 +358,8 @@ def test_every_clause_target_that_joins_nothing_is_recorded():
             extract_equipment.ABSENT_FROM_CHAPTER_3,
             extract_equipment.HYPHENATED_IN_CHAPTER_8)
     assert sum(len(x) for x in sets) == len(extract_equipment.RECORDED_UNJOINED)
-    assert "reaction" in extract_equipment.UNPRINTED_TARGETS
+    # v6.9i reworded the Velvet shawl note, so "reaction" left this set.
+    assert "reaction" not in extract_equipment.UNPRINTED_TARGETS
     assert extract_equipment.HYPHENATED_IN_CHAPTER_8 == {"Fortune-Telling"}
 
 
@@ -438,13 +434,13 @@ def test_the_book_prices_a_secondary_in_exactly_one_place():
     the whole book, on page 8."""
     byn = extract_core_rules.load_lines()
     printing = [n for n, t in byn.items() if "Cost to Modify" in t]
-    assert printing == [357], printing
+    assert printing == [371], printing
     per_level = [
         n for n, t in byn.items()
         if re.search(r"(pts?|points?) per (level|0\.25)", t, re.I)
     ]
     # All six on pages 8-9, none anywhere else in the book.
-    assert per_level and all(353 <= n <= 386 for n in per_level), sorted(per_level)
+    assert per_level and all(353 <= n <= 399 for n in per_level), sorted(per_level)
 
 
 def test_the_nine_rows_split_six_priced_from_three_refused():
@@ -454,7 +450,7 @@ def test_the_nine_rows_split_six_priced_from_three_refused():
     ]
     priced = {r["key"]: r["pointsPerStep"] for r in rows if r["pointsPerStep"] is not None}
     assert priced == {
-        "hp": 2, "will": 5, "per": 5, "fp": 3, "basicSpeed": 5, "basicMove": 5,
+        "hp": 2, "will": 10, "per": 10, "fp": 3, "basicSpeed": 5, "basicMove": 5,
     }
 
 
@@ -486,7 +482,7 @@ def test_a_renamed_characteristic_is_a_finding_not_a_slug():
     """The printed name -> key map is pinned. A row the book renames must stop
     the run rather than silently produce a key no consumer joins on."""
     byn = dict(extract_core_rules.load_lines())
-    byn[358] = "Hit Points"
+    byn[372] = "Hit Points"
     with pytest.raises(ValueError, match="no consumer has a key for"):
         extract_core_rules.secondaries(byn)
 
@@ -583,7 +579,7 @@ def test_the_recorded_disagreement_names_both_printings():
     byn = {r["n"]: r["text"] for r in
            json.loads((ROOT / "build" / "extract" / "lines.json")
                       .read_text(encoding="utf-8"))}
-    assert byn[9672].strip() == APPENDIX_MAJOR_WOUND
+    assert byn[8931].strip() == APPENDIX_MAJOR_WOUND
     # Every chapter-5 string the tests above feed the guard, tied to the line
     # the book prints it on. Without this the guard would be checking the
     # appendix against strings typed HERE -- a value asserted on the wrong
@@ -605,25 +601,25 @@ def test_the_appendix_prints_the_facing_penalty_a_second_time():
     byn = {r["n"]: r["text"] for r in
            json.loads((ROOT / "build" / "extract" / "lines.json")
                       .read_text(encoding="utf-8"))}
-    assert byn[9667].strip() == "Direction Penalties: Side -2 | Rear -4"
+    assert byn[8926].strip() == "Direction Penalties: Side -2 | Rear -4"
     # Its neighbour enumerates all three defences, which is what made the line
     # look like it could widen chapter 5's singular.
-    assert byn[9666].strip().startswith("Active Defenses: Dodge =")
-    assert "Parry" in byn[9666] and "Block" in byn[9666]
+    assert byn[8925].strip().startswith("Active Defenses: Dodge =")
+    assert "Parry" in byn[8925] and "Block" in byn[8925]
 
 
 def test_the_appendix_line_names_no_defence_so_it_widens_nothing():
     """The whole refusal now rests on ONE property of line 9667: it carries no
-    noun. To widen chapter 5's singular "to defense", a second printing has to
+    noun (8926 since v6.9i). To widen chapter 5's singular "to defense", a second printing has to
     say something the first did not, and this one says strictly less. If the
     line ever acquires "defense" or "defenses", that reason has expired."""
     byn = {r["n"]: r["text"] for r in
            json.loads((ROOT / "build" / "extract" / "lines.json")
                       .read_text(encoding="utf-8"))}
-    assert not re.search(r"defen[cs]e", byn[9667], re.I), byn[9667]
+    assert not re.search(r"defen[cs]e", byn[8926], re.I), byn[8926]
     # And chapter 5's own two bullets still print the singular they are
     # refused on. Both halves have to hold for the refusal to stand.
-    for n in (2480, 2481):
+    for n in (2555, 2556):
         assert re.search(r"to defense\b", byn[n], re.I), byn[n]
         assert not re.search(r"to defenses\b", byn[n], re.I), byn[n]
 
@@ -658,9 +654,9 @@ def test_mechanical_filter_sees_a_cost_priced_in_a_bare_pool():
     byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
 
     for n, quote in [
-        (4762, "4 HP"),
-        (4763, "1 SPI"),
-        (4840, "1 SPI"),
+        (4170, "4 HP"),
+        (4171, "1 SPI"),
+        (2367, "1 SPI"),
     ]:
         text = byn[n]
         assert quote in text, f"line {n} no longer prints {quote!r}: {text!r}"
@@ -677,35 +673,19 @@ def test_mechanical_filter_sees_a_cost_priced_in_a_bare_pool():
 
 
 @needs_pdf
-def test_spirit_vision_chapter_reports_a_completion_it_earned():
+def test_spirit_vision_reports_a_completion_it_earned():
     """The blind spot moved the denominator, not just the miss count.
 
-    A line the filter cannot see is excluded from BOTH sides of the ratio,
-    and main() reads an empty denominator as "no mechanical lines to claim --
-    chapter is complete". So chapter 7.6 reported 100.0% while being claimed
-    by no content file whatsoever. 6db widened the filter and it fell to
-    0.0%, which is what it had always been.
-
-    **It reads 100.0% again now, and this time it is earned**:
-    `extract_spirit_vision.py` claims the chapter. That makes the earned and
-    the unearned completion indistinguishable by percentage alone, which is
-    precisely the hazard this test was written against -- so the percentage
-    is no longer what it rests on. It asserts the thing the number was
-    standing in for: that the chapter's priced line is CLAIMED. A completion
-    nobody earned fails here; a completion somebody extracted passes.
-
-    The assertion order is the lesson. Checking only that line 4840 matches
-    the filter would assert the precondition and not the consequence, and an
-    off-by-one in the page range would leave the chapter claiming it is
-    finished with every precondition still true.
+    A line the filter cannot see leaves BOTH sides of the ratio, so v6.9d's
+    chapter 7.6 once reported 100.0% while no content file claimed it. v6.9i
+    folded the guide into the end of chapter 5 and moved the cost sentence to
+    chapter 4, so the percentage no longer isolates it at all. What the test
+    asserts is what the number stood in for: each priced Spirit Vision line
+    is visible to the filter AND claimed by a content file.
     """
     import coverage as coverage_tool
 
     byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
-    activation = byn[4840]
-    assert "1 SPI" in activation, f"line 4840 no longer prices Spirit Vision: {activation!r}"
-    assert coverage_tool.MECHANICAL.search(activation)
-
     claimed = set()
     content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
     for f in content.rglob("*.json"):
@@ -713,29 +693,10 @@ def test_spirit_vision_chapter_reports_a_completion_it_earned():
         for spans in (data.get("sourceLines") or {}).values():
             for a, b in spans:
                 claimed.update(range(a, b + 1))
-    assert 4840 in claimed, (
-        "Spirit Vision's activation cost is claimed by no content file. The "
-        "chapter reports 100.0% anyway once its visible lines go, which is "
-        "the empty-denominator branch reading invisibility as completion -- "
-        "the defect this test exists for."
-    )
-
-    subprocess.run(
-        [sys.executable, str(ROOT / "tools" / "coverage.py")],
-        capture_output=True, text=True,
-    )
-    report = (OUT / "coverage.md").read_text(encoding="utf-8")
-    row = next(
-        (l for l in report.splitlines() if l.startswith("| 7.6 |")),
-        None,
-    )
-    assert row, f"chapter 7.6 is missing from the coverage report:\n{report}"
-    pct = re.search(r"\|\s*([\d.]+)%\s*\|", row)
-    assert pct, f"no percentage in chapter 7.6's row: {row!r}"
-    assert float(pct.group(1)) == 100.0, (
-        "chapter 7.6 is claimed by extract_spirit_vision.py, so it must "
-        f"report the completion it earned: {row!r}"
-    )
+    for n in (2367, 3082):
+        assert "1 SPI" in byn[n], f"line {n} no longer prices Spirit Vision: {byn[n]!r}"
+        assert coverage_tool.MECHANICAL.search(byn[n])
+        assert n in claimed, f"line {n}, a Spirit Vision cost, is claimed by no content file"
 
 
 # --- The fatigue row's silence about rounding (Ch. 5, p. 42) ----------------
@@ -744,14 +705,14 @@ def test_spirit_vision_chapter_reports_a_completion_it_earned():
 def test_the_fatigue_row_prints_no_rounding_direction():
     """`Pools.halvedForFatigue` rounds UP and its KDoc says the direction is
     this app's choice because the row prints none. That is an argument resting
-    on a sentence, so the sentence is pinned. If line 2852 ever acquires a
+    on a sentence, so the sentence is pinned. If line 3490 ever acquires a
     direction, the choice stops being a choice and the KDoc has expired."""
     byn = {r["n"]: r["text"] for r in
            json.loads((ROOT / "build" / "extract" / "lines.json")
                       .read_text(encoding="utf-8"))}
-    assert byn[2852].strip() == "-1 to all rolls; Move and Dodge halved"
-    assert byn[2851].strip() == "At 1/3 FP or below"
-    assert not re.search(r"round(ed)?\s+(up|down)", byn[2852], re.I), byn[2852]
+    assert byn[3490].strip() == "-1 to all rolls; Move and Dodge halved"
+    assert byn[3489].strip() == "At 1/3 FP or below"
+    assert not re.search(r"round(ed)?\s+(up|down)", byn[3490], re.I), byn[3490]
 
 
 def test_the_book_does_print_a_direction_where_it_cares():
@@ -761,5 +722,5 @@ def test_the_book_does_print_a_direction_where_it_cares():
     byn = {r["n"]: r["text"] for r in
            json.loads((ROOT / "build" / "extract" / "lines.json")
                       .read_text(encoding="utf-8"))}
-    assert re.search(r"rounded down", byn[2450], re.I), byn[2450]
-    assert re.search(r"round up", byn[6050], re.I), byn[6050]
+    assert re.search(r"rounded down", byn[2527], re.I), byn[2527]
+    assert re.search(r"round up", byn[5341], re.I), byn[5341]

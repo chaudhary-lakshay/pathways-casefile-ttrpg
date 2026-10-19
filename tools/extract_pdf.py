@@ -14,7 +14,7 @@ the original file, hardcoded only as the default for this workstation:
 import argparse, json, os, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DEFAULT_PDF = pathlib.Path(os.path.expanduser("~/Downloads/Mr.Worms LOM TTRPG Rulebook v6.9d.pdf"))
+DEFAULT_PDF = pathlib.Path(os.path.expanduser("~/Downloads/Mobile Devices/Mr.Worms LOM TTRPG Rulebook v6.9i.pdf"))
 OUT = ROOT / "build" / "extract"
 
 
@@ -26,30 +26,33 @@ def resolve_pdf_path(cli_arg: str | None = None) -> pathlib.Path:
         return pathlib.Path(env)
     return DEFAULT_PDF
 
-# (id, title, startPage) read from the table of contents, pages 2-3.
+# (id, title, startPage) read from the table of contents, pages 2-3, of
+# v6.9i. v6.9d numbered Divination 6.5, Ritualistic Magic 7, Summoning 7.5 and
+# the Spirit Vision guide 7.6; v6.9i adds Rest as Chapter 7, folds Summoning
+# into Ritualistic Magic (Ch. 9, Section VI) and the guide into Chapter 5's
+# end, and renumbers everything after.
 CHAPTERS = [
-    ("1",   "Introduction",                  5),
-    ("2",   "Core Rules",                    7),
-    ("3",   "Character Creation",           10),
-    ("4",   "Spirituality",                 33),
-    ("5",   "Combat",                       35),
-    ("6",   "The Beyonder System",          44),
-    ("6.5", "Divination Arts",              53),
-    ("7",   "Ritualistic Magic",            60),
-    ("7.5", "Summoning Spiritual Creatures", 75),
-    ("7.6", "Spirit Vision Guide",          77),
-    ("8",   "Equipment & Starting Wealth",  79),
-    ("9",   "Sequence 9 Potion Effects",    85),
-    ("10",  "Sequence 8 Potion Effects",    97),
-    ("11",  "Sequence 7 Potion Effects",   111),
-    ("12",  "Sequence 6 Potion Effects",   129),
-    ("13",  "Boon Granting",               144),
-    ("14",  "Non-Standard Pathways",       146),
-    ("15",  "Non-Standard Sequence 8",     153),
-    ("A",   "Quick Reference Tables",      159),
-    ("B",   "The Political World",         160),
-    ("C",   "Orthodox Churches",           162),
-    ("G",   "Glossary of Terms",           167),
+    ("1",  "Introduction",                  5),
+    ("2",  "Core Rules",                    7),
+    ("3",  "Character Creation",           11),
+    ("4",  "Spirituality",                 34),
+    ("5",  "Combat",                       37),
+    ("6",  "The Beyonder System",          47),
+    ("7",  "Rest",                         52),
+    ("8",  "Divination Arts",              54),
+    ("9",  "Ritualistic Magic",            59),
+    ("10", "Equipment & Starting Wealth",  65),
+    ("11", "Sequence 9 Potion Effects",    71),
+    ("12", "Sequence 8 Potion Effects",    83),
+    ("13", "Sequence 7 Potion Effects",    97),
+    ("14", "Sequence 6 Potion Effects",   115),
+    ("15", "Boon Granting",               130),
+    ("16", "Non-Standard Pathways",       132),
+    ("17", "Non-Standard Potion Pathways", 139),
+    ("A",  "Quick Reference Tables",      146),
+    ("B",  "The Political World",         147),
+    ("C",  "Orthodox Churches",           149),
+    ("G",  "Glossary of Terms",           154),
 ]
 
 

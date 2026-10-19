@@ -1,9 +1,9 @@
 {
  "sourceLines": {
-  "7": [
+  "9": [
    [
-    4065,
-    4075
+    3958,
+    3959
    ]
   ]
  },
@@ -12,27 +12,26 @@
    "link": "Perfect",
    "modifier": 4,
    "printed": "+4",
-   "looksLike": "true name + intimate possession (blood, hair, photo)"
+   "looksLike": "name + possession"
   },
   {
    "link": "Strong",
    "modifier": 2,
    "printed": "+2 to +3",
-   "looksLike": "true name only, or intimate possession only",
-   "best": 3
+   "best": 3,
+   "looksLike": "name or possession"
   },
   {
    "link": "Weak",
    "modifier": 0,
    "printed": "+0 to -1",
-   "looksLike": "public alias, secondhand item, vague description",
-   "best": -1
+   "best": -1,
+   "looksLike": "alias, secondhand"
   },
   {
    "link": "None",
    "modifier": -4,
-   "printed": "-4",
-   "looksLike": "no name, no item, no description"
+   "printed": "-4"
   }
  ]
 }

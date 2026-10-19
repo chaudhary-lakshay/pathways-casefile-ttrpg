@@ -63,8 +63,8 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "A"
-TABLE_RANGE = (9673, 9688)
-CORE_RANGE = (9631, 9633)
+TABLE_RANGE = (8932, 8947)
+CORE_RANGE = (8890, 8892)
 POINTER_RANGE = (278, 278)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")

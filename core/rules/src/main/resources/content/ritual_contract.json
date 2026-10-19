@@ -1,0 +1,83 @@
+{
+ "sourceLines": {
+  "9": [
+   [
+    4065,
+    4129
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "difficulty": "Difficulty: The base penalty equals your Sequence number (e.g., Sequence 9 = -9, Sequence 8 = -8). For each creature you already have under contract, roll an extra 1d6 and subtract the result.",
+   "spi": 3,
+   "time": "30 minutes",
+   "setup": "Simple altar with one candle, plus the goatskin parchment and quill for the contract prepared beforehand.",
+   "maxContracts": 4,
+   "maxContractsScrollsProfessor": 8,
+   "methods": [
+    {
+     "method": "Method 1",
+     "name": "Summon & Contract",
+     "text": "Create an accurate three-line description, hold a summoning ritual, and make a contract with the creature that responds."
+    },
+    {
+     "method": "Method 2",
+     "name": "Enter the Spirit World",
+     "text": "Enter the Spirit World directly, search for a willing creature, obtain its consent, sign a contract, and record its accurate description for future summoning."
+    }
+   ],
+   "outcomes": [
+    {
+     "printed": "Success by 10+",
+     "from": 10,
+     "to": null,
+     "outcome": "Accepts willingly. No demands or a trivially symbolic one (a single drop of blood, a whispered name)."
+    },
+    {
+     "printed": "Success by 7–9",
+     "from": 7,
+     "to": 9,
+     "outcome": "One minor demand (a small amount of SPI, a simple answer, a trivial errand)."
+    },
+    {
+     "printed": "Success by 5–6",
+     "from": 5,
+     "to": 6,
+     "outcome": "One moderate demand (a favour owed, a small sacrifice, a piece of hidden knowledge)."
+    },
+    {
+     "printed": "Success by 3–4",
+     "from": 3,
+     "to": 4,
+     "outcome": "One severe demand or two moderate demands (a dangerous task, a significant sacrifice)."
+    },
+    {
+     "printed": "Success by 1–2",
+     "from": 1,
+     "to": 2,
+     "outcome": "Two severe demands or one extreme demand (a year of service, a precious heirloom)."
+    },
+    {
+     "printed": "Success by 0 (exact)",
+     "from": 0,
+     "to": 0,
+     "outcome": "Creature drives an extremely hard bargain. The contractor owes a major debt."
+    },
+    {
+     "printed": "Failure",
+     "failure": true,
+     "critical": false,
+     "outcome": "Creature refuses entirely. It may depart or demand an unreasonable price to even begin negotiations."
+    },
+    {
+     "printed": "Critical Failure",
+     "failure": true,
+     "critical": true,
+     "outcome": "Creature is offended. It may attack, alert something worse, or return bearing a grudge."
+    }
+   ],
+   "demands": "What a creature demands depends on its nature and power. Demands are always costly or specifically inconvenient to the summoner — this discourages stacking multiple contracts. Common examples include: Spirituality (a fixed SPI tithe paid weekly), Blood (a few HP per summoning), Money (a significant sum of coin or valuables), Information (secrets the summoner would rather keep hidden), Essences (rare herbs, mystical ingredients, potion residues), or Specific Burdens (read a forbidden text aloud once a month, surrender a treasured memory, perform a humiliating public act). The GM adjudicates what a given creature would reasonably accept."
+  }
+ ]
+}

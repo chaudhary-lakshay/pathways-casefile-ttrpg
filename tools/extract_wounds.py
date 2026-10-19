@@ -41,7 +41,7 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
-LOCATION_RANGE = (2743, 2784)
+LOCATION_RANGE = (2825, 2868)
 # The paragraph that GOVERNS the Special Effect column -- what crippling is,
 # what it costs, and how it ends. It sat unclaimed in the three-line seam
 # between this table and the next one, and it matches neither the old
@@ -50,10 +50,10 @@ LOCATION_RANGE = (2743, 2784)
 # number ever reported it missing. Claimed separately from the table rather
 # than by widening LOCATION_RANGE, because the rows are parsed out of that
 # range and this prose is not a row.
-CRIPPLING_RANGE = (2785, 2787)
-MULTIPLIER_RANGE = (2789, 2816)
-STACKING_RANGE = (2817, 2818)
-MAJOR_RANGE = (2819, 2832)
+CRIPPLING_RANGE = (2869, 2871)
+MULTIPLIER_RANGE = (2873, 2900)
+STACKING_RANGE = (2901, 2902)
+MAJOR_RANGE = (2903, 2914)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {

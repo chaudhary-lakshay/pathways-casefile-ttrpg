@@ -1,4 +1,4 @@
-"""Extract the 17 non-standard Sequence blocks (Ch. 14-15) into committed JSON.
+"""Extract the 18 non-standard Sequence blocks (Ch. 16-17) into committed JSON.
 
 Same block shape as the 88 standard ones, so the parsing is
 extract_pathways.extract() verbatim -- the header regex already matches
@@ -7,7 +7,7 @@ and drawbacks stay prose here for exactly the reason they do there.
 
 WHY A SEPARATE FILE AND NOT MORE ROWS IN pathways.json
 ------------------------------------------------------
-Because they are not potions. Chapter 14 says it in its own second
+Because they are not potions. Chapter 16 says it in its own second
 paragraph: "Unlike standard Beyonders who consume potions brewed from
 Beyonder Characteristics, followers of non-standard pathways advance through
 boons -- power granted by an Outer Deity in response to prayer, sacrifice,
@@ -17,8 +17,8 @@ offer a Sequence 9 Dancer potion that does not exist.
 
 THE LADDER HAS HOLES, AND THAT IS THE DATA
 ------------------------------------------
-Chapter 14 documents Sequence 9 for ten pathways; chapter 15 documents
-Sequence 8 for seven. They do not line up. Three of the Sequence 8 entries
+Chapter 16 documents Sequence 9 for ten pathways; chapter 17 documents
+Sequence 8 for seven and Sequence 7 for one (Painter, Sublunary Eye). They do not line up. Three of the Sequence 8 entries
 belong to pathways whose Sequence 9 the book never prints, which is what the
 intro warns about -- "most pathways are only known at this sequence" -- and
 is a second reason these cannot go in pathways.json, where every pathway is
@@ -26,7 +26,7 @@ verified to carry all four of 6/7/8/9.
 
 A FOURTH GAP IS A NAMING DISAGREEMENT, NOT A MISSING BLOCK
 ----------------------------------------------------------
-Chapter 14 prints "Eternal Aeon (Inevitability) Pathway" and chapter 15
+Chapter 16 prints "Eternal Aeon (Inevitability) Pathway" and chapter 17
 prints "Eternal Aeon Pathway". Recorded, never repaired: the two strings
 stay as printed, so the computed gap list contains "Eternal Aeon" and the
 constant below says why.
@@ -40,24 +40,25 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CHAPTERS_PATH = ROOT / "build" / "extract" / "chapters.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER_IDS = ("14", "15")
+CHAPTER_IDS = ("16", "17")
 
-EXPECTED_BLOCKS = 17
-# Ten Sequence 9 entries in chapter 14, seven Sequence 8 in chapter 15.
-EXPECTED_BY_SEQUENCE = {9: 10, 8: 7}
+EXPECTED_BLOCKS = 18
+# Ten Sequence 9 entries in chapter 16; seven Sequence 8 and one Sequence 7
+# in chapter 17.
+EXPECTED_BY_SEQUENCE = {9: 10, 8: 7, 7: 1}
 
 # Pathways whose Sequence 8 is printed but whose Sequence 9 is not. The first
 # three are real gaps the chapter intro warns about. "Eternal Aeon" is not: it
-# is chapter 15's shorter spelling of chapter 14's "Eternal Aeon
+# is chapter 17's shorter spelling of chapter 16's "Eternal Aeon
 # (Inevitability)", and the two are left disagreeing rather than merged.
 SEQUENCE_8_WITHOUT_9 = {"Second Law", "Sublunary Eye", "Eternal Edict", "Eternal Aeon"}
 PATHWAY_NAME_DISAGREEMENT = ("Eternal Aeon (Inevitability)", "Eternal Aeon")
 
 # Three blocks print an " Ability" heading with nothing under it -- Villain at
-# global line 9177, Astronomy Aficionado at 9322, Secretary at 9370. In each
+# global line 8404, Astronomy Aficionado at 8550, Secretary at 8598. In each
 # case the very next line is a page break or the following block's header, so
 # the section is empty in the BOOK and nothing was lost in the parse. All 88
-# standard blocks carry an ability and so do the other 14 here, which is why
+# standard blocks carry an ability and so do the other 15 here, which is why
 # these are named rather than tolerated.
 ABILITY_MISSING = {("Villain", 9), ("Astronomy Aficionado", 9), ("Secretary", 8)}
 
@@ -109,7 +110,7 @@ def verify(entries):
 def not_also_a_potion(entries):
     """No non-standard pathway may appear in pathways.json.
 
-    Chapter 14's pathways advance by boon, and PotionDigestion walks whatever
+    Chapter 16's pathways advance by boon, and PotionDigestion walks whatever
     pathways.json holds. One name in both files makes a boon-granted path
     drinkable.
     """

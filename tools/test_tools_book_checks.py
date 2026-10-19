@@ -84,146 +84,55 @@ def test_an_outcome_name_is_closed_at_a_word_boundary():
 def test_the_hit_location_table_now_claims_the_rule_that_governs_it():
     """The seam, closed -- and the span that closes it stops where it should.
 
-    2788 is the NEXT table's heading ("Optional -- Wounding Multipliers") and
-    2789 is where `wounding_multipliers.json` begins, so a span that ran one
+    2872 is the NEXT table's heading ("Optional -- Wounding Multipliers") and
+    2873 is where `wounding_multipliers.json` begins, so a span that ran one
     line further would claim a heading it does not read and collide with its
     neighbour.
     """
     content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
     spans = json.loads((content / "hit_locations.json").read_text(encoding="utf-8"))["sourceLines"]["5"]
     claimed = {n for lo, hi in spans for n in range(lo, hi + 1)}
-    assert {2785, 2786, 2787} <= claimed, sorted(claimed)[-6:]
-    assert 2788 not in claimed, "the span now claims the next table's heading"
+    assert {2869, 2870, 2871} <= claimed, sorted(claimed)[-6:]
+    assert 2872 not in claimed, "the span now claims the next table's heading"
 
     others = json.loads((content / "wounding_multipliers.json").read_text(encoding="utf-8"))
     for lo, hi in others["sourceLines"]["5"]:
         assert not (claimed & set(range(lo, hi + 1))), (lo, hi)
 
 
-def test_spirit_vision_section_c_is_a_swap_not_a_one_sided_error():
-    """The other direction of the sweep, which nothing had run.
-
-    `test_spirit_vision_records_the_spectator_disagreement` asks, of each row
-    in 7.6's section C, whether the pathway's own block agrees. It cannot see
-    the opposite question: is there a pathway whose block GRANTS Spirit Vision
-    at Sequence 9 and which section C omits? There is -- Moon's Apothecary,
-    whose block prints "Spirit Vision - Ether Body".
-
-    So the table is not four-right-and-one-wrong. It is the right SIZE and the
-    wrong MEMBERSHIP: five rows against five Sequence 9 grants, with Visionary
-    listed and not granted, and Moon granted and not listed. A swap.
-
-    Both halves are asserted, because a repair in either direction would
-    otherwise pass: dropping the Visionary row leaves Moon still missing, and
-    adding Moon leaves Visionary still wrong.
-    """
+def test_spirit_vision_is_universal_and_section_c_grants_nothing():
+    """v6.9i made Spirit Vision a universal ability: "It is not tied to any
+    single pathway, sequence, or potion." v6.9d's Section C was a swap (it
+    listed Visionary, which granted nothing, and omitted Moon, which did);
+    that question died with the grants. Section C is display now -- "Pathway
+    and Sequence do not grant access to it" -- and names three pathways."""
     content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
     sv = json.loads((content / "spirit_vision.json").read_text(encoding="utf-8"))
-    blocks = json.loads((content / "pathways.json").read_text(encoding="utf-8"))["entries"]
+    assert "grants" not in sv
+    listed = [r["name"] for r in sv["pathwayDifferences"]]
+    assert listed == extract_spirit_vision.EXPECTED_PATHWAYS
 
-    granted = {b["pathway"] for b in blocks
-               if b["sequence"] == 9 and extract_spirit_vision.GRANT.search(b["ability"] or "")}
-    assert granted == {"Fool", "Darkness", "Death", "Hermit", "Moon"}, sorted(granted)
-
-    listed = {r["name"].split("(")[1].rstrip(")").strip()
-              for r in sv["pathwayDifferences"] if "(" in r["name"]}
-    assert listed == {"Fool", "Hermit", "Visionary", "Darkness", "Death"}, sorted(listed)
-
-    assert listed - granted == {"Visionary"}, "7.6 no longer lists a pathway that grants none"
-    assert granted - listed == {"Moon"}, "7.6 no longer omits a pathway that grants it"
-    assert len(listed) == len(granted), "the swap has become an imbalance; re-read section C"
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+    universal = " ".join(byn[n] for n in range(*extract_spirit_vision.UNIVERSAL_RANGE))
+    assert "It is not tied to any single pathway, sequence, or potion" in universal
+    guide = " ".join(byn[n] for n in range(3126, 3128))
+    assert "Pathway and Sequence do not grant access to it" in guide, guide
 
 
-def test_the_spirit_vision_grant_predicate_separates_three_classes():
-    """Why the gate reads a LABEL and not the words "Spirit Vision".
-
-    21 of 88 pathway blocks name Spirit Vision and they do not mean one thing.
-    Three classes, each verified against the book's own prose:
-
-      GRANT     the ability named as a label -- "Spirit Vision:",
-                "Spirit Vision - Limited Form:", "Eyes of Mystery Prying (".
-      UPGRADE   the same label inside `reinforcedAbilities`, which improves a
-                grant an earlier rung already made.
-      NEITHER   a DEFENCE against someone else's Spirit Vision (the Werewolf
-                reveals only black hair; the Hypnotist's illusion "works even
-                against Spirit Vision"), or a mention of what OTHER pathways
-                can do (the Monster sees what "Pathways with strong Spirit
-                Vision abilities cannot").
-
-    A bare substring match grants the Werewolf, the Hypnotist and the Monster
-    an ability the book gives them no part of. The label is what separates
-    them, and this is the test that says the classification still holds.
-    """
-    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
-    blocks = json.loads((content / "pathways.json").read_text(encoding="utf-8"))["entries"]
-
-    grants, upgrades, neither = set(), set(), set()
-    for b in blocks:
-        ability, reinforced = b["ability"] or "", b.get("reinforcedAbilities") or ""
-        key = (b["pathway"], b["sequence"])
-        if extract_spirit_vision.GRANT.search(ability):
-            grants.add(key)
-        elif extract_spirit_vision.GRANT.search(reinforced):
-            upgrades.add(key)
-        elif "Spirit Vision" in ability or "Spirit Vision" in reinforced:
-            neither.add(key)
-
-    assert grants == {
-        ("Fool", 9), ("Darkness", 9), ("Death", 9), ("Hermit", 9), ("Moon", 9),
-        ("Death", 8), ("Mother", 8), ("Mother", 7), ("Red Priest", 8),
-    }, sorted(grants)
-    assert neither == {
-        ("Wheel of Fortune", 9), ("Chained", 7), ("Visionary", 6),
-        ("Darkness", 6), ("Red Priest", 7),
-    }, sorted(neither)
-    assert len(grants) + len(upgrades) + len(neither) == 21
-
-    # The invariant the gate rests on: an UPGRADE never stands alone. Every
-    # one sits on a pathway that granted the ability at a HIGHER sequence
-    # number, which the cumulative walk has already passed through. That is
-    # why the gate reads grants only -- checking `reinforcedAbilities` too
-    # would be a branch no data can reach, trusted later as though it meant
-    # something.
-    earliest = {}
-    for pathway, sequence in grants:
-        earliest[pathway] = max(earliest.get(pathway, -1), sequence)
-    for pathway, sequence in upgrades:
-        assert pathway in earliest, f"{pathway} upgrades Spirit Vision it was never granted"
-        assert earliest[pathway] > sequence, (pathway, sequence, earliest[pathway])
-
-
-def test_ether_body_awareness_is_two_different_things():
-    """One name, two printings, opposite premises — and nothing may join them.
-
-    Chapter 7.6's closing sentence lists `Ether Body Awareness` as the Seer's
-    Special Form OF Spirit Vision. Chapter 3 prices `Ether Body Awareness` at
-    5 points in `advantages.json` and defines it as knowing when something
-    targets your soul **"even without Spirit Vision"** — a trait bought by
-    characters who do not have the ability at all.
-
-    A resolver joining the two on the name would hand every Seer a 5-point
-    advantage they never bought, or gate a bought advantage behind a pathway.
-    Both printings are pinned so the collision cannot be resolved by accident
-    in either direction.
-    """
+def test_ether_body_awareness_and_spirit_vision_are_two_advantages():
+    """One name used to be two things: ch. 3's 5-point Ether Body Awareness,
+    bought "even without Spirit Vision", and v6.9d's Seer Special Form of
+    Spirit Vision. v6.9i deleted the Special Forms and prices Spirit Vision
+    itself as a 10-point advantage, so the two are distinct catalogue rows and
+    the disclaimer still keeps them apart."""
     content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
     sv = json.loads((content / "spirit_vision.json").read_text(encoding="utf-8"))
-    advantages = json.loads((content / "advantages.json").read_text(encoding="utf-8"))["entries"]
-
-    seer = next(f for f in sv["specialForms"] if f["pathwayRank"] == "Seer")
-    assert seer["form"] == "Ether Body Awareness"
-
-    bought = next(a for a in advantages if a["name"] == "Ether Body Awareness")
-    assert bought["cost"] == 5
-    assert "even without Spirit Vision" in bought["notes"], (
-        "the advantage no longer disclaims Spirit Vision; the two printings "
-        "may no longer be distinct and the reading must be made again"
-    )
-
-    # Five forms, one per Sequence 9 rank, matching section C's five rows.
-    assert [f["pathwayRank"] for f in sv["specialForms"]] == [
-        r["name"].split(" (")[0] for r in sv["pathwayDifferences"]
-    ]
+    advantages = {a["name"]: a for a in
+                  json.loads((content / "advantages.json").read_text(encoding="utf-8"))["entries"]}
+    assert "specialForms" not in sv
+    assert advantages["Ether Body Awareness"]["cost"] == 5
+    assert "even without Spirit Vision" in advantages["Ether Body Awareness"]["notes"]
+    assert advantages["Spirit Vision"]["cost"] == 10
 
 
 def test_markdown_repair_restores_arrows_and_bullets():
@@ -285,111 +194,63 @@ def test_markdown_rendering_loses_nothing_that_book_txt_has():
         "missed one or it substituted a real standalone 'fi'"
     )
     assert "(cid:" not in body_text, "unmapped glyphs survived into book.md"
-    assert body_text.count("•") > 200, "the bullet repair regressed"
+    # v6.9d printed 261 bullets and v6.9i 175, so the floor is book.txt's own.
+    assert body_text.count("•") >= book_txt.count("\x7f"), "the bullet repair regressed"
 
 
 @needs_pdf
-def test_chapter_4_governs_spi_recovery_and_the_appendix_says_less():
-    """Which printing of the SPI recovery rule the recorded refusal names.
+def test_chapter_7_governs_spi_recovery_and_the_appendix_says_less():
+    """Which printing of the SPI recovery rule governs.
 
-    `Study.kt`'s KDoc cited *"Appendix A's SPI recovery"* as one of the two
-    rules this app leaves unmodelled for want of a clock. Appendix A is the
-    QUICK REFERENCE, and its row (9718-9724) is three cells: Rest, 1 SPI per
-    hour, and the requirement. Chapter 4 p.34 prints the rule itself and
-    carries two clauses the summary drops -- an exclusivity sentence and an
-    interruption clause -- so the refusal named the summary and never
-    mentioned the printing that governs. Claim status was never the same
-    question as which printing governs (6dl), and neither is being handy to
-    quote.
-
-    Pinned so the reason recorded in `Pools.UNMODELLED` cannot drift off the
-    sentence it rests on. RED-proved by editing 2340's text in `lines.json`.
+    v6.9i moved the rule to Chapter 7: Rest, Sec. II (3495-3500). Ch. 4
+    (2417-2421) now points there, and Appendix A (8973-8979) is three cells.
+    Ch. 7 carries the interruption clause the summary drops, and adds the
+    Cogitation roll that doubles the rate. v6.9d's "the standard and only
+    recovery rate" is now "the standard recovery rate": the exclusivity
+    word is gone.
     """
     byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
 
-    rule = " ".join(byn[n] for n in range(2338, 2342))
-    assert "recovers 1 SPI" in rule and "per hour" in rule, (
-        f"p.34 no longer prints the recovery rate: {rule!r}"
-    )
-    assert "the standard and only recovery rate" in rule, (
-        f"p.34's exclusivity clause is gone: {rule!r}"
-    )
-    assert "interrupts rest and halts recovery" in rule, (
-        f"p.34's interruption clause is gone: {rule!r}"
-    )
+    rule = " ".join(byn[n] for n in range(3495, 3501))
+    assert "recovers 1 SPI" in rule and "per hour" in rule, rule
+    assert "This is the standard recovery rate" in rule, rule
+    assert "only recovery rate" not in rule, rule
+    assert "interrupts rest and halts" in rule and "recovery" in rule, rule
+    assert "SPI recovery is doubled" in rule, rule
 
-    summary = " ".join(byn[n] for n in range(9718, 9725))
-    assert "1 SPI per hour" in summary, (
-        f"Appendix A no longer prints the same rate: {summary!r}"
-    )
-    # A negative pin on two words, not on a meaning: a reworded summary
-    # carrying the same two clauses would pass this. That is the reach a
-    # substring check has, stated rather than assumed -- what it does catch
-    # is the extraction moving the row or the book gaining the sentence.
-    assert "only" not in summary and "halts" not in summary, (
-        "Appendix A now carries a clause chapter 4 was cited for; the "
-        f"refusal may name either printing: {summary!r}"
-    )
+    pointer = " ".join(byn[n] for n in range(2417, 2421))
+    assert "see Chapter 7: Rest, Section II" in pointer, pointer
+
+    summary = " ".join(byn[n] for n in range(8973, 8980))
+    assert "1 SPI per hour" in summary, summary
+    assert "halts" not in summary and "Cogitation" not in summary, summary
 
 
 @needs_pdf
 def test_the_bard_restores_spi_outside_rest():
-    """The narrower ability p.34's "only" does not reach.
-
-    p.88's Sequence 9 Bard picks one Singing buff, and option (d) is
-    *"Spiritual Recovery - allies recover 1 SPI at the song's end"*, upgraded
-    at p.100 to two. That is not a second ORDINARY recovery rate competing
-    with p.34's -- it is an active pathway ability with its own scope, and
-    the parenthetical proves the scoping is deliberate: the Bard is excluded
-    from their own effect.
-
-    **This test pins the ability, never the priority.** Reading it as
-    specific-beating-general -- the reading `Pools.UNMODELLED` records, on
-    the model of the Potion Consumption Roll against `SuccessRoll` -- is this
-    repo's; the book states no priority between the two printings, and no
-    assertion below proves one.
-
-    Recorded rather than repaired, and pinned here because `Pools.UNMODELLED`
-    names it: a reader who greps "only recovery rate" must find the exception
-    beside it, not conclude the book contradicts itself.
-    """
+    """An active pathway ability with its own scope, not a second rest rate:
+    the Bard is excluded from their own effect. This test pins the ability,
+    never a priority between the two printings."""
     byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
 
-    song = " ".join(byn[n] for n in range(5600, 5602))
-    assert "Spiritual Recovery" in song, f"p.88's buff list lost the option: {song!r}"
+    song = " ".join(byn[n] for n in range(4911, 4913))
+    assert "Spiritual Recovery" in song, f"the buff list lost the option: {song!r}"
     assert "recover 1 SPI at the song" in song, f"the buff no longer restores SPI: {song!r}"
-    assert "Bard cannot benefit from this effect" in song, (
-        f"the exclusion that makes this an ability rather than a rate is gone: {song!r}"
-    )
-    assert "restores 2 SPI instead of 1" in byn[6402], (
-        f"p.100's upgrade no longer doubles it: {byn[6402]!r}"
-    )
+    assert "Bard cannot benefit from this effect" in song, song
+    assert "restores 2 SPI instead of 1" in byn[5693], byn[5693]
 
 
 @needs_pdf
-def test_chapter_4_prices_spirit_vision_a_second_time_and_says_less():
-    """The other unclaimed line on p. 34, and why it disputes nothing.
-
-    Ch. 7.6 line 4840 prints *"Activate by expending 1 SPI (1 SPI per minute
-    to maintain)"* and `SpiritVisionDialog` bills the activation. Ch. 4's
-    skill overview prints the maintenance rate ALONE. A second printing
-    widens a rule only by saying something the first did not, so this one is
-    recorded and not applied -- but the claim rests on the word `Activate`
-    being absent from it, which is a fact about the book and can move.
-    """
+def test_spirit_vision_costs_one_spi_per_activation_in_every_printing():
+    """v6.9d priced Spirit Vision twice and differently (activation in 7.6,
+    maintenance per minute in ch. 4). v6.9i prints one rule: ch. 4's "1 SPI
+    per activation, regardless of duration", ch. 3's advantage "Activate by
+    ...", and the guide's "Activate by expending 1 SPI"."""
     byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
-
-    overview = " ".join(byn[n] for n in range(2309, 2311))
-    assert "Cost: 1 SPI per" in overview and "minute" in overview, (
-        f"p.34 no longer prices Spirit Vision: {overview!r}"
-    )
-    assert "Activate" not in overview, (
-        "p.34 now names an activation charge, so it is no longer a printing "
-        f"that says strictly less than 7.6's: {overview!r}"
-    )
-    assert "Activate by expending 1 SPI" in byn[4840], (
-        f"7.6's governing printing moved: {byn[4840]!r}"
-    )
+    universal = " ".join(byn[n] for n in range(*extract_spirit_vision.UNIVERSAL_RANGE))
+    assert "Cost: 1 SPI per activation, regardless of duration." in universal
+    assert "Activate by expending 1 SPI" in byn[3082], byn[3082]
+    assert not any("per minute to maintain" in t for t in byn.values())
 
 
 # 6dr ran the "places the book defers to a GURPS rule it does not reprint"
@@ -421,18 +282,18 @@ def _gurps_deferrals():
 def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
     """Where the class sits, which is what settles 6dw's question.
 
-    Eight sites defer to the GURPS Basic Set. 246 is the book's own framing
+    Seven sites defer to the GURPS Basic Set. 246 is the book's own framing
     ("Standard GURPS rules apply unless this book explicitly overrides them")
-    and prices nothing. Of the SEVEN that carry a rule, five sit inside a
+    and prices nothing. Of the SIX that carry a rule, five sit inside a
     `pathways.json` Sequence block's `ability` prose -- the field
-    `PotionDigestion.UNPARSED` already records as unbuilt work -- and the two
-    that do not are claimed by a content file and ruled on already:
+    `PotionDigestion.UNPARSED` already records as unbuilt work -- and the one
+    that does not is claimed by a content file and ruled on already:
 
-      * 2723 is `spirit_damage.json`'s threshold list. Its `HP <= 0` row
-        points at rules chapter 5 prints for itself, and `VitalRolls`
-        applies those (6de).
-      * 3653-3654 is `divination_methods.json`. Its specialisation
+      * 3619-3620 is `divination_methods.json`. Its specialisation
         technique is REFUSED in `Divination.UNAPPLIED` (6cs).
+
+    v6.9d's eighth, spirit damage's "HP <= 0: Standard GURPS death/dying
+    rules", went with v6.9i's rewrite of that table.
 
     So there is no unruled GURPS deferral outside that prose, and none
     inside it that the prose's own record does not already cover.
@@ -441,17 +302,17 @@ def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
     in prose no Sequence block claims -- either of which reopens the verdict.
     """
     byn, sites = _gurps_deferrals()
-    assert sites == [246, 2723, 3653, 6553, 7348, 8030, 8059, 8062], sites
+    assert sites == [246, 3619, 5835, 6606, 7267, 7296, 7299], sites
     assert "unless this book explicitly overrides them" in byn[246], (
         f"246 is no longer the book-level framing: {byn[246]!r}"
     )
-    assert "B229" in byn[3654], f"the wrapped citation moved: {byn[3654]!r}"
+    assert "B229" in byn[3620], f"the wrapped citation moved: {byn[3620]!r}"
 
     entries = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
     def claimant(n):
         return [e for e in entries if e["sourceLines"][0] <= n <= e["sourceLines"][1]]
 
-    for n in (6553, 7348, 8030, 8059, 8062):
+    for n in (5835, 6606, 7267, 7296, 7299):
         owners = claimant(n)
         assert len(owners) == 1, f"line {n} claimed by {[e['name'] for e in owners]}"
         prose = owners[0]["ability"] + " " + owners[0].get("reinforcedAbilities", "")
@@ -460,8 +321,7 @@ def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
         )
     # The two outside it are claimed, and by the files whose objects rule on
     # them -- named here so "already ruled on" is checkable, not asserted.
-    for n, f, chapter in ((2723, "spirit_damage.json", "5"),
-                          (3653, "divination_methods.json", "6.5")):
+    for n, f, chapter in ((3619, "divination_methods.json", "8"),):
         assert claimant(n) == [], f"line {n} is not Sequence block prose"
         spans = json.loads((CONTENT / f).read_text(encoding="utf-8"))["sourceLines"][chapter]
         assert any(a <= n <= b for a, b in spans), f"{f} no longer claims line {n}"
@@ -470,20 +330,20 @@ def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
 def test_shaken_is_one_of_two_deferred_terms_the_book_prints_once():
     """The claim thirteen slices made about `Shaken`, run as a query.
 
-    `Shaken` is deferred as a bare term: 8030 prints the ROLL ("must roll HT
+    `Shaken` is deferred as a bare term: 7267 prints the ROLL ("must roll HT
     or be Shaken ... for 1 turn") and never what failing it does. The reading
     inherited from 6dk onward was that this makes it a special case worth its
     own recorded refusal. It does not. Of the five deferrals in ability
     prose, THREE name a term this book prints elsewhere and this app models
     -- `grappled` (the Wrestling table, 6do) and `mentally Stunned` twice
     (chapter 5's Major Wound row, `StunRecovery`) -- and TWO name a term
-    printed exactly once in the whole book: `Shaken` (8030) and `suffocates`
-    (7348). A refusal recorded against `Shaken` alone would be a blocklist of
+    printed exactly once in the whole book: `Shaken` (7267) and `suffocates`
+    (6606). A refusal recorded against `Shaken` alone would be a blocklist of
     one, with its twin one chapter away.
 
     A case-insensitive search for the first returns THREE, and the two extra
-    are ordinary English -- "shaken awake" (6521) and "being damaged, shaken,
-    or a loud noise" (8602). Both counts are asserted, so a re-extraction
+    are ordinary English -- "shaken awake" (5805) and "being damaged, shaken,
+    or a loud noise" (7833). Both counts are asserted, so a re-extraction
     that turns one of those into the game term reddens rather than quietly
     widening the reason.
     """
@@ -491,11 +351,11 @@ def test_shaken_is_one_of_two_deferred_terms_the_book_prints_once():
     def printed(term):
         return [n for n, t in byn.items() if re.search(term, t)]
 
-    assert printed("Shaken") == [8030]
-    assert printed("suffocat") == [7348]
+    assert printed("Shaken") == [7267]
+    assert printed("suffocat") == [6606]
     assert len(printed("grappl")) > 1 and len(printed("Stunned")) > 1, (
         "the two glossed terms are no longer printed outside their deferral"
     )
-    assert [n for n, t in byn.items() if "shaken" in t.lower()] == [6521, 8030, 8602]
-    assert "shaken awake" in byn[6521]
-    assert "damaged, shaken, or a loud noise" in byn[8602]
+    assert [n for n, t in byn.items() if "shaken" in t.lower()] == [5805, 7267, 7833]
+    assert "shaken awake" in byn[5805]
+    assert "damaged, shaken, or a loud noise" in byn[7833]

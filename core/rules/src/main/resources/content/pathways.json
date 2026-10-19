@@ -1,27 +1,27 @@
 {
  "sourceLines": {
-  "9": [
-   [
-    5466,
-    6216
-   ]
-  ],
-  "10": [
-   [
-    6223,
-    7042
-   ]
-  ],
   "11": [
    [
-    7049,
-    8097
+    4787,
+    5513
    ]
   ],
   "12": [
    [
-    8103,
-    8905
+    5520,
+    6311
+   ]
+  ],
+  "13": [
+   [
+    6318,
+    7331
+   ]
+  ],
+  "14": [
+   [
+    7337,
+    8136
    ]
   ]
  },
@@ -45,13 +45,7 @@
     },
     {
      "name": "Divination Arts",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 3
-    },
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
+     "attr": "IQ",
      "difficulty": "H",
      "bonus": 3
     },
@@ -64,11 +58,11 @@
    ],
    "advantages": "Eidetic Memory continuously grows as the potion digests; allows memorisation of complex ritual steps and divination methods",
    "drawbacks": "",
-   "ability": "Spirit Vision: By expending 1 SPI, the Seer activates Spirit Vision (costs 1 SPI per minute). While active: sees non-physical entities such as ghosts and spectres; examines the different parts of a Soul to deduce a target's health and emotional state; detects whether an object or person carries a magical aura; perceives obstructed objects and faint sounds within roughly 10 meters. Danger Intuition: Passive. The Seer intuitively detects lethal danger nearby using Spirituality. The GM provides a vague warning sense whenever mortal danger is near — no roll required.",
+   "ability": "Danger Intuition: Passive. The Seer intuitively detects lethal danger nearby using Spirituality. The GM provides a vague warning sense whenever mortal danger is near — no roll required.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5466,
-    5493
+    4787,
+    4808
    ]
   },
   {
@@ -126,8 +120,8 @@
    "ability": "Treasure Sense: The Marauder can sense the presence of valuable items within a 10-meter range — coins, jewellery, artifacts, hidden pouches — but cannot determine their exact location or what they are. The sense is a vague pull: stronger for higher value, weaker for trinkets. At the GM's discretion, unusually powerful or ancient items may register as a distinct \"weight\" in the perception.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5494,
-    5519
+    4809,
+    4834
    ]
   },
   {
@@ -148,12 +142,6 @@
      "bonus": 3
     },
     {
-     "name": "Lockpicking",
-     "attr": "IQ",
-     "difficulty": "A",
-     "bonus": 6
-    },
-    {
      "name": "Climbing",
      "attr": "DX",
      "difficulty": "A",
@@ -168,11 +156,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Door Opening: Apprentices can open things related to Doors. Any mundane lock, bolt, latch, or physical door can be opened by touch and will (no tool or key required; one second per door, no roll). Spiritual or warded doors require a Ritualistic Magic roll at no penalty (1 SPI cost). Doors sealed by High-Sequence Beyonders are beyond this ability. This extends to doors on the human body: an Apprentice may touch a wound, a joint, or a bodily passage by will — treated as an attack dealing 1d-1 cut damage that bypasses mundane armor. Make a Brawling roll or a DX-based touch attack to land it on a resisting target. Additionally, the Apprentice cannot be easily trapped: any time they are physically restrained by non-supernatural means they receive an immediate free Escape roll at +2 before the situation resolves.",
+   "ability": "Door Opening (1 SPI): Apprentices can open things related to Doors. Any mundane lock, bolt, latch, or physical door can be opened by touch. Using the unique traits of the Spirit World, an Apprentice can phase through walls and other big obstacles by Opening a symbolic, incorporeal Door but cannot bring others through or see through. This extends to doors on the human body: an Apprentice may touch a wound, a joint, or a bodily passage by will — treated as an attack dealing 2d6 cut damage that bypasses mundane armor. Make a Brawling roll or a DX-based touch attack to land it on a resisting target.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5520,
-    5545
+    4835,
+    4856
    ]
   },
   {
@@ -220,8 +208,8 @@
    "ability": "Body Language Analysis (1 FP): Spectators use their powers of keen observation to analyze people's expressions, manners, and subconscious actions. For groups of people, this may reveal their surface-level thoughts and dominant emotions — what they are feeling right now and what is occupying their mind. This is surface only; deep intentions, lies of omission, and suppressed feelings are not automatically revealed. On a singular target, roll Psychology to deduce and form a mental model of the target. At the GM's discretion, learn more detailed information about a target's current thoughts and emotions depending on factors such as: the margin of success, how powerful the target is, time spent observing them, prior information known about them, etc. Any target who is sharp perceptively (Per 13+) can roll Per to notice the Spectator observing them. Success by 0–4: they notice something is observing them. Success by 5+ or Critical Success: they also identify the source of where and what is observing them.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5546,
-    5579
+    4857,
+    4890
    ]
   },
   {
@@ -251,8 +239,8 @@
    "ability": "Singing — Buff Effects: Through Singing, a Bard imbues effects onto themselves and nearby allies. On a successful Singing roll (no penalty), the Bard selects ONE of the following effects for all allies within earshot for 10 minutes: (a) Courage — allies ignore Fright Check penalties up to -3; (b) Strength — allies gain +1 to ST-based rolls; (c) Agility — allies gain +1 to DX-based rolls; (d) Spiritual Recovery — allies recover 1 SPI at the song's end (Bard cannot benefit from this effect). No SPI cost — the Bard's voice itself carries the power. At Sequence 9 a Bard cannot produce effects beyond these through Singing.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5580,
-    5602
+    4891,
+    4913
    ]
   },
   {
@@ -300,8 +288,8 @@
    "ability": "Phantom Scales (passive): Illusory scales beneath the skin grant DR 1 vs. physical impacts. Anyone grappling or grabbing the Sailor rolls at -2 (slippery as a fish). Aquatic Affinity — Diving: Without equipment the Sailor freely submerges and acts underwater for at least 10 minutes, diving to at least 15 meters without protection. Ignore all underwater movement penalties; hold breath 10 minutes without a roll; dive to 15 m without HT rolls.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5603,
-    5629
+    4914,
+    4940
    ]
   },
   {
@@ -341,11 +329,11 @@
    ],
    "advantages": "Eidetic Memory +5 to remember things after one reading; near-perfect recall",
    "drawbacks": "",
-   "ability": "Reading — Knowledge Wealth: A Reader gains a wealth of knowledge through extensive reading combined with enhanced mental attributes. May attempt an IQ roll (no penalty) to recall any piece of general knowledge — history, science, mysticism, language — that could plausibly be found in books, even if the player has not specifically researched it. Critical success produces highly specific detail. The GM may impose -2 to -4 for very obscure material. The Reader also learns new languages in half the normal time.",
+   "ability": "Reading — Knowledge Wealth: A Reader's comprehension is exceptional. All study, research, and reading is completed in half the normal time — books, scrolls, and languages are absorbed twice as fast, and the Reader learns new languages in half the normal time.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5630,
-    5658
+    4941,
+    4967
    ],
    "unresolvedSkills": [
     "Any one knowledge skill (player's choice)/IQ [Average] +3"
@@ -368,13 +356,6 @@
      "difficulty": "VH",
      "bonus": 2,
      "note": "— decent knowledge of rituals, especially sacrifices"
-    },
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 3,
-     "note": "— able to detect hidden and terrifying existences"
     }
    ],
    "advantages": "",
@@ -382,8 +363,8 @@
    "ability": "Knowledge (Honorifics): Knowledge gained from the potion includes honorific names for secret existences. Three-part honorific learned: \"The Lord that Created Everything; The Lord who Reigns Behind the Curtain of Shadows; The Degenerate Nature of all Living Things.\" Another three-part honorific: \"The Lingering Hero Spirit of The River; The Eyes that Look at Fate; The Great Soothsayer of Past, Present, and Future.\"",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5659,
-    5700
+    4968,
+    5004
    ]
   },
   {
@@ -406,11 +387,11 @@
    ],
    "advantages": "Reduced Sleep Requires only 3–4 hours of rest per day; otherwise functions as Does Not Sleep",
    "drawbacks": "",
-   "ability": "Nocturnality (passive): +1 to all rolls during the night. Spirit Vision — Limited Form: A Sleepless can activate Spirit Vision to see spiritual entities. Unlike the Seer, they cannot read the state of different Soul parts or deduce health and emotional states — it is detection only, not analysis. Expend 1 SPI (costs 1 SPI per minute). On success, sees ghosts, spectres, and non-physical entities. Danger Detection in the Dark: Passive Danger Sense that is specifically heightened in low-light and dark environments (+2 to the roll when in darkness). In any darkness the Sleepless navigates without penalty and suffers no night-based Perception penalty.",
+   "ability": "Nocturnality (passive): +1 to all rolls during the night. Danger Detection in the Dark: Passive Danger Sense that is specifically heightened in low-light and dark environments (+2 to the roll when in darkness). In any darkness the Sleepless navigates without penalty and suffers no night-based Perception penalty.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5701,
-    5722
+    5005,
+    5022
    ]
   },
   {
@@ -447,11 +428,11 @@
    ],
    "advantages": "Cold Resistance No penalties from cold environments; hypothermia rolls at +2 Resistant (Decay and Corrosiveness) HT rolls to resist corrosiveness (acid, rust) and decay effects at +3",
    "drawbacks": "Fear of Sunlight and Purification −1 to Will, skills, and combat actions under strong holy/purified/sunlight effects. Must roll Will to approach their source. Sunlight/purification/holy attacks gain +1 against you.",
-   "ability": "Undead Deterrence: Mindless undead/spirits (IQ 5−) with SPI ≤ yours ignore you unless provoked. Intelligent (IQ 6+) or controlled undead may roll Will to act against you. Controlled undead roll at −2; intelligent undead roll without penalty. No effect on undead with SPI > yours or created by Seq 5+ Beyonders. Undead Detection: Corpse Collectors naturally detect undead and spirit creatures within 15 meters without rolling. They understand the characteristics and weaknesses of many undead beings. Observation rolls to understand undead beings are at +3. Spirit Vision (1 SPI/min, standard): The Corpse Collector can activate Spirit Vision to see spiritual entities and the Ether Body of living beings, enabling limited analysis of health and spiritual conditions.",
+   "ability": "Undead Deterrence: Mindless undead/spirits (IQ 5−) with SPI ≤ yours ignore you unless provoked. Intelligent (IQ 6+) or controlled undead may roll Will to act against you. Controlled undead roll at −2; intelligent undead roll without penalty. No effect on undead with SPI > yours or created by Seq 5+ Beyonders. Undead Detection: Corpse Collectors naturally detect undead and spirit creatures within 15 meters without rolling. They understand the characteristics and weaknesses of many undead beings. Observation rolls to understand undead beings are at +3.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5723,
-    5769
+    5023,
+    5067
    ]
   },
   {
@@ -513,8 +494,8 @@
    "ability": "Combat Mastery (Passive): The Warrior has mastery of all kinds of weapons and armour, with no weapon they cannot use and no fighting style they cannot learn. The Warrior suffers no default penalty when using any weapon type for the first time — every weapon is treated as known at effective DX (no default penalty) from the moment it is picked up. Weapons used repeatedly in a session are treated as known at default +2. Example: A Warrior who picks up a flintlock pistol for the first time fires it at DX level immediately, but needs several shots before reaching full proficiency (default +2 after repeated use). They also don and maintain any armour type without penalty and fight effectively in it regardless of prior experience.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5770,
-    5802
+    5068,
+    5100
    ]
   },
   {
@@ -553,8 +534,8 @@
    "ability": "Feather Fall: Assassins can descend from any height without injury. All falls are treated as controlled regardless of height — the Assassin always lands safely and silently. While descending they may glide short horizontal distances (up to 1 meter horizontal per 2 meters vertical). Not sustained flight; cannot maintain altitude. Lands without audible impact — no Perception roll detects the landing through sound alone. Shadow Concealment: The Assassin's body instinctively blends with shadows. In any environment with partial shadow or dim lighting, the Assassin is supernaturally difficult to notice — observers must succeed at a Perception roll at -3 to detect them while they are stationary, and at -1 while moving slowly. This is a passive physical change, not a trained skill. Bright, open daylight negates this effect. Mighty Blow (3 FP): Spend 3 FP and roll the appropriate melee skill. You gain +3 to hit. On a hit, multiply raw damage dice by 3 (before DR). This ability cannot be modified by other maneuvers or by burning FP.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5803,
-    5838
+    5101,
+    5136
    ]
   },
   {
@@ -610,8 +591,8 @@
    "ability": "Environment Memory: Hunters have an unwavering memory for any alterations made to their surroundings. Any previously visited location is perfectly recalled, and the Hunter automatically notices any alteration to a visited location. Natural traps — unstable cliffs, quicksand, deadfall zones — are detected instinctively without any roll. Survival Knowledge: The Hunter possesses innate knowledge of wild plants and animal organs, including which plants and organs serve as hemostatic agents when injured and which can be rendered into poisons to coat weapons. Identifying and preparing these requires no roll in wilderness environments. Hemostatic poultices prepared this way restore 1d HP to a bleeding wound (requires 1 minute and a First Aid roll at +2); if not bleeding, they restore 2 HP. Only one such poultice per injury per character.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5839,
-    5883
+    5137,
+    5181
    ]
   },
   {
@@ -639,7 +620,7 @@
     },
     {
      "name": "Divination Arts",
-     "attr": "SPI",
+     "attr": "IQ",
      "difficulty": "H",
      "bonus": 2
     },
@@ -652,11 +633,11 @@
    ],
    "advantages": "",
    "drawbacks": "Knowledge Pursuit Flat 3d6 roll under 14 — GM decides what information you uncover. On failure, gain 1 CoR. On critical failure, gain 3 CoR instead. Knowledge revealed is at the GM's discretion and may include honorific names, partial/full potion formulas, spirit summoning incantations, spells, curses, mystical and non-mystical ingredients, and more.",
-   "ability": "Eyes of Mystery Prying (1 SPI/min): A Mystery Pryer's eyes are special and allow them to see things that are normally invisible. Always-on passive effects: peer through attempts to trap them in Dreams or Illusions (all such rolls against them are at -2). Active use — expend 1 SPI and roll SPI — to activate Spirit Vision: detect if something is a Mystical Item or if someone is a Beyonder via their Astral Projection, and to examine the full state of a target's Astral Body, Ether Body, and Body of Heart and Mind: reveals injury, spiritual corruption, active Beyonder abilities, and potion side effects. Corruption Exposure: When actively prying into a target who has 5+ CoR, a sealed evil artefact, or an eldritch entity, the Mystery Pryer must make an immediate Will roll or gain 1 CoR from witnessing things the mind was not meant to see. The GM may call for additional Will rolls whenever the Pryer glimpses truly forbidden knowledge. Spirit Contract (Ritual): The Mystery Pryer gains knowledge of how to use Ritualistic Magic to form contracts with summoned spirits. A Mystery Pryer may maintain up to 2 simultaneous contracts at Sequence 9, doubling to 4 at Sequence 8. This remains incredibly dangerous and requires proper summoning incantations and other safety measures. Quick Rituals: The penalty for rushed rituals is decreased by 3.",
+   "ability": "Eyes of Mystery Prying (1 SPI/min): A Mystery Pryer's eyes are special and allow them to see things that are normally invisible. Always-on passive effects: peer through attempts to trap them in Dreams or Illusions (all such rolls against them are at -2). Active use — expend 1 SPI and roll SPI — to activate Spirit Vision: detect if something is a Mystical Item or if someone is a Beyonder via their Astral Projection, and to examine the full state of a target's Astral Body, Ether Body, and Body of Heart and Mind: reveals injury, spiritual corruption, active Beyonder abilities, and potion side effects. Corruption Exposure: When actively prying into a target who has 5+ CoR, a sealed evil artefact, or an eldritch entity, the Mystery Pryer must make an immediate Will roll or gain 1 CoR from witnessing things the mind was not meant to see. The GM may call for additional Will rolls whenever the Pryer glimpses truly forbidden knowledge. Spirit Contract (Ritual): The Mystery Pryer gains knowledge of the Spirit World Creature Contract ritual (Section VI, Chapter 9). The Mystery Pryer's training delays the per-contract penalty: the 1d6 per-contract roll does not apply until their 2nd contracted creature (1st contract is free, 2nd starts the 1d6 scaling). Base difficulty still equals their Sequence number. Quick Rituals: The penalty for rushed rituals is decreased by 3.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5884,
-    5930
+    5182,
+    5229
    ]
   },
   {
@@ -704,8 +685,8 @@
    "ability": "Recall — Total Memory: The Savant can recall every piece of knowledge and experience they have ever encountered. No roll is required — it simply works at any time. Additionally, the Savant understands the operation of any mechanism, construct, or device within 1 minute of examination (IQ roll, no penalty) rather than the usual 1 hour. Rapid Analysis: improvised devices and repairs take half the normal construction time.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5931,
-    5955
+    5230,
+    5254
    ],
    "unresolvedSkills": [
     "Inventor!/IQ [Wildcard] +2"
@@ -721,27 +702,14 @@
      "delta": 12.0
     }
    ],
-   "skills": [
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 2
-    },
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 1
-    }
-   ],
+   "skills": [],
    "advantages": "",
    "drawbacks": "Monster Trance The Monster occasionally enters a trance-like state (GM's discretion), usually triggered by strong fate currents or significant future events. During a trance, the Monster is unaware of their surroundings and vulnerable.",
    "ability": "Foresight: A Monster is able to hear or see things that others cannot. Occasionally they gain glimpses of the future — this is the specialty of the Wheel of Fortune Pathway, allowing them to perceive things that even Pathways with strong Spirit Vision abilities cannot see. Once per session the Monster receives a spontaneous, unbidden vision of something about to happen (the GM provides a brief cryptic image or impression). This cannot be triggered on demand — it arrives when fate deems it relevant. Danger Premonition: Passive Danger Sense that specifically includes premonitions of bad luck and fate-based traps, not only immediate physical violence.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5956,
-    5988
+    5255,
+    5281
    ]
   },
   {
@@ -799,8 +767,8 @@
    "ability": "Farming Tools Proficiency: When fighting with a farming tool, the Planter chooses the most appropriate skill and gains +2 to the attack roll. For example, a shovel would use either the Mace skill or the Polearm skill (GM's decision based on how it is wielded).",
    "reinforcedAbilities": "",
    "sourceLines": [
-    5989,
-    6013
+    5282,
+    5306
    ]
   },
   {
@@ -851,11 +819,11 @@
    ],
    "advantages": "Poison Resistance +3 to all HT rolls against poison and toxic substances",
    "drawbacks": "",
-   "ability": "Spirit Vision — Ether Body: The Apothecary can read the Ether Body of living beings, revealing injuries, illnesses, toxins, and supernatural conditions. Costs 1 SPI per minute. Potion Concoction: The Apothecary can brew a variety of alchemical concoctions. Each potion requires appropriate ingredients (GM discretion on rarity and cost) and a Pharmacy roll at the listed penalty. An Apothecary may carry up to (SPI) doses of prepared potions at any time. Multiple doses of the same potion count separately.  Libido Potion (Pharmacy -1): Powdered mummy and aromatic herbs. The drinker gains exceptional stamina and drive for up to 12 hours. Typically used recreationally or socially; creative players may find other uses.  General Physical Enhancer (Pharmacy -2): Common medicinal herbs, rabbit's foot, honeysuckle extract (or any Seq 9 supplementary ingredient besides liquor). Grants +1 to ST, HT, DX, and Basic Speed for 5 minutes. After the duration expires, the user loses 1/3 of their remaining FP (round up) and their FP maximum is halved (round up) until they sleep for at least 8 hours. If current FP exceeds the new cap, it is reduced to match.  Enhanced Healing Agent (Pharmacy -4): Expensive herbs and rare animal parts costing approximately £20 per dose. Grants Very Fast Regeneration for 10 seconds. Costs 1/5 of the user's current FP (round up) — e.g., if current FP is 5/10, after use it becomes 4/10.  Specialised Physical Enhancer (Pharmacy -3): Requires 3 different supplementary ingredients plus a specific base liquid. Grants +3 to a single attribute for 3 minutes, determined by the base liquid: hard liquor → ST, soft liquor (wine, etc.) → HT, water → DX. After the duration expires, the user loses 1/3 of their remaining FP (round up) and their FP maximum is halved (round up) until they sleep for at least 8 hours. If current FP exceeds the new cap, it is reduced to match.  Energy Potion (Pharmacy -1): Sugar, honey, coffee powder, and energising herbs. Reduces the user's maximum FP by 1/4 (round up) and instantly restores their FP to the new maximum. Example: 1 FP out of 12 → max reduced by 3 to 9, user now has 9 FP. Each subsequent use further reduces maximum FP by 1/4 of the current maximum. Lost maximum FP returns after 8 hours of uninterrupted sleep.",
+   "ability": "Potion Concoction: The Apothecary can brew a variety of alchemical concoctions. Each potion requires appropriate ingredients (GM discretion on rarity and cost) and a Pharmacy roll at the listed penalty. An Apothecary may carry up to (SPI) doses of prepared potions at any time. Multiple doses of the same potion count separately.  Libido Potion (Pharmacy -1): Powdered mummy and aromatic herbs. The drinker gains exceptional stamina and drive for up to 12 hours. Typically used recreationally or socially; creative players may find other uses.  General Physical Enhancer (Pharmacy -2): Common medicinal herbs, rabbit's foot, honeysuckle extract (or any Seq 9 supplementary ingredient besides liquor). Grants +1 to ST, HT, DX, and Basic Speed for 5 minutes. After the duration expires, the user loses 1/3 of their remaining FP (round up) and their FP maximum is halved (round up) until they sleep for at least 8 hours. If current FP exceeds the new cap, it is reduced to match.  Minor Healing Potion (Pharmacy -1, any character with Pharmacy skill): Common herbs and clean bandages. Heals 1d-1 HP (minimum 1) immediately. Stops active bleeding. Takes 1 minute to prepare. Cost: £1 per dose. Non-Apothecaries can make this with basic first aid knowledge.  Moderate Healing Potion (Pharmacy -3, requires Apothecary skill): Medicinal herbs, honey, and mineral salts. Heals 2d-2 HP (minimum 1) immediately. Cures one minor condition (minor burn, mild infection, light poison). Takes 5 minutes to prepare. Cost: £5 per dose. Requires Apothecary skill to brew properly.  Major Healing Potion (Pharmacy -5, requires Apothecary skill): Rare herbs and spiritual animal parts costing approximately £20 per dose. Heals 3d-3 HP (minimum 1) immediately. Cures one serious condition (deep wound infection, moderate poison, broken bone). Stabilises critical patients. Takes 10 minutes to prepare. Requires Apothecary skill; improper brewing risks minor Toxic damage (1d-2).  Specialised Physical Enhancer (Pharmacy -3): Requires 3 different supplementary ingredients plus a specific base liquid. Grants +3 to a single attribute for 3 minutes, determined by the base liquid: hard liquor → ST, soft liquor (wine, etc.) → HT, water → DX. After the duration expires, the user loses 1/3 of their remaining FP (round up) and their FP maximum is halved (round up) until they sleep for at least 8 hours. If current FP exceeds the new cap, it is reduced to match.  Energy Potion (Pharmacy -1): Sugar, honey, coffee powder, and energising herbs. Reduces the user's maximum FP by 1/4 (round up) and instantly restores their FP to the new maximum. Example: 1 FP out of 12 → max reduced by 3 to 9, user now has 9 FP. Each subsequent use further reduces maximum FP by 1/4 of the current maximum. Lost maximum FP returns after 8 hours of uninterrupted sleep.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    6014,
-    6062
+    5307,
+    5360
    ]
   },
   {
@@ -935,8 +903,8 @@
    "ability": "Criminal Proficiency — Universal Weapons: Regardless of the weapon — knightly sword, dagger, longbow, pistol, rifle, machine gun, or a spoon — they can utilise all of them to kill a target effectively. The Criminal treats any improvised weapon as their Knife or Brawling skill (whichever is appropriate). They are equally deadly with ranged weapons as with melee — a Criminal can pick up any firearm and fire it with ease, using the most similar Gun skill available.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    6063,
-    6105
+    5361,
+    5405
    ]
   },
   {
@@ -1005,13 +973,13 @@
      "bonus": 1
     }
    ],
-   "advantages": "Binding (Prisoner) Spirituality and desires are Bound; Spiritual Perception and readings of Ether Body and Astral Projection against them are at -4 when composed. Ether Body and Astral Projection appear indistinct and calm, making it difficult to detect you are a Beyonder. When not composed or actively indulging, this trait is temporarily lost.",
+   "advantages": "Binding (Prisoner) Spirituality and desires are Bound; Spiritual Perception (Ch. 4) and readings of Ether Body and Astral Projection against them are at -4 when composed. Ether Body and Astral Projection appear indistinct and calm, making it difficult to detect you are a Beyonder. When not composed or actively indulging, this trait is temporarily lost.",
    "drawbacks": "Turbulent Heart Roll Will when suppressing desires. Define with the GM which new strong desires define your character — knowledge, lust, murder, etc.",
    "ability": "Knowledge — Criminal Expert: Upon advancement, Prisoners gain knowledge that makes them masters of many criminal techniques: picking locks with wire, digging tunnels with improvised tools, and killing with seemingly harmless items. Improvised weapons suffer no penalties and are treated as Brawling or ST. Escape rolls against mundane confinement suffer no penalty or disadvantage regardless of the restraint type. The Prisoner also has an instinctive awareness of confinement — they always know within a 10-meter range if a space has a hidden exit or concealed mechanism even before searching (the GM reveals information regarding this).",
    "reinforcedAbilities": "",
    "sourceLines": [
-    6106,
-    6165
+    5406,
+    5463
    ]
   },
   {
@@ -1052,11 +1020,11 @@
    ],
    "advantages": "Voice +2 to all rolls to influence others through speech",
    "drawbacks": "",
-   "ability": "Authority (1 SPI): Arbiters possess a convincing charm and considerable authority, causing people to be more likely to believe and obey their commands and words. Spend 1 SPI to activate for the scene. When in conflict against an Arbiter, opponents waver — any NPC opposing the Arbiter in combat or social conflict must succeed at a Will roll (no modifier) or suffer -1 to attack rolls, defense rolls, and Quick Contests of Will against the Arbiter for the duration of the scene (or until they leave earshot). On a critical failure, the penalty increases to -2 and the opponent cannot take direct hostile action against the Arbiter for 1d turns. Player characters who fail the Will roll feel a strong pull to comply but are never mechanically forced — the choice remains theirs.",
+   "ability": "Authority (1 SPI): Arbiters possess a convincing charm and considerable authority, causing people to be more likely to believe and obey their commands and words. Spend 1 SPI to activate for the scene. When in conflict against an Arbiter, opponents waver — any NPC opposing the Arbiter in combat or social conflict must succeed at a Will roll (no modifier) or suffer -1 to attack rolls, defense rolls, and Quick Contests of Will against the Arbiter for the duration of the scene (or until they leave earshot). On a critical failure, the penalty increases to -2. Player characters who fail the Will roll feel a strong pull to comply but are never mechanically forced — the choice remains theirs.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    6166,
-    6196
+    5464,
+    5493
    ]
   },
   {
@@ -1095,11 +1063,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Eloquence: When a Lawyer argues with full conviction, all listeners must succeed at a Will roll (-3) or find themselves inclined to agree, even if the claim is logically weak. Strong contrary evidence can override this. On a critical failure of the listener's roll, they may adopt the Lawyer's position entirely for the rest of the scene.",
+   "ability": "Eloquence: When a Lawyer argues with full conviction, roll Fast-Talk — all listeners must succeed at a Will roll (-2) or find themselves inclined to agree, even if the claim is logically weak. Strong contrary evidence can override this. On a critical failure of the listener's roll, they may adopt the Lawyer's position entirely for the rest of the scene.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    6197,
-    6216
+    5494,
+    5513
    ]
   },
   {
@@ -1138,21 +1106,15 @@
      "attr": "DX",
      "difficulty": "A",
      "bonus": 3
-    },
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 3
     }
    ],
    "advantages": "Perfect Balance +6 avoid knockdown; +2 Acrobatics, Climbing, Piloting",
    "drawbacks": "",
-   "ability": "Clown Agility: The Clown's supernatural agility allows impossible acrobatics and contortions. They can land safely from any fall and move in ways that appear mechanically impossible. Paper Daggers (1 SPI): Turn sheets of paper as hard and sharp as steel, throwing them as flying daggers or holding them as knives. A paper dagger deals sw-1 cut and can pierce stone and bone. Paper daggers last for one attack only, then crumble to ordinary paper. Clown Intuition: Once per scene, when an enemy within 5 meters would successfully hit the Clown with a melee or ranged attack, the Clown may make one free Dodge or Step before the attack resolves. The GM may also grant a vision \"flash\" through walls or around corners once per session at their discretion — this reveals whether individuals are behind closed doors but not detailed information.",
-   "reinforcedAbilities": "Spirit Vision: Range increased to 15 m. Can now read surface emotional state and basic health of a target (injured, healthy, poisoned) without a roll. Danger Intuition: The vague warning now provides a rough direction and general distance of the threat (close / medium / far).",
+   "ability": "Paper Daggers (1 SPI): Turn sheets of paper as hard and sharp as steel, throwing them as flying daggers or holding them as knives. A paper dagger deals sw-1 cut and can pierce stone and bone. Paper daggers last for one attack only, then crumble to ordinary paper. Clown Intuition: Once per scene, when an enemy within 5 meters would successfully hit the Clown with a melee or ranged attack, the Clown may make one free Dodge or Step before the attack resolves. The GM may also grant a vision \"flash\" through walls or around corners once per session at their discretion — this reveals whether individuals are behind closed doors but not detailed information.",
+   "reinforcedAbilities": "Danger Intuition: The vague warning now provides a rough direction and general distance of the threat (close / medium / far).",
    "sourceLines": [
-    6223,
-    6262
+    5520,
+    5554
    ]
   },
   {
@@ -1169,10 +1131,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Spellcasting (1 SPI): All spells require a gesture and a word to cast. Most have a range of 10 m. The Trickmaster's magic is about performing tricks, not dealing damage — combat applications are secondary to deception and escape. Flash: A blinding white burst in a 3 m cone. HT or blinded 1d seconds (dazzled -1 vision on success). Electric Shock: A jolt through a held object (1 m touch) or as a 5 m ray. 1d-3 burning (surge). HT or stunned 1 second. Freezing: Frost and thin ice from palm contact or a 10 m ray (arrow-speed). 1d-3 crushing (cold). HT or -1 DX for 1d rounds. Burning: By rubbing their fingers, ignite flammable objects within 3 m. In combat, the same gesture projects a 3 m ray dealing 1d-3 burning that may ignite exposed combustibles. Wind: A sustained gust within 15 m. -2 to ranged attacks through it, extinguishes small flames, fills sails — variable effect at GM's call. Fog: A 5 m-radius bank of thick mist at 15 m range. -4 to vision-based rolls. Lasts 1 minute. Tumble: Treacherous footing in a 3 m radius at 10 m range. DX-2 or fall. Single target: DX-4 or fall. Loud Noise: A bang, roar, or explosion sound from a point within 30 m. Per-2 for 1 round; can mask conversation or trigger distractions. Black Curtain: Conjure a 3 m × 3 m sheet of lightless darkness. Blocks all sight through it (including darkvision and magical sight below Sequence 6). Lasts 1 minute. Shaped on conjuring (wall, dome, screen); cannot move after placement. Escape Trick: Instantly reposition 5 m in any direction using flash, curtain, or noise as cover. Observers lose track of you for 1 round. Gas Transfer: Instantly move toxic gases, smoke, or airborne poisons from a 2 m-radius area to another within 15 m. The gas persists for its remaining duration or 1 minute, whichever is shorter. Object Manipulation (Bounce): Move or bounce objects up to 2.5 kg within 5 m at Move 5 (no fine manipulation). An object may be thrown as an improvised weapon at DX+0, dealing thrust-2 crushing.",
-   "reinforcedAbilities": "Door Opening: The Trickmaster can now open spiritual or warded doors without a Ritualistic Magic roll (no penalty, automatic success for standard magical barriers). The bodily-door attack deals 1d+1 cut instead of 1d-1. The free Escape bonus against mundane restraints increases to +4.",
+   "reinforcedAbilities": "Door Opening: The bodily-door attack deals 2d6+2 cut instead of 2d6.",
    "sourceLines": [
-    6263,
-    6294
+    5555,
+    5582
    ]
   },
   {
@@ -1213,13 +1175,13 @@
      "bonus": 2
     }
    ],
-   "advantages": "Charisma +1 +1 to reaction rolls and Influence skills",
+   "advantages": "Charisma +1 +1 to Influence skills; NPCs predisposed to trust you",
    "drawbacks": "",
-   "ability": "Mental Disruption: A Swindler can cause certain hallucinations to be experienced by a target. Pay 1 SPI, target rolls Will-3. Effects last up to 1 hour — the target continues experiencing the hallucination until the duration expires or they succeed on a Will-3 roll to break free (one attempt per hour). Reminder: Swindlers can steal spiritual materials from a 2m distance as long as it interacts with the spirit world.",
+   "ability": "Mental Disruption: A Swindler can cause certain hallucinations to be experienced by a target. Pay 1 SPI, target rolls Will-4. Effects last until disrupted by an external source or broken through resisting — the target may roll to resist once per short rest. Reminder: Swindlers can steal spiritual materials from a 2m distance as long as it interacts with the spirit world.",
    "reinforcedAbilities": "Treasure Sense / Superior Observation: The Marauder's Treasure Sense upgrades to Superior Observation. Range increases to 20 m. The Swindler can now read a target's micro-expressions and small movements — grant +2 to Detect Lies, Body Language, and Observation rolls against any visible target within range. Theft (Stealing): Reminder distance increases to 5 m. The Swindler can also steal small non-material items (keys, amulets, vials) that are partially in contact with the spirit world.",
    "sourceLines": [
-    6295,
-    6326
+    5583,
+    5617
    ]
   },
   {
@@ -1256,13 +1218,13 @@
      "bonus": 3
     }
    ],
-   "advantages": "Incisive Vision +4",
+   "advantages": "Incisive Vision +4 to all Vision rolls",
    "drawbacks": "",
    "ability": "Mind Reading (1 SPI): Roll Psychology vs Will. Reads surface thoughts and dominant emotions only. Will 13+ and Mind Shield = immune. On success, read undetected. On failure, target may sense something. After a successful read, roll Psychology to predict the target's next immediate actions. 1 SPI/minute. Broken by line of sight, exhaustion, or injury. Enhanced Body Language Analysis: The Telepathist passively reads a target's deeper emotional states, spiritual condition, and hidden auras with no SPI cost and no roll required. This always-on ability detects hidden emotions, spiritual corruption, and Beyonder influence on the target's mind.",
    "reinforcedAbilities": "Body Language Analysis: The Spectator's ability is now always-on at no cost. The Telepathist no longer needs to spend FP to read surface emotions and thoughts of a group — it happens automatically within 10 m. Against a single studied target, the Psychology roll for deep analysis gains +2 and requires only 1 minute of observation instead of the usual time.",
    "sourceLines": [
-    6327,
-    6357
+    5618,
+    5648
    ]
   },
   {
@@ -1289,8 +1251,8 @@
    "ability": "Sunshine (3 SPI): The Light Suppliant creates a light like the scorching Sun at noon in a 5-meter radius centred on themselves (or a point within 10 meters). Undead and ghosts in the area take 2d6 burning damage (HT/2 to halve). Living creatures in the area must roll HT or be blinded for 1d3 turns; those who succeed are merely dazzled (-1 to vision-based Per rolls) for 1 turn. The light persists for 1 minute and illuminates the area as full daylight. Blessing (2 SPI): The Light Suppliant blesses themselves and all allies within 5 meters. For the next 10 minutes, blessed targets gain +3 to all resistance rolls against Fear, Cold, Darkness, and Death effects (including supernatural abilities with those tags). Additionally, their weapon attacks deal +2 damage against undead creatures, and they are immune to passive fear/despair auras from low-level undead. Daytime (2 SPI): A Light Suppliant can allow the surrounding ten meters to receive Light, and this produced Light will naturally spread to further distances. Lasts 5 minutes. Night Vision (1 SPI): They can light two 'miniature Suns' in their eyes to see through Darkness and thus achieve Night Vision. Evil Detection: The Light Suppliant passively senses the presence of undead creatures and evil entities within roughly 10 meters, without any roll or activation. This is always on and cannot be suppressed — it manifests as an instinctive feeling of wrongness or revulsion. Holy Water: Through Ritualistic Magic (Sun domain), the Light Suppliant imbues a flask of water with Sun authority. Holy Water lasts until the next sunrise. On contact with a wraith, spirit, or undead creature, it deals 1d6 corrosion damage (ignores non-magical DR). On a living creature, it deals 1d-1 damage (no corrosion effect). As a full-round action, the Light Suppliant may attempt an Exorcism by splashing Holy Water on a possessed target or haunted area — roll Ritualistic Magic vs. the possessing entity's Will; on success, the entity is driven out. Holy Water may also purify cursed objects by immersion for 1 minute (Ritualistic Magic roll, -2 for powerful curses).",
    "reinforcedAbilities": "Singing — Buff Effects: The Light Suppliant's songs are more potent. Duration doubles to 20 minutes. Effects upgrade: Courage ignores Fear up to -5; Strength gives +2 ST-based rolls; Agility gives +2 DX-based rolls; Spiritual Recovery restores 2 SPI instead of 1.",
    "sourceLines": [
-    6358,
-    6402
+    5649,
+    5693
    ]
   },
   {
@@ -1317,8 +1279,8 @@
    "ability": "Wrath: Accumulate 4 wrath by hitting or being hit (crits give +2 wrath). Intoxication generates +1 wrath/turn passively. At 4 wrath, choose one: Rampage: On your turn, make 3 separate attack rolls at -0/-2/-4 cumulative penalty (first at no penalty, second at -2, third at -4). Wrath resets. Suffer -2 active defense until next turn. Raging Blow: A single devastating strike at +3 to hit, +3 damage, ignoring 2 DR. Critical hit forces a knockdown roll. Wrath resets. Lose 1 FP.",
    "reinforcedAbilities": "Phantom Scales: The Sailor's illusory scales thicken into DR 2 (physical) as noted in the stat block. Grappling penalty increases to -4 — the Folk of Rage is extremely slippery. Aquatic Affinity: Upgraded to full Amphibious (per stat block). Can now stay submerged for 30 minutes without air and dive to 30 m without protection.",
    "sourceLines": [
-    6403,
-    6432
+    5694,
+    5723
    ]
   },
   {
@@ -1352,10 +1314,10 @@
    "advantages": "Fluid Intellect IQ - 2 to unfamiliar IQ rolls; can attempt VH skills",
    "drawbacks": "",
    "ability": "No special abilities at this Sequence — the Student of Ratiocination's power is pure cognitive enhancement.",
-   "reinforcedAbilities": "Reading — Knowledge Wealth: The Reader's recall improves. The IQ roll for general knowledge gains +2. Obscure material penalties are reduced by 2 (minimum -0). Language learning time is reduced to 1/3 normal (instead of 1/2).",
+   "reinforcedAbilities": "",
    "sourceLines": [
-    6433,
-    6455
+    5724,
+    5741
    ]
   },
   {
@@ -1386,21 +1348,15 @@
      "attr": "IQ",
      "difficulty": "A",
      "bonus": 3
-    },
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 2
     }
    ],
    "advantages": "Acute Hearing +2 to Hearing rolls; detect faint sounds, eavesdrop through walls, identify speech in noise",
    "drawbacks": "",
    "ability": "Listening (Passive): Listeners always hear both ordinary people and even Low-Mid Sequence Beyonders within a radius of 80 meters. The closer they are to the sound of a source, the more they will be affected and receive more discernable information from it. This applies vice versa if further away. Cannot be turned off at this sequence. At GM's discretion, roll 3d6 if you have passively listened to something from a higher/powerful source. GM decides on what to roll against depending on severity and how close you are in proximity to the source. Failure against check: Gain 1-3 CoR depending on severity and proximity. Critical Failure: Listen to the ravings of the True Creator or another existence on the same level. Listening (Active): Listeners who intentionally focus on a single source with their Listening are now in a state of active listening. Spend 1 SPI, roll 3d6: if below 13 you will listen to your targeted source and receive clear information from them. 14+ will result in hearing the True Creator or another existence on the same level. What you gain depends on the source, range of success, and how clear the intent is.",
-   "reinforcedAbilities": "Knowledge (Honorifics): The Listener gains two additional honorific names for other secret existences. The GM chooses or creates these based on the campaign. All Spiritual Perception rolls gain +2 from constant exposure to esoteric whispers. Spiritual Perception: The passive range of spiritual awareness expands to 50 m. The Listener can automatically detect active Beyonder abilities within this range (no roll required for obvious effects).",
+   "reinforcedAbilities": "Knowledge (Honorifics): The Listener gains two additional honorific names for other secret existences. The GM chooses or creates these based on the campaign. All Spiritual Perception rolls (Ch. 4) gain +2 from constant exposure to esoteric whispers. Spiritual Perception: The passive range of the Spiritual Perception ability (Ch. 4) expands to 50 m. The Listener can automatically detect active Beyonder abilities within this range (no roll required for obvious effects).",
    "sourceLines": [
-    6456,
-    6497
+    5742,
+    5781
    ]
   },
   {
@@ -1441,11 +1397,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Nocturnality (passive): +1 to all rolls during the night. Midnight Poem — Spell Effects: By reciting a poem about the night or the Evernight Goddess (one full round), the Midnight Poet manifests one of the effects below. All spells cost 2 SPI. Roll Ritualistic Magic for all spells. Tranquilize: Target feels deeply calm and peaceful. They suffer -2 to all aggressive or hostile actions (attacks, intimidation, etc.) for 1d6 turns. Will roll (-2) to resist. Lullaby: Puts all who hear the Lullaby to sleep (within earshot, ~20m radius). Only Beyonders with strong spiritual perception or Cogitation abilities may resist — roll either Spiritual Perception/SPI (Hard) or Will (-2), whichever is higher. Ordinary mortals and spiritually weak beings fall asleep automatically with no roll. Sleep lasts 1d minutes unless shaken awake. Those who resist fall serene and find it hard to evoke or express emotions (-1 to all emotional reaction rolls and social skill rolls) for 1 minute. Pacify: Target loses all desire to act — goes limp and unresponsive. Cannot take offensive actions; can still defend. Lasts 1d3 turns. Will roll (-3) to resist. Fear: Target is filled with supernatural dread. Suffers -2 to all rolls and must succeed on a Will (-2) roll each turn to approach the Midnight Poet. Lasts 1d6 turns. Will roll (-2) to resist entirely.",
+   "ability": "Nocturnality (passive): +1 to all rolls during the night. Midnight Poem — Spell Effects: By reciting a poem about the night or the Evernight Goddess (one full round), the Midnight Poet manifests one of the effects below. All spells cost 2 SPI. Roll Ritualistic Magic for all spells. Tranquilize: Target feels deeply calm and peaceful. They suffer -2 to all aggressive or hostile actions (attacks, intimidation, etc.) for 1d6 turns. Will roll (-2) to resist. Lullaby: Puts all who hear the Lullaby to sleep (within earshot, ~20m radius). Only Beyonders with strong spiritual perception or Cogitation abilities may resist — roll either Spiritual Perception (3d6, target = current SPI, Ch. 4) or Will (-2), whichever is higher. Ordinary mortals and spiritually weak beings fall asleep automatically with no roll. Sleep lasts 1d minutes unless shaken awake. Those who resist fall serene and find it hard to evoke or express emotions (-1 to all social skill rolls and emotional expression) for 1 minute. Pacify: Target loses all desire to act — goes limp and unresponsive. Cannot take offensive actions; can still defend. Lasts 1d3 turns. Will roll (-3) to resist. Fear: Target is filled with supernatural dread. Suffers -2 to all rolls and must succeed on a Will (-2) roll each turn to approach the Midnight Poet. Lasts 1d6 turns. Will roll (-2) to resist entirely.",
    "reinforcedAbilities": "Nocturnality: The bonus during night increases to +2 (instead of +1). In total darkness (no moon or stars), the bonus becomes +3. Danger Detection in the Dark: The bonus in low-light environments increases to +4. The Midnight Poet now senses danger in darkness up to 20 m away with pin-point direction.",
    "sourceLines": [
-    6498,
-    6531
+    5782,
+    5815
    ]
   },
   {
@@ -1484,11 +1440,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Spirit Communication: The Gravedigger can communicate with nearby spirits and command them to do simple actions — grasping, immobilizing targets, or revealing hidden information. Range 10 ft, duration 1 minute per use. Costs 1 SPI per use. To immobilize a target, the spirit makes a ST contest vs. the target's ST; if the spirit wins, the target is grappled (per GURPS grappling rules) for the duration. Use spirit's ST (typically 8–12 for ordinary spirits; GM sets for powerful spirits). Eye of Death (1 FP): Activate to examine an Undead or Spirit creature. GM reveals one specific vulnerability (e.g. \"weak to fire,\" \"cannot withstand holy water\"). For the rest of the scene: +2 to hit, +2 damage, ignore 2 DR against that creature. Spirit Vision (Enhanced): The Gravedigger's Spirit Vision is enhanced — they can now examine different parts of a Soul to deduce a target's health and emotional state, detect magical auras, and perceive spirits passively.",
-   "reinforcedAbilities": "Undead Deterrence: Now affects undead with SPI ≤ yours + 2. Controlled undead roll at -4 instead of -2 to act against you. Undead Detection: Range increases to 25 m. The Gravedigger can identify the specific type of undead (ghost, zombie, wraith, etc.) without a roll.",
+   "ability": "Spirit Communication: The Gravedigger can communicate with nearby spirits and command them to do simple actions — grasping, immobilizing targets, or revealing hidden information. Range 10 ft, duration 1 minute per use. Costs 1 SPI per use. To immobilize a target, the spirit makes a ST contest vs. the target's ST; if the spirit wins, the target is grappled (per GURPS grappling rules) for the duration. Use spirit's ST (typically 8–12 for ordinary spirits; GM sets for powerful spirits). Eye of Death (1 FP): Activate to examine an Undead or Spirit creature. GM reveals one specific vulnerability (e.g. \"weak to fire,\" \"cannot withstand holy water\"). For the rest of the scene: +2 to hit, +2 damage, ignore 2 DR against that creature. Reinforced Abilities: Undead Deterrence (Reinforced): Now affects undead with SPI ≤ yours + 2. Controlled undead roll at -4 instead of -2 to act against you. Undead Detection (Reinforced): Range increases to 25 m. The Gravedigger can identify the specific type of undead (ghost, zombie, wraith, etc.) without a roll.",
+   "reinforcedAbilities": "",
    "sourceLines": [
-    6532,
-    6563
+    5816,
+    5841
    ]
   },
   {
@@ -1532,10 +1488,10 @@
    "advantages": "DR 1 (all) resistance to all physical damage High Pain Threshold +3 to HT rolls to avoid knockdown/stun; no shock penalty from injury",
    "drawbacks": "",
    "ability": "Iron Body: The Pugilist's iron-hard body can resist supernatural forces. When taking damage from a spell, Beyonder ability, or other supernatural source, the Pugilist may spend 1–3 FP as a reactive free action to reduce the incoming damage by 2 per FP spent (applied after any resistance roll, before DR). The Pugilist decides how much FP to spend after seeing the damage roll but before the damage is applied.",
-   "reinforcedAbilities": "Combat Mastery: The Warrior's universal weapon proficiency upgrades. The Pugilist treats any weapon as known at effective DX immediately (no warm-up needed), matching the Weapon Master's instant proficiency but limited to melee weapons only. Ranged weapons still need one use to reach full proficiency (as the Warrior's original ability).",
+   "reinforcedAbilities": "Combat Mastery: The Warrior's universal weapon proficiency upgrades. The Pugilist's melee weapons now reach full proficiency (effective DX+2) immediately — no repeated use needed. Ranged weapons remain at effective DX the moment they are picked up, but still require repeated use during a session to reach full proficiency (DX+2), exactly as the Warrior's original ability.",
    "sourceLines": [
-    6564,
-    6598
+    5842,
+    5878
    ]
   },
   {
@@ -1576,13 +1532,13 @@
      "bonus": 3
     }
    ],
-   "advantages": "Charisma +2 +2 to reaction rolls and Influence skills",
+   "advantages": "Charisma +2 +2 to Influence skills; NPCs predisposed to trust and listen to you",
    "drawbacks": "",
    "ability": "Instigation — Passive: The Instigator senses the emotions, desires, and hidden malice of anyone within 10 meters — roll Per (no modifier). On success, hidden intent, suppressed anger, and unacted grievances are revealed. Social situations are read instinctively; on a successful Per roll the Instigator knows who is the weakest link in a room. Instigation — Active: The Instigator must speak to or gesture at the target to surface their deepest suppressed desires and grievances. If using only gestures (no speech), the Instigator rolls at -4. Roll Fast-Talk (at -6) vs. target's Will. On success, the target acts on that desire within 1d minutes, believing the impulse is entirely their own. Crowd Effect: Igniting one individual is enough. Instigated targets become vectors themselves, drawing others into escalating conflict. The Instigator need not remain present once the spark is lit.",
    "reinforcedAbilities": "Feather Fall: The Instigator can now glide up to 2 m horizontal per 3 m vertical, and may arrest a fall from any height instantly as a free action (no SPI cost). Shadow Concealment: Penalty to detect the Instigator in shadows increases to -5 (from -3) when stationary, and -2 (from -1) when moving slowly.",
    "sourceLines": [
-    6599,
-    6635
+    5879,
+    5916
    ]
   },
   {
@@ -1610,11 +1566,11 @@
    "skills": [],
    "advantages": "Fast Healer (Limited) recovers 1 extra HP per 2 days of rest",
    "drawbacks": "",
-   "ability": "Spirit Vision (1 SPI per minute, standard): The Provoker activates Spirit Vision with a simple gesture — quickly and discreetly. No concentration or obvious ritual required. Provocation: Vague Insult: These insults can target an individual or multiple people and are made up from general terms and insulting words, such as, but not limited to: \"Fuck you\", \"Idiot\", \"Dogshit\". Target must succeed at a Will roll (-2) to resist being provoked. Failing will cause the target to only target the Provoker for 1 turn. Detailed Insult: The Provoker uses a specific observation as a base for constructing an insult, for example: \"That's the first warm reception you've had in years.\" Target must succeed at a Will roll (-4) to resist being provoked. Failing will cause the target to only target the Provoker for 2 turns. The Provoker can target up to 2 subjects at once, but there must be a correlation between the subjects and the core of the insult. Unique Insult: This must be based on something that is a part of the target, and they know it — that is why it hurts their ego especially. Target must succeed at a Will roll (-6) to resist being provoked. Failing will cause the target to only target the Provoker for 3 turns.",
+   "ability": "Provocation: Vague Insult: These insults can target an individual or multiple people and are made up from general terms and insulting words, such as, but not limited to: \"Fuck you\", \"Idiot\", \"Dogshit\". Target must succeed at a Will roll (-2) to resist being provoked. Failing will cause the target to only target the Provoker for 1 turn. Detailed Insult: The Provoker uses a specific observation as a base for constructing an insult, for example: \"That's the first warm reception you've had in years.\" Target must succeed at a Will roll (-4) to resist being provoked. Failing will cause the target to only target the Provoker for 2 turns. The Provoker can target up to 2 subjects at once, but there must be a correlation between the subjects and the core of the insult. Unique Insult: This must be based on something that is a part of the target, and they know it — that is why it hurts their ego especially. Target must succeed at a Will roll (-6) to resist being provoked. Failing will cause the target to only target the Provoker for 3 turns.",
    "reinforcedAbilities": "Environment Memory: The Provoker can now sense alterations within 20 m (double the original range). Natural traps are detected automatically at 5 m without any roll. Survival Knowledge: Hemostatic poultices now restore 1d+1 HP to a bleeding wound (or 3 HP if not bleeding). The Provoker can identify poisonous plants and animal organs instinctively regardless of terrain type.",
    "sourceLines": [
-    6636,
-    6668
+    5917,
+    5947
    ]
   },
   {
@@ -1672,8 +1628,8 @@
    "ability": "Combat Prying (2 SPI): Pry into the mystery of combat and learn from a target. You gain a permanent +1 in the relevant skill.",
    "reinforcedAbilities": "Eyes of Mystery Prying: The always-on passive penalty to Dream/Illusion rolls against you increases to -3. Active use costs 1 SPI as before but now also reveals a target's combat-relevant weaknesses (e.g., low HP, low defense, specific damage vulnerability) when examining their Ether Body. Quick Rituals: Penalty for rushed rituals is decreased by 4 (from 3).",
    "sourceLines": [
-    6669,
-    6704
+    5948,
+    5981
    ]
   },
   {
@@ -1729,8 +1685,8 @@
    "ability": "Artifact Lore: The Archaeologist can identify the age, origin, and purpose of any historical or mystical artifact by sight and touch (IQ roll, no penalty). Common items are identified automatically. Rare or Sealed Artifacts require a History or Occultism roll at -2 to -6 depending on obscurity. Ruin Navigation: The Archaeologist instinctively navigates ancient ruins, underground structures, and forgotten sites without penalty. Traps, hidden passages, and structural hazards in such places are detected on a Perception roll at +2.",
    "reinforcedAbilities": "Recall — Total Memory: The Savant's perfect recall now extends to tactile and spatial memory — the Archaeologist can recall the exact feel of an object touched once and the precise layout of any space visited. The IQ roll to understand a mechanism drops to 30 seconds (from 1 minute). Rapid Analysis: Improvised devices and repairs take 1/4 normal construction time (from 1/2).",
    "sourceLines": [
-    6705,
-    6740
+    5982,
+    6019
    ]
   },
   {
@@ -1776,8 +1732,8 @@
    "ability": "Danger Calculation: The Robot can roughly guess which direction danger is coming from, even without making a roll. This instinctive sense of imminent threats and their origin complements the passive Danger Sense advantage.",
    "reinforcedAbilities": "Foresight: The Monster's once-per-session vision increases to twice per session. The Robot can also attempt to trigger a vision deliberately once per day by concentrating for 1 minute (SPI roll at -4; success provides a vague glimpse). Danger Premonition: The passive sense now includes supernatural threats (curses, fate-based traps, spiritual attacks) and provides a 2-second warning before danger strikes, enough to take a Defensive maneuver.",
    "sourceLines": [
-    6741,
-    6777
+    6020,
+    6054
    ]
   },
   {
@@ -1822,13 +1778,13 @@
      "bonus": 3
     }
    ],
-   "advantages": "Ancient Hermes Fluent — can speak, read, and write this dead mystical language",
+   "advantages": "",
    "drawbacks": "",
-   "ability": "Soul Suture (1 SPI): The Doctor's signature ability. By spending 1 SPI and making a Physician roll (no penalty), the Doctor repairs spiritual and physical damage, healing 1d6+2 HP in a conscious, stable target over 10 minutes of focused treatment. Cannot be used in combat or on an actively moving target. Critical success heals 2d6+2 HP. Soul Suture affects living targets only — it cannot deal damage and cannot be used offensively. Spirit Vision (Enhanced): Spirit Vision now activates automatically at no SPI cost when examining a patient — the Doctor sees their Ether Body, spiritual injuries, and emotional state. All Spirit Vision skill rolls and Diagnosis rolls gain +2 while evaluating or treating a patient. Soothe (2 SPI): When a target within arm's reach has just failed a SPI roll that caused CoR gain, the Doctor may spend 2 SPI and make a Physician roll (-2 penalty) to soothe the spiritual wound, reducing the net CoR gain by 1. Must be used within 1 minute of the event.",
+   "ability": "Soul Suture (1 SPI): The Doctor's signature ability. By spending 1 SPI and making a Physician roll (no penalty), the Doctor chooses one of the following: Heal: Repairs spiritual and physical damage, restoring 1d6+2 HP to a conscious, stable target over 10 minutes of focused treatment. Cannot be used in combat or on an actively moving target. Critical success heals 2d6+2 HP. Damage: Suture tears the target's soul, dealing 2d6+2 cut damage that bypasses mundane armor. Make a Brawling or Physicians roll to land on a resisting target. Usable in combat. Soul Suture affects living targets only. Soothe (2 SPI): When a target within arm's reach has just failed a SPI roll that caused CoR gain, the Doctor may spend 2 SPI and make a Physician roll (-2 penalty) to soothe the spiritual wound, reducing the net CoR gain by 1. Must be used within 1 minute of the event.",
    "reinforcedAbilities": "Farming Tools Proficiency: The Planter's tool bonus increases to +4. Additionally, the Doctor can apply First Aid or perform emergency procedures with any tool at hand — improvised medical tools suffer no penalty.",
    "sourceLines": [
-    6778,
-    6816
+    6055,
+    6088
    ]
   },
   {
@@ -1857,13 +1813,13 @@
      "bonus": 5
     }
    ],
-   "advantages": "Empathy (animals) sense animal emotions and intent",
+   "advantages": "",
    "drawbacks": "",
-   "ability": "Animal Senses: They can read the thoughts of, utilize the senses of, communicate to, and control Animals, gradually Taming them and making them into their assistants. No SPI cost. Range: within 50m. Can control up to (IQ÷2) animals at once through concentration. Passive — Tamed Animal Potion Boost: Animals tamed by a Beast Tamer gain +4 to rolls involving drinking potions.",
-   "reinforcedAbilities": "Spirit Vision — Ether Body: The Apothecary's Spirit Vision now also reads the health and emotional state of animals within 50 m at no SPI cost. When examining a patient (animal or human), the Physician bonus increases to +3. Potion Concoction: The penalty for all potions is reduced by 1. The Beast Tamer can carry up to SPI × 1.5 doses (round up).",
+   "ability": "Animal Senses: They can read the thoughts of, utilize the senses of, communicate to, and control Animals, gradually Taming them and making them into their assistants. Roll Animal Handling to intimidate or tame target animal. Passive — Tamed Animal Potion Boost: Animals tamed by a Beast Tamer gain +4 to rolls involving drinking potions.",
+   "reinforcedAbilities": "Potion Concoction: The penalty for all potions is reduced by 1. The Beast Tamer can carry up to SPI × 1.5 doses (round up).",
    "sourceLines": [
-    6817,
-    6843
+    6089,
+    6110
    ]
   },
   {
@@ -1886,12 +1842,12 @@
    ],
    "skills": [],
    "advantages": "",
-   "drawbacks": "Bloodlust Must go for killing blows in combat. IQ roll to accept surrender or take prisoners. Callous -3 to social skill rolls when warmth or empathy is required. Compulsive Behavior (Indulge Evil Desires) SC 6 When an opportunity to commit an evil act (murder, torture, betrayal, etc.) presents itself, roll 3d6 ≤ 6 or indulge fully. Unsettling Appearance -1 to all reaction rolls due to unsettling appearance",
+   "drawbacks": "Bloodlust Must go for killing blows in combat. IQ roll to accept surrender or take prisoners. Callous -3 to social skill rolls when warmth or empathy is required. Compulsive Behavior (Indulge Evil Desires) SC 6 When an opportunity to commit an evil act (murder, torture, betrayal, etc.) presents itself, roll 3d6 ≤ 6 or indulge fully. Unsettling Appearance NPCs are unsettled by your presence (GM discretion)",
    "ability": "Abyss Power Roll: The Unwinged Angel's spells are innate demonic abilities, not conscious spiritual expenditures. Instead of paying SPI, each spell requires a designated FP cost to activate. You may also sacrifice 1 HP to fuel any spell. Spell Selection: At the start of each day, the Unwinged Angel rolls 3d6. Less than 8: pick 3 spells. Between 8 and 14: pick 2 spells. Greater than 14: pick only 1 spell. Spell-Like Abilities (Resisted by HT): Crown of Contempt (1 FP): A dark aura visibly pulses outward like a wave of cold. Anyone within 5 meters who fails HT is pushed back 1 meter and suffers -2 to their next attack roll. Poisonous Flames (2 FP): Sickly-colored fire conjured from the palms. Melee touch attack. 1d6 toxic damage on contact, then 1d6-2 for 2 turns. Cannot be smothered. Ignores 1 DR. Toxic Black Smoke (1 FP): Black cloud exhaled toward a chosen point within 10 meters, filling a 3-meter radius. 1d6-2 toxic damage per turn to anyone inside. Lasts 3 turns. Slowness (1 FP): The killer raises both arms and presses their palms sharply downward. The target visibly sinks, dragging as though moving through deep water. -1 Basic Speed, -1 Basic Move for 1d6 turns. Rending Grasp (2 FP): The killer's hand blackens visibly as they reach for the target. On contact, 1d6 FP is torn away — observers see a faint luminescence pulled from the victim toward the killer's hand. Fevered Haze (2 FP): The killer exhales a shimmer of unnatural heat. Targets within 2 meters who fail HT suffer -2 DX and -1 Basic Move for 1d3 turns, visibly unsteady. Fracture (2 FP): A visible crack of dark energy crosses the air toward the target. Their next successful attack deals half damage — the blow lands visibly weaker than it should. Curses (Resisted by Will. Requires verbal utterance): Mirror of Inadequacy (2 FP): A single cutting observation that collapses the target's confidence. -2 to all rolls for 1d6 turns on a failed Will roll. Spiritual Covetousness (1 FP): Awakens a maddening hunger in the target for something they already possess. On a failed Will roll, they spend their next turn protecting or hoarding rather than acting offensively. Hollow Craving (1 FP): Floods the target with a desperate want for something they lack. -1 Will and -1 Perception for 1d3 turns as attention fractures. Sever the Bond (2 FP): One target perceives a chosen ally as a threat or rival for 1 turn — cannot assist, aid, or defend them. On a critical fail, may act against them. Drain (1 FP): The target's body overconsumes its own energy. Lose 2 FP immediately. Stoke the Coal (1 FP): Inflames the target's existing frustration until it becomes unbearable. -2 to all rolls requiring patience or restraint. Must make a Will roll to avoid reacting aggressively to their nearest ally's next action. Leaden Soul (2 FP): The target's movement becomes impossibly heavy. -1 Basic Speed, -1 Basic Move. Must succeed on a Will roll each turn to take any action beyond defending. Lasts 1d3 turns.",
    "reinforcedAbilities": "Criminal Proficiency: The Criminal's universal weapon talent expands. The Unwinged Angel now treats all improvised weapons as Brawling +2 (instead of just Brawling). Any firearm is fired at effective DX+1 immediately. Poison-use rolls gain +2.",
    "sourceLines": [
-    6844,
-    6909
+    6111,
+    6178
    ]
   },
   {
@@ -1909,7 +1865,7 @@
     },
     {
      "attr": "SPI",
-     "delta": 1.0
+     "delta": 2.0
     }
    ],
    "skills": [
@@ -1943,8 +1899,8 @@
    "ability": "Lunatic's Curse: From this Sequence onward, the Chained Pathway Beyonder begins to be affected by supernatural Curses that accumulate from within. At Sequence 8, the Lunatic loses control more easily than most Beyonders — all CoR thresholds for losing control are reduced by 2. In exchange: when injured below half HP, the Lunatic automatically enters an empowered state (uncontrolled) — ST +3, HT +2, ignore all pain effects, and attack everything nearby. This state lasts until the fight ends or they succeed on a Will-4 roll. Escape Mastery from Sequence 9 is fully retained and operates against spiritual restraints as well as mundane ones at +2.",
    "reinforcedAbilities": "Knowledge — Criminal Expert: The Prisoner's criminal mastery sharpens. Improvised weapons gain +1 to damage (in addition to no penalty). Escape rolls against supernatural confinement (spiritual bonds, curses that restrain) are rolled at full skill without penalty. The hidden-exit awareness expands to 20 m range.",
    "sourceLines": [
-    6910,
-    6959
+    6179,
+    6228
    ]
   },
   {
@@ -2002,8 +1958,8 @@
    "ability": "Evil Sense: Passive. The Sheriff automatically senses the presence of things related to Evil, Disorder, and Madness within 25 meters. \"Unprotected\" refers to entities not warded by anti-divination, mind shielding, or similar concealment. The sense is directional (the Sheriff knows the rough direction of the source) but does not provide precise location through walls. High-Sequence Beyonders (Seq 5+) or those using active concealment may roll Will vs. the Sheriff's Per to hide from this sense. Jurisdiction: The Sheriff claims a region as their own by asserting authority, not by spending spirituality. Make an Intimidation or Administration roll contested by the Will of the region's inhabitants (use the highest Will among them). On success, the Sheriff gains jurisdiction — a conceptual anchor that lasts until they designate a new jurisdiction. On failure, the inhabitants resist the Sheriff's authority; may retry after 24 hours. Jurisdiction works as an extension of Sheriff's powers. Rules for Jurisdiction: 1. You must know the region very well. 2. You may not designate a region bigger than a small town. 3. You may not designate a region smaller than one room. 4. Designated region must have at least one human inhabitant other than yourself. 5. Exception to Rule 2: If granted an official post/ownership/governance over a region, the jurisdiction may be up to 5x the size. This works in 3 stages: Stage 0 — No trust from people/new to jurisdiction: No Benefits despite designating jurisdiction. Stage 1 — Mixed: Depending on the % of people who support you and trust you. These effects materialize:  Grants Combat Reflexes while inside the region.  Sense Extension — Grants extension to your otherworldly senses such as Evil Sense, Death Sense, etc.  Region Assistance — Grants +2 to persuasive rolls for inhabitants that support you in your jurisdiction. Stage 2 — Full Support of all residents: Along with all previous things, you now gain +1 to all your stats as long as you're in range of your jurisdiction. Grants Danger Sense while inside the region.",
    "reinforcedAbilities": "Authority: The Arbiter's authority strengthens. The Will penalty for opponents increases to -2 (from -1) within the Sheriff's Jurisdiction area. The activation cost remains 1 SPI for the scene.",
    "sourceLines": [
-    6960,
-    7011
+    6229,
+    6280
    ]
   },
   {
@@ -2045,10 +2001,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Physical Enhancement: A Barbarian's physical strength and constitution break the 'rules' of a normal human body. ST and HT-based rolls gain +2 in situations involving feats of raw force, endurance, or breaking through physical barriers. Mental Resistance: Barbarians possess a high resistance to psychological influences — mind control and fear-based effects against them suffer -4. This is passive and always active. Problems that cannot be solved by the law will be solved by force.",
-   "reinforcedAbilities": "Eloquence: The Lawyer's silver tongue now works through intimidation as effectively as persuasion. The Barbarian may substitute Intimidation for Fast-Talk when using Eloquence — listeners still roll Will at -3, but the argument may be a growled threat rather than a smooth logical claim. Strong evidence is still required to override the effect.",
+   "reinforcedAbilities": "Eloquence: The Lawyer's silver tongue now works through intimidation as effectively as persuasion. The Barbarian may substitute Intimidation for Fast-Talk when using Eloquence — listeners still roll Will at -3 (improved from -2 at base), but the argument may be a growled threat rather than a smooth logical claim. Strong evidence is still required to override the effect.",
    "sourceLines": [
-    7012,
-    7042
+    6281,
+    6311
    ]
   },
   {
@@ -2080,10 +2036,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Damage Transfer (1 SPI): Free action when you take damage to a vital hit location (skull, vitals, spine). Transfer the wound to a non-vital area (arm, leg, hand) — the damage still applies but no longer counts as a vital hit. Each wound can only be transferred once. If the damage would have been instantly fatal, it becomes a major wound instead. Cannot transfer wounds to objects or other creatures. Flaming Jump (1 SPI): One Ready maneuver to focus on any flame within 30m, then step into any fire source (candle, torch, campfire) and emerge from a different flame within range. You are immune to ordinary fire damage during the jump. This works on Beyonder flames (Pyromaniac, Witch's Black Flames) as well — if one exists within range, you may use it as a destination. Cannot be used in areas cut off from the Spirit World. Air Bullet (1 SPI): Snap fingers or mimic a gunshot as an Attack maneuver. Fires an invisible compressed-air projectile that deals 2d-1 pi damage (range 15/30). Uses Sleight of Hand or DX to hit. No physical ammunition needed — the bullet is pure spirituality. Damage improves to 2d pi once the potion is fully digested (GM discretion). Paper Figurine Substitute (3 SPI): Requires a pre-prepared paper figurine on your person. When you would take damage from any source (attack, spell, curse, fall), you may activate this as a free action. The figurine transforms into a copy of you and swaps places — the attack hits the figurine (which is destroyed) instead. You reappear up to 2m away in a safe location of your choice. Flame Controlling (1 SPI): Free action. Manipulate flames within 30m — ignite flammable materials, shape existing fire, extinguish small flames (candle to campfire size), or direct fire to move as you wish. In combat: make a ranged attack (DX or Sleight of Hand) to hurl a flame jet at a target within 30m, dealing 1d6 burn. Cannot create fire from nothing unless the potion is fully digested (GM discretion). Illusion Creation (1 SPI): One Concentrate maneuver. Create a multi-sensory illusion (sight, sound, smell) within 20m that is nearly indistinguishable from reality. The illusion can move and act within its area for up to 1 minute (maintain as free action). Observers may disbelieve by rolling IQ-2 or Per-2; on success they see through the illusion as transparent and ghostly. Critical failure means they fully believe it. Underwater Breathing (1 SPI): Creates an invisible 5m air pipe to the surface. Lasts 10 minutes. The air pipe is intangible — cannot be cut or blocked by mundane means. Pipe length increases to 10m once the potion is fully digested. Bone Softening (Free): Passive. +4 to Escape rolls against handcuffs, ropes, chains, and confined spaces. No SPI cost. The Magician can dislocate joints painlessly and reshape their hands to slip through gaps smaller than their head. Paper Weaponry (1 SPI): Upgrade from Paper Daggers. Turn any sheet of paper into a functional bladed weapon (knife, sword, axe, or improvised blade) for 1 minute. The weapon's damage matches its type (knife: thr-1 cut / sw-2 imp; short sword: sw+1 cut / thr+1 imp; etc.) and counts as a Beyonder weapon of the Magician's Sequence for the purpose of harming spirits and incorporeal beings. Unlike Paper Daggers, the weapon lasts for multiple attacks until the duration expires. Can also form simple tools (lockpicks, keys, scissors) that function at their mundane equivalent.",
-   "reinforcedAbilities": "Clown Agility: The Magician's acrobatic ability improves further. Clown Intuition triggering range expands to 8 m. The free Dodge/Step may be taken against any attack, not just successful hits — the Magician may also use it proactively once per scene to evade an Area of Effect attack. Spirit Vision: Range expands to 20 m. The Magician can now read the Ether Body of a target to determine exact HP remaining, SPI remaining, and whether they are under any active Beyonder effect.",
+   "reinforcedAbilities": "Clown Agility: The Magician's acrobatic ability improves further. Clown Intuition triggering range expands to 8 m. The free Dodge/Step may be taken against any attack, not just successful hits — the Magician may also use it proactively once per scene to evade an Area of Effect attack.",
    "sourceLines": [
-    7049,
-    7104
+    6318,
+    6371
    ]
   },
   {
@@ -2130,21 +2086,15 @@
      "attr": "IQ",
      "difficulty": "VH",
      "bonus": 2
-    },
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 2
     }
    ],
    "advantages": "Eidetic Memory +5 to remember things after one reading; near-perfect recall",
    "drawbacks": "",
    "ability": "Decryption (IQ / 1 SPI): Requires concentration and a physical item or scene to study. Roll IQ (or Ritualistic Magic for mystical subjects). Success: the GM reveals information based on margin of success. Failure: no insight; SPI still spent. Critical Failure: a false conclusion. Facts come in four strengths: Trace — vague hint (2 Trace = 1 Standard) Standard — clear observation Sharp — decisive fact (counts as 2 Standard) Undeniable — automatic, no roll (e.g. seeing a gun aimed at you) Beyonder Knowledge (Passive): The Cryptologist has deep knowledge of:  Mystical objects, sealed artifacts, and how items can absorb potions or characteristics  Rituals — standard rituals, the dualistic ritual, the standard sacrificial ritual, the standard bestowment ritual, and the Artificial Sleepwalking Ritual No roll for common knowledge within these domains; obscure or protected secrets require Occultism or Thaumatology to recall.",
-   "reinforcedAbilities": "Superior Observation: Range expands to 30 m. The Cryptologist can read micro-expressions at a glance — Detect Lies and Body Language rolls against any visible target within range gain +3 (from +2). Mental Disruption: The Will penalty for the target's save increases to -4. The Cryptologist may target up to 2 individuals simultaneously by spending 2 SPI total. Reminder / Theft: Reminder distance increases to 10 m. The Cryptologist can now steal spiritual materials that are actively guarded (held in a target's hand or within a locked container) as long as the container interacts with the spirit world.",
+   "reinforcedAbilities": "Superior Observation: Range expands to 30 m. The Cryptologist can read micro-expressions at a glance — Detect Lies and Body Language rolls against any visible target within range gain +3 (from +2). Mental Disruption: The Will penalty for the target's save increases to -5. The Cryptologist may target up to 2 individuals simultaneously by spending 2 SPI total. Reminder / Theft: Reminder distance increases to 10 m. The Cryptologist can now steal spiritual materials that are actively guarded (held in a target's hand or within a locked container) as long as the container interacts with the spirit world.",
    "sourceLines": [
-    7105,
-    7147
+    6372,
+    6412
    ]
   },
   {
@@ -2169,21 +2119,15 @@
      "attr": "IQ",
      "difficulty": "VH",
      "bonus": 2
-    },
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 2
     }
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Crystal Ball Focus (Passive): When using a crystal ball, gain +2 to Ritualistic Magic (divination) rolls. Interference (1 SPI): The Astrologer senses and can disrupt divination and Spiritual Intuition attempts that try to read or sense the future through the spirit world. By stirring their spirituality, they create an anti-divination warding. Roll SPI vs the opponent's Spiritual Intuition or Ritualistic Magic roll. Success: opponent's divination becomes blurry and messy — IQ-2 to interpret. Success by 3: the divination is completely blocked. Failure: unable to interfere; you feel like something is watching you. Door Opening (2 SPI): Touch range. Upgrades the Seq 8 Door ability to bring one additional person through a door or spatial obstacle. Both must be touching you or each other in a chain. The door must be real (not illusory) and large enough to admit the group. Usable once per scene unless the Astrologer concentrates for 1 minute to reopen. Peephole (1 SPI): Creates a palm-sized, invisible peephole through up to 1 meter of wood, stone, or brick. Lasts 1 minute. You see through it as if standing at the wall's surface.",
-   "reinforcedAbilities": "Trickmaster Spellcasting: All Trickmaster spells have their ranges doubled. Flash and Fog radii increase by 2 m. Escape Trick's reposition distance increases to 10 m. Gas Transfer range increases to 30 m. Door Opening: The Seq 8 Door Opening upgrade is further enhanced — the Astrologer may now bring up to 3 additional people through a door (from 1). The ability can be used twice per scene (from once) before needing 1 minute of concentration to refresh.",
+   "ability": "Crystal Ball Focus (Passive): When using a crystal ball, gain +2 to Ritualistic Magic (divination) rolls. Interference (1 SPI): The Astrologer senses and can disrupt divination and Spiritual Intuition attempts that try to read or sense the future through the spirit world. By stirring their spirituality, they create an anti-divination warding. Roll SPI vs the opponent's Spiritual Intuition (3d6, target = current SPI, Ch. 4) or Ritualistic Magic roll. Success: opponent's divination becomes blurry and messy — IQ-2 to interpret. Success by 3: the divination is completely blocked. Failure: unable to interfere; you feel like something is watching you. Peephole (1 SPI): Creates a palm-sized, invisible peephole through a surface. Lasts 1 minute. You see through it as if standing at the wall's surface.",
+   "reinforcedAbilities": "Trickmaster Spellcasting: All Trickmaster spells have their ranges doubled. Flash and Fog radii increase by 2 m. Escape Trick's reposition distance increases to 10 m. Gas Transfer range increases to 30 m. Door Opening: The Astrologer may now bring up to 3 additional people through a door (from 1).",
    "sourceLines": [
-    7148,
-    7181
+    6413,
+    6439
    ]
   },
   {
@@ -2245,8 +2189,8 @@
    "ability": "Frenzy (2 SPI): Roll Psychology vs Will. On success, target Frenzies for 1d6 turns: -2 to non-aggressive actions, must attack nearest creature. Deals 1d6-1 FP (min 1). If already unstable or at 0 FP, roll Will or gain 1 CP. Awe (2 SPI): Project Mind Dragon presence. All within 20 meters roll Will or freeze in panic for MoF turns (min 1, max 4), -2 to defenses. Hostile action breaks it on that target. +2 to save if warned. Psychological Cue (2 SPI): After 1 hour of conversation and a medium (candle, pendant, oil), roll Psychology vs Will. Target unconsciously follows a simple arrangement for 24h. If the arrangement would significantly harm person/reputation/livelihood or violate a core value, target gets a new Will+2 save when triggered. May self-cue to enter the Sea of Collective Subconscious (a shared psychic realm of all unconscious minds; see Glossary). Placate (1 SPI): Roll Psychology (no resistance if willing, else vs Will). On success, choose one: reduce CP by 1; remove fear/rage/despair; or give a losing-control target a new Will+2 save. If actively losing control, target saves at <=11 on 3d6. GM adjusts for sequence/severity. Telepathy (1 SPI): Upgrade from Mind Reading — reads deeper thoughts (not just surface), works on Will 13+ (at -2, not immune), and enables two-way communication. Requires a medium (candlelight, hydrosols, crystal). Roll Psychology vs Will-1. Target unaware unless crit fail.",
    "reinforcedAbilities": "Enhanced Body Language Analysis: The Telepathist's always-on reading now penetrates Mind Shield up to level 2 — targets with Mind Shield 1-2 roll a Quick Contest of Will vs the Psychiatrist's Psychology to block surface readings. Range expands to 20 m. Mind Reading: The Telepathist's active Mind Reading now costs 0 SPI if the Psychiatrist succeeds by 5+ (instead of always costing 1 SPI/minute). The Psychology roll to predict a target's next action after a successful read gains +3.",
    "sourceLines": [
-    7182,
-    7240
+    6440,
+    6496
    ]
   },
   {
@@ -2284,13 +2228,13 @@
      "bonus": 2
     }
    ],
-   "advantages": "Disease & Poison Resistance +2 to HT vs. disease, poison, and environmental hazards Fit +1 to all HT rolls; recover FP at twice the normal rate DR 1 (fire/light) stacks with Seq 8 — total DR 3 vs. fire and light",
+   "advantages": "Disease & Poison Resistance +2 to HT vs. disease, poison, and environmental hazards Very Fit +2 to all HT rolls; lose FP at half the normal rate; recover FP at twice the normal rate DR 1 (fire/light) stacks with Seq 8 — total DR 3 vs. fire and light",
    "drawbacks": "",
    "ability": "Theurgical Abilities — Sun Domain (Purification & Exorcism): The Solar High Priest's body becomes considerably stronger, gaining resistance to ailments, poison, and harsh environments. Spell and sacrifice abilities within the Sun domain are greatly enhanced. Purification and Exorcism operate within the category of Evil (including depraved auras) and extend to undead as incompatible presences — though with moderately reduced effect on undead that are not intrinsically Evil. Sun Halo (2 SPI): A golden halo forms around the head. All allies within 20 meters ignore Fright Check penalties up to -5 and have Evil energies actively Purified. Lasts 5 minutes; +1 SPI per additional minute. Sun Holy Water (3 SPI + Ritualistic Magic): Consecrates water into Sun Holy Water. On contact with wraiths, spirits, or undead: 2d6+2 corrosion damage (ignores non-magical DR); 1d-1 on living targets. Full-round action: splash to Exorcise a possessed target — roll Ritualistic Magic vs. entity's Will. Can also purify cursed objects (1 min immersion; -2 for powerful curses). Lasts until next sunrise. Holy Oath (3 SPI): Silently recite ancient words. For 3 minutes: +2 to ST-based rolls, +2 to DX-based rolls, +1d6 fire damage on attacks, all attacks gain the Holy tag. Self only. Holy Light Summoning (4 SPI): Calls a holy beam of Light from the sky onto a point within 30 meters. Undead and Evil entities: 3d6 burning damage (ignores non-magical DR). Other targets: 1d6 burning. Targets with 5+ CP take +1d. Success by 3+ on Ritualistic Magic sustains for a second round at no cost. Area illuminated as full daylight for 1 minute. Cleave of Purification (2 SPI): Imbues attacks, weapon, or bullets with Purification. For 5 attacks or 1 minute: bypasses DR of incorporeal targets; on hit, target rolls HT or suffers -2 to all rolls for 1d rounds. +3 to Purify wraiths outright. Horror Immunity (1 SPI): Target becomes immune to Fear for 10 minutes — including passive auras and active psychic attacks from Evil entities. Self-cast or touch. +1 SPI per additional target. Fire of Light (3 SPI): Dense golden holy Flames erupt at a point within 20 meters, filling a 5-meter radius. Living targets: roll HT or take 2d6 holy fire per round. Undead and Evil entities: double damage, HT-2 or Purified each round. Lasts 3 rounds. Cannot be smothered by ordinary means.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    7241,
-    7293
+    6497,
+    6551
    ]
   },
   {
@@ -2312,7 +2256,7 @@
     },
     {
      "attr": "SPI",
-     "delta": 1.0
+     "delta": 3.0
     }
    ],
    "skills": [
@@ -2355,11 +2299,11 @@
    ],
    "advantages": "Eidetic Memory +5 to remember things after one reading; near-perfect recall Amphibious (Enhanced) acts and moves freely underwater for 30+ minutes without equipment Perfect Balance (Enhanced) never loses footing on any sea vessel regardless of conditions Absolute Direction Always know which way is north; never become lost at sea or on land. +3 to Navigation and Body Sense rolls.",
    "drawbacks": "",
-   "ability": "Aquatic Affinity — Enhanced: All skill rolls gain +1 while at sea or aboard a vessel. Passive. No bonus on land. Navigator's Precision: Accurately judges distance to any located target. May throw weapons at full skill with eyes closed or in total darkness after locating the target. A vessel with a Seafarer aboard cannot become lost under natural conditions. Water Spells: Water conjured by any spell can be dispersed by the Seafarer as a free action. Suffocation Film (2 SPI): Roll Ritualistic Magic vs the target's HT. On success, a film of water forms over the target's face within 10 meters. The film is extremely hard to remove — ST-3 each round to make progress. Target suffocates per normal GURPS rules. On failure, no effect; SPI is still spent. Azure Wave (2 SPI): One round of concentration, then roll Ritualistic Magic. On success, a water wave sweeps a 10-meter cone from the Seafarer's position. Targets in the cone roll DX-2 or are knocked prone and pushed 1d meters back. Failure by 5+ also causes loss of next action. On a failed Ritualistic Magic roll, the wave sputters — no effect; SPI still spent. Restorative Waters (1 SPI): Apply conjured water to a wound. Roll Physician at IQ+0. Success restores 1d-2 HP (minimum 1). Cannot be used in combat without Concentrate maneuver. Aqueous Cleanse (1 SPI): Aqueous light cleanses surfaces of filth, blood, mundane poisons, and minor spiritual contamination on contact. Wrath — Retained: Folk of Rage ability fully retained. Additionally: roar (1 SPI) at a target within 20 meters — Will-2 or target enters uncontrolled berserk rage for 1d rounds. Player characters resist at Will, no modifier. Singing of the Storm — New: Range increases to 30 meters, Will penalty becomes -3 for 1d rounds. At sea: 50 meters, Will-4.",
-   "reinforcedAbilities": "Phantom Scales: DR increases to 4 (physical, stacks with worn armor) and extends to cover the throat and eyes (no chink/eye weak spots). Duration extends to 25 minutes. Sea Affinity: The Swim skill bonus increases to +4. The Seafarer can hold breath for 5 minutes per point of HT (instead of 3) and ignores depth pressure penalties up to 50 m. Battle Cry: All allies within 15 m gain +2 to Will against Fear checks for the scene (from +1). Fright Check range expands to 15 m. Bravery: The Seafarer and all allies within 5 m are immune to Fright Checks from first-time supernatural exposure (ghosts, sea monsters, etc.).",
+   "ability": "Aquatic Affinity — Enhanced: All skill rolls gain +1 while at sea or aboard a vessel. Passive. No bonus on land. Navigator's Precision: Accurately judges distance to any located target. May throw weapons at full skill with eyes closed or in total darkness after locating the target. A vessel with a Seafarer aboard cannot become lost under natural conditions. Water Spells: Water conjured by any spell can be dispersed by the Seafarer as a free action. Suffocation Film (2 SPI): Roll Ritualistic Magic vs the target's HT. On success, a film of water forms over the target's face within 10 meters. The film is extremely hard to remove — ST-3 each round to make progress. Target suffocates per normal GURPS rules. On failure, no effect; SPI is still spent. Azure Wave (2 SPI): One round of concentration, then roll Ritualistic Magic. On success, a water wave sweeps a 10-meter cone from the Seafarer's position. Targets in the cone roll DX-2 or are knocked prone and pushed 1d meters back. Failure by 5+ also causes loss of next action. On a failed Ritualistic Magic roll, the wave sputters — no effect; SPI still spent. Restorative Waters (1 SPI): Apply conjured water to a wound. Roll Physician at IQ+0. Success restores 1d-2 HP (minimum 1). Cannot be used in combat without Concentrate maneuver. Aqueous Cleanse (1 SPI): Aqueous light cleanses surfaces of filth, blood, mundane poisons, and minor spiritual contamination on contact. Wrath — Retained: Folk of Rage ability fully retained. Additionally: roar (1 SPI) at a target within 20 meters — Will-2 or target enters uncontrolled berserk rage for 1d rounds. Player characters resist at Will, no modifier. Singing of the Storm: The Seafarer can Sing, producing a terrifying sound that triggers fear and disorientation in all who hear it. Targets within 30 meters must succeed at a Will-3 roll or suffer -2 to all rolls for 1d rounds. At sea, the range is 50 meters and the penalty is Will-4. Sea Affinity: The Swim skill bonus increases to +4. The Seafarer can hold breath for 5 minutes per point of HT and ignores depth pressure penalties up to 50 m.",
+   "reinforcedAbilities": "Phantom Scales: DR increases to 4 (physical, stacks with worn armor) and extends to cover the throat and eyes (no chink/eye weak spots). Duration extends to 25 minutes.",
    "sourceLines": [
-    7294,
-    7366
+    6552,
+    6623
    ]
   },
   {
@@ -2421,10 +2365,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Reconstruction (1 SPI): Requires a physical item that was present at the target event. The Detective peers into the spirit world's record of the past. Roll Ritualistic Magic. Success: instant full-sensory flash (sight, sound, smell) of the scene from the item's perspective — duration is scene-dependent (GM discretion). Success by 3+: clearer vision; may spot one hidden detail the GM chooses to reveal. Critical Success: vision includes emotional and spiritual impressions of those present. Failure: no effect; SPI is still expended.",
-   "reinforcedAbilities": "Recall: +4 to remember any fact the Detective has personally encountered (from +2). The touch-based memory recovery extends to objects the Detective touched within the past 24 hours (instead of 1 hour). Eye of the Mind: The IQ-based skill roll for obscure or deliberately hidden material suffers only -3 (from -5). The Detective may use Eye of the Mind to analyze a scene in a single minute per item of interest. Ratiocination: When using Ratiocination to reconstruct a conclusion from scattered clues, the Detective gains +3 to the roll. The time required drops from 1d6 minutes to 1d3 minutes.",
+   "reinforcedAbilities": "",
    "sourceLines": [
-    7367,
-    7405
+    6624,
+    6654
    ]
   },
   {
@@ -2466,10 +2410,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Shadow Lurking (1 SPI): Conceal yourself within any shadow large enough to cover your body. While Lurking, you are invisible and inaudible to mundane senses — observers roll Per-2 to notice any signs of your presence. You may move between connected shadows (within the same room or adjacent area) as a Move maneuver. Attacking or using SPI-cost abilities instantly breaks concealment. Duration: up to 1 minute (extend at 1 SPI per minute). Shadow Shaping (1 SPI): Shape shadows within 10m into melee weapons (knife, sword, chain) or simple animal forms (shadow hound, serpent). Weapons deal damage matching their type (e.g. knife: thr-1 cut; shortsword: sw+1 cut) but as shadow corrosion — they bypass non-magical DR and damage the spirit body alongside the physical body (see Spirit Body Damage, Chapter 5). Animal forms have ST 8, HT 10, DX 10, Move 6, and follow simple commands (attack, guard, fetch). They deal 1d-2 corrosion damage on a successful hit. Duration: 1 minute. One shape at a time. Shadow Chrysalis (2 SPI): Requires Shadow Lurking. Target one creature within 10m — their own shadow rises and envelops them in a black cocoon. Quick Contest of ST vs your SPI: if the target loses, they are held immobile for 1d3 turns. Each turn, the target may attempt a new ST roll to break free (at -2 if your SPI exceeds their ST). While trapped, the target takes 1d-2 corrosion damage per turn from the shadow's degenerating touch. Summon Shadow (2 SPI): Ritualistic Magic roll to summon a shadow creature from the Shadow World. On success, a shadow servitor manifests within 10m and follows your mental commands for up to 1 minute (ST 12, HT 12, DX 10, Move 8, DR 3 vs physical, immune to mind-affecting). It attacks for 1d6 corrosion damage or performs complex tasks. On a failed roll, the summoning still works but the creature is hostile — it attacks the nearest creature (possibly you) for 1d3 turns before dissolving. Critical failure: a stronger shadow entity notices you (GM discretion). Listening Control (Passive): The Shadow Ascetic can now toggle the Listener's passive Listening on and off as a free action. When active, range is reduced from 80m to 40m and the GM applies +2 to any interference rolls (reducing the risk of hearing higher entities).",
-   "reinforcedAbilities": "Listening: When toggled active, passive Listening range is 80 m (from 50 m) with no penalty to interference rolls. Active Listening range increases to 30 m and the Shadow Ascetic may listen to 2 simultaneous conversations. Spiritual Perception: +3 to detect spiritual entities and auras (from +2). The passive range expands to 80 m (from 50 m). A successful roll reveals the entity's general emotional state (hostile, indifferent, fearful). Anonymize: The duration extends to 1 hour per SPI spent (from 30 minutes). The Ascetic may also Anonymize 1 additional person within 2 m at no extra SPI cost.",
+   "reinforcedAbilities": "Listening: When toggled active, passive Listening range is 80 m (from 50 m) with no penalty to interference rolls. Active Listening range increases to 30 m and the Shadow Ascetic may listen to 2 simultaneous conversations. Spiritual Perception: +3 to Spiritual Perception rolls (Ch. 4) and the passive range expands to 80 m (from 50 m). A successful roll reveals the entity's general emotional state (hostile, indifferent, fearful). Anonymize: The duration extends to 1 hour per SPI spent (from 30 minutes). The Ascetic may also Anonymize 1 additional person within 2 m at no extra SPI cost.",
    "sourceLines": [
-    7406,
-    7454
+    6655,
+    6705
    ]
   },
   {
@@ -2489,11 +2433,11 @@
    "skills": [],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Silent Midnight Poem (1 SPI): Can now chant Midnight Poems without opening the mouth. Nightmare State (1 SPI): The Nightmare's body falls asleep while the Soul Body moves freely within city range to enter dreams. While in this state, vision is tainted and all Observation rolls suffer -3. The Nightmare sees glowing orbs that belong to the dream of someone. Dream Shaping (1 SPI): Shapes the dream of a target, guiding them into revealing certain things or truths. Can be used for interrogation: all Interrogation, Detect Lies, and Observation rolls gain +3 during this state. Target rolls Will -2; on critical failure the target divulges their biggest secret. Dream Invasion (2 SPI): Forcefully drags a target into a dream. Target rolls Spiritual Intuition -5; on failure they are unaware they are in a dream; on critical failure they suffer -1 to all actions in the dream. Range: 20 meters if done quickly, 100 meters with 2 turns of preparation. The Nightmare can coax the target into sleeping to reduce casting cost by 1 SPI. Once used, both the Nightmare and the target fall into the dream. The Nightmare can coax up to 10 people into sleeping, but can only enter the dream of 1 target. Nightmare Limbs (1 SPI): Generates tentacles from the back for close combat. These tentacles are made of flesh and blood — if destroyed, the Nightmare takes 1d6-2 damage. Tentacles have the Nightmare's HP -2. When used, they deal 1d6+1 damage.",
+   "ability": "Silent Midnight Poem (1 SPI): Can now chant Midnight Poems without opening the mouth. Nightmare State (1 SPI): The Nightmare's body falls asleep while the Soul Body moves freely within city range to enter dreams. While in this state, vision is tainted and all Observation rolls suffer -3. The Nightmare sees glowing orbs that belong to the dream of someone. Dream Shaping (1 SPI): Shapes the dream of a target, guiding them into revealing certain things or truths. Can be used for interrogation: all Interrogation, Detect Lies, and Observation rolls gain +3 during this state. Target rolls Will -2; on critical failure the target divulges their biggest secret. Dream Invasion (2 SPI): Forcefully drags a target into a dream. Target rolls Spiritual Intuition (3d6, target = current SPI, Ch. 4) at -5; on failure they are unaware they are in a dream; on critical failure they suffer -1 to all actions in the dream. Range: 20 meters if done quickly, 100 meters with 2 turns of preparation. The Nightmare can coax the target into sleeping to reduce casting cost by 1 SPI. Once used, both the Nightmare and the target fall into the dream. The Nightmare can coax up to 10 people into sleeping, but can only enter the dream of 1 target. Nightmare Limbs (1 SPI): Generates tentacles from the back for close combat. These tentacles are made of flesh and blood — if destroyed, the Nightmare takes 1d6-2 damage. Tentacles have the Nightmare's HP -2. When used, they deal 1d6+1 damage.",
    "reinforcedAbilities": "Nocturnality: At night or in darkness, DX and IQ bonuses increase to +3 (from +2). Perception bonus to spot hidden creatures in darkness increases to +4. Shadows: The Stealth bonus rises to +4 (from +3). The Nightmare can merge into shadows as a free action once per turn, gaining Invisibility (vision only) until they attack or leave the shadow. Danger Detection: +5 to any roll to detect ambushes and traps (from +4). Range expands to 30 m (from 20 m).",
    "sourceLines": [
-    7455,
-    7485
+    6706,
+    6734
    ]
   },
   {
@@ -2534,12 +2478,6 @@
      "attr": "IQ",
      "difficulty": "VH",
      "bonus": 1
-    },
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 2
     }
    ],
    "advantages": "",
@@ -2547,8 +2485,8 @@
    "ability": "Spirit Channeling (2 SPI): Roll Ritualistic Magic to communicate with natural spirits and dead souls. Most require materials (Full Moon Essence Oil, Corpse Incense, or the Medium's own blood). Success = willing to converse. Success by 3+ = favorable. Failure = refuse. Critical Failure = offended — they haunt you. 1 spirit at a time. Living souls can also be channeled (harder). Two methods: (1) Forceful — SPI contest vs Will; (2) Relaxation — Amantha Extract + Eye of Spirit medication. Crit fail on a living soul causes backlash (+1 CP). Deceased spirits need no ritual penalty. Frost Shadow (1–2 SPI/turn): Roll Ritualistic Magic to summon a combat spirit. On success, it manifests on your turn and you control it mentally as a free action. Duration: concentration, up to 1 minute (dismiss as free action). Choose one form per summon:  Ice Armor — +2 DR (+3 vs cold), lasts while maintained.  Frost Scythe — sw+2 cutting +1 cold damage, Reach 1–2.  Freezing Field — 10m radius; enemies inside take 1 HP cold damage per round (HT roll to resist; half damage on success). Spirit Affinity (Passive): Understand spirits without Ritualistic Magic. Spirits regard you as kin — won't attack first. If friendly, they may share information unprompted (1d6; 4+ succeeds). Intelligent undead (IQ 8+) may resist with a Will roll; on success they ignore the affinity. Zombie Disguise (1 SPI): Disguise as zombie; +1 Will vs death/cold/decay auras (including from ghosts and undead). Eye of Death (1 SPI): Upgrade from Gravedigger — costs SPI instead of FP. Reveals all weaknesses of Undead/Spirit creatures. For the rest of the scene: +2 to hit, +2 damage, ignore 2 DR against that creature.",
    "reinforcedAbilities": "Undead Deterrence: Range expands to 15 m and the Will penalty for undead approaching the Spirit Medium increases to -3. Affects all undead up to Seq 7 (from Seq 8-9). Controlled Zombie: The Spirit Medium can maintain control over up to 3 zombies at once (from 2). Zombies gain +2 to ST and +1 HP from the increased spiritual power flowing through them. Corpse Vision: Range expands to 30 m. The Spirit Medium can see through the eyes of any corpse they have personally touched within the past week (instead of 24 hours). Duration of shared vision increases to 5 minutes.",
    "sourceLines": [
-    7486,
-    7532
+    6735,
+    6779
    ]
   },
   {
@@ -2574,7 +2512,7 @@
     },
     {
      "attr": "SPI",
-     "delta": 1.0
+     "delta": 2.0
     }
    ],
    "skills": [
@@ -2605,11 +2543,11 @@
    ],
    "advantages": "DR 1 (all, stacks with Pugilist) total DR 2 from Pugilist + Weapon Master",
    "drawbacks": "",
-   "ability": "Weapon Mastery (Passive): The Weapon Master can use any weapon at master-level standard the moment it enters their hands. This includes mundane weapons, Beyonder weapons, Mystical Items, and Sealed Artifacts in weapon form — swords, guns, axes, polearms, and any other weapon type. Unlike the Warrior, the Weapon Master requires no warm-up — every weapon is treated as known at effective DX (no default penalty) instantly, and the Weapon Master also dons and maintains any armour type without penalty. Example: A Weapon Master who picks up a flintlock pistol for the first time fires it at effective DX (no default penalty) immediately — no repeated uses needed. The same applies to a legendary sealed-artifact sword or a Beyonder weapon: full mastery from the first swing. Skill bonuses from this potion are cumulative with those from earlier Twilight Giant potions (Warrior, Pugilist). This is a strict upgrade to and replacement of the Warrior's Combat Mastery. Negative Effect Resistance (Passive): The Weapon Master's superhuman physique and spiritual fortitude reduce the harmful side effects of Beyonder weapons, Mystical Items, and Sealed Artifacts they wield. When wielding such an item, the Weapon Master halves any FP or HP damage taken from its negative effects (after any resistance roll, before modifiers, rounded down) and gains +3 to any resistance roll against its detrimental effects (e.g. Will rolls against madness, HT rolls against curses).",
-   "reinforcedAbilities": "Powerful Blow: The Weapon Master may charge an attack for 2 consecutive turns of concentration — the third turn's melee attack deals double damage (minimum +1d6). At the GM's discretion, a suitably dramatic weapon (greatsword, warhammer) may also shatter non-magical shields or objects on a hit. Counterattack: After a successful active defense, the Weapon Master may make an immediate counterattack at no penalty (the usual -4 for a stop-hit is waived). This may be done once per turn. Stone Body: DR from Pugilist's Stone Body increases by +1 (total DR 3 vs. physical if combined with potion DR). The Weapon Master's natural DR now also protects against corrosion damage at half value (rounded down).",
+   "ability": "Weapon Mastery (Passive): The Weapon Master can use any weapon at master-level standard the moment it enters their hands. This includes mundane weapons, Beyonder weapons, Mystical Items, and Sealed Artifacts in weapon form — swords, guns, axes, polearms, and any other weapon type — all at effective DX+4 immediately, melee and ranged alike, with no warm-up or repeated use needed, surpassing the Warrior's and Pugilist's full proficiency (effective DX+2). The Weapon Master also dons and maintains any armour type without penalty. Example: A Weapon Master who picks up a flintlock pistol for the first time fires it at effective DX+4 immediately — no repeated uses needed. The same applies to a legendary sealed-artifact sword or a Beyonder weapon: full mastery from the first swing. Skill bonuses from this potion are cumulative with those from earlier Twilight Giant potions (Warrior, Pugilist). This is a strict upgrade to and replacement of the Warrior's Combat Mastery. Negative Effect Resistance (Passive): The Weapon Master's superhuman physique and spiritual fortitude reduce the harmful side effects of Beyonder weapons, Mystical Items, and Sealed Artifacts they wield. When wielding such an item, the Weapon Master halves any FP or HP damage taken from its negative effects (after any resistance roll, before modifiers, rounded down) and gains +3 to any resistance roll against its detrimental effects (e.g. Will rolls against madness, HT rolls against curses).",
+   "reinforcedAbilities": "Counterattack: After a successful active defense, the Weapon Master may make an immediate counterattack at no penalty (the usual -4 for a stop-hit is waived). This may be done once per turn. Iron Body: DR from Pugilist's Iron Body increases by +1 (total DR 3 vs. physical if combined with potion DR).",
    "sourceLines": [
-    7533,
-    7584
+    6780,
+    6829
    ]
   },
   {
@@ -2631,7 +2569,7 @@
     },
     {
      "name": "Divination Arts",
-     "attr": "SPI",
+     "attr": "IQ",
      "difficulty": "H",
      "bonus": 2
     },
@@ -2642,13 +2580,13 @@
      "bonus": 2
     }
    ],
-   "advantages": "Charisma +1 +1 to reaction rolls and Influence skills Appearance (Beautiful) the potion perfects the Witch's features; +2 to reaction rolls",
+   "advantages": "Charisma +1 +1 to Influence skills; NPCs predisposed to trust you Appearance (Beautiful) the potion perfects the Witch's features; NPCs tend to react favourably (GM discretion)",
    "drawbacks": "",
-   "ability": "Permanent Changes: The potion changes the Beyonder's gender to female. Slight height increase (~5 cm). Body proportions approach perfection. Details become more alluring. Invisibility (X SPI): By scattering shimmering powder and reciting an incantation, a Witch can turn Invisible to the naked eye. Lasts 10 minutes per SPI spent, up to 1 hour max. The Invisibility ends if physical contact is made. Ice Projectiles (1 SPI): Create and project several ice projectiles at a target, inflicting 2d-2 damage. Mirror Substitution (3 SPI): Set up a Substitution using a Mirror, transferring all the damage from the next successful attack to the mirror. The mirror shatters on use. Can be used on an ally under 2 conditions: they provide a medium (hair, blood, etc.) and stay within 30 meters of the Witch. Staff Substitution (3 SPI): Witches can use staves as a medium for substitutes to counteract fatal harm. Upon being harmed, switch positions with the staff, which takes the damage and shatters. Black Flames: Black flames burn spirituality rather than objects, thus allowing spirit bodies and Beyonder effects to be set aflame. Cannot be extinguished with water. Can be extinguished only by controlling one's own spirituality or the target's below 1/3 of maximum. Flame Envelopment (2 SPI + 1 SPI/turn): Envelop a weapon with black flames. After landing a successful hit that causes laceration, you may detonate the flames coursing inside the target's veins for 2d6+1 damage (costs 2 SPI). Must be done the next turn or the flames extinguish. Flame Compression (2 SPI): Compress black flames into a dense, cannonball-sized sphere and throw it. Hits with the force of a cannonball, spewing flames on impact. Deals 2d6 damage + burning (1d3 per turn, -1 SPI per turn while burning until target's SPI is under 1/3 max). Range 35 meters, blast radius 10 meters. Freeze — Target (2 SPI): Freeze a target by touch, up to 1 cubic meter. Target rolls HT-1; on failure takes 2d6-1 damage, on success takes half (rounded down). Freeze — Area (3 SPI): Freeze an area up to 10 meter radius centred on self. All targets in range roll HT-1; failure takes 2d6-1 damage, success takes half (rounded down). Ice Wind (2 SPI + 1 SPI/turn): Icy wind and hail swirl around the Witch (10 meter radius), imposing -3 to all rolls relying on sight and smell. Lasts until dispelled or the Witch runs out of Spirituality. Ice Seal (2 SPI): Seals the target in a cage of layered ice for 1d4 turns. Can be broken with ST-1 roll. Mirror Magic — Hide (1 SPI): Hide in a mirror for 1d6 seconds. If the mirror is destroyed, the Witch is thrown out and takes 2d6 damage. Mirror Magic — Sense (Passive): Sense mirrors within 25 meters. Cursing: Can curse a target if possessing their blood (+2) or a doll made from their flesh and hair (+4). Uses Ritualistic Magic skill. Once the connection is established, the Witch may burn the medium for 2d6 damage, or use it as a base for other rituals (add the medium's bonus to the success rate).",
+   "ability": "Permanent Changes: The potion changes the Beyonder's gender to female. Slight height increase (~5 cm). Body proportions approach perfection. Details become more alluring. Invisibility (X SPI): By scattering shimmering powder and reciting an incantation, a Witch can turn Invisible to the naked eye. Lasts 10 minutes per SPI spent, up to 1 hour max. The Invisibility ends if physical contact is made. Ice Projectiles (1 SPI): Create and project several ice projectiles at a target, inflicting 2d-2 damage. Mirror Substitution (3 SPI): Set up a Substitution using a Mirror, transferring all the damage from the next successful attack to the mirror. The mirror shatters on use. Can be used on an ally under 2 conditions: they provide a medium (hair, blood, etc.) and stay within 30 meters of the Witch. Staff Substitution (3 SPI): Witches can use staves as a medium for substitutes to counteract fatal harm. Upon being harmed, switch positions with the staff, which takes the damage and shatters. Black Flames: Black flames burn spirituality rather than objects, thus allowing spirit bodies and Beyonder effects to be set aflame. Cannot be extinguished with water. Can be extinguished only by controlling one's own spirituality or the target's below 1/3 of maximum. Flame Envelopment (2 SPI + 1 SPI/turn): Envelop a weapon with black flames. After landing a successful hit that causes laceration, you may detonate the flames coursing inside the target's veins for 2d6+1 damage (costs 2 SPI). Must be done the next turn or the flames extinguish. Flame Compression (2 SPI): Compress black flames into a dense, cannonball-sized sphere and throw it. Hits with the force of a cannonball, spewing flames on impact. Deals 2d6 damage + burning (1d3 per turn, -1 SPI per turn while burning until target's SPI is under 1/3 max). Range 35 meters, blast radius 10 meters. Freeze — Target (2 SPI): Freeze a target by touch, up to 1 cubic meter. Target rolls HT-1; on failure takes 2d6-1 damage, on success takes half (rounded down). Freeze — Area (3 SPI): Freeze an area up to 10 meter radius centred on self. All targets in range roll HT-1; failure takes 2d6-1 damage, success takes half (rounded down). Ice Wind (2 SPI + 1 SPI/turn): Icy wind and hail swirl around the Witch (10 meter radius), imposing -3 to all rolls relying on sight and smell. Lasts until dispelled or the Witch runs out of Spirituality. Ice Seal (2 SPI): Seals the target in a cage of layered ice for 1d4 turns. Can be broken with ST-1 roll. Mirror Magic — Hide (1 SPI): Hide in a mirror for 1d6 seconds. If the mirror is destroyed, the Witch is thrown out and takes 2d6 damage. Mirror Magic — Sense (Passive): Sense mirrors within 25 meters. Cursing: Can curse a target if possessing their blood (+2) or a doll made from their flesh and hair (+4). Uses Ritualistic Magic skill. Once the connection is established, the Witch may burn the medium for 4d6 damage, or use it as a base for other rituals (add the medium's bonus to the success rate).",
    "reinforcedAbilities": "Feather Fall: The glide ratio improves to 3:1 (from 2:3). The Witch may also slow the fall of 1 additional person within 3 m at no extra SPI cost. Shadow Concealment: The Stealth bonus in dim or dark conditions increases to -6 (from -5). When standing still in complete darkness, the Witch is effectively invisible to mundane sight — observers roll Per-4 to notice. Charm: The Instigator's innate Charm improves — the Witch gains +2 to all Influence skill rolls (Diplomacy, Fast-Talk, Sex Appeal) against targets who are attracted to the Witch's gender.",
    "sourceLines": [
-    7585,
-    7646
+    6830,
+    6893
    ]
   },
   {
@@ -2671,18 +2609,6 @@
    ],
    "skills": [
     {
-     "name": "Guns (any)",
-     "attr": "DX",
-     "difficulty": "E",
-     "bonus": 3
-    },
-    {
-     "name": "Intimidation",
-     "attr": "Will",
-     "difficulty": "A",
-     "bonus": 3
-    },
-    {
      "name": "Traps",
      "attr": "IQ",
      "difficulty": "A",
@@ -2697,11 +2623,11 @@
    ],
    "advantages": "DR 2 (fire) resistance to fire damage",
    "drawbacks": "",
-   "ability": "Spirit Vision Enhancement: The Pyromaniac's spirit vision is easier to activate and can now perceive the Ether Body of spirits and Beyonders. Danger Intuition Buff: Pre-emptive threat detection is enhanced. Enemies tracking the Pyromaniac suffer -2 to their Tracking rolls. Pyrokinesis: The Pyromaniac can freely control existing flames within a 5-meter radius at no cost (shape, move, intensify, or extinguish). Creating flames from nothing requires Conjure (1 SPI). Each additional 15 meters of range costs 1 SPI. All abilities below are part of Pyrokinesis. Compress (1 SPI): Compresses an existing flame before releasing it. Base damage is 1d6 burning. Each turn spent charging adds +3 damage (max +9, requiring 3 turns of charging). Fire Armour (1 SPI): Wreathes the body in protective flame, granting DR 1 and resistance to cold and poison effects. Lasts until dismissed. Conjure (1 SPI): Conjures a crude flame weapon (improvised weapon stats) that deals burning damage. Lasts 1 minute. Area Burst (2 SPI): Creates a burst of flame in a 3-meter radius. Targets take 1d6+1 burning damage (Dodge to halve). Delay Explosions (2 SPI): Sets a delayed flame trap. 1d6+3 burning damage on detonation (Dodge to halve). Lasts 1 hour or until triggered. Fire Enchant (1 SPI): Enchants a held weapon with flame. The weapon deals +1d6 burning damage for 1 minute. Affects spirits and incorporeal beings normally. Fire Ravens (1 SPI per raven): Conjures 1 flaming raven construct per SPI spent. Each raven has Move 8, HP 2, and deals 1d6-1 burning damage on impact (Dodge to avoid). Ravens disperse after 3 turns. Fire Infusion (1 SPI per hit, free action): When hitting a target with an unarmed strike, infuse it with 1 stack of Fire Infusion. On a subsequent turn, the Pyromaniac may detonate all stacks on a target as a standard action, dealing 1d6 burning damage per stack.",
+   "ability": "Danger Intuition Buff: Pre-emptive threat detection is enhanced. Enemies tracking the Pyromaniac suffer -2 to their Tracking rolls. Pyrokinesis: The Pyromaniac can freely control existing flames within a 5-meter radius at no cost (shape, move, intensify, or extinguish). Creating flames from nothing requires Conjure (1 SPI). Each additional 15 meters of range costs 1 SPI. All abilities below are part of Pyrokinesis. Compress (1 SPI): Compresses an existing flame before releasing it. Base damage is 1d6 burning. Each turn spent charging adds +3 damage (max +9, requiring 3 turns of charging). Fire Armour (1 SPI): Wreathes the body in protective flame, granting DR 1 and resistance to cold and poison effects. Lasts until dismissed. Conjure (1 SPI): Conjures a crude flame weapon (improvised weapon stats) that deals burning damage. Lasts 1 minute. Area Burst (2 SPI): Creates a burst of flame in a 3-meter radius. Targets take 1d6+1 burning damage (Dodge to halve). Delay Explosions (2 SPI): Sets a delayed flame trap. 1d6+3 burning damage on detonation (Dodge to halve). Lasts 1 hour or until triggered. Fire Enchant (1 SPI): Enchants a held weapon with flame. The weapon deals +1d6 burning damage for 1 minute. Affects spirits and incorporeal beings normally. Fire Ravens (1 SPI per raven): Conjures 1 flaming raven construct per SPI spent. Each raven has Move 8, HP 2, and deals 1d6-1 burning damage on impact (Dodge to avoid). Ravens disperse after 3 turns. Fire Infusion (1 SPI per hit, free action): When hitting a target with an unarmed strike, infuse it with 1 stack of Fire Infusion. On a subsequent turn, the Pyromaniac may detonate all stacks on a target as a standard action, dealing 1d6 burning damage per stack.",
    "reinforcedAbilities": "Environment Memory: Range expands to 30 m. The Pyromaniac can replay the last 10 minutes of any fire source's surroundings (from 5 minutes). A successful Survival Knowledge analysis of a burned area reveals the exact cause of ignition and any metaphysical traces left behind. Survival Knowledge: The healing from a successful Survival Knowledge check increases to 1d6+2 HP (from 1d6+1). The Pyromaniac may apply this to self or an ally once per scene without needing to retreat from combat.",
    "sourceLines": [
-    7647,
-    7695
+    6894,
+    6937
    ]
   },
   {
@@ -2715,12 +2641,6 @@
     }
    ],
    "skills": [
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 2
-    },
     {
      "name": "Occultism",
      "attr": "IQ",
@@ -2751,8 +2671,8 @@
    "ability": "Spell Casting: The Warlock's signature ability. Requires one turn of Concentration to gather Spirituality, then one turn to cast the spell. A material medium or component is required. Artifacts may substitute if the Warlock knows their function. Note: Due to the Law of Beyonder Indestructibility, spell mediums that are main potion ingredients are not exhausted after use. Other ingredients (spirituality-rich items without Beyonder characteristics) are one-time use. Spell Creation System: The Warlock can design new spells using Thaumatology.  The medium must have a concrete mystical connection. Roll Occultism to remember the connection.  Spirituality determines spell strength: 1 SPI for the effect, 2 SPI when strength is needed, 3 SPI for duration.  Roll Thaumatology to design the spell. Results: — Success: Spell works but not flawlessly. SPI cost +2. — Success by 3: Spell works as intended but inefficiently. SPI cost +1. — Success by 5+: Masterfully designed. No cost increase. — Critical Success: Masterpiece. SPI cost -1 (minimum 1 SPI). — Failure: Fail to create the spell. — Critical Failure: The spell WILL backfire. Roll IQ to understand — success means you realize the spell is flawed; failure means you don't.",
    "reinforcedAbilities": "Eyes of Mystery Prying: The Warlock can now read surface thoughts of sleeping targets and glean dream content without a roll. Against waking targets, the penalty to the target's save increases to -4 (from -3). The Warlock may also learn 1 random weakness or fear of the target (GM discretion) on a successful use. Quick Rituals: The time reduction for known rituals improves to -5 (from -4). The Warlock can perform rituals at half the listed time (minimum 1 minute), and may maintain concentration on one ritual while taking Move-equivalent actions.",
    "sourceLines": [
-    7696,
-    7735
+    6938,
+    6975
    ]
   },
   {
@@ -2766,7 +2686,7 @@
     },
     {
      "attr": "SPI",
-     "delta": 1.0
+     "delta": 2.0
     }
    ],
    "skills": [
@@ -2782,8 +2702,8 @@
    "ability": "Appraisal (Passive): The Appraiser examines a Beyonder item, Mystical Item, or Sealed Artifact and instantly identifies its general purpose, dangers, and domain alignment (no roll for common items). For rare or complex items, roll Appraisal — success reveals 1 hidden property, success by 3+ reveals all immediate dangers. This does not bypass active curses or binding, but the Appraiser instinctively knows the safest way to handle the item (which side not to touch, which words not to speak, etc.).",
    "reinforcedAbilities": "Total Memory: The Appraiser can recall the exact spiritual signature of any item they have appraised, allowing them to identify a disguised or altered version of the same item without a roll. The tactile memory now extends to textures and spiritual resonance, not just shapes. Rapid Analysis: One-quarter time is now one-fifth time (minimum 1 second). The Appraiser may appraise an item instantly (free action) if it is a common type they have seen before.",
    "sourceLines": [
-    7736,
-    7759
+    6976,
+    6999
    ]
   },
   {
@@ -2802,8 +2722,8 @@
    "ability": "Passive Luck: At session start, roll 1d6: 1 — Find 1d6 soli. No Passive Luck this session. 2–3 — Luck die = 1d6. 4–5 — Luck die = 1d6+2. 6 — Luck die = 2d6. Once per session, after any 3d6 roll you make, you may subtract your luck die from the total (minimum 3). This can negate a critical failure (17–18).",
    "reinforcedAbilities": "Foresight: The Lucky One may use Foresight up to 3 times per session (from 2). The GM must warn the Lucky One of any impending danger at least 3 seconds before it occurs (from 2 seconds), giving them a chance to take a defensive action. Premonition: When a Premonition triggers, the Lucky One gains +3 to any single roll made to avoid or mitigate the foreseen event (instead of +2). This bonus may be applied after seeing the roll result.",
    "sourceLines": [
-    7760,
-    7779
+    7000,
+    7017
    ]
   },
   {
@@ -2857,11 +2777,11 @@
    ],
    "advantages": "Disease Resistance +3 to HT vs disease and natural toxins",
    "drawbacks": "",
-   "ability": "Command Plants (2 SPI): The Harvest Priest exerts authority over plant life and plant-based creatures within 20 meters. Resolve as a Quick Contest of SPI vs the target's Will (for intelligent plant creatures) or a straightforward roll (for mundane plants). Success: the target follows a simple command — entangle, release pollen, part foliage, grow thorns, or hold position — for up to 1 hour. Intelligent plant creatures may attempt a new Will roll each minute to break free. If the command harms the target or its allies, the target gets +3 to resist. Weather Rituals (Ritualistic Magic): Upon drinking the potion, the Harvest Priest obtains several Ritualistic Spells focused on manipulating the weather within a certain area. All are cast using Ritualistic Magic and cost SPI as noted. Clear Skies (2 SPI): Clears clouds, fog, and precipitation in a 200-meter radius over 1d6 minutes. Works against natural weather only; supernatural weather effects resist with a Quick Contest of the caster's Ritualistic Magic vs the effect's source. Summon Rain (2 SPI): Conjures steady rain in a 200-meter radius. Takes effect over 1d6 minutes. Can end droughts, water crops, or create cover. Does not produce lightning or storms. Calm Winds (1 SPI): Reduces wind speed in a 100-meter radius. Strong gales become breezes; hurricane-force drops to strong wind. Lasts 10 minutes. Nature's Bounty (1 SPI): Accelerates plant growth in a 5-meter radius. Crops, herbs, and medicinal plants mature in 1 minute. Produces enough food for 2 people per casting. Does not affect magical or spiritually-altered flora. Restorative Harvest (2 SPI): Touches a living plant and draws on its life force to heal the Priest or an ally for 1d HP. The plant wilts visibly for 24 hours and cannot be used again during that time. Spirit Vision (Nature): The Harvest Priest's Spirit Vision reads the health and spiritual state of natural life. Costs 1 SPI per minute. While active, senses disease, corruption, and unnatural influences within 100 meters.",
+   "ability": "Plant & Insect Commanding (2 SPI): Harvest Priests are able to directly Command plants and insects within a 30 meter radius to provide them with a certain level of support. There are 2 prerequisites that need to be followed for this ability to work on a plant or insect: the plant or insect they are attempting to Command does not possess intelligence, and the level of Commanding does not exceed the species' biological limitations. Weather Rituals (Ritualistic Magic): Upon drinking the potion, the Harvest Priest obtains several Ritualistic Spells focused on manipulating the weather within a certain area. All are cast using Ritualistic Magic and cost SPI as noted. Clear Skies (2 SPI): Clears clouds, fog, and precipitation in a 200-meter radius over 1d6 minutes. Works against natural weather only; supernatural weather effects resist with a Quick Contest of the caster's Ritualistic Magic vs the effect's source. Summon Rain (2 SPI): Conjures steady rain in a 200-meter radius. Takes effect over 1d6 minutes. Can end droughts, water crops, or create cover. Does not produce lightning or storms. Calm Winds (1 SPI): Reduces wind speed in a 100-meter radius. Strong gales become breezes; hurricane-force drops to strong wind. Lasts 10 minutes. Nature's Bounty (1 SPI): Accelerates plant growth in a 5-meter radius. Crops, herbs, and medicinal plants mature in 1 minute. Produces enough food for 2 people per casting. Does not affect magical or spiritually-altered flora. Restorative Harvest (2 SPI): Touches a living plant and draws on its life force to heal the Priest or an ally for 1d HP. The plant wilts visibly for 24 hours and cannot be used again during that time.",
    "reinforcedAbilities": "Farming Tools: The Harvest Priest can use any farming or gardening tool as a weapon at no default penalty, and the bonus to tool-based attacks increases to +5 (from +4). The tool counts as a Beyonder weapon of the Priest's Sequence for harming spiritual entities. Physician: The +3 bonus to Physician checks now applies to diagnosing and treating supernatural ailments (spiritual contamination, Beyonder-induced illnesses, curses with biological symptoms). The healing time for natural diseases under the Harvest Priest's care is halved. Potion Brewing: The -1 penalty for brewing Potions without a proper lab is eliminated entirely when working with natural ingredients (herbs, plants, mineral salts). Brewing time for healing potions is reduced by half.",
    "sourceLines": [
-    7780,
-    7836
+    7018,
+    7074
    ]
   },
   {
@@ -2905,13 +2825,13 @@
      "bonus": 3
     }
    ],
-   "advantages": "Spirituality Absorption when feasting on spiritually rich blood, restore SPI",
+   "advantages": "Spirituality Absorption when feasting on spiritually rich blood, restore SPI Regeneration (Normal) regain 1 HP per hour",
    "drawbacks": "Vampire Diet can only drink spiritually rich blood Sun Allergy extreme discomfort under direct sunlight Purification Weakness 2d6 damage if targeted by purification Slow-beating Heart piercing/stake attacks to the heart deal ×2 damage",
    "ability": "Wings of Flight (1 SPI): Gain +2 Basic Move for flight for 1 minute. Extended flight costs 1 SPI per additional minute. Bat Swarm Form (3 SPI): Transform into a swarm of illusory bats for 1 minute. In this form you are immune to physical damage from non-magical weapons. You may emit black gases that poison a target for 1d6 damage over 2 turns (HT roll to resist), or create black flames that deal 1d6 burn per turn for 4 turns. Cannot use other abilities while in swarm form. Corrosive Claw (2 SPI): An innate melee attack (Brawling skill). Counts as a knife for damage purposes (thr-1 cut / sw-2 imp). Ignores natural DR — skin, hide, fur, scales, chitin, and membrane — but not manufactured armour or magical DR. Abyss Shackles (2 SPI): A spell belonging to the Darkness domain that condenses nearby shadow and darkness into tangible shackles to restrict and control the enemy. Roll Ritualistic Magic vs the target's HT. On success, the target is bound for 3 turns. The target may attempt to break free with a ST-3 roll each turn. If the caster's concentration is broken, the shackles dissolve immediately. The Embrace (7 SPI): When a Vampire has fully digested their current Sequence and possesses at least 1 surplus Beyonder characteristic (representing excess essence beyond what their own advancement requires), they may bestow it upon a willing or helpless human through a 1-hour ritual. The target rises as a Sequence 7 Vampire after 1d3 hours. The Vampire permanently loses 1 max SPI per use until they consume and digest additional potion material to replenish the lost characteristic. Blood Servant Conversion (3 SPI): A spell that a Vampire can use to turn a willing or helpless living creature into a blood servant. Roll Ritualistic Magic. On success, the target becomes a blood servant: they cannot disobey a direct order from the Vampire, all mundane illnesses are cured, and they permanently gain +2 HT and +2 HP. The bond lasts until the blood servant dies or the Vampire voluntarily releases them. Failure: SPI is spent, no effect. Critical Failure: the target becomes hostile and gains +2 to all actions against the Vampire for 24 hours.",
-   "reinforcedAbilities": "Spirit Vision (Animals): The Vampire's animal Spirit Vision range expands to 80 m (from 50 m). The Vampire can read an animal's emotional state, recent memories (last 24 hours), and whether it has been spiritually tampered with. Beast Taming: The Vampire can now control up to 3 animals simultaneously (from 2) and may issue complex multi-step commands. Animals under the Vampire's control gain +2 to ST and +1 Basic Speed. Physician (Animal): The +3 Physician bonus now applies to the Vampire's own natural healing processes — recover +1 extra HP per day of rest. The Vampire may also use Physician to diagnose spiritual ailments in animals and moon-aligned creatures without penalty.",
+   "reinforcedAbilities": "Beast Taming: Animals under the Vampire's control gain +2 to ST and +1 Basic Speed. Physician (Animal): The +3 Physician bonus now applies to the Vampire's own natural healing processes — recover +1 extra HP per day of rest. The Vampire may also use Physician to diagnose spiritual ailments in animals and moon-aligned creatures without penalty.",
    "sourceLines": [
-    7837,
-    7912
+    7075,
+    7149
    ]
   },
   {
@@ -2925,7 +2845,7 @@
     },
     {
      "attr": "SPI",
-     "delta": 1.0
+     "delta": 2.0
     }
    ],
    "skills": [
@@ -2941,8 +2861,8 @@
    "ability": "Interference (Ritual): The Serial Killer may sacrifice a living being in a 1-hour ritual to shroud themselves in sacrificial residue. Animal sacrifice: Divination and Spirit Channeling targeting the Serial Killer are at -2 for 1d6 days. Human sacrifice: -4 for 1d6 days. Devil Worship (Ritual): Requires a unique serial killing spree (minimum 3 murders) without being caught. Once all cases are officially closed, the Serial Killer may perform a ritual (standard ritual rules) to summon a Devil projection. Roll 3d6 + modifiers vs Ritualistic Magic — lower roll = more favorable outcome. The GM determines the Devil's ST, IQ, and Favourability (roll 3d6 for each if desired; lower = better on all three). Failure: ritual fails; the killing spree must be repeated from scratch.",
    "reinforcedAbilities": "Enhance Improvised Weapons: The Serial Killer's improvised weapon skill increases to Brawling+3 (from Brawling+2). The weapon counts as a Beyonder weapon of the Serial Killer's Sequence, and on a critical hit, the improvised weapon breaks in a way that deals an additional 1d6 corrosion damage. Firearms Proficiency: The DX bonus increases to +2 (from +1). The Serial Killer may fire two shots as a single Attack maneuver without the usual dual-wield penalties, provided both shots target the same enemy. Poison Enhancement: The +2 bonus to poison-crafting rolls now applies to identifying and creating supernatural toxins (spiritual venom, corrupted elixirs). The Serial Killer's poisons also affect spirits and incorporeal beings at half potency (round down).",
    "sourceLines": [
-    7913,
-    7942
+    7150,
+    7179
    ]
   },
   {
@@ -2964,7 +2884,7 @@
     },
     {
      "attr": "SPI",
-     "delta": 1.0
+     "delta": 2.0
     },
     {
      "attr": "Basic Move",
@@ -3008,8 +2928,8 @@
    "ability": "Partial Transformation (1 SPI per feature): Manifest individual werewolf features — claws, venom, or enhanced speed — without full transformation. Each feature costs 1 SPI and lasts the scene. Full Transformation (1 SPI): Ready maneuver to transform completely. Lasts 1 minute (extend at 1 SPI per minute). While transformed:  ST +3, DX +2 (adds to base potion stats)  Claws: sw+2 cut; Bite: thr+2 imp. Both count as Beyonder weapons of the Werewolf's Sequence  Venom: on a hit that breaks skin, target rolls HT-2 each round for 1d rounds or suffers -2 to all physical rolls. Failure by 5+ causes partial muscle control loss for 1d minutes  Speed: +1 Basic Move (stacks with base potion bonus for +2 total). Opponents roll Per-2 to track position at full speed  Regeneration (Fast): 1 HP per minute. Sun-domain damage heals at normal rate Weakness — Sun Vulnerability: Sun-domain abilities deal double damage and ignore DR entirely. Regeneration suspended for 1 minute after a Sun-domain hit. Werewolf Kin (1 SPI): When a target has failed its HT roll against venom, spend 1 SPI and make a Quick Contest of SPI vs the target's Will. On success, the target becomes a puppet Werewolf for 1d hours — ST 14, DX 10, claws only, no special abilities. Collapses and reverts at duration's end or at 0 HP. Dark Horror (1 SPI): Free action. Deepens darkness within 10 meters — faint light sources extinguished, moonlight banished. Targets roll Will or suffer -2 to rational thought and movement for 1d rounds. Fail by 5+ — paralyzed with dread for one round. Strong light sources reduce radius to 5 meters. Sun-domain holy light negates entirely. Repel Light (Free): Free action. Pushes back faint illumination — candles, distant gas lamps, ambient moonlight — within 5 meters. No effect against strong or supernatural light. Primarily maintains darkness during Dark Horror. Anti-Divination (Passive): Any divination or Spirit Vision targeting the Werewolf reveals only a figure covered in black hair regardless of transformation state. True identity, Sequence, pathway, emotional state, and location cannot be read through any spiritual means. Higher-Sequence Beyonders (Seq 5+) may bypass this with a Quick Contest of SPI vs the Werewolf's SPI. Werewolf's Curse — Full Moon: Every full moon roll Will-3 or enter uncontrolled semi-transformed state — predatory, bloodlust-driven, aware but unable to fully suppress. Consistent failures accumulate as narrative disadvantage toward permanent personality change and loss of humanity. Certain Sealed Artifacts corresponding to the Scarlet Scholar allow rationality to be maintained during full moon. Acquiring one is a significant campaign goal. Lunatic's Curse — Retained: All corruption thresholds remain reduced by 2. Full moon curse stacks with existing instability.",
    "reinforcedAbilities": "Improvised Weapons Expertise: The Werewolf's improvised weapon damage bonus increases to +2 (from +1). Any object used as a weapon also counts as a Beyonder weapon of the Werewolf's Sequence, and on a successful hit, the target must roll HT or be Shaken (see GURPS p. B360) for 1 turn. Escape Artist: The Werewolf may attempt to escape supernatural bonds (magical restraints, spirit chains, shadow shackles) at full Escape skill with +2. Against mundane restraints, escape is automatic unless the restraints are specifically designed to hold a supernatural creature. Hidden Exits Sense: Range expands to 30 m (from 20 m). The Werewolf can sense hidden exits even when they are magically concealed — the ability pierces concealment up to Seq 7 level.",
    "sourceLines": [
-    7943,
-    8035
+    7180,
+    7272
    ]
   },
   {
@@ -3051,8 +2971,8 @@
    "ability": "Illusory Torture Devices (1 SPI): An Interrogator can shape their spirituality into any kind of torture device. The device must be held, or it ceases to exist. The device deals spirit body damage (see Chapter 5) as a small weapon (Knife): thr-1 cut / sw-2 imp. Psychic Lashing (2 SPI): Coats a held object with illusory lightning for 1 minute. Attacks deal +2 spirit body damage (see Chapter 5) in addition to normal damage. Melee range. Psychic Piercing (1 SPI): Range 5 meters. Target rolls HT or is mentally Stunned for 1 turn (see GURPS stun rules, p. B420: -4 to active defenses, may attempt HT each turn to recover). Deals 2d6-3 spirit body damage (see Chapter 5). Whip of Pain (1 SPI): Deals continuous 1d6-3 spirit body damage per turn and costs 1 SPI each turn to maintain. Target must roll HT or be mentally Stunned for 1 turn (GURPS stun rules, p. B420). On subsequent turns, the target may roll Will to recover from the stun.",
    "reinforcedAbilities": "Authority: The Will penalty for targets within the Interrogator's Jurisdiction increases to -4 (from -2). The Interrogator may also project Authority as a free action once per scene, causing all hostile NPCs within 10 m to hesitate for 1 turn (no actions except active defenses). This does not affect PCs or major NPCs. Jurisdiction: The Interrogator's knowledge of local laws, procedures, and loopholes now extends to neighbouring jurisdictions. Rote legal knowledge is automatic — no roll needed. For obscure or hidden regulations, the IQ bonus increases to +4 (from +2).",
    "sourceLines": [
-    8036,
-    8070
+    7273,
+    7307
    ]
   },
   {
@@ -3069,10 +2989,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Bribery (1 SPI): All Bribe effects cost 1 SPI each to activate. By offering the target a symbolic or material bribe, you impose one of four effects on them. The bribe does not need to be willingly accepted — throwing an object counts as a valid bribe as long as the target interacts with it or is simply near it. Make a DX roll (or Throwing skill, if known) to land the bribe. If the bribe is thrown and misses: a margin of failure of 1–2 still counts, but duration becomes halved. Diminishing Rule (applies to all Bribe effects): At the end of each turn, the penalty/bonus decreases by 1. Once it reaches 0, the effect ends. Weaken: Target suffers -4 to attack and defense rolls (drops -1/turn, lasts 4 turns). Charm (1 SPI): Target rolls Will at -3 each turn (drops -1/turn, 3 turns max). Failure: target will not attack the briber that turn. Critical Failure: target lashes out at self or allies. Arrogance (1 SPI): Target rolls IQ at -2 each turn (drops -1/turn, 2 turns max). Failure: target makes a reckless or stupid action (GM discretion). Critical Failure: target loses their turn. Connection (1 SPI): Mystical link to target. You gain +2 to Divination and Tracking rolls against them (drops -1/turn, 2 turns max).",
-   "reinforcedAbilities": "Eloquence: When using Eloquence through Intimidation, the target's Will penalty increases to -5 (from -3). The Briber may also use Eloquence through Diplomacy or Fast-Talk (choose one per scene) with a -2 penalty to the target's save instead of -5. Intimidation: The Intimidation skill bonus from Barbarian increases by +2 (total +4 from all sources). If the Briber successfully Intimidates a target, the next Bribery attempt against that target in the same scene has its SPI cost reduced by 1 (minimum 1 SPI).",
+   "reinforcedAbilities": "Eloquence: When using Eloquence through Intimidation, the target's Will penalty increases to -5 (from -3). The Briber may also use Eloquence through Diplomacy or Fast-Talk (choose one per scene).",
    "sourceLines": [
-    8071,
-    8097
+    7308,
+    7331
    ]
   },
   {
@@ -3094,7 +3014,7 @@
     },
     {
      "name": "Divination Arts",
-     "attr": "SPI",
+     "attr": "IQ",
      "difficulty": "H",
      "bonus": 2
     },
@@ -3113,11 +3033,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Shapeshifting: The Faceless can freely mould their body and flesh, enabling them to perfectly mimic their target's face, body, voice, and even smell to some degree. It is not possible for a Faceless to change their gender. Their new height cannot be more than a head taller or shorter than their original height (15/20 cm). They can make their face completely featureless, without any eyes, nose, or mouth. They can change their body odour by adjusting the pores on their skin. To successfully impersonate someone in front of a person who knows the person being impersonated, the Faceless must succeed an Acting roll, or the person will grow suspicious. Not knowing the person being impersonated well causes a -3 penalty to the roll. Identity Confusion (2 SPI): The Faceless can mask their spiritual aura to match a different person they have studied or touched. If a divination targets the Faceless's original identity, it instead picks up the masked aura — leading the diviner to the wrong person. Duration: 1 hour, or until the Faceless changes their masked identity. The Faceless must have met or studied the target whose aura they mimic — a simple description is not enough; 10+ minutes of close observation or a personal item is required. A diviner who critically succeeds on their Divination Arts or Ritualistic Magic roll realises the spiritual signature is a mask and may attempt a Quick Contest of Divination Arts or Ritualistic Magic vs the Faceless's SPI to pierce it.",
+   "ability": "Shapeshifting: The Faceless can freely mould their body and flesh, enabling them to perfectly mimic their target's face, body, voice, and even smell to some degree. It is not possible for a Faceless to change their gender. Their new height cannot be more than a head taller or shorter than their original height (15/20 cm). They can make their face completely featureless, without any eyes, nose, or mouth. They can change their body odour by adjusting the pores on their skin. To successfully impersonate someone in front of a person who knows the person being impersonated, the Faceless must succeed an Acting roll, or the person will grow suspicious. Not knowing the person being impersonated well causes a -3 penalty to the roll.",
    "reinforcedAbilities": "Flaming Jump (1 SPI): Range increased to 40 m. Flame Controlling (1 SPI): Range increased to 40 m. Illusion Creation (1 SPI): Range increased to 26 m. Air Bullet (1 SPI): Damage increased to 2d+2 pi (range 20/40).",
    "sourceLines": [
-    8103,
-    8137
+    7337,
+    7364
    ]
   },
   {
@@ -3140,8 +3060,8 @@
    "ability": "Distortion (3 SPI): The Baron of Corruption can use the loopholes found in Order. By distorting the target's words, actions, and intent, they can formulate a certain Order that provides them with an advantage, restraining and influencing their opponent. They can distort the direction and target of attacks. They can Seal ordinary rooms or Unseal confined spaces. The extent to which they can distort the direction and target of attacks is at the GM's discretion. Corrosion (2 SPI): The Baron of Corruption can turn the hearts of people within 10 metres dark and greedy, making them make irrational choices.",
    "reinforcedAbilities": "Bribery — All Effects: The Briber's Weaken penalty increases to -6 (from -4). Charm's Will penalty increases to -5 (from -3). Connection's bonus increases to +4 (from +2). The Diminishing Rule still applies. Eloquence: The Baron of Corruption may use Eloquence as a free action once per scene to impose the Arrogance effect on a target within 10 m without spending SPI. The target rolls IQ-2 as usual.",
    "sourceLines": [
-    8138,
-    8159
+    7365,
+    7386
    ]
   },
   {
@@ -3176,11 +3096,11 @@
    ],
    "advantages": "Ancient Hermes Fluent — can speak, read, and write this dead mystical language",
    "drawbacks": "",
-   "ability": "Prohibition (2 SPI): Speak in Ancient Hermes to forbid certain actions or Beyonder powers within a 10-meter radius — no contest required. Format: \"'X' is Prohibited here\". Examples: Flight, Teleportation, Invisibility. Violators suffer -12 to all rolls involving the prohibited action. Targets with SPI higher than the Judge's suffer -6 instead. Cannot kill specific individuals — suppresses or repels them instead. Suppressed if the target is 3+ Sequences above the Judge. Imprison (2 SPI): Range: LOS, up to 15 m. Freezes one target in place. Breaking free requires ST-4 or Escape-4 each turn. Roots Spirit Body-type creatures, but cannot prevent escape via Substitution abilities. Declare \"Release\" to end early. Confinement (2 SPI): Range: LOS, up to 10 m. Area variant of Imprison — immaterial cell around a designated area, impenetrable by Spirit Bodies. Circumvents Substitution — targets reappear within boundaries. Can seal a room against entry or exit. Maintain Secrecy (1 SPI): Eye contact. Quick Contest: Judge's SPI vs. target's Will. On failure, the target cannot voluntarily reveal the Judge's secrets or disobey a simple instruction for 1 hour, and must actively conceal them. Mind-affecting compulsion. May release early. Death (3 SPI): Declare target Dead, then charge. Roll Brawling or DX to hit. Deals swing crushing damage × hit location wounding multiplier (e.g., skull ×4, vitals ×3). Flog (1 SPI): Swing hand to strike with an invisible whip. Roll Brawling +2 or DX +2 to hit. Deals 2d+3 cutting; ignores 1 DR. Invisible — unaware targets cannot defend unless they suspect attack. Exile (X SPI): Speak \"Exile\" to blast the target away. Per SPI spent (1-5), hurl target 20 meters in a chosen direction. Target rolls HT-4 to halve distance. Affects Spirit Bodies. Collision deals 1d crushing per 10 meters travelled (or fraction).",
+   "ability": "Prohibition (2 SPI): Speak in Ancient Hermes to forbid certain actions or Beyonder powers within a 10-meter radius — no contest required. Format: \"'X' is Prohibited here\". Examples: Flight, Teleportation, Invisibility. Violators suffer -12 to all rolls involving the prohibited action. Targets with SPI higher than the Judge's suffer -6 instead. Cannot kill specific individuals — suppresses or repels them instead. Suppressed if the target is 3+ Sequences above the Judge. Imprison (2 SPI): Range: LOS, up to 15 m. Freezes one target in place. Breaking free requires ST-4 or Escape-4 each turn. Roots Spirit Body-type creatures, but cannot prevent escape via Substitution abilities. Declare \"Release\" to end early. Confinement (2 SPI): Range: LOS, up to 10 m. Area variant of Imprison — immaterial cell around a designated area, impenetrable by Spirit Bodies. Circumvents Substitution — targets reappear within boundaries. Can seal a room against entry or exit. Maintain Secrecy (1 SPI): Eye contact. Quick Contest: Judge's SPI vs. target's Will. On failure, the target cannot voluntarily reveal the Judge's secrets or disobey a simple instruction for 1 hour, and must actively conceal them. Mind-affecting compulsion. May release early. Death (3 SPI): Declare target Dead, then charge. Roll Brawling or DX to hit (no hit-location penalty). Deals 2× swing crushing damage, with no hit-location wounding multiplier — the blow lands wherever fate wills. Flog (1 SPI): Swing hand to strike with an invisible whip. Roll Brawling +2 or DX +2 to hit. Deals 2d+3 cutting; ignores 1 DR. Invisible — unaware targets cannot defend unless they suspect attack. Exile (X SPI): Speak \"Exile\" to blast the target away. Per SPI spent (1-5), hurl target 20 meters in a chosen direction. Target rolls HT-4 to halve distance. Affects Spirit Bodies. Collision deals 1d crushing per 10 meters travelled (or fraction).",
    "reinforcedAbilities": "Authority: Still costs 1 SPI to activate for the scene. Aura forces anyone meeting the Judge's eyes to roll Will or suffer -1 to attack rolls against the Judge for that turn. Can subtly influence environment within 10 m (still air, dim lights, quiet sounds). Authority's -1 penalty applies to all hostile actions within earshot that violate the Judge's stated rules. Jurisdiction: Maximum range approaches the size of Backlund. While inside Jurisdiction, the Judge gains +2 to Law, Intimidation, and Administration rolls.",
    "sourceLines": [
-    8160,
-    8202
+    7387,
+    7429
    ]
   },
   {
@@ -3218,8 +3138,8 @@
    "ability": "Analysis (1 SPI): Roll Thaumatology to analyze a Beyonder power used by an opponent. Bonuses by target Sequence: +3 (Seq 9), +2 (Seq 8), +1 (Seq 7), +0 (Seq 6), -3 (Seq 5), -8 (Seq 4). Success reveals the exact details of the ability. Failure wastes the SPI — no information gained. Imitation (2 SPI): After a successful Analysis, imitate the analyzed power. Roll Thaumatology. Bonus based on Analysis margin of success:  +0 (by 0-2) → 20% efficiency  +2 (by 3-5) → 35% efficiency  +4 (by 6+) → 50% efficiency  +6 (crit) → 50% efficiency (Seq 4 powers do not receive the crit bonus) Damage abilities deal half damage at all efficiency levels. Non-damage abilities have range or effect reduced proportionally. Can imitate passive powers (Danger Premonition, Fate powers) and active powers (Recording). Cannot imitate Authorities at any Sequence.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8203,
-    8229
+    7430,
+    7456
    ]
   },
   {
@@ -3257,8 +3177,8 @@
    "ability": "Wind Control (3 SPI): Surround yourself with howling winds for 1 minute. Ranged attacks against you suffer -4 to hit. Melee attackers within 2 m must roll ST or be pushed back 1d m. Windblades (3 SPI): Create invisible sharp wind blades at range. Roll Throwing or DX to hit. Deals 3d+3 cutting. Range 20/40 m. Target may dodge. Flight (1 SPI): Fly at Basic Move ×1.5, max altitude 10 m. Duration 1 minute (extend at 1 SPI/min). Floating Wind (1 SPI): Hover in place up to 1 m off the ground for 1 minute. Wind Footing (1 SPI): Generate wind beneath feet — Move ×2 for 1 minute. Glide (1 SPI): Glide at normal Move, losing 1 m altitude per 3 m forward. Functions even if Flight is Prohibited by a Judge. Wind Fist (1 SPI): Imbue fists with spiraling wind for 1 minute. Unarmed strikes deal +1d crushing damage. Wind Manipulation (1 SPI): Use wind to carry small objects (up to 1 kg) to your hand within 10 m. Also eavesdrop on conversations within 20 m via wind vibrations. Duration 1 minute. Wind Cushion (X SPI): Reactive. When you would take damage, spend SPI to create an air cushion. Gain DR 3 per SPI spent against that single instance. Decide before damage is rolled. Water Control (X SPI): Manipulate and shape water within 10 m. 1 SPI for simple shapes or moving water; 2 SPI for complex manipulation (GM discretion). Deep Dive (Passive): Dive to 100 m depth without pressure penalties. Float (1 SPI): Float on water without sinking for 10 minutes. Night Vision (Passive): See clearly in darkness up to normal vision range.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8230,
-    8266
+    7457,
+    7493
    ]
   },
   {
@@ -3290,10 +3210,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Mental Fortitude (Passive): The Prometheus has hardened their mind against mental corruption. Reduce any CoR gained from purely mental sources (psychic attacks, madness-inducing effects, mental influence, and similar effects) by 3 (minimum 0). This does not protect against physical or spiritual corruption. Superior Observation (Passive): The Prometheus can directly sense where valuable items are within a 50-meter range, their approximate value, and possible types. Unless there are Beyonder powers of Concealment that can resist this type of perception, no treasure can escape a Prometheus' nose. Steal (1+ SPI): The Prometheus can steal many things within a 50 m radius. Steal Beyonder Power (2 SPI): Choose a target and a specific Beyonder power you have witnessed them use. Roll Thaumatology with modifiers:  +4 per Sequence below the Prometheus  -4 per Sequence above the Prometheus  +2 if you have studied or witnessed the target's power multiple times  -2 if the power is poorly understood or unfamiliar Success: you steal that power and may use it freely for the next 10 minutes at its full potency. The target loses access to the power for at least 12 hours. A power already activated before the theft continues functioning normally. Steal Object (1 SPI): Roll Sleight of Hand to covertly steal a visible object from a target within 50 m (a held item, worn necklace, pocketed key) or to slip a held object into a target's pocket or hand within the same range. Resisted by the target's Per if they might notice, or by an opposed Sleight of Hand roll if they are alert. Steal Fire (1 SPI): Steal flame itself — extinguish any non-magical fire within 50 m immediately. Magical fire (Beyonder flames) requires a Thaumatology roll at -2 to extinguish.",
-   "reinforcedAbilities": "Decryption: Decryption now requires only 1 minute of concentration (instead of the usual time) for mundane subjects, and 5 minutes for mystical subjects. The Prometheus automatically receives at least a Standard fact on any successful roll. Beyonder Knowledge: By handling a mystical item or ritual component for 1 turn, the Prometheus intuitively senses its general purpose and relative danger — no roll required. Superior Observation: The Cryptologist's trained observation range expands to 50 m, now matching the Prometheus's innate range. The Prometheus can sense whether a concealed target within range is a Beyonder, though not their specific Sequence or pathway. Detect Lies and Body Language rolls gain +4 (from +3). Mental Disruption: The Will penalty increases to -5. The Prometheus may target up to 3 individuals simultaneously by spending 3 SPI total. Reminder / Theft: Reminder distance increases to 15 m. The Prometheus can now steal spiritual materials that are actively in use by a target (e.g., a talisman being held ready for casting) by winning a Quick Contest of Thaumatology vs. the target's Will.",
+   "reinforcedAbilities": "Decryption: Decryption now requires only 1 minute of concentration (instead of the usual time) for mundane subjects, and 5 minutes for mystical subjects. The Prometheus automatically receives at least a Standard fact on any successful roll. Beyonder Knowledge: By handling a mystical item or ritual component for 1 turn, the Prometheus intuitively senses its general purpose and relative danger — no roll required. Superior Observation: The Cryptologist's trained observation range expands to 50 m, now matching the Prometheus's innate range. The Prometheus can sense whether a concealed target within range is a Beyonder, though not their specific Sequence or pathway. Detect Lies and Body Language rolls gain +4 (from +3). Mental Disruption: The Will penalty increases to -6. The Prometheus may target up to 3 individuals simultaneously by spending 3 SPI total. Reminder / Theft: Reminder distance increases to 15 m. The Prometheus can now steal spiritual materials that are actively in use by a target (e.g., a talisman being held ready for casting) by winning a Quick Contest of Thaumatology vs. the target's Will.",
    "sourceLines": [
-    8267,
-    8312
+    7494,
+    7539
    ]
   },
   {
@@ -3310,10 +3230,10 @@
    "advantages": "",
    "drawbacks": "",
    "ability": "Record (1 SPI): After witnessing an active Beyonder power being used, roll 3d6 against the target below based on the power's origin Sequence. Success stores one use of that power; failure wastes the SPI. Only active (not passive) powers can be Recorded. Record target (roll 3d6 ≤ target): Seq 7-9: 15 | Seq 6: 11 | Seq 5: 9 | Seq 4: 5 (cannot succeed even after 10 attempts) Storage slots: 1 Demigod-level power (2 after full digestion), 8 Seq 5-6 powers, 20 Seq 7-9 powers. If a Seq 7 power is demonstrated by a Seq 5 Beyonder and stored in a Seq 7 slot, it manifests at Seq 6 level.",
-   "reinforcedAbilities": "Crystal Ball Focus: When using a crystal ball for divination, the bonus to Ritualistic Magic rolls increases to +4 (from +2). The Scribe may also use a crystal ball to Record a power seen within the ball's reflection, as long as the power was demonstrated within the past 24 hours. Interference: The SPI contest for anti-divination gains +3 in the Scribe's favour. The Scribe may extend Interference to cover a 10 m radius around themselves for 2 SPI, protecting all allies within. Door Opening / Peephole: Door Opening can now bring up to 5 people through a spatial obstacle. Peephole thickness limit increases to 2 m.",
+   "reinforcedAbilities": "Interference: The SPI contest for anti-divination gains +3 in the Scribe's favour. The Scribe may extend Interference to cover a 10 m radius around themselves for 2 SPI, protecting all allies within. Door Opening / Peephole: Door Opening can now bring up to 5 people through a spatial obstacle. Peephole thickness limit increases to 2 m.",
    "sourceLines": [
-    8313,
-    8334
+    7540,
+    7557
    ]
   },
   {
@@ -3346,13 +3266,13 @@
      "bonus": 1
     }
    ],
-   "advantages": "Charisma +1 +1 to reaction rolls and Influence skills Throat Control cannot be easily choked — immune to chokeholds and neck-crushing techniques Greater Acute Vision +4 to all vision-based Perception rolls; allows the Pleasure to see their own Spider's Threads Appearance (Very Beautiful) +3 to social reaction rolls",
+   "advantages": "Charisma +1 +1 to Influence skills; NPCs predisposed to trust you Throat Control cannot be easily choked — immune to chokeholds and neck-crushing techniques Greater Acute Vision +4 to all vision-based Perception rolls; allows the Pleasure to see their own Spider's Threads Appearance (Very Beautiful) striking appearance draws attention and favourable treatment (GM discretion)",
    "drawbacks": "",
    "ability": "Spider's Threads: The Pleasure can spread spider-like, almost invisible silk threads from her hair that can be used for various purposes. Basic Spider Threads Trap (1 SPI / free outside battle): The Pleasure places her threads to create a detection mechanism. She can easily detect when her silk is destroyed. In battle, this reveals the enemy's size, relative strength, and speed. Noticing the threads requires a Per roll at -5. Threads Cocoon (2 SPI + 1 SPI/turn): The Pleasure rapidly spins a cocoon of threads around herself as a protective barrier. She recovers +1 HP/turn (at the start of her turn) while inside. The cocoon possesses the Pleasure's maximum SPI in HP. When the cocoon is destroyed, remaining damage is transferred to the Pleasure (e.g., if the cocoon has 4 HP remaining and an attack deals 7 damage, the cocoon is destroyed and the Pleasure takes the remaining 3 HP of damage). Pleasure Shock (2 SPI): If the enemy has made contact with the Pleasure's threads, she can cause them to experience \"true pleasure\" — spasms and loss of bodily control. The target must roll Will -4; on failure they lose control of their body for 1d turns. Thread Entanglement (2 SPI): The Pleasure shoots out a mass of threads that restrain her enemy. Breaking free requires a ST -4 or Escape -3 roll. Charm (Passive): The Pleasure's beauty and charm are significantly enhanced. Any man who comes into contact with her must roll Will -2 or be charmed. The longer someone is in her presence, the harder the Will roll becomes to break free from infatuation (GM's discretion). This also affects homosexual men and, to a lesser degree, women. The Pleasure may hide her beauty by using the Disguise skill at -2 to negate this effect. Dark Magic: The Pleasure's dark magic is enhanced. Cleansing Black Flame (1 SPI + 1 SPI/turn): The Pleasure ignites a silent black flame within her body to cleanse curses, negative influences, or purge ghosts/wraiths. Wraiths inside her take 2d+1 damage per turn. Spirit Body Trap (4 SPI + 1 SPI/turn): The Pleasure encases a spiritual creature in layers of frost and black fire to contain it. The spiritual creature must roll SPI -5 to break out. Black Flame Bullets (1 SPI per 2 bullets): The Pleasure creates up to 7 black flames around her and launches them at opponents. Roll Thaumatology to hit. Each bullet deals 2d damage and then ignites the target for 1d damage/turn while burning. Burning persists until the target's SPI drops below 1/3 max (rounded down) or the flames are extinguished. Ice Barrier (2 SPI + 1 SPI/turn): The Pleasure encases herself or an ally within reach in an ice barrier. The barrier has SPI + 4 HP. After destruction, remaining damage is negated. Ice Spear (3 SPI): The Pleasure conjures a spear of pure ice that pierces mystical defences. Roll Thaumatology to hit. On impact, deals 5d+2 damage. Mirror Magic: The Pleasure can cast her curses on an enemy if she manages to reflect the enemy's entire figure in a mirror. Mirror and Stave Substitution (3 SPI): The Pleasure's mirror substitution can now be performed up to twice per turn and heals her for +1 HP and +1 FP.",
    "reinforcedAbilities": "Black Flames: The Pleasure's black flames deal +2 damage per die (minimum +1) against spirit bodies. Flames can now be extinguished only by reducing the target's SPI below 1/4 of maximum (from 1/3). Flame Compression: Damage increases to 3d6 (from 2d6). Blast radius expands to 15 m (from 10 m). The compressed sphere may also be split into 2 smaller spheres (1d6+2 each) targeting separate enemies. Freeze — Target: HT penalty increases to -3 (from -1). Damage increases to 3d6-1 (from 2d6-1). May freeze up to 2 cubic meters. Mirror Magic — Hide: Duration increases to 1 minute (from 1d6 seconds). If the mirror is destroyed, the Pleasure takes only 1d6 damage (from 2d6).",
    "sourceLines": [
-    8335,
-    8406
+    7558,
+    7634
    ]
   },
   {
@@ -3396,15 +3316,20 @@
    "ability": "Scroll Making (1+ SPI): The Scrolls Professor can create magical scrolls from various materials. The Warlock's Spell Creation system is upgraded — any spell the Professor has designed or learned can be inscribed into a scroll for instant later use. Creating a Scroll: Roll Alchemy to prepare the material (parchment, ink, or leather infused with spiritual components), then roll Thaumatology to inscribe the spell's mystical pattern. Failure on either roll simply wastes the materials — the scroll is not created but no SPI is lost. Additional scroll types may be created with GM approval. Using a Scroll: On a later turn, recite the corresponding incantation as a Ready maneuver. The scroll burns and releases its stored ability immediately — no concentration or casting time required. The SPI cost was paid at creation time; the user only needs a free hand to hold and activate the scroll. Some of the Scroll Spells the Scrolls Professor can create include: Secret Voice: Forms a channel linking 3 to 5 people within 50 meters, allowing communication without obstruction. Lasts 10 minutes. Freezing: Creates a stream of crystal clear light that freezes the target. The target suffers -3 to all rolls, and halves Basic Move and Dodge for 1d6 turns. If a second Freezing scroll is used on the same target within 1 minute, the target is sealed in ice — break free with ST-3. Storm: Creates a wide thunderstorm centred on the user. Deals 3d6 damage to all in a 10 m radius. Half damage on HT-2 save. Numb: Releases a light green luster that paralyzes a single target within 20 m. The target is Stunned and may resist with Will-3 at the start of each turn. Burning: Releases flames that engulf a 5 m radius. Deals 1d6 burning damage, plus 1d6 per turn for 1d3 turns unless the target uses an action to extinguish the flames. Wind: A swift wind envelops a selected target within 20 m, doubling their Basic Move and granting +3 to Dodge for 1 minute. Healing: Releases a green light that heals all allies within a 10 m radius for 1d6 HP. Sun: Releases a holy light aura in a 10 m radius. Deals 3d6 damage to undead and evil creatures. No effect on living creatures.",
    "reinforcedAbilities": "Eyes of Mystery Prying: The Scrolls Professor can read the contents of any written mystical text (scrolls, grimoires, encrypted notes) by touch alone — no roll required. The passive penalty to Dream/Illusion rolls against the Professor increases to -5. Quick Rituals: The time reduction for known rituals improves to -6 (from -5). The Professor can perform rituals at 1/3 the listed time (minimum 1 minute), and may maintain concentration on one ritual while taking Attack or All-Out Defense actions. Spirit Contract: Maximum simultaneous contracts increases to 8 (from 4). The Professor may now inscribe a Spirit Contract onto a scroll — anyone who reads and activates the scroll is bound by the contract's terms as if they had negotiated it themselves.",
    "sourceLines": [
-    8407,
-    8455
+    7635,
+    7683
    ]
   },
   {
    "sequence": 6,
    "name": "Artisan",
    "pathway": "Paragon",
-   "stats": [],
+   "stats": [
+    {
+     "attr": "SPI",
+     "delta": 2.0
+    }
+   ],
    "skills": [
     {
      "name": "Ritualistic Magic",
@@ -3448,8 +3373,8 @@
    "ability": "Manufacturing (1 SPI): The Artisan is an undisputed master of creation. To craft a Sealed Artifact, the Artisan first makes a crafting skill roll (Smith, Jeweler, Machinist, etc.) to manufacture the item from the Beyonder Characteristic, then rolls Thaumatology with a bonus equal to the margin of success from the crafting roll. The Sealed Artifact gains better effects and fewer negative side effects depending on how well the Thaumatology roll succeeds. If the Characteristic is from a higher or lower Sequence, apply ±2 to the Thaumatology roll per Sequence difference. Failing the Thaumatology roll means reduced power and increased drawbacks — the item is still created but flawed. To create a Mystical Item (without a Beyonder Characteristic), the Artisan follows the same process. The item's longevity depends on success margin: 0–2 = 6 months, 3–5 = 1 year, 6–8 = 2 years, Critical Success = 3 years. The Artisan can also fix Spirit World summoning rituals (such as Messenger contracts) directly into an item — anyone who possesses the item may activate the summoning without knowing the ritual.",
    "reinforcedAbilities": "Appraisal: The Artisan's Appraisal sense is now reflexive. They may identify a Beyonder item's purpose, dangers, and domain alignment as a free action. For rare or complex items, roll Appraisal — on success, all immediate dangers are revealed (not just one). Items lower than the Artisan's own Sequence are identified automatically. Rapid Manufacturing: The Artisan may reduce the manufacturing time for crafting by half. For items of the Artisan's own Sequence or lower, they may attempt to craft a rushed version in 1/4 the normal time (minimum 1 hour), taking -3 to the crafting roll.",
    "sourceLines": [
-    8456,
-    8494
+    7684,
+    7724
    ]
   },
   {
@@ -3498,11 +3423,11 @@
    ],
    "advantages": "DR +3 Dragon Scales — draconic scales beneath the skin provide DR 3 against all physical damage",
    "drawbacks": "",
-   "ability": "Psychological Invisibility (Free, No SPI Cost): The Hypnotist can remain in the blind spot of one's consciousness. This works even against Spirit Vision and a Hunter's Danger Intuition (until the user prepares to strike). The target will not perceive the user even when standing right before them. Strong interactions with the surroundings can break the invisibility. At this Sequence, can only work on one target at a time.",
+   "ability": "Psychological Invisibility (Free, No SPI Cost): The Hypnotist can remain in the blind spot of one's consciousness. This works even against Spirit Vision and a Hunter's Danger Intuition (until the user prepares to strike). The target will not perceive the user even when standing right before them. Strong interactions with the surroundings can break the invisibility. At this Sequence, can work on multiple targets simultaneously.",
    "reinforcedAbilities": "Hypnosis: Psychological Cue undergoes a qualitative change, becoming Hypnosis. Non-Combat Hypnosis (2 SPI): Open the door and enter the target's Body of Heart and Mind. The target rolls Will-6 to resist. The target will not notice they are following the Hypnotist's arrangements. Cannot directly harm the target's life. Battle Hypnotism (2 SPI): Forcefully hypnotize an enemy mid-combat. The target rolls Will-6 to resist. Lasts 1 turn. The Hypnotist can make the target perform an action that does not threaten their own life.",
    "sourceLines": [
-    8495,
-    8530
+    7725,
+    7761
    ]
   },
   {
@@ -3533,8 +3458,8 @@
    "ability": "Notarization: By utilizing a language that stirs the powers of nature along with the relevant words, a Notary can achieve Authentication, Amplification, or Nullification. Authentication (1 SPI): Determine the authenticity of various things such as potion formulas, and enforce Contracts. Once a signature is provided as confirmation, even a Sequence 5 Beyonder cannot violate it, and a Sequence 4 Demigod would have great difficulty. Those who lie or break the Contract are engulfed in burning golden flames, suffering 15d damage. Amplification (2 SPI): A valid Notarization temporarily enhances a targeted Beyonder power. Proclaim \"God says it's effective!\" The effect depends on the GM. Nullification (2 SPI): An invalid Notarization weakens or forcefully disperses a targeted Beyonder power. Proclaim \"God says it's ineffective!\" Powers of all kinds, including verbal command abilities, authorities, and traits can be affected.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8531,
-    8556
+    7762,
+    7787
    ]
   },
   {
@@ -3557,11 +3482,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Flesh & Blood Magic (Passive): A Rose Bishop can stack up to 50 Stacks of Flesh and Blood; 1 Stack equals 1 HP. They can use Stacks as a free action to regenerate. A Rose Bishop must regularly replenish their Flesh and Blood. If they have less than 10 Stacks, they double any corruption they would take. They can use the Flesh and Blood of corpses in their immediate surroundings. A corpse equals 25 Flesh and Blood Stacks. Flesh Cloak (X Flesh and Blood): Create cloaks of sticky Flesh that resist magic and reduce damage. The cloak has 1 HP per Flesh used and DR 3 against Beyonder Powers. Flesh Blood Fusion (0 Flesh and Blood): Melt into pure sticky Flesh and Blood that can penetrate the ground and move. Halves all damage except large-area damage (which deals double). Can hide inside a host's stomach — the host dies upon the Rose Bishop's departure. Takes 3 turns to blend in. Flesh Bomb (5 Flesh and Blood): Tear off flesh to make explosive Flesh Bombs that explode into corrosive blood rain, dealing 3d Corrosive damage. Can be buried inside others' bodies and detonated. Flesh Blood Servants (15 Flesh and Blood): Create puppets with immense strength (ST 17), immune to spirit attacks. 15 HP. Self-destruct deals 5d damage in a 3 m radius. Flesh Blood Curse (0 Flesh and Blood): Curse a target if possessing their flesh (+2) and/or blood (+4). Use Ritualistic Magic to inflict 3d damage or for other rituals. Devouring (0 Flesh and Blood): Envelop a target, corrode their body from the inside, dealing 2d damage per turn. Flesh Softening (0 Flesh and Blood): Negate the next instance of physical damage except from knives and swords (which slash through). Disguise (0 Flesh and Blood): Modify appearance (muscularity, facial features) with practice. -3 to all reaction rolls while in disguise.",
+   "ability": "Flesh & Blood Magic (Passive): A Rose Bishop can stack up to 50 Stacks of Flesh and Blood; 1 Stack equals 1 HP. They can use Stacks as a free action to regenerate. A Rose Bishop must regularly replenish their Flesh and Blood. If they have less than 10 Stacks, they double any corruption they would take. They can use the Flesh and Blood of corpses in their immediate surroundings. A corpse equals 25 Flesh and Blood Stacks. Flesh Cloak (X Flesh and Blood): Create cloaks of sticky Flesh that resist magic and reduce damage. The cloak has 1 HP per Flesh used and DR 3 against Beyonder Powers. Flesh Blood Fusion (0 Flesh and Blood): Melt into pure sticky Flesh and Blood that can penetrate the ground and move. Halves all damage except large-area damage (which deals double). Can hide inside a host's stomach — the host dies upon the Rose Bishop's departure. Takes 3 turns to blend in. Flesh Bomb (5 Flesh and Blood): Tear off flesh to make explosive Flesh Bombs that explode into corrosive blood rain, dealing 3d Corrosive damage. Can be buried inside others' bodies and detonated. Flesh Blood Servants (15 Flesh and Blood): Create puppets with immense strength (ST 17), immune to spirit attacks. 15 HP. Self-destruct deals 5d damage in a 3 m radius. Flesh Blood Curse (0 Flesh and Blood): Curse a target if possessing their flesh (+2) and/or blood (+4). Use Ritualistic Magic to inflict 3d damage or for other rituals. Devouring (0 Flesh and Blood): Envelop a target, corrode their body from the inside, dealing 2d damage per turn. Flesh Softening (0 Flesh and Blood): Negate the next instance of physical damage except from knives and swords (which slash through). Disguise (0 Flesh and Blood): Modify appearance (muscularity, facial features) with practice. While in disguise, NPCs who scrutinise you may notice something off (GM discretion).",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8557,
-    8584
+    7788,
+    7815
    ]
   },
   {
@@ -3583,18 +3508,18 @@
     },
     {
      "name": "Divination Arts",
-     "attr": "SPI",
+     "attr": "IQ",
      "difficulty": "H",
      "bonus": 2
     }
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Spiritual Vision (Passive – Reinforced): The Soul Assurer sees spiritual lifeforms at all times without activating Spirit Vision. Constant exposure grants +3 to Spiritual Perception rolls and makes it impossible for spirits to hide within line of sight. Requiem (2 SPI): Cause the target's Spirit Body to fall asleep. The target skips 2 turns (stimuli — being damaged, shaken, or a loud noise on their turn — wakes them immediately). Will-5 to resist; on success only halves Basic Move and Basic Speed for 1 turn and the target suffers -5 to Spiritual Intuition rolls for the same duration. On unwilling spirits, ghosts, and undead: Will-4 or forced into silent slumber. On willing allies: heal the Spirit Body, reducing Corruption by 1d3 points. Agitate (1 SPI): Agitate the target's Spirit Body, heightening their frustrations and destructive urges. The target must perform an offensive action this turn instead of fleeing or hesitating (Will-2 to resist). On a successful Divination Arts roll, one hidden psychological flaw or spiritual corruption in the target is revealed.",
+   "ability": "Spiritual Vision (Passive – Reinforced): The Soul Assurer sees spiritual lifeforms at all times without activating Spirit Vision. Constant exposure grants +3 to Spiritual Perception rolls (Ch. 4) and makes it impossible for spirits to hide within line of sight. Requiem (2 SPI): Cause the target's Spirit Body to fall asleep. The target skips 2 turns (stimuli — being damaged, shaken, or a loud noise on their turn — wakes them immediately). Will-5 to resist; on success only halves Basic Move and Basic Speed for 1 turn and the target suffers -5 to Spiritual Intuition rolls (Ch. 4) for the same duration. On unwilling spirits, ghosts, and undead: Will-4 or forced into silent slumber. On willing allies: heal the Spirit Body, reducing Corruption by 1d3 points. Agitate (1 SPI): Agitate the target's Spirit Body, heightening their frustrations and destructive urges. The target must perform an offensive action this turn instead of fleeing or hesitating (Will-2 to resist). On a successful Divination Arts roll, one hidden psychological flaw or spiritual corruption in the target is revealed.",
    "reinforcedAbilities": "Dream Invasion: Range increased to 150 m (from 20 m quick / 100 m prepared). Midnight Poem: The Soul Assurer may manifest Midnight Poem effects through song instead of recitation. Nocturnality: The Soul Assurer requires only 2 hours of rest per day (down from 3–4). Night bonuses increase to +3 to all rolls (from +2).",
    "sourceLines": [
-    8585,
-    8615
+    7816,
+    7846
    ]
   },
   {
@@ -3620,8 +3545,8 @@
    "ability": "Language of the Dead: Speak a mystical language that urges a target's Spirit to leave its body, bypassing physical protection to directly target the Spirit Body. Spirit Calling (1 SPI): Urge the spirit to leave its body. The target rolls at -2 if dead, or +6 if alive. Commandeer Spirit (2 SPI): Command a spirit to obey your orders. The target rolls Will at -2 if dead, or +4 if alive. Spirit Enslavement (4 SPI): Enslave a spirit. The target rolls Will at +2 if dead, or +8 if alive. Language of the Dead does not work on higher Sequences. Marionettes are considered undead — roll Ritualistic Magic vs the Marionettist's Ritualistic Magic; +4 to the Marionettist if the marionette has a Spirit Worm core. Resurrection (1-4 SPI): Roll Ritualistic Magic. Turn corpses into Zombies or living skeletons. They have no will or consciousness. Spirit Swapping (2 SPI): Defend against Soul Body attacks by swapping your spirit with an undead under your command.",
    "reinforcedAbilities": "Spirit Channeling: Directly summon spirits from the Spirit World. Can command the deceased and natural spirits to fight. The undead commanded can have similar status to the Spirit Guide. Number of undead: up to thousands.",
    "sourceLines": [
-    8616,
-    8639
+    7847,
+    7870
    ]
   },
   {
@@ -3673,8 +3598,8 @@
    "ability": "Giant (Free Action): The Dawn Paladin gains +20 cm in height permanently, and can temporarily gain an additional +20 cm at will. Light of Dawn (1 SPI): Fill an area of roughly 40-50 m with sacred Dawn Light. Inflicts 2d6 burning damage (HT/2 to halve) to Wraiths, Shadows, and Evil Spirits. Reduces corruption by 1d/2 for those in the area. Nullifies concealment effects and dispels illusions. Dawn Armor (2 SPI): Conjure a silver Armor of Dawn with 20 HP. Recovers 4 HP per turn by draining 1 FP (Free Action). Includes gauntlets, breastplate, and helmet. Sword of Dawn (1 SPI): Condense Dawn into a weapon. Each strike is imbued with Purification, dealing +2d burning damage to undead, wraiths, and ghosts. Hurricane of Light (3 SPI): The Dawn Paladin's most powerful attack. Insert the Sword of Dawn into the ground and shatter it, creating a hurricane of light dealing 5d+2 damage (+3d against Shadows and Corrupted entities, +3d against Evil and spirits — up to 8d total). Needs 2 minutes of rest before reuse. The Sword of Dawn cannot be condensed for 10 seconds after activation. The Dawn Paladin can control the hurricane's direction to a certain extent.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8640,
-    8673
+    7871,
+    7904
    ]
   },
   {
@@ -3722,8 +3647,8 @@
    "ability": "Conspiracy (2 SPI): The core of a Conspirer's arsenal — weave deceptions, misdirect attention, and create confusion among enemies. All enemies within 10 m must roll Will-2 or suffer -2 to all Perception, Observation, and skill rolls for 1d turns due to confusion and misdirection. Incitement (1 SPI): Incite certain thoughts or desires in someone's mind through conversation, such as consciously igniting the flames in their heart. Flame Transformation (2 SPI): Merge with fire weapons conjured from Pyrokinesis and travel to the destination where the fire weapon lands. Can take other people, but they take 1d damage from the flames. Initial range: 10 m (30 m when potion is digested).",
    "reinforcedAbilities": "Pyrokinesis: Freely control flames within 15 m. Compress (1 SPI): Damage increases to 1d+3. Can multi-turn charge (5/10 bonus damage per turn spent charging, max 10). Conjure (1 SPI): Can now gain weapon skills with conjured weapons and parry with weapons of fire. Use the skill of the weapon the flame transforms into.",
    "sourceLines": [
-    8674,
-    8718
+    7905,
+    7949
    ]
   },
   {
@@ -3755,8 +3680,8 @@
    "ability": "Cross-breeding (1 SPI): Create chimeras or cross-breeds between various animals, plants, and even objects — directly creating new species. Ordinary materials create unique species with directed abilities. Beyonder ingredients create more magical cross-breeds with unique properties. Before Sequence 4, cross-breeds lack a Soul. The result depends on player intent and GM discretion. Poison Creation (1 SPI): The Biologist's own body can produce highly potent toxin, accumulated and released through hair or other means. Releases poison dealing 1d+1 damage per turn for 1d turns in an area. Leaves the target poisoned for 1d/2 turns after leaving the area.",
    "reinforcedAbilities": "Knowledge — Life: Deep understanding of living organisms. +6 to Hidden Lore (Living Organism).",
    "sourceLines": [
-    8719,
-    8742
+    7950,
+    7973
    ]
   },
   {
@@ -3815,11 +3740,11 @@
    ],
    "advantages": "",
    "drawbacks": "",
-   "ability": "Natural Sense of Smell (Passive): Differentiate people by their scent. Detect entities unable to hide their smell (e.g., wraiths). Strong odours impose -1 to all rolls. Discerning Spiritual Materials (Passive): Gain vast knowledge to discern spiritual materials for various concoctions. Can now treat terminal illnesses. Potion & Perfume Crafting: Create Potions and Perfumes with extraordinary effects. Roll Alchemy. Success margin determines longevity: 0-2 = 1 day, 3-5 = 3 days, 6-8 = 5 days, 9+ = 1 week, critical success = 2 weeks. Can drink up to 4 potions in battle before facing negative effects. Known Potions include: Solar Water Potion (Alchemy -1): Powerful against undead and vampires — 3d purification damage on contact. Dragon's Breath (Alchemy -1): Spit a fire breath dealing 3d burning (one-time use). Invisibility Potion (Alchemy -3): Become completely invisible. Lasts 1d×10 minutes. Anti-Smell Potion (Alchemy +0): Eliminates the user's smell and body odor. Anti-Dream Potion (Alchemy -2): Prevents Dream Pulling effects. Shadow Potion (Alchemy -4): Allows Shadow Movement at ×2 Base Move. Known Perfumes include: Animal-Friendly Perfume (Alchemy -1): Makes animals closer to the user — +5 to reaction rolls with animals. A true Potions Professor can research and invent new Potions and Perfumes (roll Inventor then Alchemy -4, with GM approval).",
+   "ability": "Natural Sense of Smell (Passive): Differentiate people by their scent. Detect entities unable to hide their smell (e.g., wraiths). Strong odours impose -1 to all rolls. Discerning Spiritual Materials (Passive): Gain vast knowledge to discern spiritual materials for various concoctions. Can now treat terminal illnesses. Potion & Perfume Crafting: Create Potions and Perfumes with extraordinary effects. Roll Alchemy. Success margin determines longevity: 0-2 = 1 day, 3-5 = 3 days, 6-8 = 5 days, 9+ = 1 week, critical success = 2 weeks. Can drink up to 4 potions in battle before facing negative effects. Known Potions include: Solar Water Potion (Alchemy -1): Powerful against undead and vampires — 3d purification damage on contact. Dragon's Breath (Alchemy -1): Spit a fire breath dealing 3d burning (one-time use). Invisibility Potion (Alchemy -3): Become completely invisible. Lasts 1d×10 minutes. Anti-Smell Potion (Alchemy +0): Eliminates the user's smell and body odor. Anti-Dream Potion (Alchemy -2): Prevents Dream Pulling effects. Shadow Potion (Alchemy -4): Allows Shadow Movement at ×2 Base Move. Known Perfumes include: Animal-Friendly Perfume (Alchemy -1): Makes animals calmer and friendlier toward the user (GM discretion). A true Potions Professor can research and invent new Potions and Perfumes (roll Inventor then Alchemy -4, with GM approval).",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8743,
-    8782
+    7974,
+    8013
    ],
    "unresolvedSkills": [
     "Poison/IQ [Hard] +3"
@@ -3874,8 +3799,8 @@
    "ability": "Danger Premonition (Malice Perception): The Devil can sense the place of origin of danger and who it comes from. Requires 3 conditions: (1) the threat is fatal or life-threatening, (2) the source intends harm within a certain period and range, (3) the source acts on that intent. The premonition window ranges from a few minutes to 24 hours. The range spans from a few miles to an entire metropolitan area, depending on the individual Devil. Fearless: The Devil does not feel or experience fear. Automatically succeed on all Fright Checks. Devil Bloodline: Each Devil develops unique racial abilities upon advancement. Choose one of the following (or create a new one with GM approval): Shadow-Shifter: When forced into a life-threatening situation, the Devil can escape by leaving only a shadow behind. The Devil reappears at any shadow within 30 meters. Spirit Body (Rare): The Devil can freely switch between body and spirit form like a Wraith. Item Creation: The Devil can skin humans and perform complicated processes to form Beyonder items with usage or time limitations (GM's discretion). Skin Clothes: Anyone wearing a human skin crafted by the Devil can transform into the original person, disguising themselves completely. Devil Transformation (3 SPI): Transform into true Devil form — gigantify the body, sprout bat wings and goat horns. Gain +4 ST, +4 DX, +4 HT, and +2 DR. Spell restrictions are lessened in this form (e.g., launch 10–20 Sulfur Fireballs simultaneously instead of the usual 3). Language of Foulness: Devils speak demonic words originating from the Abyss, filled with Filth and Corruption. They can use the following: Slow (2 SPI): All targets within a 7–8 meter radius turn numb and slow or come to a halt. Reduces Base Speed and Basic Move by 5 for 2 turns. Can only be maintained for 2 seconds. Death (2 SPI): Dodged normally. Target may halve the effect with a HT roll. Inflicts 2d damage per turn for 2 turns. Corruption (3 SPI): An area-of-effect attack causing Abyss Corruption symptoms. Within a 5 meter radius, each target takes 1d damage and +1 CoR, creating black fog. The area persists for 1d turns. Sulfur Fireball (1 SPI per fireball): Launch pale blue Fireballs that explode and poison on contact. No more than 3 at a time. Each inflicts 1d+1 damage, plus poison for 1d-2 damage for 1d-2 turns. Sword of Lava (4 SPI): The Devil cannot move on the same turn. Deals 5d+3 damage. Can be dodged. Flame Cage (3 SPI): Within 10 meters, conjure a large Cage of Flames to block escape. Also blocks projectiles. Poisonous Flame Manipulation (1 SPI, Free Action): Manipulate Poisonous Flames within 30 meters — ignite materials, shape existing flames, or hurl a Poisonous Flame Jet at a target within 30 m (DX or Sleight of Hand to hit).",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8783,
-    8836
+    8014,
+    8067
    ]
   },
   {
@@ -3894,8 +3819,8 @@
    "ability": "Calamity Attraction (Passive): The Calamity Priest's body passively draws misfortune. At the start of each session (or once per in-game day), the GM rolls 3d6 to determine a calamity that will befall the Priest. The Priest may use their Foresight (Seq 9) to foresee the calamity 1 round in advance, allowing mitigation or avoidance. Active Attraction (2 SPI): Direct calamity at a target within 30 meters. Roll 3d6: 3–6 — Major: A genuine hazard — e.g., a carriage wheel flies off toward the target, a gas lamp explodes showering glass, a heavy crate falls from a pulley. GM determines damage (2d6–3d6 depending on environment). 7–14 — Moderate: Noticeable misfortune — e.g., a floorboard rots through underfoot (-2 to Move), a chandelier cord snaps (1d6, Dodge to halve), a chimney pot crashes beside them. 15–18 — Minor: Annoyance or fizzle — e.g., a pigeon swarm spooks their horse, a gust slams a window shut in their face (-1 to next roll). On 17–18 the calamity backfires on the Priest instead. The Priest cannot foresee or mitigate actively attracted calamities. +3 to the roll in hazard-rich areas (docks, factory, cliffside), -3 in sparse areas (empty field, open room). Psyche Storm (2 SPI): Assault the target's Spirit Body directly. Inflicts 1d-2 SPI damage (reducing the target's Spirituality pool) and applies -3 to all the target's rolls for the next 2 turns. At the end of each turn, the target may roll Will-3 — on success, the penalty ends early.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8837,
-    8858
+    8068,
+    8089
    ]
   },
   {
@@ -3922,8 +3847,8 @@
    "ability": "Ice Control: The Zombie can control ice they are in physical contact with, gaining the following abilities: Contact-Freeze (Free Action, 1 SPI): Any physical attack that contacts a target's skin can freeze their body. On a successful Brawling/Boxing/Wrestling roll the Zombie freezes a body part — target's physical rolls at -1. Stacks with repeated hits. Ice Stun (3 SPI): Seal opponents in ice on physical contact. Target breaks free with ST-4. Ice Wall (X SPI): Freeze water into ice walls with 5 HP per SPI spent. Ice Floor (2 SPI): Create slippery ice layers. Targets must succeed Acrobatics or fall. The Zombie can spend 1 SPI to control the ice beneath their feet (Free Action). Ice Temperature (2 SPI): Lower air temperature, causing strong winds and snowflakes. Cold-sensitive targets roll Will or suffer -1 to all rolls in the zone. Decay, Rot & Withering: Wither Explosion (2 SPI): Make mid-range air explode into black wisps inducing Withering. Inflicts 1d6-1 damage for 1d/2 turns. Rotting Body Aura (Free Action, 1 SPI): Effuse a rotting aura — add 1d Decay damage to the next attack. Aura of Decay (1 SPI): Emit an aura that visibly withers surrounding vegetation. Sludge Creation (1 SPI): Create rotting sludge. Targets must roll ST, DX, or Acrobatics or have Base Move halved in the sludge area. Zombie Manipulation: Awaken the dead (1 SPI), cultivate puppets, control ghosts, and command them (0 SPI).",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8859,
-    8905
+    8090,
+    8136
    ]
   }
  ]

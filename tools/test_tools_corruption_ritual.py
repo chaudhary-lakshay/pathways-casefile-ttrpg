@@ -5,7 +5,7 @@ import pytest
 
 import extract_corruption
 
-from testsupport import CONTENT
+from testsupport import CONTENT, needs_pdf
 
 
 import extract_corruption
@@ -46,10 +46,12 @@ def test_cor_thresholds_are_extracted_as_ritual_specific():
 
 
 def test_committed_cor_gained_covers_every_action_the_book_prints():
+    """v6.9i prices advancing without full digestion at 1d6 CoR, where v6.9d
+    printed "10+ CoR"."""
     entries = json.loads((CONTENT / "cor_gained.json").read_text(encoding="utf-8"))["entries"]
     assert len(entries) == 6
     advancing = [e for e in entries if e["action"].startswith("Advancing sequence")]
-    assert advancing[0]["minimum"] == 10
+    assert advancing[0]["dice"] == "1d6" and "minimum" not in advancing[0]
 
 
 # --- HP / SPI pool thresholds (Ch. 5) --------------------------------------
@@ -311,276 +313,189 @@ def test_the_committed_row_counts_down_from_an_attribute_it_does_not_roll():
     assert {row[f"{c}ComputedDuration"]["base"] for c in ("fright", "awe", "confusion")} == {25}
 
 
-# --- Ritual resolution (Ch. 7, p. 67-68) -----------------------------------
+# --- Ritual resolution (Ch. 9, p. 60-63) -----------------------------------
 
 import extract_ritual
 
 
+def _ritual_entries(name):
+    return json.loads((CONTENT / f"{name}.json").read_text(encoding="utf-8"))["entries"]
+
+
 def test_every_ritual_weight_carries_its_printed_SPI_cost():
-    """One cell is fixed, one a range, one open at the top. The app charged
-    nothing for a ritual until these were read."""
-    costs = extract_ritual.parse_weight_costs([
-        "Light", "+0", "2 SPI", "Divination, minor communication",
-        "Moderate", "-2", "4–6 SPI", "Enhancement, curse",
-        "Heavy", "-4", "8+ SPI", "Summoning, binding",
+    """One cell is fixed, one a range, two open at the top."""
+    rows = extract_ritual.parse_quick_table([
+        "Light", "+0", "10 min", "2 SPI",
+        "Moderate", "-2", "30 min", "4–6 SPI",
+        "Heavy", "-4", "1 hr", "8+ SPI",
     ])
-    assert costs["Light"] == (2, None, False)
-    assert costs["Moderate"] == (4, 6, False)
-    assert costs["Heavy"] == (8, None, True)
+    assert [(r["spi"], r.get("spiMax"), r.get("spiOpen")) for r in rows] == [
+        (2, None, None), (4, 6, None), (8, None, True)]
+    assert rows[1]["baseTime"] == "30 min"
+
+
+def test_a_weight_row_with_no_base_difficulty_is_reported():
+    with pytest.raises(ValueError, match="prints no base difficulty"):
+        extract_ritual.parse_quick_table(["Light", "10 min", "2 SPI", "x"])
+
+
+def test_the_two_weight_printings_must_agree():
+    """Sec. II and Sec. III.A both print Light/Moderate/Heavy; a disagreement
+    is two tables, and the extraction fails rather than picking one."""
+    quick = [{"weight": "Light", "modifier": 0, "baseTime": "10 min", "spi": 2}]
+    with pytest.raises(ValueError, match="disagree"):
+        extract_ritual.build_weights(quick, {"Light": {"modifier": 0, "spi": 3, "categories": "x"}})
+
+
+def test_major_is_the_weight_section_two_does_not_list():
+    """Major is printed in Sec. III.A only, so it ships with no categories
+    rather than borrowed ones."""
+    weights = _ritual_entries("ritual_weights")
+    assert {w["weight"]: w["spi"] for w in weights} == {
+        "Light": 2, "Moderate": 4, "Heavy": 8, "Major": 12}
+    major = next(w for w in weights if w["weight"] == "Major")
+    assert major["modifier"] == -6 and "categories" not in major and major["spiOpen"]
+    assert all(w["categories"] for w in weights if w["weight"] != "Major")
+
+
+def test_a_wrapped_category_cell_stays_with_its_own_row():
+    rows = extract_ritual.parse_categories([
+        "Moderate", "-2", "4–6 SPI",
+        "Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing,",
+        "Protection/Warding",
+        "Heavy", "-4", "8+ SPI", "Summoning, Binding",
+    ])
+    assert rows["Moderate"]["categories"].endswith("Oath-Sealing, Protection/Warding")
+    assert rows["Heavy"]["modifier"] == -4
 
 
 def test_a_preparation_row_keeps_both_ends_of_its_range():
-    rows = extract_ritual.parse_preparation([
-        "Excellent", "+3", "Sanctified space, rare materials",
-        "Good", "+1 to +2", "Domain-matched candles, proper altar",
-        "None", "-4 or worse", "Open street, wrong materials",
-    ])
+    """Phase I prints the ladder as prose now: no descriptive column."""
+    rows = extract_ritual.parse_preparation(
+        "Preparation Quality: Excellent +3, Good +1 to +2, None -4 or worse.")
     assert rows[0]["modifier"] == 3 and "best" not in rows[0]
     assert rows[1]["modifier"] == 1 and rows[1]["best"] == 2
     assert rows[2]["modifier"] == -4 and rows[2]["openEnded"] is True
+    assert all("looksLike" not in r for r in rows)
 
 
-def test_a_wrapped_preparation_description_stays_with_its_row():
-    rows = extract_ritual.parse_preparation([
-        "Excellent", "+3", "Sanctified space, rare domain-matched materials,",
-        "celestial timing, perfect link",
-        "Adequate", "+0", "Correct materials, clean space",
-    ])
-    assert rows[0]["looksLike"].endswith("perfect link")
-    assert rows[1]["quality"] == "Adequate"
+def test_committed_preparation_is_the_full_ladder():
+    prep = _ritual_entries("ritual_preparation")
+    assert [p["quality"] for p in prep] == extract_ritual.PREPARATIONS
+    assert [p["modifier"] for p in prep] == [3, 1, 0, -1, -4]
 
 
-def test_the_flourish_bonus_is_read_across_the_line_it_wraps_on():
-    """The words naming the bonus and the number are on different lines.
-
-    Neither line alone states the rule -- one has a name with no value, the
-    other a value with no name -- so a line-at-a-time scan reads it as absent.
-    """
-    bonus, joined = extract_ritual.parse_flourish([
-        "Phase II — Conduct",
-        "The player narrates the incantation (4-part Hermes structure — see "
-        "reference below). The GM may award a Flourish Bonus",
-        "(+1) for good in-character delivery.",
-        extract_ritual.FLOURISH_FORMULA,
-    ])
-    assert bonus == 1
-    assert extract_ritual.FLOURISH_FORMULA in joined
+def _full_inputs():
+    byn = extract_ritual.load_lines()
+    full = " ".join(extract_ritual.stream(byn, *extract_ritual.FULL_RANGE))
+    quick = " ".join(extract_ritual.stream(byn, *extract_ritual.QUICK_RANGE))
+    success, starts = extract_ritual.parse_outcomes(
+        extract_ritual.stream(byn, *extract_ritual.OUTCOME_RANGE))
+    failures = _ritual_entries("ritual_failures")
+    return full, quick, success, starts, failures
 
 
-def test_the_flourish_is_not_read_off_the_first_bracket_in_the_paragraph():
-    """The line above it ends "(4-part Hermes structure ...)". A rule that took
-    the first bracketed number would read the structure, not the bonus."""
-    with pytest.raises(ValueError, match="Flourish Bonus"):
-        extract_ritual.parse_flourish([
-            "The player narrates the incantation (4-part Hermes structure).",
-            "The GM may award a bonus for good in-character delivery.",
-        ])
-
-
+@needs_pdf
 def test_the_flourish_scoping_rests_on_the_quick_ritual_not_naming_it():
     """FULL-only is an argument from absence, so both halves are asserted."""
-    phase_two = (
-        "The GM may award a Flourish Bonus (+1) for good in-character delivery. "
-        + extract_ritual.FLOURISH_FORMULA
-    )
-    quick = ("Step 3 — Apply Modifiers Sum the following two modifiers: "
-             "1. Preparation Quality 2. Target Link")
-    canon = ("The novel's full procedure is preserved here as a reference. "
-             "Wrong timing for the entity gives -1 to -2.")
-    preparation = [{"looksLike": "Sanctified space, celestial timing, perfect link"}]
-    extract_ritual.verify_flourish(1, phase_two, quick, canon, preparation)
-
-    # A Quick ritual that named it would make RitualMode's guard wrong.
-    with pytest.raises(ValueError, match="Full-mode only"):
-        extract_ritual.verify_flourish(
-            1, phase_two, quick + " Flourish Bonus", canon, preparation)
+    full, quick, success, starts, failures = _full_inputs()
+    extract_ritual.verify_full(full, quick, success, starts, failures)
+    with pytest.raises(ValueError, match="Quick ritual now names"):
+        extract_ritual.verify_full(full, quick + " Flourish", success, starts, failures)
     # The formula is the only evidence the bonus reaches the ROLL.
-    with pytest.raises(ValueError, match="effective-skill formula"):
-        extract_ritual.verify_flourish(
-            1, "The GM may award a Flourish Bonus (+1).", quick, canon, preparation)
-    # And the canon timing penalty is refused only while it is still printed.
-    with pytest.raises(ValueError, match="Wrong timing"):
-        extract_ritual.verify_flourish(
-            1, phase_two, quick, "preserved here as a reference", preparation)
-    with pytest.raises(ValueError, match="celestial timing"):
-        extract_ritual.verify_flourish(
-            1, phase_two, quick, canon, [{"looksLike": "Sanctified space"}])
+    with pytest.raises(ValueError, match="no longer prints"):
+        extract_ritual.verify_full(
+            full.replace(extract_ritual.FLOURISH_FORMULA, ""), quick, success, starts, failures)
+
+
+@needs_pdf
+def test_the_ritual_burn_is_declared_before_the_roll():
+    """v6.9i: "Before rolling ... spend additional SPI (1 SPI = +1, no cap)".
+    There is no post-roll push any more."""
+    full, quick, success, starts, failures = _full_inputs()
+    with pytest.raises(ValueError, match="before rolling"):
+        extract_ritual.verify_full(
+            full, quick.replace("Before rolling", "After rolling"), success, starts, failures)
 
 
 def test_committed_ritual_content_claims_the_flourish_sentence():
-    """An assertion whose source sentence is unclaimed is a rule nobody can
-    find again -- the bookkeeping the PCR formula needed in 6af."""
+    """The +1 is a number inside a sentence, so it lives in Kotlin. A column
+    here would make the book look like it printed a table it never did."""
     body = (CONTENT / "ritual_preparation.json").read_text(encoding="utf-8")
-    assert [4140, 4143] in json.loads(body)["sourceLines"]["7"]
-    # The +1 is a number inside a sentence, so it lives in Kotlin. A column
-    # here would make the book look like it printed a table it never did.
+    assert [3962, 3969] in json.loads(body)["sourceLines"]["9"]
     assert "flourish" not in body.lower()
 
 
-HERMES_PART_LINES = [
-    "\x7f Part 1 — Invocation: A prayer for someone's power. Replace 'someone' "
-    "with the entity's honorific name, symbol,",
-    "or domain. E.g.: \"The existence that rules the concealed path and controls fate...\"",
-    "\x7f Part 2 — Grace: \"I pray for the God's loving grace.\"",
-    "\x7f Part 3 — Request: What you pray for. Must be brief — finish in one sentence.",
-    "\x7f Part 4 — Empowerment: Invoke a specific herb or ingredient to empower "
-    "the request. E.g.: \"Sun Flower, a herb",
-    "that belongs to the Sun. Please bestow your powers to my incantation.\"",
-]
-HERMES_INTRO = ["The standard incantation has four parts, spoken in Hermes:"]
-HERMES_NOTE = [
-    "As long as the four-part structure is followed and the key meaning is "
-    "expressed in Hermes, the rest can be left to the caster's",
-    "creativity. For Praying to Oneself, replace the four-part structure with "
-    "the three-line self-description (see Section IV —",
-    "Personal Spirituality).",
-]
-SELF_LINES = [
-    "Praying to Oneself — Ritualistic magic can also be directed inward, "
-    "drawing power from your own spirituality without",
-    "petitioning any god. To do so, craft a three-line description of your "
-    "being that precisely identifies your spiritual location",
-    "within the Wall of Spirituality. For example: \"Cordu Village's Trickster "
-    "King, Aurore Lee's younger brother, An entity known",
-    "as Lumian Lee...\" The benefit is total independence from divine "
-    "constraints — the weakness is that the result is limited by your",
-    "personal power. A weak Beyonder gets a weak result.",
-]
 SUMMONING_LINES = [
-    "In order to summon a mystical being one needs to discover or create a "
-    "three-line incantation that points to a specific spiritual",
-    "creature. The first line should be the resident realm of the creature "
-    "(The Unfounded, the Spirit Realm, the Darkness, etc.). The",
-    "second and third lines should be accurate descriptors of the creature.",
+    "\x7f Part 1: \"I.\" — spoken in Ancient Hermes, Jotun, Dragonese, or Elvish.",
+    "\x7f Part 2: \"I summon in my name.\" — spoken in Hermes.",
+    "\x7f Part 3: A three-line description of the creature: Line 1 points to the Spirit World",
+    "(e.g., \"Roaming in the upper realm\"). Lines 2–3 accurately describe the creature.",
+    "The summoner cannot use too many words. Ambiguity makes it difficult",
+    "to predict which creature will answer.",
 ]
+PHASE_TWO = ("The player narrates the incantation (4-part Hermes structure: "
+             "Invocation, Grace, Request, Empowerment).")
 
 
-def test_the_four_parts_survive_the_two_that_wrap():
-    """Parts 1 and 4 each carry their EXAMPLE on a second line.
-
-    A line-at-a-time read returns six parts, two of them fragments beginning
-    "or domain." and "that belongs to the Sun." -- and the two parts whose
-    worked example is the whole reason to print them lose it.
-    """
-    parts = extract_ritual.parse_parts(HERMES_PART_LINES)
-    assert len(parts) == 4
-    assert [p.split(":")[0] for p in parts] == [
-        "Part 1 — Invocation", "Part 2 — Grace",
-        "Part 3 — Request", "Part 4 — Empowerment",
-    ]
-    assert parts[0].endswith('controls fate..."')
-    assert parts[3].endswith('powers to my incantation."')
-
-
-def test_the_three_printed_incantation_structures_are_kept_apart():
-    """Three structures, two of them three-line, and they are NOT one row.
-
-    The self-description identifies the caster's own spiritual location; the
-    summoning incantation identifies a creature by realm and descriptors.
-    Merging them on the shared shape would print a rule the book does not.
-    """
+def test_the_summoning_parts_survive_the_one_that_wraps():
+    """Part 3 carries its example on a second line; a line-at-a-time read
+    returns a fourth part beginning "(e.g." and Part 3 loses it."""
     entries = extract_ritual.build_incantations(
-        HERMES_INTRO, HERMES_PART_LINES, HERMES_NOTE, SELF_LINES, SUMMONING_LINES)
-    # The scopes as the page prints them, NOT extract_ritual's own constant --
-    # comparing a builder's output with the list it built from cannot fail.
-    assert [e["scope"] for e in entries] == [
-        "Invocation", "Praying to Oneself", "Summoning a spiritual creature",
-    ]
-    assert [len(e["parts"]) for e in entries] == [4, 0, 0]
-    # The book's own join, stored where it selects.
-    assert "replace the four-part structure" in entries[0]["note"]
-    assert "Lumian Lee" in entries[1]["text"]
-    assert "resident realm of the creature" in entries[2]["text"]
-    # The note is printed AFTER the parts and is kept apart from the intro so
-    # the screen can render the page's own order.
-    assert entries[0]["text"].endswith("spoken in Hermes:")
-    # Only chapter 7's pair is selectable by the power source the app models.
-    assert [e.get("referenceOnly") for e in entries] == [None, None, True]
+        PHASE_TWO, ["The incantation has three parts:"] + SUMMONING_LINES)
+    parts = entries[1]["parts"]
+    assert [p[:6] for p in parts] == ["Part 1", "Part 2", "Part 3"]
+    assert parts[2].endswith("accurately describe the creature.")
+    assert entries[1]["note"].startswith("The summoner cannot use too many words")
 
 
-def test_phase_two_still_names_the_structure_the_screen_shows():
-    """The cross-reference is the whole warrant for showing it there.
-
-    Phase II's own sentence says "(4-part Hermes structure — see reference
-    below)". The app claimed that sentence and rendered only its second half,
-    so the Flourish chip awarded +1 for narrating a structure nothing showed.
-    If the book stops naming it, the reference beside that chip is no longer
-    the one Phase II points at.
-    """
+def test_the_two_incantation_structures_are_kept_apart():
+    """The Hermes structure is named by its parts only; the summoning one is
+    reference text the app shows and never selects."""
     entries = extract_ritual.build_incantations(
-        HERMES_INTRO, HERMES_PART_LINES, HERMES_NOTE, SELF_LINES, SUMMONING_LINES)
-    phase_two = (
-        "The player narrates the incantation (4-part Hermes structure — see "
-        "reference below). The GM may award a Flourish Bonus (+1) for good "
-        "in-character delivery."
-    )
-    extract_ritual.verify_incantations(entries, phase_two)
+        PHASE_TWO, ["The incantation has three parts:"] + SUMMONING_LINES)
+    assert [e["scope"] for e in entries] == ["Invocation", "Summoning a spiritual creature"]
+    assert entries[0]["parts"] == ["Invocation", "Grace", "Request", "Empowerment"]
+    assert [e.get("referenceOnly") for e in entries] == [None, True]
 
+
+def test_phase_two_must_still_name_the_hermes_structure():
     with pytest.raises(ValueError, match="no longer names"):
-        extract_ritual.verify_incantations(
-            entries, "The player narrates the incantation. The GM may award a "
-                     "Flourish Bonus (+1).")
-    # And a structure that lost a part is a structure nobody can recite.
-    short = [dict(e) for e in entries]
-    short[0]["parts"] = short[0]["parts"][:3]
-    with pytest.raises(ValueError, match="four parts"):
-        extract_ritual.verify_incantations(short, phase_two)
+        extract_ritual.build_incantations("The player narrates the incantation.",
+                                          ["The incantation has three parts:"] + SUMMONING_LINES)
 
 
-def test_committed_incantations_claim_all_three_printings():
-    """Two chapters, three spans. Chapter 7.5 is claimed by nothing else at
-    all, and this is its first."""
-    body = json.loads((CONTENT / "incantations.json").read_text(encoding="utf-8"))
-    assert body["sourceLines"]["7"] == [[3992, 3996], [4195, 4204]]
-    assert body["sourceLines"]["7.5"] == [[4718, 4720]]
-
-
-def test_committed_ritual_content_carries_cost_and_preparation():
-    weights = json.loads((CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
-    assert {w["weight"]: w["spi"] for w in weights} == {"Light": 2, "Moderate": 4, "Heavy": 8}
-    assert next(w for w in weights if w["weight"] == "Heavy")["spiOpen"] is True
-    prep = json.loads((CONTENT / "ritual_preparation.json").read_text(encoding="utf-8"))["entries"]
-    assert [p["quality"] for p in prep] == extract_ritual.PREPARATIONS
+def test_praying_to_oneself_is_gone():
+    """v6.9i deleted the three-line self-description; no structure has that
+    scope any more."""
+    body = (CONTENT / "incantations.json").read_text(encoding="utf-8")
+    assert "Praying to Oneself" not in body
+    assert json.loads(body)["sourceLines"] == {"9": [[4130, 4138]]}
 
 
 def test_the_critical_failure_row_carries_no_margin_band():
-    """"Critical Failure (roll 17-18)" is entered by the ROLL, not by a margin.
-    Giving it a numeric band would let a margin lookup match it and skip the
-    real severe-misfire row."""
+    """"Critical Failure" is entered by the ROLL, not by a margin. Giving it a
+    numeric band would let a margin lookup match it."""
     rows = extract_ritual.parse_failures([
         "Failure by 10+", "Severe misfire. Roll on Critical Failure Table with -2 to the result roll.",
-        "Critical Failure (roll 17-18)", "Roll on Critical Failure Table immediately.",
+        "Critical Failure", "Roll on Critical Failure Table immediately.",
     ])
     assert rows[0]["from"] == 10 and rows[0]["to"] is None
     assert rows[1]["critical"] is True
     assert "from" not in rows[1]
 
 
-def test_wrapped_ritual_prose_stays_with_its_own_row():
-    rows = extract_ritual.parse_weights([
-        "Moderate (-2)",
-        "Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing,",
-        "Protection/Warding",
-        "Heavy (-4)",
-        "Summoning, Binding, Unraveling, Affliction, Transference, Soul-Anchoring",
-    ])
-    assert rows[0]["categories"].endswith("Oath-Sealing, Protection/Warding")
-    assert rows[1]["modifier"] == -4
-
-
 def test_committed_critical_table_covers_every_3d6_result():
-    entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
+    entries = _ritual_entries("ritual_critical")
     covered = {n for e in entries for n in range(e["low"], e["high"] + 1)}
     assert covered == set(range(3, 19))
 
 
 def test_the_critical_table_is_not_ordered_by_severity():
-    """3-4 is Backlash and 18 is Catastrophe, but 13-14 (gain CoR) sits above
-    11-12 (Wrong Arrival). The book shifts this roll by -2 on a severe
-    misfire, so a caller assuming monotonic severity reads the shift
-    backwards."""
-    entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
-    outcomes = {e["low"]: e["outcome"].split(".")[0] for e in entries}
+    """13-14 (gain CoR) sits above 11-12 (Wrong Arrival). The book shifts this
+    roll by -2 on a severe misfire, so a caller assuming monotonic severity
+    reads the shift backwards."""
+    outcomes = {e["low"]: e["outcome"].split(".")[0] for e in _ritual_entries("ritual_critical")}
     assert outcomes[3] == "Backlash"
     assert outcomes[11] == "Wrong Arrival"
     assert outcomes[13] == "Corruption"
@@ -595,15 +510,56 @@ def test_the_cor_a_critical_row_charges_is_read_from_its_prose():
     ])
     assert rows[0]["corGained"] == 1
     assert rows[1]["corGained"] == 2
-    # A row that charges nothing carries no key at all rather than a 0: the
-    # book charging no corruption is not the same as charging zero.
+    # Charging no corruption is not the same as charging zero.
     assert "corGained" not in rows[2]
 
 
 def test_committed_critical_rows_charge_what_the_book_prints():
-    entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
-    charged = {e["printed"]: e.get("corGained") for e in entries if e.get("corGained")}
+    charged = {e["printed"]: e.get("corGained")
+               for e in _ritual_entries("ritual_critical") if e.get("corGained")}
     assert charged == {"13-14": 1, "15-16": 1, "17": 2}
+
+
+def test_the_revelation_rows_carry_their_reductions():
+    """Seven Lights -20, -5 per sacrifice; Deities -40, reducible to -10 with
+    an advantage chapter 3 does not print."""
+    rows = _ritual_entries("ritual_revelation")
+    assert [(r["penalty"], r.get("perSacrifice"), r.get("reducibleTo")) for r in rows] \
+        == [(-20, 5, None), (-40, None, -10)]
+    assert extract_ritual.BLESSED_BY_DEITY in rows[1]["reduction"]
+    advantages = json.loads((CONTENT / "advantages.json").read_text(encoding="utf-8"))["entries"]
+    assert all(a["name"] != extract_ritual.BLESSED_BY_DEITY for a in advantages)
+
+
+def test_the_contract_table_grades_every_margin_once():
+    """Sec. VI's margin table: "Success by 0 (exact)" is its own row, and the
+    two failure rows carry no margin."""
+    contract = _ritual_entries("ritual_contract")[0]
+    assert [(o.get("from"), o.get("to")) for o in contract["outcomes"]] == [
+        (10, None), (7, 9), (5, 6), (3, 4), (1, 2), (0, 0), (None, None), (None, None)]
+    assert (contract["spi"], contract["time"], contract["maxContracts"],
+            contract["maxContractsScrollsProfessor"]) == (3, "30 minutes", 4, 8)
+    assert "subtract the result" in contract["difficulty"]
+
+
+@needs_pdf
+def test_a_dropped_contract_band_would_fail_verification():
+    byn = extract_ritual.load_lines()
+    contract = extract_ritual.parse_contract(
+        extract_ritual.stream(byn, *extract_ritual.CONTRACT_RANGE))
+    extract_ritual.verify_contract(contract)
+    contract["outcomes"] = [o for o in contract["outcomes"] if o.get("from") != 0]
+    with pytest.raises(ValueError, match="margin bands"):
+        extract_ritual.verify_contract(contract)
+
+
+@needs_pdf
+def test_losing_the_per_contract_die_sentence_would_fail():
+    byn = extract_ritual.load_lines()
+    lines = [l.replace("roll an extra 1d6", "take -2")
+             for l in extract_ritual.stream(byn, *extract_ritual.CONTRACT_RANGE)]
+    with pytest.raises(ValueError, match="no longer prints"):
+        extract_ritual.parse_contract(lines)
 
 
 # --- Active defenses (Ch. 5, p. 36-37) -------------------------------------

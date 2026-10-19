@@ -1,4 +1,4 @@
-"""Extract the Study & Training tables (Ch. 3, p. 32, global 2185-2237).
+"""Extract the Study & Training tables (Ch. 3, p. 34, global 2279-2331).
 
 Two files. `study_costs` is the eight-cell time-and-money table, keyed on the
 closed set of four difficulty names -- the same anchor the maneuver table uses,
@@ -11,13 +11,13 @@ downtime period and no tutor.
 
 WHAT IS DELIBERATELY NOT EXTRACTED, and why this file exists at all:
 
-The "Cumulative CP" grid at 2206-2230 is a TRUNCATED SECOND PRINTING of the
+The "Cumulative CP" grid at 2300-2324 is a TRUNCATED SECOND PRINTING of the
 skill cost grid `skill_ladder.json` has carried from p. 25-26 since 6ac -- four
 rungs against nine, every cell agreeing. Storing it would be the silent merge
 4.1 forbids, and `GoldenStudyPointsTest` already asserts it as a PREFIX. Its
 lines stay unclaimed on purpose, so the two spans below have a hole in them.
 
-The whole slice rests on one sentence at 2185: a study session earns "1
+The whole slice rests on one sentence at 2279: a study session earns "1
 character point locked to that skill". Study points ARE character points, so
 `SkillLadder` already prices a rung and this table only prices the point --
 which is what makes a stateless planner possible in an app with no clock.
@@ -39,9 +39,9 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "3"
-# The CP grid (2206-2230) is deliberately outside both spans; see the docstring.
-TABLE_RANGE = (2185, 2205)
-LIMITS_RANGE = (2231, 2237)
+# The CP grid (2300-2324) is deliberately outside both spans; see the docstring.
+TABLE_RANGE = (2279, 2299)
+LIMITS_RANGE = (2325, 2331)
 
 # This PDF prints list bullets as U+007F. See extract_defenses.py.
 BULLET = "\x7f"
@@ -63,7 +63,7 @@ SOLI_PER_POUND = 20
 PINNED = [
     # The sentence the whole slice rests on.
     "1 character point locked to that skill",
-    "Study points follow the same exponential ladder as normal character points",
+    "Study points follow the same point ladder as normal character points",
     # All three Limits bullets. Only the first is applied.
     "A skill cannot exceed Attribute+1 through study alone.",
     "cannot be studied",

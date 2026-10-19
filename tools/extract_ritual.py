@@ -1,73 +1,58 @@
-"""Extract the ritual resolution tables (Ch. 7, p. 67-68) into committed JSON.
+"""Extract the ritual resolution tables (Ch. 9, p. 60-62) into committed JSON.
 
-Three tables, all label-then-prose with effects that wrap onto extra lines --
-the same shape tools/extract_pools.py handles, and for the same reason: rows
-cannot be paired positionally.
+v6.9i rebuilt this chapter. What it prints now, and where each file reads it:
 
-WEIGHTS (global lines 4337-4345), the modifier a ritual's category carries:
+WEIGHTS. Two printings of one ladder. Sec. II's Effect Categories table
+(3897-3917) gives Light / Moderate / Heavy with their example categories;
+Sec. III.A's Quick table (3925-3945) adds a fourth weight, Major (-6, 3 hr,
+12+ SPI), and the base time. Major is printed in Sec. III.A ONLY, so it ships
+with no `categories` rather than borrowed ones -- the book names none.
+verify() pins that the three shared rows agree on modifier and SPI.
 
-    Light (+0)
-    Divination (1-2 SPI via Divination Arts), Communication (minor), Warding (simple)
-    Moderate (-2)
-    Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing,
-    Protection/Warding
+OUTCOMES. Sec. III.A's outcome table (3946-3957) is the only place the book
+grades a ritual that WORKED, and Phase III sends the Full ritual to it too
+("Resolve using the Quick Resolution outcome table"). Only its two success
+rows are written. Its failure rows are Sec. V's, coarsened: "Failure by 5+"
+is the union of Sec. V's 5-9 and 10+. verify_outcomes() checks every band it
+prints is a band Sec. V starts, so the day they become two tables this fails
+instead of the app picking one silently. This reading predates v6.9i (6bb)
+and the page still supports it.
 
-FAILURE BANDS (global lines 4349-4359), what a missed roll costs by margin.
-The last band is not a margin at all -- "Critical Failure (roll 17-18)" is a
-roll, not a distance -- so it ships with `critical` set and no margin, rather
-than being forced into a numeric band it does not occupy.
+FAILURES (4028-4039) and the CRITICAL FAILURE TABLE (4040-4061). The critical
+table's outcomes are NOT ordered by severity: 13-14 (1 CoR) sits above 11-12
+(Wrong Arrival), and the book shifts the roll by -2 for a severe misfire.
 
-CRITICAL FAILURE TABLE (global lines 4361-4384), 3d6 with nine bands. Its
-outcomes are NOT ordered by severity: 3-4 is Backlash and 18 is Catastrophe,
-but 13-14 (1 CoR) sits above 11-12 (Wrong Arrival). That matters because the
-book shifts this roll by -2 for a severe misfire, and a caller that assumed
-monotonic severity would read the shift backwards.
+PREPARATION. Phase I (3963-3964) is prose now: "Excellent +3, Good +1 to +2,
+Adequate +0, Poor -1 to -2, None -4 or worse." The descriptive column v6.9d
+printed is gone, so the rows carry no `looksLike`.
 
-THE FLOURISH BONUS (global lines 4140-4143), Phase II's +1
------------------------------------------------------------
-"The GM may award a Flourish Bonus (+1) for good in-character delivery",
-followed immediately by the book stating what it is FOR:
+FLOURISH (3965-3967). "GM may award +1 Flourish Bonus for good roleplay.
+Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus." The +1
+lives in Kotlin (`RitualMode.FLOURISH_BONUS`); this file pins the sentence.
+It is FULL-only: Sec. III.A never names it.
 
-    Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus
+REVELATION PENALTIES (4008-4025), new in v6.9i. Two entity types, a roll
+penalty each, and a reduction each printed as prose with one number in it.
+The Deities row reduces "if the caster possesses the Blessed by Deity
+advantage" -- an advantage chapter 3 does not print (its blessings are the
+Seven Orthodox Gods table, 75 pts each). Recorded, not resolved:
+BLESSED_BY_DEITY pins that the name is absent from advantages.json.
 
-That formula line is the evidence the bonus reaches the roll. It is NOT read
-as exhaustive -- weight, CoR, support and language all reach the same target
-and it names none of them. It is Phase II's summary of Phase II.
+SPIRIT WORLD CREATURE CONTRACT (4065-4129), new in v6.9i. Sec. VI's
+contract ritual: "The base penalty equals your Sequence number" and "For each
+creature you already have under contract, roll an extra 1d6 and subtract the
+result" -- both sentences pinned here, the arithmetic in Kotlin. 3 SPI, 30
+minutes, at most 4 contracts (8 for Scrolls Professor). The margin table
+(4103-4123) grades a contract that WORKED and the demands it costs; "Success
+by 0 (exact)" is its own row. The Sequence 9 reference table (4087-4102) is a
+worked example of the same sentences and is claimed, not extracted.
 
-The number and the words naming it are on DIFFERENT LINES: the sentence wraps
-between "Flourish Bonus" and "(+1) for good in-character delivery", so neither
-line alone says what the rule is. The lines are joined before the bonus is
-read -- the same rule the "Spoken-only ... costs / half." page break needed in
-extract_languages.py.
-
-It belongs to the FULL ritual alone. "Flourish" appears exactly twice in this
-book, both inside Phase II, and the Quick Ritual's Step 3 says "Sum the
-following two modifiers" and then names Preparation Quality and Target Link.
-That is the mirror image of the target link, which is Quick's alone because
-Full's preparation rows name their links (see extract_ritual_modes.py), and
-verify() pins both halves: the two occurrences, and the absence from Step 3.
-
-The +1 itself lives in Kotlin (`RitualMode.FLOURISH_BONUS`) because it is a
-number inside a sentence rather than a table -- the split the maneuver table's
-+4/-4, the +3 support cap and the orthodox -2 all take. This file claims the
-sentence it was read from, so the rule stays findable.
-
-AND THE CANON PROCEDURE'S TIMING PENALTY IS DELIBERATELY NOT APPLIED
----------------------------------------------------------------------
-Section C, step 1 prints "Wrong timing for the entity gives -1 to -2" (line
-4161). It is refused on two printed facts, both pinned:
-
-  * Phase I already declares "Timing: Does it match the entity's domain?"
-    among the choices that "feed into a single Preparation Modifier", and
-    Excellent's own cell names "celestial timing". Offering the canon penalty
-    beside it charges one mistimed ritual twice -- the scoping that keeps
-    Appendix A's adverse conditions off a shot already priced by chapter 5's
-    darkness row.
-  * The book labels Section C itself: "The novel's full procedure is preserved
-    here as a reference ... when you want the full texture of the ritual."
-
-Both are recorded rather than assumed, because "it is reference prose" is a
-reason that has to survive the page printing a number.
+INCANTATIONS. v6.9i keeps two structures:
+  * the four-part Hermes one, named in Phase II (3965) by its parts only --
+    "Invocation, Grace, Request, Empowerment" -- with no worked text;
+  * the summoning incantation of Sec. VI (4130-4138), three parts.
+The three-line self-description v6.9d printed for Praying to Oneself is gone,
+so no structure has that scope any more.
 """
 import json, pathlib, re, sys
 
@@ -75,137 +60,68 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "7"
-WEIGHT_RANGE = (4337, 4345)
-# The SAME three weights, printed a second time with the columns the summary
-# above leaves out. The summary is where the categories come from; this is the
-# only place the SPI cost appears, and a ritual that costs nothing is a ritual
-# the app lets a caster spam.
-WEIGHT_COST_RANGE = (4318, 4335)
-PREPARATION_RANGE = (4120, 4139)
-# Phase II. Four lines: the heading, the wrapped Flourish sentence, and the
-# formula that says what the bonus is added to.
-FLOURISH_RANGE = (4140, 4143)
-FAILURE_RANGE = (4349, 4359)
-CRITICAL_RANGE = (4361, 4384)
-
-# Section A, the whole Quick Ritual. Read only to prove what is NOT in it.
-QUICK_RITUAL_RANGE = (4036, 4105)
-# Step 4 -- "Roll & Resolve". Thirty lines claimed by nobody until the seam
-# sweep (6bb), holding two tables and one rule:
-#
-#   * a THIRD printing of the weight table, agreeing with Section V's
-#   * the chapter's only ritual OUTCOME table, whose two success rows are
-#     printed nowhere else in the book
-#   * the quick ritual's burning clause, which ch. 2's rule already covers
-#
-# It is not the quick mode's private table. Phase III of the full ritual says
-# "Then resolve using the same outcome table as Quick Ritual (Step 4)", so
-# this one table serves both modes -- and its failure rows are a COARSENING
-# of Section VI's, not a rival to them: every band here is a union of bands
-# there, with the same sentences abbreviated, which is what p. 61's "the same
-# underlying canon procedure ... different levels of granularity" describes.
-STEP_FOUR_RANGE = (4076, 4105)
-# The outcome table inside it, from its first label to its last prose line.
-OUTCOME_RANGE = (4094, 4103)
-# Phase III -- Close, whose last line is what makes Step 4's table general.
-FULL_CLOSE_RANGE = (4147, 4154)
-FULL_DEFERS_TO_STEP_FOUR = "the same outcome table as Quick Ritual"
-GRANULARITY_SENTENCE = "different levels of granularity"
-QUICK_BURN = "1 SPI = +1"
-# Section C, the canon procedure, whose timing penalty is refused.
-CANON_RANGE = (4155, 4165)
-
-# THE REFERENCE PHASE II POINTS AT, WHICH NOTHING CLAIMED
-# --------------------------------------------------------
-# FLOURISH_RANGE's own sentence reads "The player narrates the incantation
-# (4-part Hermes structure -- see reference below). The GM may award a
-# Flourish Bonus (+1)...". The parenthetical was read past: the app claimed
-# the sentence, rendered its second half beside a chip, and awarded +1 for
-# narrating a structure it never showed. Three ranges, because the book
-# prints the structure in three scopes and the parts are bulleted while the
-# prose around them is not.
-#
-# Split into intro / parts / note rather than parsed out of one block: after
-# the last bullet the paragraph resumes at the left margin, and no rule drawn
-# from the text can tell that resumption from a bulleted part's WRAP, which
-# looks identical. Two of the four parts wrap, and both carry their worked
-# example on the second line.
-HERMES_INTRO_RANGE = (4195, 4195)
-HERMES_PARTS_RANGE = (4196, 4201)
-HERMES_NOTE_RANGE = (4202, 4204)
-# Section IV.A, the structure the note above sends a self-praying caster to.
-# The whole paragraph, because the app's "Personal SPI" chip selects this
-# power source and has never said what it asks the caster to recite.
-SELF_DESCRIPTION_RANGE = (3992, 3996)
-# Ch. 7.5's own, and the first line of that chapter anything claims. It is a
-# third structure rather than the self-description reused: that one identifies
-# the CASTER's spiritual location, this one a creature by realm and
-# descriptors. The shared three-line shape is not a shared rule.
-SUMMONING_RANGE = (4718, 4720)
-SUMMONING_CHAPTER = "7.5"
-BULLET = "\x7f"
-PART_LABEL = re.compile(r"^Part (\d) —")
-INCANTATION_SCOPES = ["Invocation", "Praying to Oneself", "Summoning a spiritual creature"]
-# Phase II's cross-reference, which is the warrant for showing the structure
-# beside the Flourish chip rather than anywhere else.
-PHASE_TWO_REFERENCE = "4-part Hermes structure"
-# The note's own join to the second structure, which the app branches on.
-REPLACEMENT_SENTENCE = "replace the four-part structure with the three-line self-description"
-# The note resumes at the left margin, which looks exactly like a part's wrap.
-NOTE_OPENING = "As long as the four-part structure is followed"
+CHAPTER = "9"
+CATEGORY_RANGE = (3897, 3917)
+QUICK_RANGE = (3923, 3961)
+QUICK_TABLE_RANGE = (3925, 3945)
+OUTCOME_RANGE = (3946, 3957)
+FULL_RANGE = (3962, 3969)
+REVELATION_RANGE = (4008, 4025)
+FAILURE_RANGE = (4026, 4039)
+CRITICAL_RANGE = (4040, 4061)
+SUMMONING_RANGE = (4130, 4138)
+CONTRACT_RANGE = (4065, 4129)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {
-    "Weight", "Categories", "Result", "Consequence", "Roll", "Outcome",
-    "Base Mod", "Typical SPI", "Example Categories",
-    "Preparation Quality", "Modifier", "What This Looks Like",
+    "Weight", "Base Mod", "SPI Cost", "Example Categories", "Effect Weight",
+    "Base", "Difficulty", "Base Time", "Result", "Outcome", "Consequence",
+    "Roll", "Entity Type", "Roll Penalty", "Reduction",
+    "Critical Failure Table (3d6)",
 }
-
-# "2 SPI", "4-6 SPI", "8+ SPI" -- one fixed, one a range the GM picks inside,
-# one open at the top.
-SPI_COST = re.compile(r"^(\d+)(?:\s*[-−–—]\s*(\d+)|\s*(\+))?\s*SPI$")
-WEIGHT_NAME = re.compile(r"^(Light|Moderate|Heavy)$")
-# "Excellent", "Good", "Adequate", "Poor", "None" -- the closed column.
-PREPARATIONS = ["Excellent", "Good", "Adequate", "Poor", "None"]
-# "+3", "+1 to +2", "-4 or worse"
-PREP_MODIFIER = re.compile(r"^([+\-−]\d+)(?:\s*to\s*([+\-−]\d+))?")
-
 MINUS = "-−"
-WEIGHT = re.compile(rf"^(Light|Moderate|Heavy)\s*\(([+{MINUS}]?\d+)\)$")
-# "Failure by 1-4", "Failure by 10+", "Critical Failure (roll 17-18)"
-FAILURE = re.compile(rf"^Failure by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
-# "Success by 3+", "Success by 0-2" -- the same shape one word over, and the
-# only place this book grades a ritual that WORKED.
-SUCCESS = re.compile(rf"^Success by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
-# Step 4 writes "Critical Failure (17-18)" where Section VI writes "Critical
-# Failure (roll 17-18)", so CRITICAL_LABEL does not match it. It is needed
-# only as a row BOUNDARY, never stored.
-STEP_FOUR_CRITICAL = re.compile(rf"^Critical Failure \([{MINUS}–—\d]+\)$")
-CRITICAL_LABEL = re.compile(r"^Critical Failure \(roll [\d–—-]+\)$")
-BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+))?$")
-# "Corruption. Gain 1 CoR." / "... Gain 2 CoR. Nightmares for 1d weeks."
-CRITICAL_COR = re.compile(r"\bGain (\d+) CoR\b", re.IGNORECASE)
+WEIGHTS = ["Light", "Moderate", "Heavy", "Major"]
+SIGNED = re.compile(rf"^[+{MINUS}]\d+$")
+SPI_COST = re.compile(r"^(\d+)(?:\s*[-−–—]\s*(\d+)|\s*(\+))?\s*SPI$")
 
-# "... may award a Flourish Bonus (+1) for good in-character delivery."
-# Anchored on the NAME, not on the first bracketed number in the paragraph:
-# the line above it ends "(4-part Hermes structure - see reference below)",
-# which a bare bracket rule would read instead.
-FLOURISH = re.compile(r"Flourish Bonus\s*\(([+\-−]\d+)\)", re.IGNORECASE)
-FLOURISH_NAME = "Flourish Bonus"
-# The book's own statement of what the bonus is added to. Evidence, not a
-# complete list of the target's terms.
+PREPARATION = re.compile(
+    rf"(Excellent|Good|Adequate|Poor|None)\s+([+{MINUS}]\d+)"
+    rf"(?:\s+to\s+([+{MINUS}]\d+))?(\s+or worse)?"
+)
+PREPARATIONS = ["Excellent", "Good", "Adequate", "Poor", "None"]
+
+FLOURISH = re.compile(rf"([+{MINUS}]\d+) Flourish Bonus")
 FLOURISH_FORMULA = "Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus"
-# Quick's Step 3, which names its modifiers and stops at two.
-QUICK_SUMS_TWO = "Sum the following two modifiers"
-# The Phase I preparation cell that already prices timing.
-PREPARATION_PRICES_TIMING = "celestial timing"
-# Section C's own label, and the penalty it prints that is not applied.
-CANON_IS_REFERENCE = "preserved here as a reference"
-CANON_TIMING_PENALTY = "Wrong timing for the entity gives"
+INVOCATION_BONUS = "Invocation bonus (GM discretion, +1 to +5)"
+FULL_DEFERS = "Resolve using the Quick Resolution outcome table"
+HERMES = re.compile(r"4-part Hermes structure: ([^)]+)\)")
 
+FAILURE = re.compile(rf"^Failure by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
+SUCCESS = re.compile(rf"^Success by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
+QUICK_CRITICAL = re.compile(rf"^Critical Failure \([{MINUS}–—\d]+\)$")
+CRITICAL_LABEL = "Critical Failure"
+BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+))?$")
+CRITICAL_COR = re.compile(r"\bGain (\d+) CoR\b", re.IGNORECASE)
 EXPECTED_CRITICAL_BANDS = [(3, 4), (5, 6), (7, 8), (9, 10), (11, 12),
                            (13, 14), (15, 16), (17, 17), (18, 18)]
+
+ENTITIES = ["Seven Lights of the Divine Throne", "Deities (Orthodox or Hidden)"]
+PER_SACRIFICE = re.compile(rf"^([{MINUS}]\d+) per sacrifice")
+REDUCIBLE_TO = re.compile(rf"^Reducible to ([{MINUS}]\d+)")
+BLESSED_BY_DEITY = "Blessed by Deity"
+
+CONTRACT_BASE = "The base penalty equals your Sequence number"
+CONTRACT_PER_HELD = ("For each creature you already have under contract, "
+                     "roll an extra 1d6 and subtract the result")
+CONTRACT_TERMS = re.compile(
+    r"SPI Cost: (\d+) SPI\. Time: ([^.]+)\. Setup: (.+?) Maximum contracts: "
+    r"(\d+) \((\d+) for Scrolls Professor\)\.")
+CONTRACT_EXACT = "Success by 0 (exact)"
+CONTRACT_LABELS = ("Failure", "Critical Failure", CONTRACT_EXACT)
+METHOD = re.compile(r"^\x7f?\s*(Method \d) — ([^:]+): (.+)$")
+
+SUMMONING_PART = re.compile(r"^\x7f?\s*Part (\d):")
+BULLET = "\x7f"
 
 
 def load_lines():
@@ -226,12 +142,68 @@ def stream(byn, start, end):
     return out
 
 
-def normalise(value):
-    return value.replace("−", "-")
+def signed(text):
+    return int(text.replace("−", "-"))
+
+
+def spi_fields(cell):
+    match = SPI_COST.match(cell.replace("−", "-"))
+    if not match:
+        raise ValueError(f"not an SPI cost: {cell!r}")
+    low, high, plus = match.groups()
+    out = {"spi": int(low)}
+    if high:
+        out["spiMax"] = int(high)
+    if plus:
+        out["spiOpen"] = True
+    return out
+
+
+def parse_categories(lines):
+    """Sec. II: Weight / Base Mod / SPI Cost / Example Categories (wraps)."""
+    starts = [i for i, l in enumerate(lines) if l in WEIGHTS]
+    rows = {}
+    for pos, i in enumerate(starts):
+        end = starts[pos + 1] if pos + 1 < len(starts) else len(lines)
+        rows[lines[i]] = {
+            "modifier": signed(lines[i + 1]),
+            **spi_fields(lines[i + 2]),
+            "categories": " ".join(lines[i + 3:end]),
+        }
+    return rows
+
+
+def parse_quick_table(lines):
+    """Sec. III.A: Effect Weight / Base Difficulty / Base Time / SPI Cost."""
+    rows = []
+    for i, line in enumerate(lines):
+        if line not in WEIGHTS:
+            continue
+        mod, time, cost = lines[i + 1:i + 4]
+        if not SIGNED.match(mod):
+            raise ValueError(f"{line!r} prints no base difficulty: {mod!r}")
+        rows.append({"weight": line, "modifier": signed(mod), "baseTime": time,
+                     **spi_fields(cost)})
+    return rows
+
+
+def build_weights(quick, categories):
+    out = []
+    for row in quick:
+        listed = categories.get(row["weight"])
+        if listed is not None:
+            for key in ("modifier", "spi", "spiMax", "spiOpen"):
+                if listed.get(key) != row.get(key):
+                    raise ValueError(
+                        f"{row['weight']}: Sec. II prints {key}={listed.get(key)!r} "
+                        f"and Sec. III.A {row.get(key)!r}; the two printings disagree"
+                    )
+            row = {**row, "categories": listed["categories"]}
+        out.append(row)
+    return out
 
 
 def collect(lines, is_label, start_row):
-    """Rows of a label/prose table, wrapped prose rejoined onto its own row."""
     rows = []
     for line in lines:
         if is_label(line):
@@ -250,195 +222,39 @@ def without_text(row, key):
     return {k: v for k, v in row.items() if k != "text"} | {key: row["text"]}
 
 
-def parse_weights(lines):
+def margin_row(match, line):
+    low, high, plus = match.groups()
+    return {"printed": line, "from": int(low), "to": None if plus else int(high)}
+
+
+def parse_outcomes(lines):
+    """Sec. III.A's outcome table: (success rows, failure band starts)."""
+    def is_label(line):
+        return bool(SUCCESS.match(line) or FAILURE.match(line) or QUICK_CRITICAL.match(line))
+
     def start(line):
-        match = WEIGHT.match(line)
-        return {"weight": match.group(1), "modifier": int(normalise(match.group(2)))}
+        success = SUCCESS.match(line)
+        if success:
+            return margin_row(success, line) | {"graded": True}
+        return {"printed": line, "graded": False}
 
-    rows = collect(lines, lambda l: WEIGHT.match(l) is not None, start)
-    return [without_text(r, "categories") for r in rows]
-
-
-def parse_weight_costs(lines):
-    """{weight: (spi, spiMax, spiOpen)} off the fuller Effect Categories table.
-
-    Anchored on the weight NAME, which is a closed set of three; the Base Mod
-    column repeats what the summary table already gives, so only the SPI cell
-    is read here.
-    """
-    costs = {}
-    for i, line in enumerate(lines):
-        if not WEIGHT_NAME.match(line):
-            continue
-        cell = next(
-            (c for c in lines[i + 1:i + 4] if SPI_COST.match(normalise(c))),
-            None,
-        )
-        if cell is None:
-            raise ValueError(f"{line!r} prints no SPI cost")
-        low, high, plus = SPI_COST.match(normalise(cell)).groups()
-        costs[line] = (int(low), int(high) if high else None, bool(plus))
-    return costs
-
-
-def parse_preparation(lines):
-    """Preparation Quality / Modifier / What This Looks Like (Phase I)."""
-    rows = []
-    for i, line in enumerate(lines):
-        if line not in PREPARATIONS:
-            continue
-        if i + 1 >= len(lines):
-            raise ValueError(f"{line!r} prints no modifier")
-        cell = normalise(lines[i + 1])
-        match = PREP_MODIFIER.match(cell)
-        if not match:
-            raise ValueError(f"{line!r} prints an unreadable modifier: {cell!r}")
-        entry = {
-            "quality": line,
-            "modifier": int(match.group(1)),
-            "printed": lines[i + 1],
-        }
-        if match.group(2):
-            # "+1 to +2" and "-1 to -2": a range the GM picks inside.
-            entry["best"] = int(match.group(2))
-        if "worse" in cell:
-            # "-4 or worse" is a floor, not a value.
-            entry["openEnded"] = True
-        rows.append(entry)
-    # The prose cell runs from the modifier to the next quality, and two of
-    # them wrap onto a second line.
-    starts = [i for i, line in enumerate(lines) if line in PREPARATIONS]
-    for pos, i in enumerate(starts):
-        end = starts[pos + 1] if pos + 1 < len(starts) else len(lines)
-        rows[pos]["looksLike"] = " ".join(lines[i + 2:end])
-        if not rows[pos]["looksLike"]:
-            raise ValueError(f"{rows[pos]['quality']!r} has no description")
-    return rows
+    rows = collect(lines, is_label, start)
+    success = [without_text({k: v for k, v in r.items() if k != "graded"}, "outcome")
+               for r in rows if r["graded"]]
+    starts = [int(FAILURE.match(r["printed"]).group(1))
+              for r in rows if FAILURE.match(r["printed"])]
+    return success, starts
 
 
 def parse_failures(lines):
     def start(line):
-        if CRITICAL_LABEL.match(line):
-            # Not a margin band at all: this row is entered by the ROLL, so it
-            # carries no from/to. Giving it one would let a margin lookup match
-            # it and skip the real severe-misfire row.
+        if line == CRITICAL_LABEL:
+            # Entered by the ROLL, not a margin, so it carries no from/to.
             return {"printed": line, "critical": True}
-        low, high, plus = FAILURE.match(line).groups()
-        return {
-            "printed": line,
-            "from": int(low),
-            "to": None if plus else int(high),
-            "critical": False,
-        }
+        return margin_row(FAILURE.match(line), line) | {"critical": False}
 
-    def is_label(line):
-        return FAILURE.match(line) is not None or CRITICAL_LABEL.match(line) is not None
-
-    rows = collect(lines, is_label, start)
+    rows = collect(lines, lambda l: bool(FAILURE.match(l)) or l == CRITICAL_LABEL, start)
     return [without_text(r, "consequence") for r in rows]
-
-
-def parse_step_four(lines):
-    """The two SUCCESS rows of Step 4's outcome table.
-
-    Only the success half is returned. The failure half of the same table is
-    Section VI's, coarsened -- verify_step_four checks that -- and storing a
-    second copy of rows this repo already commits is the silent merge 4.1
-    forbids, the call 6ac made for the study page's truncated CP grid.
-
-    EVERY label of the table is a boundary, not only the two being kept. The
-    success rows come first and the failure rows follow them, so a predicate
-    matching successes alone makes the last success cell swallow the whole
-    failure half -- the trailing-paragraph trap extract_core and
-    extract_rituals were each caught by. The rows are dropped after the
-    boundaries are drawn, never before.
-    """
-    def is_label(line):
-        return (
-            SUCCESS.match(line) is not None
-            or FAILURE.match(line) is not None
-            or STEP_FOUR_CRITICAL.match(line) is not None
-        )
-
-    def start(line):
-        match = SUCCESS.match(line)
-        if not match:
-            return {"printed": line, "graded": False}
-        low, high, plus = match.groups()
-        return {
-            "printed": line,
-            "from": int(low),
-            "to": None if plus else int(high),
-            "graded": True,
-        }
-
-    rows = collect(lines, is_label, start)
-    kept = [without_text(r, "outcome") for r in rows if r["graded"]]
-    if len(kept) == len(rows):
-        raise ValueError(
-            "Step 4's outcome table now prints successes only. Its failure "
-            "rows are what prove it is Section VI coarsened rather than a "
-            "rival table, so their absence needs the page re-read"
-        )
-    return [{k: v for k, v in row.items() if k != "graded"} for row in kept]
-
-
-def verify_step_four(success, cells, failures, weights, full_close):
-    """Why the success rows are adopted and the failure rows are not.
-
-    Both halves come off the SAME table, so its failure rows agreeing with
-    Section VI is the entire warrant for trusting its unrepeated success
-    rows -- the per-table standard 6ad set, and 6v is why it cannot be a
-    per-source one.
-    """
-    # Compared on the PARSED bands, never on the printed label: this page
-    # prints "0-2" with an en dash where Section VI uses a hyphen, and a
-    # string match would fail on the glyph while the rule was intact -- the
-    # two-kinds-of-minus trap the wealth ladder set first (6u).
-    bands = [(r["from"], r["to"]) for r in success]
-    if bands != [(3, None), (0, 2)]:
-        raise ValueError(f"the ritual success bands changed: {success}")
-    if not all(r["printed"].startswith("Success by") for r in success):
-        raise ValueError(f"a success row is no longer labelled by margin: {success}")
-    # Best-first, and they must not overlap: a margin of 3 belongs to one row.
-    if success[0]["from"] <= success[1]["to"]:
-        raise ValueError(f"the two success bands now overlap: {success}")
-    if success[1]["from"] != 0:
-        raise ValueError("the milder success band no longer starts at 0, so a "
-                         "ritual that just scraped in would land on no row")
-
-    # The failure half COARSENS Section VI rather than contradicting it: every
-    # band printed here must be a union of bands printed there. If that ever
-    # stops being true they are two tables, the shape 6y found for the two
-    # preparation ladders, and the app has to pick per mode.
-    bands = [m.groups() for m in (FAILURE.match(c) for c in cells) if m]
-    edges = {int(low) for low, _, _ in bands}
-    theirs = {row["from"] for row in failures if not row["critical"]}
-    if not edges <= theirs:
-        raise ValueError(
-            f"Step 4's failure bands start at {sorted(edges)} and Section VI's "
-            f"at {sorted(theirs)}. Step 4's used to be a subset -- a coarser "
-            "view of the same rule. They are now two tables and the app must "
-            "choose one per mode; see CLAUDE.md 6y for that shape"
-        )
-
-    # And the full ritual is not off using some other table.
-    if FULL_DEFERS_TO_STEP_FOUR not in " ".join(full_close):
-        raise ValueError(
-            "Phase III no longer sends the full ritual to Step 4's outcome "
-            "table. These success bands are applied to BOTH modes only "
-            "because it does"
-        )
-
-    # The third printing of the weight table, which is why this block can be
-    # claimed without storing it twice.
-    joined = " ".join(cells)
-    for row in weights:
-        if f"{row['weight']} (" not in joined and row["weight"] not in joined:
-            raise ValueError(f"Step 4 no longer prints the {row['weight']} weight")
-    if QUICK_BURN not in joined:
-        raise ValueError("Step 4 no longer prints the burning clause ch. 2 covers")
-    return success
 
 
 def parse_critical(lines):
@@ -446,13 +262,9 @@ def parse_critical(lines):
         low, high = BAND.match(line).groups()
         return {"low": int(low), "high": int(high) if high else int(low), "printed": line}
 
-    rows = collect(lines, lambda l: BAND.match(l) is not None, start)
     out = []
-    for row in rows:
+    for row in collect(lines, lambda l: BAND.match(l) is not None, start):
         entry = without_text(row, "outcome")
-        # The cost is printed inside the prose ("Corruption. Gain 1 CoR."), so
-        # it is read here rather than in the app: a UI that scanned rule text
-        # for numbers at render time would be a parser nobody tests.
         charge = CRITICAL_COR.search(entry["outcome"])
         if charge:
             entry["corGained"] = int(charge.group(1))
@@ -460,198 +272,145 @@ def parse_critical(lines):
     return out
 
 
-def parse_parts(lines):
-    """The four bulleted parts, each joined across the line it wraps on.
+def parse_preparation(full):
+    rows = []
+    for quality, value, best, worse in PREPARATION.findall(full):
+        entry = {"quality": quality, "modifier": signed(value),
+                 "printed": value + (f" to {best}" if best else "") + worse}
+        if best:
+            entry["best"] = signed(best)
+        if worse:
+            entry["openEnded"] = True
+        rows.append(entry)
+    return rows
 
-    Parts 1 and 4 carry their worked EXAMPLE on a second line, and the example
-    is most of what makes the part usable at the table. A line-at-a-time read
-    returns six parts, two of them fragments starting "or domain." and "that
-    belongs to the Sun." -- and neither of the two real parts keeps its quote.
-    """
+
+def parse_revelation(lines):
+    starts = [i for i, l in enumerate(lines) if l in ENTITIES]
+    rows = []
+    for pos, i in enumerate(starts):
+        end = starts[pos + 1] if pos + 1 < len(starts) else len(lines)
+        body = lines[i + 2:end]
+        tip = next((k for k, l in enumerate(body) if l.startswith("Tip:")), len(body))
+        reduction = " ".join(body[:tip])
+        row = {"entity": lines[i], "penalty": signed(lines[i + 1]), "reduction": reduction}
+        per = PER_SACRIFICE.match(reduction)
+        floor = REDUCIBLE_TO.match(reduction)
+        if per:
+            row["perSacrifice"] = -signed(per.group(1))
+        if floor:
+            row["reducibleTo"] = signed(floor.group(1))
+        rows.append(row)
+    return rows
+
+
+def parse_contract(lines):
+    text = " ".join(lines)
+    for sentence in (CONTRACT_BASE, CONTRACT_PER_HELD):
+        if sentence not in text:
+            raise ValueError(f"Sec. VI no longer prints {sentence!r}")
+    terms = CONTRACT_TERMS.search(text)
+    if not terms:
+        raise ValueError("Sec. VI's contract terms changed shape")
+    spi, time, setup, most, scrolls = terms.groups()
+
+    start = lines.index("Obtaining a Contracted Creature")
+    end = lines.index("Spirit World Creature Contract")
+    methods = collect(lines[start + 2:end], lambda l: bool(METHOD.match(l)),
+                      lambda l: {"line": l})
+    method_rows = []
+    for row in methods:
+        number, name, body = METHOD.match(row["line"]).groups()
+        tail = row.get("text", "")
+        method_rows.append({"method": number, "name": name,
+                            "text": f"{body} {tail}".strip()})
+
+    first = lines.index("Degree of Success determines the creature's demands:")
+    last = next(i for i, l in enumerate(lines) if l.startswith("What a creature demands"))
+
+    def is_label(line):
+        return bool(SUCCESS.match(line)) or line in CONTRACT_LABELS
+
+    def start_row(line):
+        success = SUCCESS.match(line)
+        if success:
+            return margin_row(success, line)
+        if line == CONTRACT_EXACT:
+            return {"printed": line, "from": 0, "to": 0}
+        return {"printed": line, "failure": True, "critical": line == "Critical Failure"}
+
+    table = [l.lstrip(BULLET).strip() for l in lines[first + 1:last] if l != "Margin"]
+    outcomes = [without_text(r, "outcome") for r in collect(table, is_label, start_row)]
+    return {
+        "difficulty": text[text.index("Difficulty: "):text.index(" SPI Cost:")],
+        "spi": int(spi), "time": time, "setup": setup.strip(),
+        "maxContracts": int(most), "maxContractsScrollsProfessor": int(scrolls),
+        "methods": method_rows,
+        "outcomes": outcomes,
+        "demands": " ".join(lines[last:]),
+    }
+
+
+def verify_contract(contract):
+    bands = [(o.get("from"), o.get("to")) for o in contract["outcomes"]]
+    if bands != [(10, None), (7, 9), (5, 6), (3, 4), (1, 2), (0, 0), (None, None), (None, None)]:
+        raise ValueError(f"contract margin bands changed: {bands}")
+    if [o["printed"] for o in contract["outcomes"][-2:]] != ["Failure", "Critical Failure"]:
+        raise ValueError("contract failure rows changed")
+    if (contract["spi"], contract["maxContracts"], contract["maxContractsScrollsProfessor"]) \
+            != (3, 4, 8):
+        raise ValueError(f"contract terms changed: {contract}")
+    if [m["method"] for m in contract["methods"]] != ["Method 1", "Method 2"]:
+        raise ValueError(f"contract methods changed: {contract['methods']}")
+
+
+def build_incantations(full, summoning):
+    hermes = HERMES.search(full)
+    if not hermes:
+        raise ValueError("Phase II no longer names the 4-part Hermes structure")
     parts, current = [], None
-    for line in lines:
-        if line.startswith(BULLET):
+    note = []
+    for line in summoning[1:]:
+        if SUMMONING_PART.match(line):
             if current is not None:
                 parts.append(current)
-            current = line[len(BULLET):].strip()
-        elif current is not None:
-            current = f"{current} {line}"
+            current = line.lstrip(BULLET).strip()
+        elif current is not None and not line.startswith("The summoner cannot"):
+            if note:
+                note.append(line)
+            else:
+                current = f"{current} {line}"
+        else:
+            note.append(line)
     if current is not None:
         parts.append(current)
-    return parts
-
-
-def build_incantations(intro, part_lines, note, self_lines, summoning_lines):
-    """The three structures the book prints, each with its own scope.
-
-    [referenceOnly] marks the summoning one: this app models WHICH POWER
-    SOURCE a ritual draws on, which is what chapter 7's pair is selected by,
-    and it does not model what the ritual is FOR. The weight is picked and its
-    category list is display text, so nothing here can say a ritual IS a
-    summoning -- and gating on Heavy would say it about binding, affliction
-    and four other categories too.
-    """
     return [
         {
             "structure": "Four-part Hermes",
-            "scope": INCANTATION_SCOPES[0],
-            "text": " ".join(intro),
-            "parts": parse_parts(part_lines),
-            # Printed AFTER the parts, and it carries the book's own join to
-            # the next structure. Kept apart from [text] so the screen renders
-            # the three in the order the page prints them.
+            "scope": "Invocation",
+            "text": hermes.group(0).rstrip(")"),
+            "parts": [p.strip() for p in hermes.group(1).split(",")],
+        },
+        {
+            "structure": "Three-part summoning incantation",
+            "scope": "Summoning a spiritual creature",
+            "text": summoning[0],
+            "parts": parts,
             "note": " ".join(note),
-        },
-        {
-            "structure": "Three-line self-description",
-            "scope": INCANTATION_SCOPES[1],
-            "text": " ".join(self_lines),
-            "parts": [],
-        },
-        {
-            "structure": "Three-line summoning incantation",
-            "scope": INCANTATION_SCOPES[2],
-            "text": " ".join(summoning_lines),
-            "parts": [],
             "referenceOnly": True,
         },
     ]
 
 
-def verify_incantations(entries, phase_two):
-    """The parts, the scopes, and the cross-reference the screen rests on."""
-    scopes = [e["scope"] for e in entries]
-    if scopes != INCANTATION_SCOPES:
-        raise ValueError(f"the printed incantation scopes changed: {scopes}")
-
-    hermes = entries[0]
-    labels = [PART_LABEL.match(p) for p in hermes["parts"]]
-    if len(hermes["parts"]) != 4 or not all(labels):
-        raise ValueError(
-            f"the standard incantation prints four parts; parsed "
-            f"{len(hermes['parts'])}, labelled {[p[:20] for p in hermes['parts']]}"
-        )
-    if [m.group(1) for m in labels] != ["1", "2", "3", "4"]:
-        raise ValueError("the four parts are no longer printed in order")
-    # parse_parts joins every non-bullet line onto the part above it, so a
-    # PARTS_RANGE that ran past the last bullet would swallow the note and
-    # report nothing: the count and the order would both still be right, and
-    # Part 4 would silently grow a paragraph. The note's own opening words are
-    # what says the range ended in the wrong place (Codex).
-    swallowed = next(
-        (p for p in hermes["parts"] if NOTE_OPENING in p or REPLACEMENT_SENTENCE in p),
-        None,
-    )
-    if swallowed is not None:
-        raise ValueError(
-            "a part swallowed the paragraph printed after the list, so "
-            f"HERMES_PARTS_RANGE runs past the last bullet: {swallowed[-60:]!r}"
-        )
-
-    # Each structure still says the thing that makes it that structure. The
-    # two three-line forms are kept apart by their TARGET, so both phrases are
-    # checked rather than the shared "three-line".
-    for entry, phrase in zip(entries, (
-        "four parts, spoken in Hermes", "description of your being",
-        "resident realm of the creature",
-    )):
-        if phrase not in entry["text"]:
-            raise ValueError(
-                f"the {entry['scope']} structure no longer prints {phrase!r}"
-            )
-
-    # The book's own selection rule, and the whole warrant for the app showing
-    # one structure or the other off a chip the player already sets. Without
-    # this sentence the two are unrelated printings and the branch is invented.
-    if REPLACEMENT_SENTENCE not in hermes["note"]:
-        raise ValueError(
-            f"the four-part structure's note no longer says {REPLACEMENT_SENTENCE!r}. "
-            "That sentence is the only thing joining it to the self-description, "
-            "so nothing licenses choosing between them"
-        )
-
-    # The warrant for rendering this beside the Flourish chip, and the half of
-    # Phase II's sentence the app used to drop.
-    if PHASE_TWO_REFERENCE not in phase_two:
-        raise ValueError(
-            f"Phase II no longer names the {PHASE_TWO_REFERENCE!r} it sends the "
-            "caster to. That cross-reference is the only reason this structure "
-            "is shown beside the Flourish Bonus rather than anywhere else"
-        )
-
-
-def parse_flourish(cells):
-    """The Flourish Bonus's value, read from the joined Phase II paragraph.
-
-    The cells are joined before the search because the sentence WRAPS between
-    the words naming the bonus and the number itself -- "... may award a
-    Flourish Bonus" ends one line and "(+1) for good in-character delivery."
-    begins the next. Scanning line by line finds a name with no number, or a
-    number with no name, and either reads as the rule being absent.
-    """
-    joined = " ".join(cells)
-    found = FLOURISH.search(joined)
-    if not found:
-        raise ValueError(
-            f"no '{FLOURISH_NAME} (+N)' in Phase II; the paragraph reads {joined!r}"
-        )
-    return int(found.group(1).replace("−", "-")), joined
-
-
-def verify_flourish(bonus, phase_two, quick, canon, preparation):
-    """The bonus, and the two scoping decisions that rest on the same pages."""
-    if bonus != 1:
-        raise ValueError(f"the Flourish Bonus used to be +1; the page now prints {bonus:+d}")
-    # The book's own statement that this bonus reaches the roll. Without it the
-    # +1 would be a number in a paragraph with nothing saying where it lands.
-    if FLOURISH_FORMULA not in phase_two:
-        raise ValueError(
-            "Phase II no longer prints its effective-skill formula. That line "
-            "is the only evidence the Flourish Bonus is added to the ritual "
-            f"roll at all; expected {FLOURISH_FORMULA!r}"
-        )
-
-    # FULL-only, and the evidence is an absence, so both halves are checked.
-    # This is the mirror of the target link, which is QUICK's alone.
-    if FLOURISH_NAME.lower() not in phase_two.lower():
-        raise ValueError("Phase II no longer names the Flourish Bonus")
-    if QUICK_SUMS_TWO not in quick:
-        raise ValueError(
-            "the Quick Ritual's Step 3 no longer says it sums exactly two "
-            f"modifiers ({QUICK_SUMS_TWO!r}). That sentence is the whole reason "
-            "the Flourish Bonus is scoped to the Full ritual"
-        )
-    if FLOURISH_NAME.lower() in quick.lower():
-        raise ValueError(
-            "the Quick Ritual now names the Flourish Bonus too, so it is no "
-            "longer Full-mode only and RitualMode's guard is wrong"
-        )
-
-    # And the canon timing penalty, refused because Phase I already prices it.
-    if CANON_TIMING_PENALTY not in canon:
-        raise ValueError(
-            f"Section C no longer prints {CANON_TIMING_PENALTY!r}. The refusal to "
-            "apply it is only a decision while the number is still there"
-        )
-    if CANON_IS_REFERENCE not in canon:
-        raise ValueError(
-            "Section C no longer labels itself a reference; the second half of "
-            "the reason for not applying its timing penalty is gone"
-        )
-    priced = " ".join(p["looksLike"] for p in preparation).lower()
-    if PREPARATION_PRICES_TIMING not in priced:
-        raise ValueError(
-            "the Phase I preparation rows no longer mention timing "
-            f"({PREPARATION_PRICES_TIMING!r}), so nothing shows that the canon "
-            "procedure's -1 to -2 would be charging one mistimed ritual twice"
-        )
-
-
-def verify(weights, failures, critical, preparation):
-    if [w["weight"] for w in weights] != ["Light", "Moderate", "Heavy"]:
-        raise ValueError(f"weights changed: {weights}")
-    if [w["modifier"] for w in weights] != [0, -2, -4]:
+def verify(weights, failures, critical, preparation, revelation, incantations):
+    if [w["weight"] for w in weights] != WEIGHTS:
+        raise ValueError(f"weights changed: {[w['weight'] for w in weights]}")
+    if [w["modifier"] for w in weights] != [0, -2, -4, -6]:
         raise ValueError(f"weight modifiers changed: {[w['modifier'] for w in weights]}")
+    if [w.get("spi") for w in weights] != [2, 4, 8, 12]:
+        raise ValueError(f"ritual SPI costs changed: {[w.get('spi') for w in weights]}")
+    if [w["weight"] for w in weights if "categories" not in w] != ["Major"]:
+        raise ValueError("Major used to be the only weight Sec. II does not list")
 
     margins = [(f.get("from"), f.get("to")) for f in failures if not f["critical"]]
     if margins != [(1, 4), (5, 9), (10, None)]:
@@ -661,43 +420,62 @@ def verify(weights, failures, critical, preparation):
 
     bands = [(c["low"], c["high"]) for c in critical]
     if bands != EXPECTED_CRITICAL_BANDS:
-        raise ValueError(f"critical bands changed: {bands} != {EXPECTED_CRITICAL_BANDS}")
-    # 3d6 cannot roll outside 3..18, and every value in it must find a row.
-    covered = {n for c in critical for n in range(c["low"], c["high"] + 1)}
-    if covered != set(range(3, 19)):
-        raise ValueError(f"critical table does not cover 3..18: {sorted(covered)}")
-
-    # Three rows charge CoR and the rest charge none. If that changes, the
-    # ritual screen starts under- or over-charging silently.
+        raise ValueError(f"critical bands changed: {bands}")
     charges = {c["printed"]: c.get("corGained") for c in critical if c.get("corGained")}
     if charges != {"13-14": 1, "15-16": 1, "17": 2}:
         raise ValueError(f"CoR charges changed: {charges}")
 
-    # Every weight must cost something. A ritual the app charges nothing for
-    # is one a caster can repeat forever, which is the opposite of what SPI is
-    # in this book for.
-    costs = {w["weight"]: w.get("spi") for w in weights}
-    if costs != {"Light": 2, "Moderate": 4, "Heavy": 8}:
-        raise ValueError(f"ritual SPI costs changed: {costs}")
-    if not next(w for w in weights if w["weight"] == "Heavy").get("spiOpen"):
-        raise ValueError("Heavy used to print '8+ SPI'; the open end is gone")
-    if next(w for w in weights if w["weight"] == "Moderate").get("spiMax") != 6:
-        raise ValueError("Moderate used to print '4-6 SPI'; the range is gone")
-
-    got = [p["quality"] for p in preparation]
-    if got != PREPARATIONS:
-        raise ValueError(f"preparation qualities changed: {got} != {PREPARATIONS}")
+    if [p["quality"] for p in preparation] != PREPARATIONS:
+        raise ValueError(f"preparation qualities changed: {preparation}")
     if [p["modifier"] for p in preparation] != [3, 1, 0, -1, -4]:
         raise ValueError(f"preparation modifiers changed: {preparation}")
-    if not next(p for p in preparation if p["quality"] == "None").get("openEnded"):
+    if not preparation[-1].get("openEnded"):
         raise ValueError("'None' used to print '-4 or worse'; the floor is gone")
 
+    if [r["entity"] for r in revelation] != ENTITIES:
+        raise ValueError(f"revelation entities changed: {revelation}")
+    if [(r["penalty"], r.get("perSacrifice"), r.get("reducibleTo")) for r in revelation] \
+            != [(-20, 5, None), (-40, None, -10)]:
+        raise ValueError(f"revelation numbers changed: {revelation}")
+    advantages = json.loads((OUT / "advantages.json").read_text(encoding="utf-8"))["entries"]
+    if any(a["name"] == BLESSED_BY_DEITY for a in advantages):
+        raise ValueError(f"{BLESSED_BY_DEITY!r} is now an advantage; the recorded gap closed")
+    if BLESSED_BY_DEITY not in revelation[1]["reduction"]:
+        raise ValueError("the Deities row no longer names Blessed by Deity")
 
-def write(name, entries, spans, extra=None):
-    """[extra] carries spans in ANOTHER chapter -- only the incantations need
-    it, because the book prints one of the three structures in ch. 7.5."""
+    if incantations[0]["parts"] != ["Invocation", "Grace", "Request", "Empowerment"]:
+        raise ValueError(f"the Hermes parts changed: {incantations[0]['parts']}")
+    if [p[:6] for p in incantations[1]["parts"]] != ["Part 1", "Part 2", "Part 3"]:
+        raise ValueError(f"the summoning parts changed: {incantations[1]['parts']}")
+
+
+def verify_full(full, quick, success, failure_starts, failures):
+    if FLOURISH_FORMULA not in full:
+        raise ValueError(f"Phase II no longer prints {FLOURISH_FORMULA!r}")
+    bonus = FLOURISH.search(full)
+    if not bonus or signed(bonus.group(1)) != 1:
+        raise ValueError("the Flourish Bonus is no longer +1")
+    if "Flourish" in quick:
+        raise ValueError("the Quick ritual now names the Flourish Bonus too")
+    if INVOCATION_BONUS not in full:
+        raise ValueError(f"Phase II no longer prints {INVOCATION_BONUS!r}")
+    if FULL_DEFERS not in full:
+        raise ValueError("Phase III no longer sends the Full ritual to the Quick outcome table")
+    if [(r["from"], r["to"]) for r in success] != [(3, None), (0, 2)]:
+        raise ValueError(f"the ritual success bands changed: {success}")
+    theirs = {f["from"] for f in failures if not f["critical"]}
+    if not set(failure_starts) <= theirs:
+        raise ValueError(
+            f"Sec. III.A's failure bands start at {failure_starts} and Sec. V's at "
+            f"{sorted(theirs)}: no longer a coarsening, so the app must choose per mode"
+        )
+    if "spend additional SPI (1 SPI = +1, no cap)" not in quick or "Before rolling" not in quick:
+        raise ValueError("the ritual burn is no longer declared before rolling")
+
+
+def write(name, entries, spans):
     OUT.mkdir(parents=True, exist_ok=True)
-    payload = {"sourceLines": {CHAPTER: spans, **(extra or {})}, "entries": entries}
+    payload = {"sourceLines": {CHAPTER: spans}, "entries": entries}
     (OUT / f"{name}.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
@@ -705,73 +483,36 @@ def write(name, entries, spans, extra=None):
 
 def main():
     byn = load_lines()
-    weights = parse_weights(stream(byn, *WEIGHT_RANGE))
-    costs = parse_weight_costs(stream(byn, *WEIGHT_COST_RANGE))
-    for weight in weights:
-        low, high, open_ended = costs[weight["weight"]]
-        weight["spi"] = low
-        if high is not None:
-            weight["spiMax"] = high
-        if open_ended:
-            weight["spiOpen"] = True
-    preparation = parse_preparation(stream(byn, *PREPARATION_RANGE))
-    failures = parse_failures(stream(byn, *FAILURE_RANGE))
+    weights = build_weights(parse_quick_table(stream(byn, *QUICK_TABLE_RANGE)),
+                            parse_categories(stream(byn, *CATEGORY_RANGE)))
+    full = " ".join(stream(byn, *FULL_RANGE))
+    quick = " ".join(stream(byn, *QUICK_RANGE))
+    success, failure_starts = parse_outcomes(stream(byn, *OUTCOME_RANGE))
+    failures = parse_failures(stream(byn, *FAILURE_RANGE)[2:])
     critical = parse_critical(stream(byn, *CRITICAL_RANGE))
-    verify(weights, failures, critical, preparation)
+    preparation = parse_preparation(full)
+    revelation = parse_revelation(stream(byn, *REVELATION_RANGE)[1:])
+    incantations = build_incantations(full, stream(byn, *SUMMONING_RANGE)[1:])
+    verify(weights, failures, critical, preparation, revelation, incantations)
+    verify_full(full, quick, success, failure_starts, failures)
+    contract = parse_contract(stream(byn, *CONTRACT_RANGE))
+    verify_contract(contract)
 
-    # Phase II's +1. Nothing is written for it -- the number lives in Kotlin --
-    # but the sentence it was read from is claimed below, so an assertion whose
-    # source is unfindable does not happen again (the PCR formula, 6af).
-    bonus, phase_two = parse_flourish(stream(byn, *FLOURISH_RANGE))
-    verify_flourish(
-        bonus,
-        phase_two,
-        " ".join(stream(byn, *QUICK_RITUAL_RANGE)),
-        " ".join(stream(byn, *CANON_RANGE)),
-        preparation,
-    )
-
-    # And the reference that sentence points at, which nothing claimed.
-    incantations = build_incantations(
-        stream(byn, *HERMES_INTRO_RANGE),
-        stream(byn, *HERMES_PARTS_RANGE),
-        stream(byn, *HERMES_NOTE_RANGE),
-        stream(byn, *SELF_DESCRIPTION_RANGE),
-        stream(byn, *SUMMONING_RANGE),
-    )
-    verify_incantations(incantations, phase_two)
-
-    # Step 4's outcome table. Only its success half is written; its failure
-    # half is Section VI coarsened, and its weight table is Section V's a
-    # third time. The whole block is claimed all the same, because every part
-    # of it is either stored or asserted, and an assertion whose source is
-    # unclaimed is a rule nobody can find again (6af).
-    step_four = stream(byn, *STEP_FOUR_RANGE)
-    success = verify_step_four(
-        parse_step_four(stream(byn, *OUTCOME_RANGE)),
-        step_four,
-        failures,
-        weights,
-        stream(byn, *FULL_CLOSE_RANGE),
-    )
-    write("ritual_success", success, [list(STEP_FOUR_RANGE)])
-
-    write("ritual_weights", weights, [list(WEIGHT_RANGE), list(WEIGHT_COST_RANGE)])
-    write("ritual_preparation", preparation,
-          [list(PREPARATION_RANGE), list(FLOURISH_RANGE)])
-    write(
-        "incantations", incantations,
-        [list(SELF_DESCRIPTION_RANGE), [HERMES_INTRO_RANGE[0], HERMES_NOTE_RANGE[1]]],
-        {SUMMONING_CHAPTER: [list(SUMMONING_RANGE)]},
-    )
+    write("ritual_weights", weights, [list(CATEGORY_RANGE), list(QUICK_TABLE_RANGE)])
+    write("ritual_success", success, [list(OUTCOME_RANGE)])
+    write("ritual_preparation", preparation, [list(FULL_RANGE)])
     write("ritual_failures", failures, [list(FAILURE_RANGE)])
     write("ritual_critical", critical, [list(CRITICAL_RANGE)])
+    write("ritual_revelation", revelation, [list(REVELATION_RANGE)])
+    write("incantations", incantations, [list(SUMMONING_RANGE)])
+    write("ritual_contract", [contract], [list(CONTRACT_RANGE)])
 
-    print(f"ritual_weights: {[(w['weight'], w['spi']) for w in weights]}")
+    print(f"ritual_weights: {[(w['weight'], w['modifier'], w['spi']) for w in weights]}")
     print(f"ritual_preparation: {[(p['quality'], p['printed']) for p in preparation]}")
-    print(f"ritual_failures: {len(failures)} rows")
-    print(f"ritual_critical: {len(critical)} bands")
-    print(f"flourish bonus: {bonus:+d} (Full ritual only; lives in RitualMode)")
+    print(f"ritual_failures: {len(failures)} rows; ritual_critical: {len(critical)} bands")
+    print(f"ritual_revelation: {[(r['entity'], r['penalty']) for r in revelation]}")
+    print(f"incantations: {[i['scope'] for i in incantations]}")
+    print(f"ritual_contract: {[o['printed'] for o in contract['outcomes']]}")
     return 0
 
 

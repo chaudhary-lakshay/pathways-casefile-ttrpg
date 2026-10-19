@@ -2,71 +2,27 @@
  "sourceLines": {
   "5": [
    [
-    2709,
-    2737
+    2815,
+    2821
    ]
   ]
  },
  "entries": [
   {
    "section": "Spirit Body Damage",
-   "rule": "Some Beyonder abilities and supernatural effects deal damage directly to the spirit body rather than the physical body. Spirit body damage bypasses physical Damage Resistance (DR) entirely — but the target chooses how to absorb it."
+   "rule": "Some Beyonder abilities and supernatural effects deal damage directly to the spirit body rather than the physical body. Spirit body damage pierces Damage Resistance (DR) — physical and spiritual DR provide no protection against it."
   },
   {
-   "section": "Choosing a Pool",
-   "rule": "When an effect deals spirit body damage, the target chooses which of three pools it reduces: HP, FP, or SPI."
+   "section": "Spirit Body Damage",
+   "rule": "For every point of spirit body damage taken, the victim suffers a disadvantage to the next roll: -1 per point of damage. The penalty applies to a single roll (any roll the player makes — attack, defense, skill, Will, HT, or SPI) and then clears."
   },
   {
-   "section": "Choosing a Pool",
-   "rule": "Choose before the damage is rolled."
+   "section": "Spirit Body Damage",
+   "rule": "Some forms of spirit damage also add Corruption (CoR) to the victim — the ability that deals the damage states the amount."
   },
   {
-   "section": "Choosing a Pool",
-   "rule": "One pool per instance — you cannot split a single hit across multiple pools."
-  },
-  {
-   "section": "Choosing a Pool",
-   "rule": "You may choose a pool already at 0 (risking death, unconsciousness, or Soul Debt)."
-  },
-  {
-   "section": "Damage Application",
-   "rule": "Wounding multipliers apply normally to the chosen pool (Cut ×1.5, Imp ×2, etc.). Damage-type multipliers (e.g. skull ×4, vitals ×3) stack with wounding multipliers when applied to HP."
-  },
-  {
-   "section": "Damage Application",
-   "rule": "Physical DR does not protect against spirit body damage."
-  },
-  {
-   "section": "Damage Application",
-   "rule": "Spiritual DR (if any) does apply, but is extremely rare."
-  },
-  {
-   "section": "Damage Expression",
-   "rule": "Flat dice: e.g. \"2d6-3 to spirit body\" — roll damage, then choose a pool and subtract from it."
-  },
-  {
-   "section": "Damage Expression",
-   "rule": "Weapon-based: e.g. \"thrust at ST-2\" — calculate the wielder's thrust damage, reduce by the penalty, then apply to the chosen pool."
-  },
-  {
-   "section": "Recovery follows each pool's normal rate",
-   "rule": "HP → natural healing, First Aid, magic."
-  },
-  {
-   "section": "Recovery follows each pool's normal rate",
-   "rule": "FP → 1 per 10 minutes of rest; sleep restores all FP."
-  },
-  {
-   "section": "Recovery follows each pool's normal rate",
-   "rule": "SPI → 1 per hour of rest (see Spirituality Recovery, Chapter 4)."
-  },
-  {
-   "section": "Recovery follows each pool's normal rate",
-   "rule": "CoR from Soul Debt are permanent and require special rituals (Chapter 6) to remove."
-  },
-  {
-   "section": "Non-Beyonders (SPI 0)",
-   "rule": "Non-Beyonders (SPI 0): Can only choose HP or FP — they have no spirituality to sacrifice."
+   "section": "Spirit Body Damage",
+   "rule": "Other forms carry no CoR."
   }
  ]
 }

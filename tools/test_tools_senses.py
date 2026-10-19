@@ -30,7 +30,7 @@ def test_the_pcr_formula_sentence_is_pinned_beside_its_table():
 def test_the_pcr_claims_the_prose_and_the_table():
     spans = json.loads((CONTENT / "potion_consumption.json")
                        .read_text(encoding="utf-8"))["sourceLines"]["6"]
-    assert spans == [[3079, 3081], [3082, 3119]]
+    assert spans == [[3200, 3204], [3205, 3243]]
 
 
 import extract_anti_divination
@@ -170,18 +170,18 @@ def test_detection_extracts_all_four_tables():
 
 
 @needs_pdf
-def test_only_two_techniques_price_a_divination_and_both_are_even():
+def test_only_one_technique_prices_a_divination_and_it_is_even():
     """The whole warrant for summing technique penalties before halving them.
 
     Sec. 6 halves twice with opposite printed rounding. Sum-then-halve and
-    halve-then-sum differ only on odd magnitudes, and this book prints none --
-    so the orders agree on every combination it can produce, and the reading
-    is a decision rather than something the data settled.
+    halve-then-sum differ only on odd magnitudes, and this book prints none.
+    v6.9i keeps two techniques and only the ward is priced; Door Misdirection
+    redirects on an SPI roll and prints no penalty.
     """
     _, (_, _, _, techniques, _) = _detection()
     priced = {t["id"]: t["divinationPenalty"] for t in techniques
               if "divinationPenalty" in t}
-    assert priced == {"3A": -2, "3B": -4}
+    assert priced == {"3A": -2}
     assert all(v % 2 == 0 for v in priced.values())
 
 
@@ -199,7 +199,7 @@ def test_an_odd_technique_penalty_would_fail_verification(monkeypatch):
         if t["id"] == "3A":
             t["divinationPenalty"] = -3
     monkeypatch.setattr(
-        extract_detection, "PENALTY_TECHNIQUES", {"3A": -3, "3B": -4}
+        extract_detection, "PENALTY_TECHNIQUES", {"3A": -3}
     )
     with pytest.raises(ValueError, match="odd penalty"):
         extract_detection.verify(byn, awareness, outcomes, modifiers, techniques, items)
@@ -278,15 +278,15 @@ def test_the_ward_reaches_both_rolls():
 
 
 @needs_pdf
-def test_the_technique_priced_in_prose_carries_no_number():
-    """3F costs "SPI equal to what a divination of that scope would normally
-    cost". No field, so a caller must refuse it rather than read it as free."""
+def test_door_misdirection_redirects_and_prints_no_penalty():
+    """3B costs 3 SPI and works by an SPI roll, not a modifier: no
+    divinationPenalty field, so nothing can add it to the diviner's target."""
     _, (_, _, _, techniques, _) = _detection()
-    echo = next(t for t in techniques if t["id"] == "3F")
-    assert "spi" not in echo
-    assert "divination of that scope" in dict(
-        (b["label"], b["text"]) for b in echo["bullets"]
-    )["Cost"]
+    door = next(t for t in techniques if t["id"] == "3B")
+    assert door["name"] == "Door Misdirection"
+    assert door["spi"] == 3
+    assert "divinationPenalty" not in door
+    assert "redirected" in dict((b["label"], b["text"]) for b in door["bullets"])["Effect"]
 
 
 @needs_pdf
@@ -302,7 +302,7 @@ def test_the_resolution_order_is_still_printed():
     """The book's own statement that these sections are separate axes."""
     byn, (awareness, outcomes, modifiers, techniques, items) = _detection()
     extract_detection.verify(byn, awareness, outcomes, modifiers, techniques, items)
-    text = " ".join((byn.get(n) or "") for n in range(3737, 3755))
+    text = " ".join((byn.get(n) or "") for n in range(3700, 3717))
     for step in extract_detection.RESOLUTION_STEPS:
         assert step in text
 
@@ -320,66 +320,21 @@ def affinity_entries():
         (CONTENT / "spi_affinity.json").read_text(encoding="utf-8"))["entries"]
 
 
-def test_chapter_four_prints_two_sense_tables():
+def test_chapter_four_prints_two_universal_abilities():
+    """v6.9i turned the two senses from SPI skills with degree tables into
+    universal abilities with one roll: 3d6 against current SPI."""
     blocks = sense_entries()
-    assert [b["skill"] for b in blocks] == [
-        "Spiritual Intuition", "Spiritual Perception",
-    ]
-    assert [b["attr"] for b in blocks] == ["SPI", "SPI"]
-    # Hard and Average, which is why they cannot share one table.
-    assert [b["difficulty"] for b in blocks] == ["H", "A"]
+    assert [b["ability"] for b in blocks] == extract_spirituality.ABILITIES
+    for block in blocks:
+        assert set(block) == {"ability", "text"}
+        assert extract_spirituality.ROLL in block["text"]
+        for example in extract_spirituality.EXAMPLES:
+            assert example in block["text"]
 
 
-def test_neither_sense_table_prints_a_failure_row():
-    """All four rows are successes.
-
-    So a failed roll gets NO row rather than an invented consolation, and
-    nothing here overrides SuccessRoll's 3-4/17-18 -- there is nothing printed
-    to override them with. The FrightCheck reading, not the PCR's.
-    """
-    for block in sense_entries():
-        results = [r["result"] for r in block["rows"]]
-        assert results == list(extract_spirituality.RESULT_ROWS)
-        assert not any("Failure" in r for r in results)
-
-
-def test_only_the_margin_named_rows_carry_a_margin():
-    """"Success" and "Critical Success" carry none rather than a zero.
-
-    A margin of 0 on the critical row would let a bare success satisfy it.
-    """
-    for block in sense_entries():
-        assert [r.get("margin") for r in block["rows"]] == [None, 3, 5, None]
-
-
-def test_the_seer_bonus_names_a_rank_and_not_a_pathway():
-    """"+6 Seer" is the Fool's SEQUENCE 9 NAME.
-
-    A Fool at Sequence 8 is a Clown, so applying it to the Fool pathway would
-    author a rule the book did not print. Offered, never granted.
-    """
-    perception = sense_entries()[1]
-    seer = next(m for m in perception["modifiers"] if m["situation"] == "Seer")
-    assert seer["modifier"] == 6
-    assert not any(m["situation"] == "Fool" for m in perception["modifiers"])
-
-
-def test_chapter_four_and_appendix_a_still_price_the_same_distraction():
-    """The overlap that makes the scoping necessary.
-
-    Chapter 4 prints "-2 distracted/in combat"; Appendix A prints "Distracted
-    or hurried" and "Very adverse conditions (combat, ...)". Both words are
-    verbatim in both, so offering both charges one distraction twice. The day
-    this stops being true is the day the scoping stops being needed.
-    """
-    intuition = sense_entries()[0]
-    row = next(m for m in intuition["modifiers"] if m["modifier"] == -2)
-    common = json.loads(
-        (CONTENT / "common_modifiers.json").read_text(encoding="utf-8"))["entries"]
-    situations = " ".join(e["situation"] for e in common).lower()
-    for word in extract_spirituality.OVERLAP_WORDS:
-        assert word in situations
-        assert word in row["situation"].lower()
+def test_the_senses_are_no_longer_skills():
+    skills = json.loads((CONTENT / "skills.json").read_text(encoding="utf-8"))["entries"]
+    assert not any(s["name"] in extract_spirituality.ABILITIES for s in skills)
 
 
 def test_the_affinity_claims_reconcile_with_chapter_nine():
@@ -413,11 +368,10 @@ def test_the_sense_tables_verify_against_the_book():
 
 
 @needs_pdf
-def test_a_sense_table_that_grew_a_failure_row_is_refused():
-    """The guard against inventing the row the book declined to print."""
+def test_a_sense_that_lost_its_spi_roll_is_refused():
+    """The roll sentence is the whole rule; losing it fails the run."""
     blocks, tiers = extract_spirituality.extract()
-    blocks = [dict(b, rows=list(b["rows"])) for b in blocks]
-    blocks[0]["rows"].append({"result": "Failure", "effect": "you sense nothing"})
-    with pytest.raises(AssertionError):
-        extract_spirituality.verify(
-            blocks, tiers, extract_spirituality.load_lines())
+    blocks = [dict(b) for b in blocks]
+    blocks[0]["text"] = blocks[0]["text"].replace(extract_spirituality.ROLL, "")
+    with pytest.raises(AssertionError, match="current SPI"):
+        extract_spirituality.verify(blocks, tiers, extract_spirituality.load_lines())

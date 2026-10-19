@@ -1,4 +1,4 @@
-"""Extract Chapter 8's Common Equipment table (p. 81-83, global 5062-5310).
+"""Extract Chapter 8's Common Equipment table (p. 67-70, global 4381-4629).
 
 WHAT THIS FILE IS FOR, AND WHAT IT REFUSES TO BE
 ------------------------------------------------
@@ -72,8 +72,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "8"
-EQUIPMENT_RANGE = (5062, 5310)
+CHAPTER = "10"
+EQUIPMENT_RANGE = (4381, 4629)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADING = "Common Equipment"
@@ -113,12 +113,8 @@ CONDITION_SEPARATORS = (
 TARGET_JOINERS = (" & ", " or ")
 
 # Rolls this book prices without printing them as skills anywhere.
-# "reaction" is the Velvet shawl's "+1 to reaction from romantic interests":
-# a reaction roll is not a skill roll, and the wealth table already prices
-# reactions on their own axis.
 UNPRINTED_TARGETS = {
     "spot", "fool officials", "infection-resistance rolls", "ritual effects",
-    "reaction",
 }
 # Skills chapter 8 grants bonuses to that chapter 3's list never prints.
 # A 4.1 disagreement: recorded here, never resolved by inventing a row.

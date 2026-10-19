@@ -2,93 +2,19 @@
  "sourceLines": {
   "4": [
    [
-    2278,
-    2307
+    2385,
+    2403
    ]
   ]
  },
  "entries": [
   {
-   "skill": "Spiritual Intuition",
-   "attr": "SPI",
-   "difficulty": "H",
-   "rows": [
-    {
-     "result": "Success",
-     "effect": "Vague feeling of wrongness or impending danger"
-    },
-    {
-     "result": "Success by 3+",
-     "margin": 3,
-     "effect": "Know approximate direction of the threat"
-    },
-    {
-     "result": "Success by 5+",
-     "margin": 5,
-     "effect": "Specific premonition (ambush, poison, betrayal)"
-    },
-    {
-     "result": "Critical Success",
-     "effect": "Brief mental vision of the exact danger"
-    }
-   ],
-   "modifiers": [
-    {
-     "situation": "meditative state",
-     "modifier": 2
-    },
-    {
-     "situation": "distracted/in combat",
-     "modifier": -2
-    },
-    {
-     "situation": "magically concealed",
-     "modifier": -4
-    }
-   ]
+   "ability": "Spiritual Intuition",
+   "text": "Spiritual Intuition is a universal ability available to any Beyonder, like Spirit Vision. It lets the user sense the flow of fate and changes in destiny before they manifest physically — the soul's early-warning system — and recognise a threat at a glance. Beyonders of the Abyss and Wheel of Fortune pathways are famed for the sharpness of their intuition, but the ability itself belongs to no single pathway. Roll: Roll 3d6. The difficulty class is based on however much current SPI you have — if you have 1 SPI, you need a critical roll (3–4); if you have 9 SPI, you need 9 or lower; and so on."
   },
   {
-   "skill": "Spiritual Perception",
-   "attr": "SPI",
-   "difficulty": "A",
-   "rows": [
-    {
-     "result": "Success",
-     "effect": "Notice a 'spiritual weight' or unnatural presence in the area"
-    },
-    {
-     "result": "Success by 3+",
-     "margin": 3,
-     "effect": "Pinpoint the location of the spiritual disturbance"
-    },
-    {
-     "result": "Success by 5+",
-     "margin": 5,
-     "effect": "Identify type of entity (ghost, Beyonder, cursed item)"
-    },
-    {
-     "result": "Critical Success",
-     "effect": "Detailed information: sequence level, pathway, emotional state"
-    }
-   ],
-   "modifiers": [
-    {
-     "situation": "graveyard/ritual site",
-     "modifier": 2
-    },
-    {
-     "situation": "industrial/polluted area",
-     "modifier": -2
-    },
-    {
-     "situation": "entity hiding",
-     "modifier": -4
-    },
-    {
-     "situation": "Seer",
-     "modifier": 6
-    }
-   ]
+   "ability": "Spiritual Perception",
+   "text": "Spiritual Perception is a universal ability available to any Beyonder, like Spirit Vision. It is an acute awareness of the spiritual world — ghosts, traces of magic, and supernatural phenomena — and lets the user peer into the Astral Body and Spiritual Body of beings, reading their emotional state and spiritual health. Roll: Roll 3d6. The difficulty class is based on however much current SPI you have — if you have 1 SPI, you need a critical roll (3–4); if you have 9 SPI, you need 9 or lower; and so on. The GM calls for this roll whenever supernatural events occur nearby, or whenever you deliberately open your senses to the spiritual world. DANGER: Spiritual Perception can expose the viewer to beings far beyond their comprehension. Looking upon the Spiritual Body of a deity, angel, or sufficiently powerful entity may force a Fright Check at a severe penalty or cause spiritual damage. The GM determines the exact effects based on the entity's nature and the observer's Sequence."
   }
  ]
 }

@@ -1,21 +1,21 @@
 {
  "sourceLines": {
-  "13": [
+  "15": [
    [
-    8933,
-    8934
+    8164,
+    8165
    ],
    [
-    8936,
-    8937
+    8167,
+    8168
    ],
    [
-    8926,
-    8931
+    8157,
+    8162
    ],
    [
-    8954,
-    8962
+    8185,
+    8193
    ]
   ]
  },
@@ -40,7 +40,7 @@
     "Personality drift: The GM should periodically introduce subtle changes to the character's personality, reflecting the patron's influence. A boon-granted Beyonder of a Fool-adjacent Great One may become more deceptive; one aligned with a Calamity Existence may grow more destructive.",
     "Dreams and visions: The patron may communicate — or simply observe — through the boon connection. Sleep is no longer private.",
     "Increased vulnerability: The connection works both ways. Those with knowledge of the patron may detect the supplicant's taint. Church Inquisitors and Mandated Punishers are trained to recognise boon-granted Beyonders.",
-    "Refusal penalty: Once a boon has been accepted, refusing a direct request from the patron may incur spiritual backlash (see Critical Failure Table, Chapter 7, Section VI)."
+    "Refusal penalty: Once a boon has been accepted, refusing a direct request from the patron may incur spiritual backlash (see Critical Failure Table, Chapter 9, Section V)."
    ]
   }
  ]

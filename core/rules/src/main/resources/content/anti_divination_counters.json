@@ -1,16 +1,16 @@
 {
  "sourceLines": {
-  "6.5": [
+  "8": [
    [
-    3964,
-    3976
+    3875,
+    3887
    ]
   ]
  },
  "entries": [
   {
    "name": "Sequence Advantage",
-   "text": "If the diviner is 2+ Sequences stronger than the target, they ignore the target's passive Sequence penalty (but active techniques like Concealment or Identity Confusion still apply at half penalty, rounded up)."
+   "text": "If the diviner is 2+ Sequences stronger than the target, they ignore the target's passive Sequence penalty (but active techniques like Door Misdirection still apply at half penalty, rounded up)."
   },
   {
    "name": "Direct Link",

@@ -87,7 +87,7 @@ WRAPPER_TITLE = re.compile(
 # stated once in prose ("each blessing costs 75 points") -- and uses a
 # Deity/Effect shape instead of Name/Cost/Effect. All three are excluded
 # by exact range rather than forced through the general parser.
-ADV_EXCLUDE_RANGES = [(633, 744), (1098, 1118)]
+ADV_EXCLUDE_RANGES = [(689, 806), (1177, 1199)]
 
 DIFFICULTY_WORDS = {"Easy": "E", "Average": "A", "Hard": "H", "Very Hard": "VH"}
 
@@ -157,15 +157,15 @@ def cost_line_dis(t):
 # the only records whose printed name wraps across more than one line.
 # Keyed by the global line number of the record's cost line.
 ADV_NAME_OVERRIDES = {
-    570: [568, 569],   # "Church Organisation" / "Informant"
-    762: [760, 761],   # "Connections: Church Lay" / "Staff"
-    767: [765, 766],   # "Connections: Press" / "Credentials"
+    623: [621, 622],   # "Church Organisation" / "Informant"
+    826: [824, 825],   # "Connections: Church Lay" / "Staff"
+    831: [829, 830],   # "Connections: Press" / "Credentials"
 }
 DIS_NAME_OVERRIDES = {
-    1415: [1413, 1414],  # "Compulsive Behavior" / "(Indulge Evil Desires) SC 6"
-    1458: [1456, 1457],  # "Pathway Resonance" / "(Hostile)"
-    1483: [1481, 1482],  # "Compulsion: Collection" / "(pathway)"
-    1492: [1490, 1491],  # "Compulsion: Preserve the" / "Dead"
+    1509: [1507, 1508],  # "Compulsive Behavior" / "(Indulge Evil Desires) SC 6"
+    1550: [1548, 1549],  # "Pathway Resonance" / "(Hostile)"
+    1577: [1575, 1576],  # "Compulsion: Collection" / "(pathway)"
+    1586: [1584, 1585],  # "Compulsion: Preserve the" / "Dead"
 }
 
 
@@ -288,7 +288,7 @@ SKILL_ATTR_DIFF = re.compile(
 SKILL_BANNER = re.compile(r"^— .+ —$")
 
 SKILL_HEADER_WORD = "Skill"
-SKILL_SECTION_END = 2181  # "Study Points (Optional Rule)" appendix begins here;
+SKILL_SECTION_END = 2275  # "Study Points (Optional Rule)" appendix begins here;
                            # different table shape, no fixture references it.
 
 # The fifteen banners the Complete Skill List is printed under. They were
@@ -297,8 +297,8 @@ SKILL_SECTION_END = 2181  # "Study Points (Optional Rule)" appendix begins here;
 # named a group this book prints and nothing could identify it. The same
 # "a normaliser can delete a rule" shape as strip_self_control_number.
 #
-# Stored VERBATIM rather than slugged: "SPIRITUAL SKILLS (SPI-based)" carries
-# the book's own parenthetical, and normalising these into tidy keys is how the
+# Stored VERBATIM rather than slugged: "CRAFT & TECHNICAL" carries
+# the book's own ampersand, and normalising these into tidy keys is how the
 # next reader loses the ability to grep the page they came from.
 SOCIAL_SKILLS = "SOCIAL SKILLS"
 SKILL_CATEGORIES = {
@@ -308,7 +308,7 @@ SKILL_CATEGORIES = {
     "THIEF SKILLS",
     "PHYSICAL SKILLS",
     "CRAFT & TECHNICAL",
-    "SPIRITUAL SKILLS (SPI-based)",
+    "SPIRITUAL SKILLS",
     "SURVIVAL & OTHER",
     "INVESTIGATION & DETECTION",
     "PERFORMANCE & ARTS",
@@ -397,7 +397,7 @@ def is_specializable(raw_name: str, notes: str) -> bool:
 
 
 def extract_skills(byn):
-    stream = clean_skill_stream(byn, 1664, SKILL_SECTION_END - 1)
+    stream = clean_skill_stream(byn, 1763, SKILL_SECTION_END - 1)
     stream, category_by_line = strip_skill_structure(stream)
     cost_idx = [i for i, (n, t) in enumerate(stream) if SKILL_ATTR_DIFF.match(t.strip())]
 
@@ -557,11 +557,11 @@ def main():
     byn = load_lines()
 
     adv_entries, adv_spans = extract_traits(
-        byn, 530, 1118, "Advantage", cost_line_adv, parse_adv_cost,
+        byn, 582, 1199, "Advantage", cost_line_adv, parse_adv_cost,
         ADV_NAME_OVERRIDES, ADV_EXCLUDE_RANGES,
     )
     dis_entries, dis_spans = extract_traits(
-        byn, 1119, 1569, "Disadvantage", cost_line_dis, parse_dis_cost,
+        byn, 1200, 1664, "Disadvantage", cost_line_dis, parse_dis_cost,
         DIS_NAME_OVERRIDES,
     )
     verify(dis_entries, adv_entries)

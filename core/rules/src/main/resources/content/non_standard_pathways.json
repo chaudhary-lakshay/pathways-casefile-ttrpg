@@ -1,15 +1,15 @@
 {
  "sourceLines": {
-  "14": [
+  "16": [
    [
-    8977,
-    9324
+    8208,
+    8552
    ]
   ],
-  "15": [
+  "17": [
    [
-    9330,
-    9628
+    8558,
+    8887
    ]
   ]
  },
@@ -46,13 +46,13 @@
      "bonus": 3
     }
    ],
-   "advantages": "Double-Jointed Super flexible joints; +2 to Escape and any roll involving contortion or squeezing through tight spaces",
+   "advantages": "Double-Jointed Ignore up to -5 close-quarters penalties for wrestling or grappling; any body part bends any way",
    "drawbacks": "",
    "ability": "Spiritual Dance (1 SPI): Roll Dancing skill to begin a strange, over-the-top dance that places the Dancer in a transcendent, mystical state. After dancing for at least one turn, passively activate Spirit Vision and gain +2 to all Will rolls for 1d turns. Appeasing Dance (2 SPI): Roll Dancing skill at -1. On success, all witnesses must roll Will at -2 or be pacified — rendered calm, non-hostile, and disinclined toward violence for the duration of the dance and 1d turns after. Summoning Dance (4 SPI): Roll Dancing skill at -3, then summon up to 3 spiritual creatures whose powers, temperament, and hostility depend on the quality of the roll. By offering blood to one of them, the Dancer may temporarily have the spiritual creature inhabit their body, gaining the creature's abilities — but suffering severe drawbacks determined by which creature answers (GM's discretion). The creature inhabits the Dancer for 3d turns in combat (roughly 10–30 seconds outside combat). On a critical failure, summon an incredibly hostile spiritual creature that attacks the Dancer immediately, even before the dance ends.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    8977,
-    9009
+    8208,
+    8239
    ]
   },
   {
@@ -82,8 +82,8 @@
    "ability": "Pathogen Mutator (once per day): Roll HT to mutate and empower one of the pathogens inside the Patient's body. On a successful roll, the disease gains +1 level (maximum +3), imposing an additional -1 penalty to HT to resist infection and empowering all of its negative effects. This is displayed as +1 within the disease's stat block — e.g., Flu +1 (Roll HT -1 to not get infected when within 2m of someone infected; -2 to all ST, DX, and HT rolls). Each subsequent use on the same disease increases the level by another +1, up to a maximum of +3. Hyper Contaminator (passive): Any and all of the Patient's bodily fluids are guaranteed to transmit disease. The Patient's pathogens ignore normal methods of transmission — contact, airborne droplets, and environmental vectors all become viable. Even dried or diluted fluids retain full infectious potency.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9010,
-    9049
+    8240,
+    8279
    ]
   },
   {
@@ -109,8 +109,8 @@
    "ability": "Territory Creation (6 SPI): The Shaman may designate an object as a totem and create a mystical territory around it using Ritualistic Magic. Roll Ritualistic Magic/IQ (Very Hard). Success creates a normal territory (~75m radius); critical success creates an enhanced territory (~150m radius). Failure yields no result. On a critical failure, the Shaman suffers spiritual whiplash and a higher-dimensional monster takes notice of them. Within their territory, the Shaman receives +1 to ST, DX, and HT. Ritualistic Spell Creation (varies): Functionally similar to the Seq 7 Warlock's Spell Creation, the Shaman is able to borrow the powers of spirituality within their domain to create various spells. The specifics must be discussed with the GM, and the spells are always tied to the spirituality found within the territory — e.g., a river's innate spirituality may be used to create a rain spell; a graveyard's spirituality may be used to create a withering spell. All such spells use the Ritualistic Magic/IQ (Very Hard) skill for casting, and they may require inanimate or living sacrifices to activate.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9050,
-    9083
+    8280,
+    8313
    ]
   },
   {
@@ -125,31 +125,19 @@
    ],
    "skills": [
     {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 2
-    },
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 2
-    },
-    {
      "name": "Divination Arts",
-     "attr": "SPI",
+     "attr": "IQ",
      "difficulty": "H",
      "bonus": 2
     }
    ],
    "advantages": "",
    "drawbacks": "Dreamless State Cannot have dreams or receive revelations through them.",
-   "ability": "Fate Sensation (passive): The Dreamless is capable of sensing the flow and changes within fate around them. The GM may call for a Spiritual Intuition/SPI (Hard) roll to sense specific changes in fate. Fate Sensation (active): At any moment, the Dreamless may concentrate and roll Spiritual Perception/SPI (Hard) -2 to sense any nearby changes in fate. This can indicate many things, but all results are restricted to possible fates — absolute certainties or impossibilities lie beyond its reach.",
+   "ability": "Fate Sensation (passive): The Dreamless is capable of sensing the flow and changes within fate around them. The GM may call for a Spiritual Intuition roll (3d6, target = current SPI, Ch. 4) to sense specific changes in fate. Fate Sensation (active): At any moment, the Dreamless may concentrate and roll Spiritual Perception (3d6, target = current SPI, Ch. 4) at -2 to sense any nearby changes in fate. This can indicate many things, but all results are restricted to possible fates — absolute certainties or impossibilities lie beyond its reach.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9084,
-    9107
+    8314,
+    8334
    ]
   },
   {
@@ -197,8 +185,8 @@
    "ability": "Overwhelming Hunger: When doing anything other than searching for food or eating, the Tramp suffers -5 to Will rolls to resist any activity related to duty, compulsion, desire, or goal. Their craving for food takes precedence over nearly everything else.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9108,
-    9146
+    8335,
+    8373
    ]
   },
   {
@@ -248,8 +236,8 @@
    "ability": "",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9147,
-    9179
+    8374,
+    8406
    ]
   },
   {
@@ -276,8 +264,8 @@
    "ability": "Greed Inducement (2 SPI): Induces greed into a target, compelling a person to comply with the desire. -2 to the opponent's Will roll, or -4 if an object is used as a medium that the person is greedy for. Ownership: Within 24 hours, the Scrooge can track down the location of an object that belongs to them and find its current location. Gluttony Inducement (2 SPI): Induces a desire to eat something into a target, compelling a person to comply. -2 to the opponent's Will roll, or -4 if the medium is a food the person is hungry for. -1 to the opponent's Will roll if the object designated is inedible.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9180,
-    9209
+    8407,
+    8436
    ]
   },
   {
@@ -320,13 +308,13 @@
      "bonus": 3
     }
    ],
-   "advantages": "Charisma +2 +2 to reaction rolls and Influence skills",
+   "advantages": "Charisma +2 +2 to Influence skills; NPCs predisposed to trust and listen to you",
    "drawbacks": "Uncertain Order You gain a need to bring all forms of order to 'greyness'. When in a position to transform order or disorder into 'grey', roll against 12 to resist the desire. 'Grey' is the state between order and disorder where uncertainty can be exploited.",
    "ability": "Order Sense (Passive): The Broker may request the GM to describe the order inclinations of a person, room, conversation, or even something as abstract as an organisation, though appropriate knowledge is required. The GM must answer by describing the shade of 'grey' that is applicable — e.g. \"the room appears to be a darker grey\" showing the disorderly inclinations of all parties within, \"the man appears a radiant, almost pure white\" showing incorruptible justice.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9210,
-    9249
+    8437,
+    8477
    ]
   },
   {
@@ -358,8 +346,8 @@
    "ability": "Spell Mastery (Passive): Learn and cast spells through worship of the Inextinguishable Ravings. Midoro's Worship (8 SPI): Roll Ritualistic Magic. Success: learn one spell. Critical success: learn two. Failure: +1 CoR. Critical failure: +3 CoR. Max 3 spells at a time. Learnable spells: Star Scrying (3 SPI): Gaze into the cosmos for a relevant revelation. Passive: once/session roll 3d ≤ 14; better result = better revelation. Failure: +1 CoR. Crit fail: +2 CoR. Eyes of Depravity (2 SPI): All in LOS roll Will-2 or act on base instinct desire for 1d turns. Passive: once/session, Initiator rolls Will-2 or becomes depraved for 1d minutes. Weakening (2 SPI): Target rolls HT-4 or suffers -2 to all rolls for 2d turns. Passive: once/session, Initiator rolls HT-2 or gains -2 to all rolls for 1d minutes. Energize (1 SPI): Target ally or self gains +1 to all rolls for 1d turns. Passive: once/session, Initiator rolls HT-1 or gains -1 to all rolls for 1d minutes. Regeneration (2 SPI per 3 HP): Heal any living thing within 5 m. Up to 6 HP/turn. Passive: once/session, Initiator rolls ST-1 or suffers 5 HP damage. Adrenaline (3 SPI): Target in LOS gains +1 to ST, DX, HT for 2d turns; halve FP costs. Passive: once/session, Initiator rolls HT-2 or loses 5 FP. Earth Wall (4 SPI): Create a 2 m tall, 4 m wide, 20 cm thick wall. Passive: when encountering a pretty plant, roll 12 or stop to admire for 1d minutes. Pulse (3 SPI): Create an impulse from the hands. Anything within 4 m rolls HT/DX/Acrobatics or is knocked down. Passive: once/session, roll HT or suffer headache (-1 IQ rolls) until cured. Sensory Illusion (1 SPI): Create a small sensory illusion to confuse opponents. Passive: once/session, hear a sudden loud sound that distracts. History Replay (4 SPI): Replay the past 12 hours of events in a room. Can fast-forward or start at a specific time.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9250,
-    9287
+    8478,
+    8515
    ]
   },
   {
@@ -411,8 +399,8 @@
    "ability": "",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9288,
-    9324
+    8516,
+    8552
    ]
   },
   {
@@ -474,8 +462,8 @@
    "ability": "",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9330,
-    9370
+    8558,
+    8598
    ]
   },
   {
@@ -541,8 +529,41 @@
    "ability": "Investigation (once per scene): Roll 3d against 14. Depending on the degree of success, the GM must disclose some of the yet undiscovered information about the current scene. Does not necessarily apply only to investigation scenes. On failure, nothing happens. This ability stacks with the Experienced Investigator advantage. True Sight (1 SPI per minute): While active, see through any illusion, substitution, concealment, or other spiritual phenomena at the level of a Sequence higher or below. While active, it is possible for the Reporter to witness the scene from a different angle. For example, if there is a person hiding under a window on the second floor, the Reporter may use True Sight to shift their perspective higher up to see them crouching beneath the window. They may use their Spiritual Intuition to know how to shift their perspective for the best viewing angle.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9371,
-    9427
+    8599,
+    8655
+   ]
+  },
+  {
+   "sequence": 7,
+   "name": "Painter",
+   "pathway": "Sublunary Eye",
+   "stats": [
+    {
+     "attr": "SPI",
+     "delta": 4.0
+    }
+   ],
+   "skills": [
+    {
+     "name": "Artist (Drawing)",
+     "attr": "IQ",
+     "difficulty": "H",
+     "bonus": 6
+    },
+    {
+     "name": "Artist (Painting)",
+     "attr": "IQ",
+     "difficulty": "H",
+     "bonus": 6
+    }
+   ],
+   "advantages": "True Sight Painters see the creative intentions regarding Paintings",
+   "drawbacks": "Mental Instability -1 to Will from Sequence 7 onwards",
+   "ability": "Painting Hiding (2 SPI): They can hide in some of their Paintings, often taking the form of a human figure. Painting Disguise (2 SPI): They can also use cosmetics on a face to achieve an excellent disguise. This can also be done on someone else. Doesn't need a Disguise roll. Painting Creation (1/2/3 SPI): By using their Spirituality, they can depict the reality they intend, granting their Paintings various Beyonder and mystical effects. A target must stare at a Painting for at least three seconds for its effects to trigger; it can also trigger as an area of effect. Their Paintings are a type of Beyonder Weapon and lose their power over time — about two months when folded and three days when unfolded, at most. The Painting's effect depends on the intent of the Painter and the things painted, with the final result depending on the GM. The Painter must succeed on an Artist (Painting) roll for the Painting to have any effect. They can put more Spirituality into the Painting for a more powerful effect. Painting Manipulation (1 SPI): They can paint a mark onto certain creatures and use the connection between themselves and the Painting to drive the corresponding mark, thereby directing the creature, provided they maintain a certain distance. Costs 1 SPI per additional minute. If the target is of the same or higher Sequence, they can resist with a successful Will roll. Gain a +4 bonus per Sequence of difference.",
+   "reinforcedAbilities": "",
+   "sourceLines": [
+    8656,
+    8691
    ]
   },
   {
@@ -592,10 +613,10 @@
    "advantages": "Fit +1 to all HT rolls; recover FP at twice the normal rate Simp Mental suggestion and charm rolls against you are at -2. From a desired target, these gain +2 (mental suggestion) or +4 (charm).",
    "drawbacks": "Sin of Lust Replaces Sin of Greed. Crave intimate acts with another person. -5 to Will when pursuing, performing, or preparing for the deeds.",
    "ability": "Lust Inducement (2 SPI): Induce lust into a target. -2 to the opponent's Will roll, or -4 if a crush or desired type is used as the designated target. Drug Knowledge: Truth Serum: Compels truth-telling. -2 Will (first question), -3 Will (third question), -4 Will (subsequent questions). Cough Antidote Gas: Antidote to Truth Serum. Sedative Gas: ST and DX temporarily reduced to 25% of normal. Hormonal Analysis: Acquire differentiating hormonal information of various individuals.",
-   "reinforcedAbilities": "Greed Inducement: The Sex Addict's Sin-based compulsion may be substituted for Greed Inducement — treat as Greed Inducement with -3 to the target's Will (instead of -2). If a desired object or person is used as the medium, the penalty increases to -5 (from -4). Ownership: The Sex Addict can track any person they have had intimate contact with within the past 48 hours (from 24 hours). The tracking is instinctive — no roll required unless the target is shielded by anti-divination wards (roll Spiritual Intuition to bypass). Gluttony Inducement: Can now induce cravings beyond food — alcohol, drugs, or any consumable substance. The Will penalty increases by +1 in all cases (-3 base, -5 if the consumable is already desired).",
+   "reinforcedAbilities": "Greed Inducement: The Sex Addict's Sin-based compulsion may be substituted for Greed Inducement — treat as Greed Inducement with -3 to the target's Will (instead of -2). If a desired object or person is used as the medium, the penalty increases to -5 (from -4). Ownership: The Sex Addict can track any person they have had intimate contact with within the past 48 hours (from 24 hours). The tracking is instinctive — no roll required unless the target is shielded by anti-divination wards (roll Spiritual Intuition, 3d6, target = current SPI, to bypass). Gluttony Inducement: Can now induce cravings beyond food — alcohol, drugs, or any consumable substance. The Will penalty increases by +1 in all cases (-3 base, -5 if the consumable is already desired).",
    "sourceLines": [
-    9428,
-    9482
+    8692,
+    8747
    ]
   },
   {
@@ -629,10 +650,10 @@
    "advantages": "Resistant (Weather) +8 to HT vs. weather hazards",
    "drawbacks": "",
    "ability": "Luck Intuition (Passive): Without a roll, the Alms Monk understands the luck of any person within line of sight. They perceive a vague trend through different colours (e.g. future romantic encounter, possible wealth gain, impending life-threatening calamity). The exact nature is up to the GM. Prophecy Spell (3 SPI): After gathering several ingredients (not too rare), combine them into a concoction and feed it to a non-purified corpse that has been dead for less than a week. After completing the ritual, ask 3 questions about the future of anyone or anything. The GM must provide true answers within reason. Questions regarding demigods always fail. The prophecy answers only one element per question (if a question has multiple elements — e.g. \"when and where\" — only one is answered). Luck Enhancement Spell (3 SPI): The Alms Monk can 'extract' someone else's bad luck using a mystical medium (such as blood, or their own) and attach it to an object. If that object is opened, taken, worn, or stepped on without the Alms Monk's explicit or implied consent, the bad luck transfers to that individual. If the luck is not transferred within 3 days of attachment, the bad luck returns and becomes untransferable for a month. Animal Creation Spell (3 SPI): The Alms Monk can enchant a full animal skin. After covering a person with it, it allows them to turn into that animal with an incantation, and a separate incantation to return. The animal skin must be large enough to fully cover the person. After use, it loses its mystical properties but may be used for the creation of a new pelt. Exorcism Spell (4 SPI): By knowing a wraith's or spectre's true name, the Alms Monk rolls Ritualistic Magic vs. the spirit's SPI or Will (whichever is higher). On success, the creature is exorcised. The ritual requires at least 5 turns to take effect.",
-   "reinforcedAbilities": "Spiritual Dance: The Alms Monk may substitute a slow, meditative walk for the dance. The +2 to Will rolls extends to all SPI-based rolls and lasts for 2d turns (from 1d). Spirit Vision activates automatically without an SPI cost while the walk continues. Appeasing Dance: The Will penalty for witnesses increases to -4 (from -2). The Alms Monk may target a single hostile creature with the appeasing effect without needing to perform the full dance — a gesture and a murmured verse suffice (costs 1 SPI, range 10 m). Summoning Dance: On a successful summon, the Alms Monk may negotiate with the summoned creature for an additional service (beyond inhabitation) — the creature will perform one task of equivalent difficulty to the summoning, provided the task aligns with its nature. The creature remains for up to 1 hour outside combat (instead of 10-30 seconds).",
+   "reinforcedAbilities": "Spiritual Dance: The Alms Monk may substitute a slow, meditative walk for the dance. The +2 to Will rolls extends to all SPI-based rolls and lasts for 2d turns (from 1d). For an Alms Monk who has learned Spirit Vision (Ch. 4), it activates automatically at no SPI cost while the walk continues. Appeasing Dance: The Will penalty for witnesses increases to -4 (from -2). The Alms Monk may target a single hostile creature with the appeasing effect without needing to perform the full dance — a gesture and a murmured verse suffice (costs 1 SPI, range 10 m). Summoning Dance: On a successful summon, the Alms Monk may negotiate with the summoned creature for an additional service (beyond inhabitation) — the creature will perform one task of equivalent difficulty to the summoning, provided the task aligns with its nature. The creature remains for up to 1 hour outside combat (instead of 10-30 seconds).",
    "sourceLines": [
-    9483,
-    9530
+    8748,
+    8795
    ]
   },
   {
@@ -651,18 +672,6 @@
      "attr": "HT",
      "difficulty": "E",
      "bonus": 4
-    },
-    {
-     "name": "Spiritual Intuition",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 1
-    },
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "H",
-     "bonus": 1
     }
    ],
    "advantages": "",
@@ -670,8 +679,8 @@
    "ability": "Fate Symphony (passive): Fate Sensation is enhanced. The Musician constantly hears the symphony of fate around them. Symphony Decryption (active): Concentrate on a source and roll IQ to decrypt its symphony. Success reveals several possible futures. Critical success yields a clear sign. On failure, spend 1 FP. On critical failure, spend 3 FP and gain 1 CoR. What the Musician discerns depends on the degree of success and GM discretion. Song of Fate (varies): After decrypting a target's fate, the Musician may amplify it by singing. Roll Singing (HT/Easy) with a bonus or penalty depending on the significance of the fate amplified (GM discretion). Spend SPI appropriate to the effect (GM discretion). The Musician may spend additional SPI to forcibly succeed on the Singing roll. Fate cannot be changed — only amplified. Examples: amplifying the fate of an impending illness forces the target to roll HT or fall ill immediately; amplifying the fate of an emotional breakdown forces a Will roll or the target becomes uncontrollable temporarily.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9531,
-    9562
+    8796,
+    8823
    ]
   },
   {
@@ -702,12 +711,6 @@
      "attr": "IQ",
      "difficulty": "A",
      "bonus": 1
-    },
-    {
-     "name": "Spiritual Perception",
-     "attr": "SPI",
-     "difficulty": "A",
-     "bonus": 3
     }
    ],
    "advantages": "Pacifying Aura Unless provoked, anyone with malice towards you rolls Will -4 or becomes pacified. Disadvantage decreased or turned into advantage depending on the being's level, up to the GM",
@@ -715,8 +718,8 @@
    "ability": "Shadow Creature Detection (1 SPI): Detect any shadow creature within vicinity. If possible for one to be nearby, the GM must determine the power and hostility of the shadow creature. If the creature is of a sufficiently high level, roll Will or gain 1 CoR upon witnessing it. Due to Pacifying Aura it is possible for the Shadow Merchant to broker deals with these creatures. When dealing with shadow creatures, it is prudent not to show malice, attack them, or secretly plot against them. Shadow Contract (4 SPI): Form contracts with any consenting party, with each other's shadows acting as witnesses. The other party must possess a shadow or be a shadow creature for the contract to be binding. At signing the Shadow Merchant can roll Will to bend the contract's terms, with the degree of success indicating how much can be distorted (up to the GM). If broken by either party, the responsible party receives 2d+1 spiritual damage. Fake Shadow Creation (Varies): Create fake shadows within a 10 m area. Shadow Transformation (3 SPI per 10 min): Transform into shadows and move through them at Base Speed × 4. By transforming into a shadow the Shadow Merchant can avoid most forms of physical damage by rolling against DX +3. Shadow Concealment (1 SPI per 10 min): Conceal themselves in shadows. Roll Per -3 to detect them while still, Per -1 while moving. Attacking or sudden actions break concealment.",
    "reinforcedAbilities": "",
    "sourceLines": [
-    9563,
-    9601
+    8824,
+    8860
    ]
   },
   {
@@ -764,8 +767,8 @@
    "ability": "Consciousness Understanding (Passive): By rolling Psychology -2, the Commentator can glean significantly more information about a person, similar to a Spectator's analysis. Commentary (2 SPI): Roll an appropriate speech skill at -2. All who hear the Commentator must roll Will against the Commentator's degree of success on their speech roll, or become influenced by their ideas.",
    "reinforcedAbilities": "Midoro's Worship: The Commentator can now hold up to four spells at a time (up from three).",
    "sourceLines": [
-    9602,
-    9628
+    8861,
+    8887
    ]
   }
  ]

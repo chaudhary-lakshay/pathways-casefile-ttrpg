@@ -2,84 +2,84 @@
  "sourceLines": {
   "3": [
    [
-    1669,
-    1704
+    1768,
+    1824
    ],
    [
-    1707,
-    1727
+    1826,
+    1834
    ],
    [
-    1729,
-    1776
+    1837,
+    1875
    ],
    [
-    1778,
-    1813
+    1877,
+    1943
    ],
    [
-    1816,
-    1860
+    1946,
+    1959
    ],
    [
-    1862,
-    1876
+    1961,
+    1975
    ],
    [
-    1878,
-    1907
+    1977,
+    2006
    ],
    [
-    1909,
-    1917
+    2008,
+    2019
    ],
    [
-    1920,
-    1922
+    2025,
+    2029
    ],
    [
-    1928,
-    1937
+    2031,
+    2039
    ],
    [
-    1939,
-    1986
+    2042,
+    2080
    ],
    [
-    1988,
-    2005
+    2082,
+    2099
    ],
    [
-    2007,
-    2015
+    2101,
+    2124
    ],
    [
-    2018,
-    2032
+    2126,
+    2143
    ],
    [
-    2034,
-    2075
+    2146,
+    2169
    ],
    [
-    2077,
-    2106
+    2171,
+    2200
    ],
    [
-    2108,
-    2122
+    2202,
+    2232
    ],
    [
-    2125,
-    2140
+    2234,
+    2248
    ],
    [
-    2142,
-    2159
+    2251,
+    2253
    ],
    [
-    2161,
-    2178
+    2255,
+    2272
    ]
   ]
  },
@@ -805,31 +805,13 @@
    "notes": "Work with electrical systems"
   },
   {
-   "name": "Spiritual Intuition",
-   "specialization": null,
-   "attr": "SPI",
-   "difficulty": "H",
-   "specializable": false,
-   "category": "SPIRITUAL SKILLS (SPI-based)",
-   "notes": "Sense fate-changes and danger through spirit"
-  },
-  {
-   "name": "Spiritual Perception",
-   "specialization": null,
-   "attr": "SPI",
-   "difficulty": "A",
-   "specializable": false,
-   "category": "SPIRITUAL SKILLS (SPI-based)",
-   "notes": "Detect hidden spirits and supernatural phenomena"
-  },
-  {
    "name": "Divination Arts",
    "specialization": null,
-   "attr": "SPI",
+   "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
-   "category": "SPIRITUAL SKILLS (SPI-based)",
-   "notes": "Perform focused divination: pendulum, coin, dowsing, dream interpretation, scrying, tarot"
+   "category": "SPIRITUAL SKILLS",
+   "notes": "Active analytical divination: pendulum, tarot, scrying, dream interpretation. Uses tools to extract precise information from the Spirit Realm. SPI augments the roll (1 SPI = +1)."
   },
   {
    "name": "Survival",

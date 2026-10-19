@@ -1,9 +1,15 @@
 {
  "sourceLines": {
-  "7.6": [
+  "4": [
    [
-    4769,
-    4855
+    2364,
+    2384
+   ]
+  ],
+  "5": [
+   [
+    3080,
+    3139
    ]
   ]
  },
@@ -78,116 +84,23 @@
  "etherBodyNote": "A balanced body appears white. Darkness or thinning indicates illness.",
  "pathwayDifferences": [
   {
-   "name": "Seer (Fool)",
-   "sequence": 9,
-   "ability": "Standard: Ether Body + Astral"
-  },
-  {
    "name": "Mystery Pryer (Hermit)",
    "sequence": 9,
-   "ability": "Eyes of Mystery Prying: See truth, reality, Astral Body"
-  },
-  {
-   "name": "Spectator (Visionary)",
-   "sequence": 9,
-   "ability": "Enhanced: Read emotions & thoughts"
+   "ability": "Eyes of Mystery Prying: built on Spirit Vision — sees truth, reality, and the Astral Body"
   },
   {
    "name": "Sleepless (Darkness)",
    "sequence": 9,
-   "ability": "Limited: Spiritual entities only (no Ether Body analysis)"
+   "ability": "Limited form: spiritual entities only (no Ether Body analysis)"
   },
   {
    "name": "Corpse Collector (Death)",
    "sequence": 9,
-   "ability": "Passive: See spirits & undead without activation"
+   "ability": "Spirit Vision is unmodified; Undead Detection (its own ability) senses spirits and the undead passively, without expending SPI"
   }
  ],
- "reading": {
-  "activation": 1,
-  "maintenance": 1,
-  "rows": [
-   {
-    "result": "Success",
-    "effect": "Identify primary emotion or general health"
-   },
-   {
-    "result": "Success by 3+",
-    "effect": "Detect specific feelings",
-    "margin": 3
-   },
-   {
-    "result": "Success by 5+",
-    "effect": "Sense recent events",
-    "margin": 5
-   },
-   {
-    "result": "Critical",
-    "effect": "Full reading"
-   },
-   {
-    "result": "Failure",
-    "effect": "Incorrect reading"
-   }
-  ]
- },
- "specialForms": [
-  {
-   "form": "Ether Body Awareness",
-   "pathwayRank": "Seer"
-  },
-  {
-   "form": "Eyes of Mystery Prying",
-   "pathwayRank": "Mystery Pryer"
-  },
-  {
-   "form": "Enhanced Emotions",
-   "pathwayRank": "Spectator"
-  },
-  {
-   "form": "Limited Form",
-   "pathwayRank": "Sleepless"
-  },
-  {
-   "form": "Passive Spirit Vision",
-   "pathwayRank": "Corpse Collector"
-  }
- ],
- "grants": [
-  {
-   "pathway": "Darkness",
-   "sequence": 9,
-   "form": "Spirit Vision"
-  },
-  {
-   "pathway": "Death",
-   "sequence": 9,
-   "form": "Spirit Vision"
-  },
-  {
-   "pathway": "Fool",
-   "sequence": 9,
-   "form": "Spirit Vision"
-  },
-  {
-   "pathway": "Hermit",
-   "sequence": 9,
-   "form": "Eyes of Mystery Prying"
-  },
-  {
-   "pathway": "Moon",
-   "sequence": 9,
-   "form": "Spirit Vision"
-  },
-  {
-   "pathway": "Mother",
-   "sequence": 8,
-   "form": "Spirit Vision"
-  },
-  {
-   "pathway": "Red Priest",
-   "sequence": 8,
-   "form": "Spirit Vision"
-  }
- ]
+ "activation": {
+  "spi": 1,
+  "perActivation": true
+ }
 }

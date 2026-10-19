@@ -1,0 +1,28 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    353,
+    366
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "attr": "ST",
+   "costPerLevel": 10
+  },
+  {
+   "attr": "DX",
+   "costPerLevel": 20
+  },
+  {
+   "attr": "IQ",
+   "costPerLevel": 20
+  },
+  {
+   "attr": "HT",
+   "costPerLevel": 20
+  }
+ ]
+}

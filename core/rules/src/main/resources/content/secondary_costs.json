@@ -2,8 +2,8 @@
  "sourceLines": {
   "2": [
    [
-    353,
-    386
+    367,
+    399
    ]
   ]
  },
@@ -20,16 +20,16 @@
    "key": "will",
    "characteristic": "Will",
    "formula": "= IQ (9)",
-   "cost": "±5 pts per level",
-   "pointsPerStep": 5,
+   "cost": "±10 pts per level",
+   "pointsPerStep": 10,
    "step": "level"
   },
   {
    "key": "per",
    "characteristic": "Perception (Per)",
    "formula": "= IQ (9)",
-   "cost": "±5 pts per level",
-   "pointsPerStep": 5,
+   "cost": "±10 pts per level",
+   "pointsPerStep": 10,
    "step": "level"
   },
   {
@@ -75,7 +75,7 @@
   {
    "key": "digestion",
    "characteristic": "Digestion %",
-   "formula": "0% (mortals N/A)",
+   "formula": "4d20 at game start (starting Beyonders)",
    "cost": "Tracked through acting",
    "pointsPerStep": null,
    "step": null

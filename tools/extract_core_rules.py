@@ -113,18 +113,15 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "2"
 MECHANIC_RANGE = (276, 285)
-# The Secondary Characteristics table, heading to last cell. It ends where
-# BURN_RANGE begins, and begins after MECHANIC_RANGE ends -- the gap the old
-# exclusion said was already claimed.
-SECONDARY_RANGE = (353, 386)
-BURN_RANGE = (387, 395)
-CONTEST_RANGE = (396, 422)
-# The Skill Defaults table straddles a page break: its heading and column
-# headers are the last three lines of page 9, its body is on page 10, which
-# chapters.json gives to Chapter 3. Claimed under "2" anyway, because that is
-# where the content is; coverage.py will credit the second span to nobody.
-# Seventh instance of that page-granularity gap (6t, 6v, 6ae, 6af, 6ag, 6aj).
-DEFAULT_RANGES = ((423, 427), (430, 442))
+# The Secondary Attributes table, heading to last cell. v6.9i renames it from
+# "Secondary Characteristics" and prints Basic Lift, encumbrance and a second
+# Parry & Block table between it and the burn rules.
+SECONDARY_RANGE = (367, 399)
+BURN_RANGE = (459, 468)
+CONTEST_RANGE = (469, 497)
+# v6.9d's Skill Defaults table straddled a page break; v6.9i's sits whole on
+# p. 11, so it is one span now.
+DEFAULT_RANGES = ((498, 515),)
 
 # This PDF prints list bullets as U+007F. Stripping it is what makes the
 # success-roll bullets visible at all -- 6ad read the sentence above them and
@@ -137,10 +134,22 @@ CRITICAL = re.compile(r"^(Critical (?:Success|Failure)[^:]*): (.+)$")
 
 BURN_POOLS = {"FP": "physical", "SPI": "mystical"}
 BURN_LINE = re.compile(r"^(FP|SPI) -> (\w+) Rolls\. Spend 1 (?:FP|SPI) to gain \+1 on (.+)$")
-CAP = re.compile(r"Max \+(\d+) per roll")
-NO_CAP = "There is no cap"
+# FP's scope ends at its closing bracket, SPI's at the first full stop.
+SCOPE_END = re.compile(r"^(.+?(?:\)|roll))\.")
 EITHER_OR = "You cannot spend both FP and SPI on the same roll."
-AFTER_THE_FACT = "You may use this after seeing the result"
+# v6.9d let both pools be burned "after seeing the result", FP capped at +5 and
+# SPI uncapped. v6.9i reverses the timing and drops both caps, and gates each
+# pool on combat: SPI burns only in combat, FP in combat with Fit or Very Fit
+# and out of combat with Very Fit alone.
+BEFORE_THE_ROLL = "You must declare this before the roll."
+SPI_IN_COMBAT = "You may only burn SPI during combat."
+FP_GATES = (
+    "You may only burn FP during combat if you have Fit or Very Fit; you may only burn "
+    "FP out of combat if you have Very Fit."
+)
+# The traits each pool's sentence names, as printed. Pinned against FP_GATES.
+FP_COMBAT_TRAITS = ["Fit", "Very Fit"]
+FP_OUT_OF_COMBAT_TRAITS = ["Very Fit"]
 
 CONTEST_HEADERS = {"Situation", "Attacker Rolls", "Defender Rolls"}
 TIES_TO_DEFENDER = "Ties always go to the defender."
@@ -148,8 +157,8 @@ LARGER_MARGIN = "The winner is the one who succeeds"
 RESOLUTION_MARKER = "If both succeed"
 
 # The secondary table's three column headers, and the nine rows it prints.
-SECONDARY_HEADING = "Secondary Characteristics"
-SECONDARY_HEADERS = {"Characteristic", "Base Formula", "Cost to Modify"}
+SECONDARY_HEADING = "Secondary Attributes"
+SECONDARY_HEADERS = {"Attribute", "Base Formula", "Cost to Modify"}
 SECONDARY_INTRO = "Derived from primary attributes"
 # The printed name -> the key a consumer joins on. Pinned rather than derived:
 # if the book renames a row, that is a finding and not a slug to regenerate.
@@ -218,7 +227,7 @@ def mechanic(byn):
 
 
 def burn(byn):
-    """Burning FP and SPI to push a roll (p. 9)."""
+    """Burning FP and SPI to push a roll (p. 10)."""
     lines = stream(byn, BURN_RANGE)
     rows = []
     for index, (_, line) in enumerate(lines):
@@ -226,36 +235,25 @@ def burn(byn):
         if not hit:
             continue
         pool, _, scope = hit.groups()
-        # The rule wraps onto the next line, and the cap lives there.
-        tail = " ".join(t for _, t in lines[index : index + 3])
-        # Both scopes wrap mid-bracket -- FP's at "...lifting, etc" and SPI's
-        # at "(Ritualistic Magic, Spiritual" / "Perception, ...". Keep
-        # consuming while a bracket is open, the same rule the Vitals
-        # multiplier (6l) and a shield's wrapped name (6o) already needed;
-        # cutting at the line end silently truncates a list of examples.
-        step = 1
-        while scope.count("(") > scope.count(")") and index + step < len(lines):
-            scope = f"{scope} {lines[index + step][1]}"
-            step += 1
-        # ...and the scope ENDS at that closing bracket, not at the first
-        # full stop: SPI's example list contains "Occultism vs. Beyonder
-        # phenomena", so splitting on ". " truncates it mid-example. The same
-        # "vs." trap extract_fright.py had to be taught (6c).
+        # The scope can wrap; join the rest of the paragraph and cut at the
+        # sentence that ends it.
+        text = " ".join([scope] + [t for _, t in lines[index + 1:index + 3]])
+        end = SCOPE_END.match(text)
+        if not end:
+            raise SystemExit(f"the {pool} burn's scope has no end: {text[:80]!r}")
         row = {
             "pool": pool,
             "kind": BURN_POOLS[pool],
             "perPoint": 1,
-            "scope": scope[: scope.rindex(")") + 1].strip(),
+            "scope": end.group(1),
         }
-        # The cap is on the FP half only. The SPI half says so in words --
-        # "There is no cap" -- so it carries no field rather than a huge one,
-        # the distinction RitualCritical.corGained draws between printing
-        # nothing and printing zero.
+        # Who may burn, and when. An absent outOfCombatTraits means never out
+        # of combat; an empty combatTraits means no trait is needed in combat.
         if pool == "FP":
-            cap = CAP.search(tail)
-            if not cap:
-                raise SystemExit("the FP burn lost its +5 cap")
-            row["max"] = int(cap.group(1))
+            row["combatTraits"] = FP_COMBAT_TRAITS
+            row["outOfCombatTraits"] = FP_OUT_OF_COMBAT_TRAITS
+        else:
+            row["combatTraits"] = []
         rows.append(row)
     if len(rows) != 2:
         raise SystemExit(f"the book prints two burnable pools, parsed {len(rows)}")
@@ -331,6 +329,16 @@ def secondaries(byn):
         and text not in SECONDARY_HEADERS
         and not text.startswith(SECONDARY_INTRO)
     ]
+    # v6.9i's Digestion formula wraps mid-bracket -- "4d20 at game start
+    # (starting" / "Beyonders)" -- so a cell with an open bracket takes the
+    # next line, the rule the Vitals multiplier (6l) already needed.
+    joined = []
+    for text in cells:
+        if joined and joined[-1].count("(") > joined[-1].count(")"):
+            joined[-1] = f"{joined[-1]} {text}"
+        else:
+            joined.append(text)
+    cells = joined
     # EXACT, not a modulo. `% 3` is blind to three cells wrapping at once,
     # which realigns the stream and shifts every row after it; only the
     # closed name vocabulary below would catch that, and only by luck.
@@ -387,7 +395,8 @@ def verify(bands, pools, rows, defs, secs, byn):
             )
     # Six priced, three refused, and the table says which is which itself.
     priced = {r["key"]: r["pointsPerStep"] for r in secs if r["pointsPerStep"]}
-    if priced != {"hp": 2, "will": 5, "per": 5, "fp": 3, "basicSpeed": 5, "basicMove": 5}:
+    # v6.9i doubles Will and Per, from 5 to 10 a level.
+    if priced != {"hp": 2, "will": 10, "per": 10, "fp": 3, "basicSpeed": 5, "basicMove": 5}:
         raise ValueError(
             f"a secondary characteristic changed price: {priced}. "
             "SecondaryCharacteristics bills every character with these"
@@ -410,22 +419,25 @@ def verify(bands, pools, rows, defs, secs, byn):
 
     # -- the burn ---------------------------------------------------------
     fp, spi = pools
-    assert (fp["pool"], fp["max"]) == ("FP", 5), fp
-    assert "max" not in spi, "the SPI burn grew a cap the book does not print"
-    assert NO_CAP in burn_text, "the SPI burn lost the sentence saying it has no cap"
-    assert AFTER_THE_FACT in burn_text, "the burn stopped being usable after the roll"
+    assert (fp["pool"], spi["pool"]) == ("FP", "SPI"), pools
+    assert BEFORE_THE_ROLL in burn_text, "the burn is no longer declared before the roll"
+    assert burn_text.count(BEFORE_THE_ROLL) == 2, "one pool lost its before-the-roll sentence"
+    assert SPI_IN_COMBAT in burn_text, "the SPI burn's combat-only sentence is gone"
+    assert FP_GATES in burn_text, "the FP burn's Fit / Very Fit sentence changed"
+    assert "Max +" not in burn_text and "no cap" not in burn_text, "a burn cap is back"
     assert EITHER_OR in burn_text, (
         "the either-or sentence is gone; it is the only thing stopping a "
         "caller spending both pools on one roll"
     )
     assert "ST, DX, or HT" in fp["scope"], fp["scope"]
     assert "SPI-based" in spi["scope"], spi["scope"]
-    # Both scopes wrap mid-bracket. A truncated cell still parses and still
+    # FP's scope wraps mid-bracket. A truncated cell still parses and still
     # reads plausibly, so the closing bracket is what proves the list of
-    # examples survived.
+    # examples survived. v6.9i's SPI scope prints no example list at all.
     for row in pools:
         assert row["scope"].count("(") == row["scope"].count(")"), row["scope"]
-    assert "Occultism" in spi["scope"], spi["scope"]
+    assert fp["scope"].endswith("etc.)"), fp["scope"]
+    assert spi["scope"] == "any SPI-based or supernatural skill roll", spi["scope"]
 
     # -- the contests -----------------------------------------------------
     assert len(rows) == 6, f"the book prints six contest rows, parsed {len(rows)}"

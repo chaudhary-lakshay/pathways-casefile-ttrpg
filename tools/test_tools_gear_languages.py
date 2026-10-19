@@ -56,50 +56,58 @@ def test_committed_shields_are_the_four_the_book_prints():
 import extract_spirit
 
 
-def test_a_bullet_that_wraps_is_rejoined_on_its_sentence():
-    """"(e.g. skull" ends nothing, so the next line belongs to it. Cutting by
-    position would leave half a rule and start the next one mid-word."""
-    rules = extract_spirit.parse([
-        (False, "Damage Application:"),
-        (True, "Wounding multipliers apply normally to the chosen pool (e.g. skull"),
-        (False, "×4, vitals ×3) stack with wounding multipliers when applied to HP."),
-    ])
-    assert len(rules) == 1
-    assert rules[0]["rule"].endswith("when applied to HP.")
-    assert rules[0]["section"] == "Damage Application"
+def test_a_wrapped_rule_is_rejoined_on_its_sentence():
+    """v6.9i prints the section as four sentence-paragraphs with no bullets;
+    a line that ends no sentence belongs to the next one."""
+    byn = {
+        2815: "Spirit Body Damage",
+        2816: "Some abilities deal damage directly to the spirit body. Spirit",
+        2817: "body damage pierces DR.",
+        2818: "Other forms carry no CoR.",
+    }
+    original = extract_spirit.SPIRIT_RANGE
+    try:
+        extract_spirit.SPIRIT_RANGE = (2815, 2818)
+        rules = extract_spirit.parse(byn)
+    finally:
+        extract_spirit.SPIRIT_RANGE = original
+    assert [r["rule"] for r in rules] == [
+        "Some abilities deal damage directly to the spirit body. Spirit body damage pierces DR.",
+        "Other forms carry no CoR.",
+    ]
 
 
-def test_a_finished_bullet_does_not_swallow_the_note_after_it():
-    """The section's last line is a standalone note, and the recovery bullet
-    above it ends in a full stop. Joining by position would glue them."""
-    rules = extract_spirit.parse([
-        (False, "Recovery follows each pool's normal rate:"),
-        (True, "CoR from Soul Debt are permanent and require special rituals to remove."),
-        (False, "Non-Beyonders (SPI 0): Can only choose HP or FP — no spirituality to sacrifice."),
-    ])
-    assert len(rules) == 2
-    assert rules[1]["section"] == "Non-Beyonders (SPI 0)"
-
-
-def test_the_threshold_group_is_dropped_but_still_anchors_the_section_after_it():
-    """Its five lines live in pool_thresholds.json; a second copy would be a
-    rule with two homes. Dropping it must not shift what follows."""
-    rules = extract_spirit.parse([
-        (False, "Threshold Penalties by Pool:"),
-        (True, "HP ≤ 0: Standard GURPS death/dying rules."),
-        (False, "Damage Expression: Spirit body damage is given either as:"),
-        (True, "Flat dice: roll damage, then choose a pool."),
-    ])
-    assert [r["section"] for r in rules] == ["Damage Expression"]
+def test_a_section_that_ends_mid_sentence_is_reported():
+    original = extract_spirit.SPIRIT_RANGE
+    try:
+        extract_spirit.SPIRIT_RANGE = (1, 2)
+        with pytest.raises(ValueError, match="mid-sentence"):
+            extract_spirit.parse({1: "Spirit Body Damage", 2: "pierces DR and"})
+    finally:
+        extract_spirit.SPIRIT_RANGE = original
 
 
 def test_committed_spirit_rules_keep_the_phrases_the_app_states():
+    """No pool to choose any more: the damage is a -1 per point on the next
+    roll. The v6.9d pool rule coming back is a finding."""
     entries = json.loads((CONTENT / "spirit_damage.json").read_text(encoding="utf-8"))["entries"]
-    assert list(dict.fromkeys(e["section"] for e in entries)) == extract_spirit.EXPECTED_SECTIONS
+    assert len(entries) == 4
     body = " ".join(e["rule"] for e in entries)
     for phrase in extract_spirit.PINNED:
         assert phrase in body
-    assert extract_spirit.DROPPED not in {e["section"] for e in entries}
+    for phrase in extract_spirit.GONE:
+        assert phrase not in body
+
+
+@needs_pdf
+def test_the_pool_choice_returning_would_fail_verification():
+    byn = extract_spirit.load_lines()
+    rules = extract_spirit.parse(byn)
+    extract_spirit.verify(rules, byn)
+    back = [dict(r) for r in rules]
+    back[0]["rule"] += " The target chooses which of three pools takes it."
+    with pytest.raises(ValueError, match="pool rule is back"):
+        extract_spirit.verify(back, byn)
 
 
 import extract_boons
@@ -333,34 +341,34 @@ def test_the_wealth_ladder_climbs_on_every_column():
 
 
 def test_the_two_kinds_of_minus_are_both_read():
-    """The point costs are ASCII-signed ("-25 pts") and the reaction column is
-    U+2212 (" -2"). A parser that knows only one silently drops half the
-    negative numbers on this page."""
+    """The point costs are ASCII-signed ("-25 pts") and the social weight
+    column is U+2212 (" -2"). A parser that knows only one silently drops
+    half the negative numbers on this page."""
     broke = next(e for e in wealth_entries() if e["status"] == "Dead Broke")
-    assert broke["points"] == -25 and broke["reactionModifier"] == -2
+    assert broke["points"] == -25 and broke["socialWeight"] == -2
 
 
-def test_the_reaction_ladder_is_not_symmetric_around_average():
-    """The paragraph says "+1 per Status level above Average ... and -1 per
-    level below". Above Average the column agrees exactly. Below it, it does
-    not: Struggling is one level down and prints 0, and the paragraph's own
-    example puts Poor -- two levels down -- at -1."""
+def test_the_social_weight_ladder_is_not_symmetric_around_average():
+    """v6.9i renamed the reaction column to a GM guideline ("social weight");
+    it is never added to a roll. Its printed values keep v6.9d's asymmetry:
+    Struggling, one level below Average, prints 0 and Poor -1."""
     by_status = {e["status"]: e for e in wealth_entries()}
-    assert [by_status[s]["reactionModifier"] for s in
+    assert all("reactionModifier" not in e for e in wealth_entries())
+    assert [by_status[s]["socialWeight"] for s in
             ("Comfortable", "Wealthy", "Very Wealthy")] == [1, 2, 3]
-    assert by_status["Struggling"]["reactionModifier"] == 0
-    assert by_status["Poor"]["reactionModifier"] == -1
+    assert by_status["Struggling"]["socialWeight"] == 0
+    assert by_status["Poor"]["socialWeight"] == -1
 
 
 @needs_pdf
-def test_a_straightened_ladder_would_fail_verification():
-    """Giving Struggling the -1 the paragraph implies is a repair, not a fix.
-    The printed column is the authority (CLAUDE.md 4.1)."""
+def test_a_social_weight_that_stops_climbing_would_fail_verification():
+    """The column climbs with Status; a row read out of order breaks that."""
+    extract_wealth.verify(wealth_entries(), wealth_note())
     patched = [
-        {**e, "reactionModifier": -1} if e["status"] == "Struggling" else e
+        {**e, "socialWeight": 2} if e["status"] == "Struggling" else e
         for e in wealth_entries()
     ]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="does not climb"):
         extract_wealth.verify(patched, wealth_note())
 
 
@@ -466,18 +474,15 @@ def test_the_appearance_ladder_runs_best_to_worst():
     entries = appearance_entries()
     assert [e["level"] for e in entries] == extract_appearance.EXPECTED_LEVELS
     assert [e["points"] for e in entries] == [1, 4, 8, -4, -8, -16, -20, -24]
-    assert [e["reactionModifier"] for e in entries] == [1, 2, 3, -1, -2, -4, -5, -6]
 
 
-def test_the_reaction_column_is_not_derivable_from_the_cost():
-    """If it were, the second column would be redundant and reading it would be
-    arithmetic rather than extraction. It is not: the good half doubles its
-    cost per step while its modifier climbs by one, and the bad half skips -12
-    entirely, so -8 pts gives -2 and -16 gives -4."""
-    by_level = {e["level"]: e for e in appearance_entries()}
-    assert (by_level["Attractive"]["points"], by_level["Attractive"]["reactionModifier"]) == (1, 1)
-    assert (by_level["Ugly"]["points"], by_level["Ugly"]["reactionModifier"]) == (-8, -2)
-    assert (by_level["Hideous"]["points"], by_level["Hideous"]["reactionModifier"]) == (-16, -4)
+def test_the_reaction_column_left_the_table():
+    """v6.9i replaced v6.9d's reaction modifiers with prose effects at the
+    GM's discretion: no level prints a number a roll could take."""
+    for e in appearance_entries():
+        assert "reactionModifier" not in e, e
+        assert "reaction roll" not in e["effect"], e
+        assert e["effect"], e
     assert not any(-12 == e["points"] for e in appearance_entries())
 
 
@@ -501,13 +506,13 @@ def test_no_level_is_free_so_ordinary_looks_are_not_a_row():
 
 @needs_pdf
 def test_a_level_that_crossed_the_two_columns_would_fail_verification():
-    """A level that costs points and does not help -- or refunds them and does
-    not hurt -- means a row was read out of order."""
+    """A reaction modifier coming back is a finding about the book."""
+    extract_appearance.verify(appearance_entries(), appearance_note())
     patched = [
-        {**e, "reactionModifier": -1} if e["level"] == "Attractive" else e
+        {**e, "effect": "+1 to reaction rolls"} if e["level"] == "Attractive" else e
         for e in appearance_entries()
     ]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="reaction modifier"):
         extract_appearance.verify(patched, appearance_note())
 
 

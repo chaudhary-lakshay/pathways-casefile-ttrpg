@@ -2,8 +2,8 @@
  "sourceLines": {
   "2": [
    [
-    387,
-    395
+    459,
+    468
    ]
   ]
  },
@@ -13,13 +13,20 @@
    "kind": "physical",
    "perPoint": 1,
    "scope": "any roll based on ST, DX, or HT (attack rolls, dodging, climbing, lifting, etc.)",
-   "max": 5
+   "combatTraits": [
+    "Fit",
+    "Very Fit"
+   ],
+   "outOfCombatTraits": [
+    "Very Fit"
+   ]
   },
   {
    "pool": "SPI",
    "kind": "mystical",
    "perPoint": 1,
-   "scope": "any SPI-based or supernatural skill roll (Ritualistic Magic, Spiritual Perception, Occultism vs. Beyonder phenomena, etc.)"
+   "scope": "any SPI-based or supernatural skill roll",
+   "combatTraits": []
   }
  ]
 }

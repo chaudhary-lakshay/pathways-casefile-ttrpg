@@ -37,16 +37,20 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "6"
-ACTING_RANGE = (3046, 3057)
-PCR_RANGE = (3082, 3119)
+ACTING_RANGE = (3158, 3169)
+PCR_RANGE = (3205, 3243)
 # The two prose lines the "10 + modifier" check below was read from. Claimed
 # alongside the table, because an assertion whose source sentence sits outside
 # the claimed span is a rule nobody can find again.
-FORMULA_RANGE = (3079, 3081)
+FORMULA_RANGE = (3200, 3204)
 FORMULA = "Roll 3d6 <= 10 + Digestion Modifier."
 # The PCR is a raw roll: no stat, no skill. Pinned because PotionConsumption
 # takes no skill level, and this sentence is the only reason it does not.
 RAW_ROLL = "no stat or skill applies"
+# v6.9i's new sentence under the formula: the drinker's CoR is subtracted from
+# the target, one per point. PotionConsumption applies it; pinned for the same
+# reason the formula is.
+COR_PENALTY = "-1 per point of CoR (a Beyonder with CoR 6 rolls against 4 + Digestion Modifier)"
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 QUALITY = re.compile(r"^([A-Z][a-z]+)\s*\(([^)]*)\)$")
@@ -130,7 +134,7 @@ def verify(acting, pcr, formula=""):
         # The sentence the column check below is read from. Without it the two
         # columns agreeing would be a coincidence nobody had checked against
         # the book's own statement of the rule.
-        for phrase in (FORMULA, RAW_ROLL):
+        for phrase in (FORMULA, RAW_ROLL, COR_PENALTY):
             if phrase not in formula:
                 raise ValueError(f"the PCR's printed rule is gone: {phrase!r}")
     if len(acting) != 5:

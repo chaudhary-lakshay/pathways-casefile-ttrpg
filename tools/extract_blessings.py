@@ -41,14 +41,14 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "3"
-SPAN = (1098, 1118)
+SPAN = (1177, 1199)
 
 # The rows themselves, between the two-line column header and the requirement.
-ROWS = (1103, 1116)
+ROWS = (1184, 1197)
 
-PROSE = (1099, 1100)
-HEADER = (1101, 1102)
-REQUIREMENT = (1117, 1118)
+PROSE = (1178, 1179)
+HEADER = (1180, 1181)
+REQUIREMENT = (1198, 1199)
 
 COST_EACH = 75
 

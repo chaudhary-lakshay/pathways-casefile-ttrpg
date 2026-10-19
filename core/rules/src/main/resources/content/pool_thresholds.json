@@ -2,23 +2,18 @@
  "sourceLines": {
   "4": [
    [
-    2346,
-    2356
+    2424,
+    2431
    ]
   ],
   "5": [
    [
-    2697,
-    2708
+    2800,
+    2814
    ]
   ]
  },
  "entries": [
-  {
-   "pool": "SPI",
-   "level": "SPI to 1",
-   "effect": "Normal function; no penalties"
-  },
   {
    "pool": "SPI",
    "level": "<= 1/3 Max SPI",
@@ -27,17 +22,12 @@
   {
    "pool": "SPI",
    "level": "0 SPI",
-   "effect": "Spiritual Exhaustion: All Beyonder abilities deactivate; cannot activate any SPI-cost abilities; Spirit Vision shuts off"
+   "effect": "Spiritual Exhaustion: All Beyonder abilities deactivate"
   },
   {
    "pool": "SPI",
    "level": "Below 0 SPI",
    "effect": "Soul Debt: +1 CoR per 1 point below 0 (e.g. SPI -4 = +4 CoR). See CoR (Chapter 6)."
-  },
-  {
-   "pool": "HP",
-   "level": "HP to 1",
-   "effect": "Normal function; no penalties"
   },
   {
    "pool": "HP",
@@ -47,17 +37,27 @@
   {
    "pool": "HP",
    "level": "0 HP",
-   "effect": "Roll 3d6 <= HT or fall unconscious; roll each turn to remain conscious"
+   "effect": "You risk unconsciousness; roll against HT every turn to stay awake"
   },
   {
    "pool": "HP",
-   "level": "-HP",
-   "effect": "Roll vs. HT or die; must roll vs. HT each turn while below this threshold"
+   "level": "-1×HP",
+   "effect": "Mortal wound state; roll against HT to stay alive. If unconscious: one chance to wake after 12 hours; failure = coma (external stabilization or HT rolls every 12 hours to avoid death)"
+  },
+  {
+   "pool": "HP",
+   "level": "-2× to -4×HP",
+   "effect": "One survival roll per additional multiple of total HP dropped below zero"
   },
   {
    "pool": "HP",
    "level": "-5×HP",
-   "effect": "Dead — no roll required"
+   "effect": "Automatic death — no roll required"
+  },
+  {
+   "pool": "HP",
+   "level": "-10×HP",
+   "effect": "Body destroyed beyond recognition; resurrection often nullified"
   }
  ]
 }

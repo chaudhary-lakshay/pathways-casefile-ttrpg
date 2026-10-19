@@ -28,7 +28,7 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
-SHIELD_RANGE = (2486, 2537)
+SHIELD_RANGE = (2563, 2614)
 
 # This PDF prints list bullets as U+007F. See extract_defenses.py.
 BULLET = "\x7f"

@@ -1,4 +1,4 @@
-"""Extract Ch. 3's skill cost ladder and its two worked examples (p. 25-26).
+"""Extract Ch. 3's skill cost ladder and its two worked examples (p. 27-28).
 
 WHY THIS IS WORTH EXTRACTING AT ALL
 ------------------------------------
@@ -8,36 +8,34 @@ implemented from this table and then never checked against it. This extract
 turns the table into content and the book's two worked examples into an
 oracle, the way Ch. 7's worked rituals became one (CLAUDE.md 6ab).
 
-It confirms the existing code rather than changing it. That is the expected
-result of marking homework, and it is worth having written down: the ladder is
-NOT vanilla GURPS (core 4e costs 1/2/4/8/12/16 with +4 per level past Attr+2),
-and using core costs would make 14 of those 232 levels wrong. Now something
-fails if either the table or the constant drifts.
+v6.9d's ladder doubled at every rung (1, 2, 4 ... 256). v6.9i caps it:
+"after the first five rungs the cost per level stops climbing" -- the fifth
+rung costs +8 and every rung after it a flat +16, so the cumulative column
+reads 1, 2, 4, 8, 16, 32, 48, 64, 80. It is still not vanilla GURPS (core 4e
+costs 1/2/4/8/12/16 with +4 per level past Attr+2).
 
 THE TABLE IS TWO TABLES STACKED
 ---------------------------------
-p. 25 prints the cumulative ladder as a single column -- 1, 2, 4, 8, 16, 32,
-64, 128, 256 -- beside an incremental one (+1, +2, +4 ... +128). p. 26 then
-prints a 4x8 grid of Attr offsets keyed on those same costs:
+p. 27 prints the cumulative ladder as a single column -- 1, 2, 4, 8, 16, 32,
+48, 64, 80 -- beside an incremental one (+1, +2, +4, +8, +16, +16 ...). It then
+prints a 4x9 grid of Attr offsets keyed on those same costs:
 
-    Easy       +0 +1 +2 +3 +4 +5 +6 +7
-    Average    -1 +0 +1 +2 +3 +4 +5 +6
-    Hard       -2 -1 +0 +1 +2 +3 +4 +5
-    Very Hard  -3 -2 -1 +0 +1 +2 +3 +4
+    Easy       +0 +1 +2 +3 +4 +5 +6 +7 +8
+    Average    -1 +0 +1 +2 +3 +4 +5 +6 +7
+    Hard       -2 -1 +0 +1 +2 +3 +4 +5 +6
+    Very Hard  -3 -2 -1 +0 +1 +2 +3 +4 +5
 
 Every row is its predecessor shifted by one, and every column is the one to
 its left plus one. verify() asserts both, because that regularity is the whole
 reason `Difficulty.firstRungOffset` can be one number per difficulty instead
 of a stored row.
 
-THE NINTH RUNG HAS NO OFFSET COLUMN
--------------------------------------
-The cumulative ladder prints nine costs and the difficulty grid only eight:
-256 pts has no printed offset. `SkillLadder`'s rungs carry it and extrapolate
-+1, which the prose supports ("each level after the third costs twice as much
-as the level before it") but the grid does not show. Recorded as a reading
-here and pinned by a named test, rather than left to be rediscovered by
-whoever first buys a skill to 256 points.
+EVERY RUNG HAS AN OFFSET NOW
+----------------------------
+v6.9d printed nine costs and only eight offset columns, so its 256-point rung
+was an extrapolation. v6.9i prints nine of each. Past 80 points the prose
+still answers -- "every level after that costs a flat 16 pts" -- so a tenth
+rung is 96 pts and one more level, which is printed and not a reading.
 
 THE EXAMPLES ARE THE ORACLE
 -----------------------------
@@ -61,10 +59,10 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "3"
-LADDER_RANGE = (1580, 1602)
-GRID_RANGE = (1603, 1648)
-EXAMPLE_RANGE = (1649, 1658)
-PROSE_RANGE = (1571, 1579)
+LADDER_RANGE = (1674, 1694)
+GRID_RANGE = (1695, 1745)
+EXAMPLE_RANGE = (1746, 1757)
+PROSE_RANGE = (1666, 1673)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADERS = {"Total Pts Spent", "Incremental cost", "Difficulty"}
@@ -80,17 +78,17 @@ STEP = re.compile(
     rf"(?: \(\w+ \d+ ?[{MINUS}+] ?\d+\))?(?: —.*)?$"
 )
 
-EXPECTED_CUMULATIVE = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+EXPECTED_CUMULATIVE = [1, 2, 4, 8, 16, 32, 48, 64, 80]
 EXPECTED_OFFSETS = {
-    "Easy": [0, 1, 2, 3, 4, 5, 6, 7],
-    "Average": [-1, 0, 1, 2, 3, 4, 5, 6],
-    "Hard": [-2, -1, 0, 1, 2, 3, 4, 5],
-    "Very Hard": [-3, -2, -1, 0, 1, 2, 3, 4],
+    "Easy": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    "Average": [-1, 0, 1, 2, 3, 4, 5, 6, 7],
+    "Hard": [-2, -1, 0, 1, 2, 3, 4, 5, 6],
+    "Very Hard": [-3, -2, -1, 0, 1, 2, 3, 4, 5],
 }
-# The sentence the doubling rests on, and the one saying the ladder is
+# The sentence the flat tail rests on, and the one saying the ladder is
 # difficulty-independent -- which is what lets one offset per difficulty stand
 # in for a whole stored row.
-DOUBLING = "each level after the third costs twice as much as the level before it"
+DOUBLING = "every level after that costs a flat 16 pts"
 SAME_LADDER = "The ladder is the same for every skill regardless of difficulty"
 
 
@@ -214,14 +212,11 @@ def verify(cumulative, offsets, examples, prose):
         if row != list(range(row[0], row[0] + len(row))):
             raise ValueError(f"a difficulty row no longer climbs by one: {row}")
 
-    # The grid is one column SHORT of the ladder. The 256-point rung is
-    # printed as a cost and given no offset, so continuing it is a reading.
+    # v6.9i prints an offset for every rung.
     width = len(ordered[0])
-    if width != len(cumulative) - 1:
+    if width != len(cumulative):
         raise ValueError(
-            f"the grid is {width} columns against {len(cumulative)} ladder rungs. "
-            "It was exactly one short -- 256 pts has a cost and no offset -- and "
-            "SkillLadder extrapolates that rung by +1")
+            f"the grid is {width} columns against {len(cumulative)} ladder rungs")
 
     # THE ORACLE. Every printed step must be reproducible from the offsets.
     for example in examples:
@@ -276,7 +271,7 @@ def main():
     print(f"skill ladder: {cumulative}")
     for difficulty in DIFFICULTIES:
         print(f"  {difficulty:10} " + " ".join(f"{o:+d}" for o in offsets[difficulty]))
-    print(f"the grid is one column short of the ladder: "
+    print(f"ladder and grid: "
           f"{len(cumulative)} rungs, {len(offsets['Easy'])} offsets")
     for example in examples:
         walk = ", ".join(f"{s['points']}pt->{s['level']}" for s in example["steps"])

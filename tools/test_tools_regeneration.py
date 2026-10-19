@@ -158,7 +158,7 @@ def test_only_the_natural_recovery_rows_are_taken():
 def test_committed_hp_recovery_matches_the_printed_rows():
     payload = json.loads((CONTENT / "hp_recovery.json").read_text(encoding="utf-8"))
     assert [e["method"] for e in payload["entries"]] == extract_recovery.EXPECTED
-    assert payload["sourceLines"] == {"5": [[2860, 2868]]}
+    assert payload["sourceLines"] == {"5": [[2927, 2935]]}
     assert "HT roll" in payload["entries"][0]["method"], "the row that makes this a roll"
 
 

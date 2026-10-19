@@ -1,4 +1,4 @@
-"""Extract the Languages section (Ch. 3, p. 13-14, global 633-713).
+"""Extract the Languages section (Ch. 3, p. 14-15, global 689-767).
 
 TWO PROFICIENCY TABLES THAT PRINT THE SAME THREE ROW NAMES
 ----------------------------------------------------------
@@ -53,7 +53,7 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "3"
-LANGUAGES_RANGE = (633, 713)
+LANGUAGES_RANGE = (689, 767)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 COMMON_HEADER = "Common Languages"

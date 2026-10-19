@@ -5,7 +5,7 @@ import pytest
 
 import extract_defenses
 
-from testsupport import CONTENT
+from testsupport import CONTENT, needs_pdf
 
 
 import extract_defenses
@@ -589,132 +589,55 @@ def test_committed_clarity_table_has_one_row_named_by_outcome():
     assert "Critical Failure Table" in critical[0]["effect"]
 
 
-def test_the_cross_skill_default_is_read_across_the_page_break_it_wraps_on():
-    """"...can attempt the other" ends one line and "at -2." begins the next.
-
-    Neither line alone states the rule -- the same wrap that hid the Flourish
-    Bonus one chapter over (6ay).
-    """
-    penalty, threshold, gated, joined = extract_divination.parse_cross_default([
-        "Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
-        "versa. A character with one skill at 12+ can attempt the other",
-        "at -2.",
-    ])
-    assert (penalty, threshold, gated) == (-2, 12, -2)
-    assert "Default:" in joined
-
-    # A seam with the name and no number reads exactly like no rule at all.
-    with pytest.raises(ValueError, match="threshold clause is gone"):
-        extract_divination.parse_cross_default([
-            "Default: Divination Arts defaults to Ritualistic Magic-2 and vice versa."
-        ])
+def _divination_inputs():
+    byn = extract_divination.load_lines()
+    method_lines = extract_divination.stream(byn, *extract_divination.METHOD_RANGE)
+    modifier_lines = extract_divination.stream(byn, *extract_divination.MODIFIER_RANGE)
+    return (extract_divination.parse_methods(method_lines),
+            extract_divination.parse_difficulty(
+                extract_divination.stream(byn, *extract_divination.DIFFICULTY_RANGE)),
+            extract_divination.parse_modifiers(modifier_lines),
+            extract_divination.parse_clarity(
+                extract_divination.stream(byn, *extract_divination.CLARITY_RANGE)),
+            method_lines + modifier_lines,
+            extract_divination.stream(byn, *extract_divination.SKILL_RANGE))
 
 
-OVERLAP_LINES = [
-    "The two skills overlap at the following boundaries:",
-    "\x7f Simple divination (yes/no, vague direction, basic insight): "
-    "Divination Arts is sufficient. Cost: 1–2 SPI.",
-    "\x7f Moderate divination (find a person, glimpse a scene, interpret a "
-    "dream): Either skill works. Divination Arts is",
-    "faster (minutes vs. ritual setup) but may receive less detail. Cost: 2 SPI.",
-    "\x7f Complex divination (long-range, multiple questions, resisting "
-    "countermeasures): Requires Ritualistic Magic or a",
-    "very high Divination Arts roll (-4 penalty). Cost: 2 SPI.",
-]
+@needs_pdf
+def test_divination_arts_defaults_to_spi_and_never_to_ritualistic_magic():
+    """v6.9i: "Divination Arts defaults to SPI-4" and "a Beyonder cannot
+    substitute one for the other". v6.9d's cross default (Ritualistic Magic-2
+    at 12+, and vice versa) is gone, and losing either sentence fails."""
+    methods, difficulty, modifiers, clarity, prose, skill = _divination_inputs()
+    extract_divination.verify(methods, difficulty, modifiers, clarity, prose, skill)
+    section = " ".join(skill)
+    assert "Ritualistic Magic-2" not in section
+    for phrase in (extract_divination.DEFAULT, extract_divination.NO_SUBSTITUTE):
+        cut = [l.replace(phrase, "") for l in skill]
+        with pytest.raises(ValueError, match="no longer prints"):
+            extract_divination.verify(methods, difficulty, modifiers, clarity, prose, cut)
 
 
-def test_the_skill_boundary_table_parses_three_scopes():
-    """Section I's own table: which skill each scope of question needs.
-
-    Two of the three rows WRAP, and the bullet glyph is the only thing that
-    marks where a row starts -- a line-at-a-time read gives Moderate no cost
-    and Complex no penalty, which is what a missing rule looks like.
-    """
-    rows = extract_divination.parse_scope(OVERLAP_LINES)
-    assert [r["scope"] for r in rows] == ["Simple", "Moderate", "Complex"]
-    assert rows[0]["examples"] == "yes/no, vague direction, basic insight"
-    assert rows[0]["guidance"] == "Divination Arts is sufficient."
-    assert rows[0]["printedCost"] == "1–2 SPI"
-    # The wrapped row keeps both halves of its sentence and its cost.
-    assert rows[1]["guidance"].endswith("may receive less detail.")
-    assert rows[1]["printedCost"] == "2 SPI"
-    # Only the third row prices anything, and it prices the SUBSTITUTION.
-    assert [r.get("modifier") for r in rows] == [None, None, -4]
-    assert rows[2]["printedModifier"] == "-4"
+@needs_pdf
+def test_the_divination_burn_is_declared_before_the_roll():
+    """v6.9d let the diviner burn SPI "after seeing your result"; v6.9i says
+    "before rolling". The push is gone with it."""
+    methods, difficulty, modifiers, clarity, prose, skill = _divination_inputs()
+    moved = [l.replace("before rolling", "after rolling") for l in prose]
+    with pytest.raises(ValueError, match="rule the app applies is gone"):
+        extract_divination.verify(methods, difficulty, modifiers, clarity, moved, skill)
 
 
-def test_the_complex_scope_is_not_the_hard_band_restated():
-    """The evidence the same-axis refusal died on, guarded.
-
-    That refusal read the bullet's -4 as the Hard band restated, on the only
-    evidence that the two numbers agree. They still agree; what disproves it
-    is the WORDS. The Hard band's own descriptors are "well-guarded, future,
-    abstract" and none of them is in the complex bullet, whose "long-range"
-    belongs to the MODERATE band's "distant" at -2 and whose "multiple
-    questions" is in no band at all. If a re-extraction ever puts a Hard
-    descriptor into this bullet the two really would be one axis, and the
-    reading has to be made again rather than inherited.
-    """
-    rows = extract_divination.parse_scope(OVERLAP_LINES)
-    difficulty = [
-        {"band": "Trivial — personal, present, simple", "modifier": 2},
-        {"band": "Easy — personal, recent, concrete", "modifier": 0},
-        {"band": "Moderate — impersonal, distant, vague", "modifier": -2},
-        {"band": "Hard — well-guarded, future, abstract", "modifier": -4},
-        {"band": "Extreme — divine, fate-bound, cosmic", "modifier": -6},
-    ]
-    extract_divination.verify_scope(rows, difficulty)
-
-    shared = [dict(r) for r in rows]
-    shared[2]["examples"] = "long-range, future, abstract"
-    with pytest.raises(ValueError, match="one axis"):
-        extract_divination.verify_scope(shared, difficulty)
-
-    # And the rule is only applied while the bullet still prints its number.
-    unpriced = [dict(r) for r in rows]
-    unpriced[2].pop("modifier")
-    with pytest.raises(ValueError, match="no longer prints its penalty"):
-        extract_divination.verify_scope(unpriced, difficulty)
+def test_the_scope_and_support_tables_are_gone_with_their_source():
+    for name in ("divination_scope.json", "divination_support.json"):
+        assert not (CONTENT / name).exists(), name
 
 
-def test_committed_divination_scope_claims_the_boundary_table():
-    """Six lines that no content file claimed, bracketed on both sides by
-    claims -- divination_support.json takes 3559-3560 and 3563-3580."""
-    body = json.loads(
-        (CONTENT / "divination_scope.json").read_text(encoding="utf-8"))
-    assert body["sourceLines"]["6.5"] == [[3553, 3558]]
-    assert [e["scope"] for e in body["entries"]] == ["Simple", "Moderate", "Complex"]
-
-
-def test_the_vice_versa_half_is_refused_from_the_other_chapter():
-    """This sentence says the default runs both ways; ch. 7 II p. 61 says
-    Ritualistic Magic "has no default and cannot be substituted".
-
-    Pinned from BOTH sides on purpose. The limit lives in a chapter this
-    extractor never reads, which is exactly how it stayed unread while 6az
-    wired the default symmetrically -- and a reader who re-symmetrises
-    Divination.divinationLevelFor will be looking at this file, not that one.
-    """
-    seam = ("Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
-            "versa. A character with one skill at 12+ can attempt the other at -2.")
-    extract_divination.verify_cross_default(
-        -2, 12, -2, seam,
-        "Ritualistic Magic (IQ/Very Hard) - your core skill. "
-        "It has no default and cannot be substituted.",
-    )
-    with pytest.raises(ValueError, match="no longer prints its prohibition"):
-        extract_divination.verify_cross_default(
-            -2, 12, -2, seam,
-            "Ritualistic Magic (IQ/Very Hard) - your core skill.",
-        )
-
-
-def test_committed_divination_content_claims_the_cross_default_sentence():
-    """The -2 and the 12 live in Kotlin; the span is claimed so the rule
-    stays findable (6af)."""
-    body = (CONTENT / "divination_support.json").read_text(encoding="utf-8")
-    assert [3559, 3560] in json.loads(body)["sourceLines"]["6.5"]
-    assert "default" not in body.lower()
+def test_committed_divination_content_claims_the_default_sentence():
+    """The -4 lives in Kotlin; the span is claimed so the rule stays
+    findable (6af)."""
+    body = json.loads((CONTENT / "divination_methods.json").read_text(encoding="utf-8"))
+    assert list(extract_divination.SKILL_RANGE) in body["sourceLines"]["8"]
 
 
 # --- Shields (Ch. 5, p. 37) -------------------------------------------------

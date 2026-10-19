@@ -99,7 +99,7 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "A"
-WOUNDING_LINE = 9671
+WOUNDING_LINE = 8930
 
 # "Pi (small) x0.5", "Pi+ x1.5", "Crush x1". The name runs to the multiplier.
 ENTRY = re.compile(r"^(.+?)\s*[×x]\s*([\d.]+)$")
@@ -131,7 +131,7 @@ UNLABELLED_IN_CHAPTER_5 = {"Piercing (small)", "Large Piercing"}
 
 
 # Line 9672, the appendix's one-line summary of chapter 5's Major Wound table.
-MAJOR_WOUND_LINE = 9672
+MAJOR_WOUND_LINE = 8931
 MAJOR_WOUND_PREFIX = "Major Wound:"
 MAJOR_WOUND_ARROW = "->"
 
@@ -141,8 +141,8 @@ MAJOR_WOUND_ARROW = "->"
 # authority for both, and reading another extractor's output would make the
 # answer depend on which extractor ran last (Codex).
 SUMMARISES = {
-    "Hit > ½ HP": ("Failure", 2826),
-    "Fail by 5+": ("Fail by 5+", 2830),
+    "Hit > ½ HP": ("Failure", 2910),
+    "Fail by 5+": ("Fail by 5+", 2912),
 }
 # The words the summary keeps when it agrees. Checked rather than compared
 # whole: the appendix abbreviates ("HT or stunned 1d6 sec" against "Stunned

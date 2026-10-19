@@ -25,12 +25,12 @@ def test_the_skill_grid_is_regular_in_both_directions():
         assert row == list(range(row[0], row[0] + len(row)))
 
 
-def test_the_grid_is_one_column_short_of_the_ladder():
-    """256 pts is printed as a cost and given no offset, so SkillLadder
-    extrapolating that rung by +1 is a reading rather than a transcription."""
+def test_the_grid_has_a_column_for_every_rung():
+    """v6.9i prints nine costs and nine offsets per row: no rung is
+    extrapolated any more (v6.9d's 256 pts had no offset)."""
     table = ladder_table()
     assert len(table["cumulative"]) == 9
-    assert all(len(r["offsets"]) == 8 for r in table["rungs"])
+    assert all(len(r["offsets"]) == 9 for r in table["rungs"])
 
 
 def test_the_worked_skill_examples_reproduce_from_the_grid():
@@ -50,11 +50,12 @@ def test_the_worked_skill_examples_reproduce_from_the_grid():
 
 
 def test_the_ladder_is_not_gurps_core():
-    """Core 4e is 1/2/4/8/12/16 with +4 per level past Attr+2. Using it would
-    make 14 of the 23 sheets' 232 skill levels wrong."""
-    cumulative = ladder_table()["cumulative"]
-    assert 12 not in cumulative
-    assert all(b == a * 2 for a, b in zip(cumulative, cumulative[1:]))
+    """Core 4e is 1/2/4/8/12/16 with +4 per level past Attr+2. v6.9i doubles
+    up to 32 and then climbs by a flat 16."""
+    table = ladder_table()
+    assert 12 not in table["cumulative"]
+    assert table["cumulative"] == [1, 2, 4, 8, 16, 32, 48, 64, 80]
+    assert table["incremental"][-4:] == [16, 16, 16, 16]
 
 
 @needs_pdf
@@ -281,25 +282,21 @@ def test_a_dropped_modifier_cell_is_caught():
 
 import extract_artifacts
 
-ARTIFACTS = json.loads(
-    (CONTENT / "sealed_artifacts.json").read_text(encoding="utf-8"))["entries"]
 GRADES = json.loads(
     (CONTENT / "sealed_artifact_grades.json").read_text(encoding="utf-8"))["entries"]
 
 
-def artifact(name):
-    return next(a for a in ARTIFACTS if a["name"] == name)
-
-
-def test_every_artifact_confirms_its_own_grades_printed_band():
-    """THE WARRANT for joining the two tables. Each artifact header prints its
-    own "Seq N equivalent"; all four land inside their grade's printed band, so
-    the grade table's power column is confirmed four times independently."""
+def test_every_grade_prints_a_sequence_band():
+    """v6.9i deleted the four unique artifacts that used to confirm each band
+    independently, so the bands are pinned on the grade table alone."""
     bands = {g["grade"]: (g["sequenceLow"], g["sequenceHigh"]) for g in GRADES}
     assert bands == {3: (8, 9), 2: (5, 7), 1: (3, 4), 0: (1, 2)}
-    for a in ARTIFACTS:
-        low, high = bands[a["grade"]]
-        assert low <= a["sequenceEquivalent"] <= high, a["name"]
+
+
+def test_the_unique_artifacts_file_is_gone_with_its_source():
+    """v6.9i prints no "Unique Sealed Artifacts" section; a stale file would
+    keep feeding abilities the book no longer prints."""
+    assert not (CONTENT / "sealed_artifacts.json").exists()
 
 
 def test_a_grade_gates_on_rank_and_never_on_a_sequence():
@@ -331,87 +328,25 @@ def test_a_power_cell_wrapping_onto_a_bracket_is_one_cell():
     assert flat[0]["powerEquivalent"] == "Saint (Seq 3–4)"
 
 
-def test_the_spi_cell_is_the_ability_anchor():
-    """Three of the four ability tables sit across a page break, so only the
-    cost cell has a fixed shape. The name is the line before it."""
-    rows = extract_artifacts.parse_abilities([
-        "Bribe — Weaken", "1 SPI", "Touch the palm to a target.",
-        "False Majesty", "1 SPI/turn", "An aura of command.",
-    ])
-    assert [r["name"] for r in rows] == ["Bribe — Weaken", "False Majesty"]
-    assert rows[0]["perTurn"] is False and rows[1]["perTurn"] is True
-    assert rows[0]["effect"] == "Touch the palm to a target."
-
-
-def test_only_the_per_use_hp_rule_is_charged():
-    """Three of the four artifacts print an HP number in their drawbacks and
-    only the gauntlet's is per use. The others are conditional on telling a
-    lie, on touching the flame, or on a use count."""
-    per_use = {a["name"]: a["hpPerUse"] for a in ARTIFACTS if "hpPerUse" in a}
-    assert per_use == {"Gauntlet of the False Baron": 1}
-    per_ability = {ab["name"]: ab["hpCost"]
-                   for a in ARTIFACTS for ab in a["abilities"] if "hpCost" in ab}
-    assert per_ability == {"Extinguish Memory": 1}
-    # The uncharged HP is still printed, so the narrow reading stays a decision.
-    prose = " ".join(d for a in ARTIFACTS for d in a["drawbacks"])
-    assert "the flagon grows hot (1 HP burn to the hand)" in prose
-    assert "the user loses 1 HP permanently" in prose
-
-
-def test_an_ability_charging_no_hp_carries_no_field():
-    """Charging no HP is not charging zero -- the RitualCritical.corGained
-    distinction, one chapter over."""
-    for a in ARTIFACTS:
-        for ab in a["abilities"]:
-            if ab["name"] != "Extinguish Memory":
-                assert "hpCost" not in ab, (a["name"], ab["name"])
-    assert "hpPerUse" not in artifact("The Peerless Flagon")
-
-
-def test_no_artifact_ate_a_label_or_lost_a_section():
-    """The first ability NAME is the line before the first SPI cell and nothing
-    marks it, so it lands in appearance and has to be taken back. If that ever
-    slipped, the appearance prose would swallow it."""
-    assert len(ARTIFACTS) == 4
-    assert sum(len(a["abilities"]) for a in ARTIFACTS) == 13
-    for a in ARTIFACTS:
-        assert "Appearance" not in a["appearance"], a["name"]
-        assert "Drawbacks" not in a["appearance"], a["name"]
-        assert len(a["drawbacks"]) == 3 and a["sealing"], a["name"]
-        assert not a["appearance"].endswith(a["abilities"][0]["name"]), a["name"]
-    assert artifact("Gauntlet of the False Baron")["abilities"][0]["name"] \
-        == "Bribe — Weaken"
+def _grades_and_intro():
+    byn = extract_artifacts.load_lines()
+    grades = extract_artifacts.parse_grades(
+        [t for b, t in extract_artifacts.stream(byn, *extract_artifacts.GRADE_RANGE) if not b])
+    intro = " ".join(t for b, t in extract_artifacts.stream(byn, *extract_artifacts.INTRO_RANGE))
+    return grades, intro
 
 
 @needs_pdf
-def test_an_artifact_outside_its_grades_band_would_fail_verification():
-    """The join is warranted only while the two tables agree. If one artifact
-    stopped confirming its grade, joining them would need rereading."""
-    grades = extract_artifacts.parse_grades(
-        [t for b, t in extract_artifacts.stream(
-            extract_artifacts.load_lines(), *extract_artifacts.GRADE_RANGE) if not b])
-    artifacts = [dict(a) for a in extract_artifacts.parse_artifacts(
-        extract_artifacts.stream(
-            extract_artifacts.load_lines(), *extract_artifacts.ARTIFACT_RANGE))]
-    intro = " ".join(t for b, t in extract_artifacts.stream(
-        extract_artifacts.load_lines(), *extract_artifacts.INTRO_RANGE))
-    extract_artifacts.verify(grades, artifacts, intro)  # agrees today
-    artifacts[0]["sequenceEquivalent"] = 9
+def test_an_access_cell_naming_no_rank_would_fail_verification():
+    grades, intro = _grades_and_intro()
+    extract_artifacts.verify(grades, intro)  # agrees today
+    grades[0] = dict(grades[0], churchAccess="Sequence 8 and above")
     with pytest.raises(ValueError):
-        extract_artifacts.verify(grades, artifacts, intro)
+        extract_artifacts.verify(grades, intro)
 
 
 @needs_pdf
-def test_charging_hp_on_a_conditional_drawback_would_fail_verification():
-    grades = extract_artifacts.parse_grades(
-        [t for b, t in extract_artifacts.stream(
-            extract_artifacts.load_lines(), *extract_artifacts.GRADE_RANGE) if not b])
-    artifacts = [dict(a) for a in extract_artifacts.parse_artifacts(
-        extract_artifacts.stream(
-            extract_artifacts.load_lines(), *extract_artifacts.ARTIFACT_RANGE))]
-    intro = " ".join(t for b, t in extract_artifacts.stream(
-        extract_artifacts.load_lines(), *extract_artifacts.INTRO_RANGE))
-    for a in artifacts:
-        a["hpPerUse"] = 1
+def test_losing_the_classification_sentence_would_fail_verification():
+    grades, _ = _grades_and_intro()
     with pytest.raises(ValueError):
-        extract_artifacts.verify(grades, artifacts, intro)
+        extract_artifacts.verify(grades, "Artifacts are graded.")

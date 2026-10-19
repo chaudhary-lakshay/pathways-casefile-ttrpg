@@ -1,0 +1,114 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    3465,
+    3529
+   ]
+  ]
+ },
+ "fpRecovery": [
+  {
+   "name": "Rest (sitting, no strenuous activity)",
+   "effect": "1 FP",
+   "time": "Per 10 minutes"
+  },
+  {
+   "name": "Sleep",
+   "effect": "All FP",
+   "time": "8 hours"
+  }
+ ],
+ "fpThresholds": [
+  {
+   "name": "At 0 FP",
+   "effect": "Every point of FP spent below 0 also costs 1 HP",
+   "time": "Immediate"
+  },
+  {
+   "name": "At 1/3 FP or below",
+   "effect": "-1 to all rolls; Move and Dodge halved",
+   "time": "Until above threshold"
+  }
+ ],
+ "spi": {
+  "perHour": 1,
+  "cogitationPerHour": 2,
+  "cogitationSkill": "Cogitation"
+ },
+ "rests": [
+  {
+   "name": "Short Rest",
+   "hours": 3,
+   "text": "Duration: 3 hours. A short rest is a brief period of respite — a campfire, a hidden alcove, a locked room. During a short rest, the party may recover a limited amount of resources and attempt one focused task.",
+   "focusedTaskRolls": 1,
+   "allFp": false,
+   "bullets": [
+    {
+     "label": "FP Recovery",
+     "text": "1 FP per 10 minutes of rest (see Section I)."
+    },
+    {
+     "label": "SPI Recovery",
+     "text": "1 SPI per hour of rest (see Section II)."
+    },
+    {
+     "label": "Focused Task",
+     "text": "Each character may roll once for a single focused task of their choice — digestion, ritual preparation, study, scouting, or similar. The task must be declared before rolling."
+    },
+    {
+     "label": "Healing",
+     "text": "First aid and natural healing occur at normal rates (1 HP per 8 hours of rest; short rest counts toward this)."
+    }
+   ]
+  },
+  {
+   "name": "Long Rest",
+   "hours": 9,
+   "text": "Duration: 9 hours. A long rest is a full night's sleep or equivalent downtime. The party must be in a reasonably safe location — a safe house, a warded camp, a sealed room. Long rest provides significantly greater recovery and opportunity.",
+   "focusedTaskRolls": 2,
+   "allFp": true,
+   "bullets": [
+    {
+     "label": "FP Recovery",
+     "text": "All FP restored (sleep recovers all FP — see Section I)."
+    },
+    {
+     "label": "SPI Recovery",
+     "text": "1 SPI per hour for 9 hours = up to 9 SPI recovered (see Section II)."
+    },
+    {
+     "label": "Focused Task",
+     "text": "Each character may roll twice for a single focused task and take the better result. This represents the benefit of extended, uninterrupted concentration."
+    },
+    {
+     "label": "Healing",
+     "text": "Natural healing occurs at normal rates (1 HP per 8 hours of rest)."
+    },
+    {
+     "label": "Digestion Bonus",
+     "text": "If a Beyonder is actively digesting, a long rest counts as a full acting session toward digestion progress (see Chapter 6, Digestion System)."
+    }
+   ],
+   "countsAsActingSession": true
+  }
+ ],
+ "restrictions": [
+  {
+   "label": "Group Decision",
+   "text": "Resting is a party action. All active players must agree to begin a rest. If even one player objects, the rest does not occur — the party remains active."
+  },
+  {
+   "label": "GM Discretion",
+   "text": "The GM has final say on whether a rest is possible. Rest cannot occur in the middle of combat, during an active pursuit, or in any situation where the GM determines it would be narratively inappropriate. The GM may also impose penalties or complications if the party attempts to rest in a dangerous or spiritually hostile area."
+  },
+  {
+   "label": "Interrupted Rest",
+   "text": "If a rest is interrupted by combat or other significant events, it does not count. The party must start the rest timer over. Partial recovery (FP already regained) is lost."
+  },
+  {
+   "label": "One Rest Per Day",
+   "text": "A character may only benefit from one short rest or one long rest per 24-hour period. Attempting a second rest within the same day provides no additional benefit."
+  }
+ ]
+}

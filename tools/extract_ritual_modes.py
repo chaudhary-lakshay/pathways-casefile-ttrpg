@@ -1,50 +1,31 @@
-"""Extract Ch. 7's Section II and the Quick Ritual's modifiers (p. 61-62).
+"""Extract the Quick Ritual's two modifiers (Ch. 9 III.A, p. 60, global 3958-3959).
 
-THE BOOK PRINTS TWO PREPARATION TABLES AND THEY DISAGREE
----------------------------------------------------------
-Section III offers two ways to resolve a ritual, and each prints its own
-preparation table:
+v6.9i prints them as one prose line, not two tables:
 
-  Quick Ritual (p. 62)   Excellent +2, Adequate +0, Poor/None -2 to -4
-  Full Ritual  (p. 63)   Excellent +3, Good +1 to +2, Adequate +0,
-                         Poor -1 to -2, None -4 or worse
+    Preparation Quality: Excellent +2, Adequate +0, Poor/None -2 to -4.
+    Target Link: Perfect (name + possession) +4, Strong (name or possession)
+    +2 to +3, Weak (alias, secondhand) +0 to -1, None -4.
 
-`ritual_preparation.json` is the SECOND of those, extracted in M4's ritual
-slice, and the app has been applying it to every ritual ever since -- so a
-Quick Ritual prepared excellently has been rolling at +3 where its own table
-says +2. Neither table is repaired. They are two modes, the book says so, and
-which one is in play is the GM's declaration.
+THE BOOK PRINTS TWO PREPARATION LADDERS AND THEY DISAGREE
+----------------------------------------------------------
+Quick: Excellent +2. Full (Phase I, `ritual_preparation.json`): Excellent +3.
+Neither is repaired. They are two modes, the book says so, and which one is in
+play is the GM's declaration (6y).
 
 AND THE LINK IS COUNTED ONCE IN EACH MODE, DIFFERENTLY
 -------------------------------------------------------
-Quick mode says "Sum the following two modifiers: 1. Preparation Quality
-2. Target Link", so the link is its own +4 to -4.
+Quick mode prices the link on its own, +4 to -4. Full mode folds it IN:
+Phase I reads "Declare target entity, timing, materials, space, sacrifice, and
+target link. GM determines Preparation Modifier" -- the link is one of the
+declarations a single modifier is drawn from. So target_link belongs to the
+QUICK ritual only; offering it in Full mode pays a perfect link twice.
+verify() pins Phase I's sentence, because it is the whole evidence.
 
-Full mode folds it IN: p. 63 lists "Link to target: None / Weak / Strong /
-Perfect" among the declarations that "feed into a single Preparation
-Modifier", and its rows say so in their own descriptions -- Excellent is
-"perfect link", Good "strong link", Adequate "basic link", Poor "weak link",
-None "no link".
-
-So target_link belongs to the QUICK table only. Offering it in full mode pays
-a perfect link twice, +8 on a 3d6 roll. verify() asserts the full table's rows
-still name their links, because that phrasing is the whole evidence.
-
-THE SUPPORTING SKILLS ARE MODE-INDEPENDENT AND CAPPED
-------------------------------------------------------
-Section II's five skills each grant +1 and the sentence under them caps the
-total at +3 -- so a scholar with all five gets +3, not +5. The cap is a
-sentence rather than a column, and it is extracted as a number because
-Divination already has this exact shape (`Divination.supportBonus`).
-
-WHAT IS DELIBERATELY NOT EXTRACTED
-----------------------------------
-Section IV (power sources, HP sacrifice, participants, catalysts, and the
-Entity Response Table) and the Time & Complexity table. Both are real
-mechanics with real modifiers, and both are their own slice: this one is
-about which modifiers a ROLL takes, and those are about what fuels it and who
-answers. The full 12-step canon procedure is reference prose the book itself
-labels as texture.
+WHAT v6.9i DELETED
+------------------
+The Supporting Skills table and its +3 cap are gone, so ritual_support.json
+is gone with them. The no-default sentence survives as Sec. I's one line,
+"Ritualistic Magic (IQ/Very Hard) -- no default, cannot be substituted."
 """
 import json, pathlib, re, sys
 
@@ -52,60 +33,23 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "7"
-# Section II's opening two lines, one above the supporting-skill table this
-# module already walked. They sat unclaimed until the seam sweep found them,
-# and they are the whole warrant for Divination.ritualLevelFor refusing the
-# "and vice versa" half of ch. 6.5's cross-skill default (CLAUDE.md 6ba).
-NO_DEFAULT_RANGE = (4007, 4008)
-SUPPORT_RANGE = (4009, 4028)
-QUICK_PREPARATION_RANGE = (4055, 4064)
-TARGET_LINK_RANGE = (4065, 4075)
+CHAPTER = "9"
+NO_DEFAULT_RANGE = (3896, 3896)
+QUICK_MODIFIERS_RANGE = (3958, 3959)
+PHASE_ONE_RANGE = (3963, 3964)
 
-FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
-HEADERS = {
-    "Supporting Skill", "Bonus", "Notes",
-    "Condition", "Modifier", "Link to Target",
-    "1. Preparation Quality", "2. Target Link",
-}
-BONUS_CELL = re.compile(r"^\+(\d+)$")
-# "+2", "+0", "-4", "-2 to -4", "+2 to +3", "+0 to -1".
-MODIFIER_CELL = re.compile(r"^([+-]\d+)(?:\s+to\s+([+-]\d+))?$")
-# "Excellent — sanctified space, ..." / "Perfect — true name + ..."
-QUALITY_CELL = re.compile(r"^(.+?)\s+[—-]\s+(.+)$")
+NO_DEFAULT_SENTENCE = "no default, cannot be substituted"
+LINK_FOLDED = "sacrifice, and target link. GM determines Preparation Modifier"
 
-CAP_SENTENCE = "cumulative but cap at +3 total"
-SUPPORT_CAP = 3
+MINUS = "-−"
+VALUE = rf"([+{MINUS}]\d+)(?:\s+to\s+([+{MINUS}]\d+))?"
+PREPARATION_LINE = re.compile(r"Preparation Quality:\s*(.+?)\.\s*Target Link:")
+LINK_LINE = re.compile(r"Target Link:\s*(.+?)\.$")
+ROW = re.compile(rf"([A-Z][A-Za-z/ ]*?)\s*(?:\(([^)]+)\))?\s+{VALUE}(?:,|$)")
 
-# Ch. 7 II's two prohibitions. The first is what makes the cross-skill default
-# one-directional; the second scopes what "substituted" was written about, and
-# it names the supporting skills rather than excluding anything else -- ch. 7
-# knows Divination Arts exists and sends divination away to the other chapter
-# ("Divination (1-2 SPI via Divination Arts, see Ch 6.5)", p. 67).
-#
-# "cannot be substituted" appears NOWHERE else in this book, which is what
-# makes it emphasis about this skill rather than boilerplate under every Very
-# Hard blurb. Ch. 2 p. 10 agrees independently ("Very Hard skills ... have no
-# default at all"), so two places say this against one trailing clause in
-# ch. 6.5 that says the opposite. The clause loses (CLAUDE.md 4.1).
-NO_DEFAULT_SENTENCE = "It has no default and cannot be substituted"
-NEVER_REPLACE_SENTENCE = "never replace this skill"
-
-EXPECTED_SUPPORT = [
-    "Occultism", "Thaumatology", "Hidden Lore (relevant domain)",
-    "Research", "Professional Skill (Astrology etc)",
-]
-EXPECTED_QUICK = ["Excellent", "Adequate", "Poor / None"]
+EXPECTED_QUICK = ["Excellent", "Adequate", "Poor/None"]
 EXPECTED_LINKS = ["Perfect", "Strong", "Weak", "None"]
-
-# The Full Ritual's own table, already extracted. The two disagree on
-# Excellent and that disagreement is the point.
 FULL_PREPARATION = OUT / "ritual_preparation.json"
-# Every link word the full table's rows use, which is what proves the link is
-# folded into its preparation modifier rather than added beside it.
-LINKS_NAMED_BY_FULL_TABLE = {
-    "perfect link", "strong link", "basic link", "weak link", "no link",
-}
 
 
 def load_lines():
@@ -113,184 +57,69 @@ def load_lines():
     return {l["n"]: l["text"] for l in data}
 
 
-def stream(byn, start, end):
-    """Table cells in order, furniture and headers dropped."""
-    out = []
-    for n in range(start, end + 1):
-        text = (byn.get(n) or "").strip()
-        if not text or FURNITURE.match(text) or text in HEADERS:
-            continue
-        out.append(text)
-    return out
+def joined(byn, start, end):
+    return " ".join((byn.get(n) or "").strip() for n in range(start, end + 1))
 
 
-def parse_support(cells):
-    """Skill, bonus, notes -- with the cap sentence split off the end.
-
-    A note wraps onto as many lines as it needs, so a row ends where the next
-    NAME is: a line whose following line is a bonus cell. Counting three cells
-    per row works until a note wraps, which the last row's does.
-    """
-    cap_at = next((i for i, c in enumerate(cells) if CAP_SENTENCE in c), None)
-    if cap_at is None:
-        raise ValueError(f"the cap sentence is gone; expected {CAP_SENTENCE!r}")
-    cap_text, cells = cells[cap_at], cells[:cap_at]
-
-    rows, i = [], 0
-    while i < len(cells):
-        name = cells[i]
-        bonus = BONUS_CELL.fullmatch(cells[i + 1]) if i + 1 < len(cells) else None
-        if not bonus:
-            raise ValueError(f"{name!r} has no bonus cell after it")
-        notes, i = [], i + 2
-        while i < len(cells) and not (
-            i + 1 < len(cells) and BONUS_CELL.fullmatch(cells[i + 1])
-        ):
-            notes.append(cells[i])
-            i += 1
-        rows.append({
-            "skill": name,
-            "bonus": int(bonus.group(1)),
-            "notes": " ".join(notes),
-        })
-    return rows, cap_text
+def signed(text):
+    return int(text.replace("−", "-"))
 
 
-def parse_modifier_rows(cells, key, expected):
-    """"Name — what it looks like" followed by a modifier cell.
-
-    The name cell wraps (the quick table's Excellent row runs onto a second
-    line), so cells are accumulated until a modifier cell is met rather than
-    counted -- the same rule the shield table's names needed.
-    """
-    rows, pending = [], []
-    for cell in cells:
-        modifier = MODIFIER_CELL.fullmatch(cell)
-        if not modifier:
-            pending.append(cell)
-            continue
-        if not pending:
-            raise ValueError(f"a modifier {cell!r} with no row above it")
-        described = QUALITY_CELL.fullmatch(" ".join(pending))
-        if not described:
-            raise ValueError(f"{' '.join(pending)!r} is not 'Name — description'")
-        near, far = modifier.group(1), modifier.group(2)
-        row = {
-            key: described.group(1).strip(),
-            "modifier": int(near),
-            "printed": cell,
-            "looksLike": described.group(2).strip(),
-        }
-        if far is not None:
-            row["best"] = int(far)
+def parse_rows(text, key, expected):
+    rows = []
+    for name, looks_like, near, far in ROW.findall(text.strip()):
+        row = {key: name.strip(), "modifier": signed(near),
+               "printed": near + (f" to {far}" if far else "")}
+        if far:
+            row["best"] = signed(far)
+        if looks_like:
+            row["looksLike"] = looks_like
         rows.append(row)
-        pending = []
-    if pending:
-        raise ValueError(f"trailing cells with no modifier: {pending!r}")
     got = [r[key] for r in rows]
     if got != expected:
         raise ValueError(f"the {key} ladder changed: {got} != {expected}")
     return rows
 
 
-def full_preparation():
-    return json.loads(FULL_PREPARATION.read_text(encoding="utf-8"))["entries"]
-
-
-def verify(support, cap, quick, links, no_default=None):
-    if no_default is not None:
-        for sentence in (NO_DEFAULT_SENTENCE, NEVER_REPLACE_SENTENCE):
-            if sentence not in no_default:
-                raise ValueError(
-                    f"ch. 7 II no longer prints {sentence!r}. That sentence is "
-                    "the only thing stopping ch. 6.5's 'and vice versa' from "
-                    "letting Divination Arts stand in for Ritualistic Magic; "
-                    "re-read p. 61 before changing Divination.ritualLevelFor"
-                )
-
-    got = [r["skill"] for r in support]
-    if got != EXPECTED_SUPPORT:
-        raise ValueError(f"the supporting skill list changed: {got}")
-    if any(r["bonus"] != 1 for r in support):
-        raise ValueError("a supporting skill no longer grants +1; the cap maths would change")
-    if sum(r["bonus"] for r in support) <= SUPPORT_CAP:
+def verify(quick, links, no_default, phase_one):
+    if NO_DEFAULT_SENTENCE not in no_default:
+        raise ValueError(f"Sec. I no longer prints {NO_DEFAULT_SENTENCE!r}")
+    if LINK_FOLDED not in phase_one:
         raise ValueError(
-            "the supporting skills no longer total more than the cap, so the "
-            "cap does nothing -- it exists because five skills grant five points"
+            "Phase I no longer folds the target link into its Preparation "
+            "Modifier; nothing then stops a Full ritual counting the link twice"
         )
-    if CAP_SENTENCE not in cap:
-        raise ValueError(f"the cap sentence changed: {cap!r}")
-
-    # The finding: the two modes price the same preparation differently.
-    full = {r["quality"]: r["modifier"] for r in full_preparation()}
+    full = {r["quality"]: r["modifier"]
+            for r in json.loads(FULL_PREPARATION.read_text(encoding="utf-8"))["entries"]}
     quick_by_name = {r["quality"]: r["modifier"] for r in quick}
     if quick_by_name["Excellent"] == full["Excellent"]:
-        raise ValueError(
-            "the two preparation tables now agree on Excellent. They printed "
-            f"{quick_by_name['Excellent']} (quick) and {full['Excellent']} "
-            "(full), and the app applied the full one to every ritual -- if "
-            "they agree, this whole distinction was repaired away"
-        )
+        raise ValueError("the two preparation ladders now agree on Excellent")
     if quick_by_name["Adequate"] != full["Adequate"]:
-        raise ValueError(
-            "the two tables used to agree that Adequate is +0, which is what "
-            "makes Excellent's disagreement a real difference rather than two "
-            "unrelated ladders"
-        )
-
-    # And the evidence that the link belongs to quick mode only.
-    described = " ".join(r["looksLike"].lower() for r in full_preparation())
-    named = {phrase for phrase in LINKS_NAMED_BY_FULL_TABLE if phrase in described}
-    if named != LINKS_NAMED_BY_FULL_TABLE:
-        raise ValueError(
-            "the Full Ritual's preparation rows no longer name their links "
-            f"(missing {LINKS_NAMED_BY_FULL_TABLE - named}). That phrasing is "
-            "the only evidence the link is folded INTO that modifier, and "
-            "without it nothing stops a full ritual counting a perfect link twice"
-        )
-
-    # A link is worth more than any single preparation step, which is why
-    # double-counting it matters enough to scope.
-    if max(r["modifier"] for r in links) <= max(r["modifier"] for r in quick):
-        raise ValueError("the target link no longer outweighs preparation; check the parse")
+        raise ValueError("the two ladders used to agree that Adequate is +0")
+    if [r["modifier"] for r in links] != [4, 2, 0, -4]:
+        raise ValueError(f"target link values changed: {links}")
+    if [r.get("best") for r in links] != [None, 3, -1, None]:
+        raise ValueError(f"target link ranges changed: {links}")
+    if [r.get("best") for r in quick] != [None, None, -4]:
+        raise ValueError(f"quick preparation ranges changed: {quick}")
 
 
 def main():
     byn = load_lines()
-    no_default = " ".join(stream(byn, *NO_DEFAULT_RANGE))
-    support, cap = parse_support(stream(byn, *SUPPORT_RANGE))
-    quick = parse_modifier_rows(
-        stream(byn, *QUICK_PREPARATION_RANGE), "quality", EXPECTED_QUICK)
-    links = parse_modifier_rows(
-        stream(byn, *TARGET_LINK_RANGE), "link", EXPECTED_LINKS)
-    verify(support, cap, quick, links, no_default)
-
-    OUT.mkdir(parents=True, exist_ok=True)
+    text = joined(byn, *QUICK_MODIFIERS_RANGE)
+    quick = parse_rows(PREPARATION_LINE.search(text).group(1), "quality", EXPECTED_QUICK)
+    links = parse_rows(LINK_LINE.search(text).group(1), "link", EXPECTED_LINKS)
+    verify(quick, links, joined(byn, *NO_DEFAULT_RANGE), joined(byn, *PHASE_ONE_RANGE))
 
     def write(name, rows, *spans):
         payload = {"sourceLines": {CHAPTER: [list(s) for s in spans]}, "entries": rows}
         (OUT / name).write_text(
             json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
-    # The +3 cap is a number inside a sentence, so it lives in Kotlin and this
-    # verify() pins the sentence it was read from -- the same split the
-    # maneuver table's +4/-4/-6/-2 already take (CLAUDE.md 6i). Committing it
-    # as a column would make it look like the book printed one.
-    # Two spans, with the prohibition first: an assertion whose source
-    # sentence is unclaimed is a rule nobody can find again (CLAUDE.md 6af).
-    write("ritual_support.json", support, NO_DEFAULT_RANGE, SUPPORT_RANGE)
-    write("ritual_quick_preparation.json", quick, QUICK_PREPARATION_RANGE)
-    write("ritual_target_link.json", links, TARGET_LINK_RANGE)
-
-    print(f"support: {len(support)} skills, cap +{SUPPORT_CAP}")
-    for row in support:
-        print(f"  {row['skill']:34} +{row['bonus']}  {row['notes'][:44]}")
-    print(f"quick preparation: {len(quick)} rows")
-    for row in quick:
-        print(f"  {row['quality']:14} {row['printed']:10} {row['looksLike'][:44]}")
-    print(f"target link: {len(links)} rows")
-    for row in links:
-        print(f"  {row['link']:14} {row['printed']:10} {row['looksLike'][:44]}")
+    write("ritual_quick_preparation.json", quick, NO_DEFAULT_RANGE, QUICK_MODIFIERS_RANGE)
+    write("ritual_target_link.json", links, QUICK_MODIFIERS_RANGE)
+    print(f"quick preparation: {[(r['quality'], r['printed']) for r in quick]}")
+    print(f"target link: {[(r['link'], r['printed'], r.get('looksLike')) for r in links]}")
     return 0
 
 

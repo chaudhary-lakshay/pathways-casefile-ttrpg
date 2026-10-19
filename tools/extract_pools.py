@@ -33,8 +33,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-SPI_RANGE = (2346, 2356)
-HP_RANGE = (2697, 2708)
+SPI_RANGE = (2424, 2431)
+HP_RANGE = (2800, 2814)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {"HP Level", "SPI Level", "Effect"}
@@ -42,9 +42,12 @@ HEADER = {"HP Level", "SPI Level", "Effect"}
 LABEL_MAX_LEN = 20
 POOL = re.compile(r"\b(HP|SPI)\b")
 
+# v6.9i drops both "... to 1 / Normal function" rows and rewrites the HP
+# ladder past 0: -1×HP is a mortal wound, -2× to -4× each take a survival
+# roll, -5× is automatic death and -10× destroys the body.
 EXPECTED = {
-    "HP": ["HP to 1", "1/3 HP remaining", "0 HP", "-HP", "-5×HP"],
-    "SPI": ["SPI to 1", "<= 1/3 Max SPI", "0 SPI", "Below 0 SPI"],
+    "HP": ["1/3 HP remaining", "0 HP", "-1×HP", "-2× to -4×HP", "-5×HP", "-10×HP"],
+    "SPI": ["<= 1/3 Max SPI", "0 SPI", "Below 0 SPI"],
 }
 
 

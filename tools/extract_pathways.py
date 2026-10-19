@@ -77,7 +77,7 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 CHAPTERS_PATH = ROOT / "build" / "extract" / "chapters.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER_IDS = ("9", "10", "11", "12")
+CHAPTER_IDS = ("11", "12", "13", "14")
 
 HEADER = re.compile(r"^Sequence (\d+): (.+?) · (.+?) Pathway$")
 CHAPTER_HEADING = re.compile(r"^Chapter \d+: ")
