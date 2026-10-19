@@ -7,6 +7,7 @@ import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.SecondaryDelta
 import com.pathways.model.SkillKey
+import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SequenceBlock
 import com.pathways.rules.content.StatGain
 
@@ -237,15 +238,17 @@ object PotionDigestion {
         // Purchased skills re-level against the attributes the potions raised.
         val purchased = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
         val defaultBonus = TraitEffects.defaultBonus(character.traits)
-        // A modifier supersedes the purchased entry it stands on, dropped by
-        // identity: the match ignores the controlling attribute.
+        // A modifier lands on the purchased entry it stands on: the match
+        // ignores the controlling attribute and a lone row's bracket.
         val superseded = mutableSetOf<SkillKey>()
         val levels = buildMap {
             for ((key, bonus) in grants.skillBonuses) {
                 val bought = purchased.entries.firstOrNull { it.key.matches(key) }
                 bought?.let { superseded += it.key }
-                val from = bought?.value ?: SkillDefaults.untrainedLevel(key, attributeLevel, defaultBonus) ?: continue
-                put(key, from + bonus)
+                val from = bought?.value
+                    ?: SkillDefaults.unboughtLevel(key, attributeLevel, defaultBonus, character.traits) ?: continue
+                // Under the character's own key where one was bought: the sheet lists that row.
+                put(bought?.key ?: key, from + bonus)
             }
         }
         grants = grants.copy(skillLevels = levels)
@@ -284,7 +287,18 @@ object PotionDigestion {
      * this bought skill" (study, 6hu) asks the same question digestion does.
      */
     fun isSameSkill(a: SkillKey, b: SkillKey): Boolean =
-        a.name == b.name && a.specialization == b.specialization && a.difficulty == b.difficulty
+        a.name == b.name && a.difficulty == b.difficulty &&
+            (a.specialization == b.specialization || (a.specialization == null) != (b.specialization == null) && isOneBareRow(a.name))
+
+    /**
+     * Whether the catalogue prints [name] once, unspecialized and not
+     * specializable: then a bracket on one side ("Ritualistic Magic (Mirror,
+     * Dowsing)", Demoness 7) qualifies the same skill rather than naming
+     * another, so a builder's bare purchase takes the grant's +N.
+     */
+    private fun isOneBareRow(name: String): Boolean =
+        ContentLoader.skills().filter { it.name == name }
+            .let { it.size == 1 && !it.single().specializable && it.single().specialization == null }
 
     /**
      * The most any walk of [blocks] adds to each attribute and secondary row,

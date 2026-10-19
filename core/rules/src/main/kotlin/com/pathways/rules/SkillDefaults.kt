@@ -360,11 +360,35 @@ object SkillDefaults {
         skill: SkillDefinition,
         traits: List<Trait>,
         attributeLevel: (ControllingAttribute) -> Int,
-    ): Pair<Int, String>? {
-        if (skill.name != PHYSICIAN || TraitNames.levelOf(traits, MEDICAL_TRAINING) == null) return null
-        return attributeLevel(skill.attr) + MEDICAL_TRAINING_PENALTY to
-            "${skill.attr.code}$MEDICAL_TRAINING_PENALTY, $MEDICAL_TRAINING"
+    ): Pair<Int, String>? = traitLevel(skill.name, skill.attr, traits, attributeLevel)?.let {
+        it to "${skill.attr.code}$MEDICAL_TRAINING_PENALTY, $MEDICAL_TRAINING"
     }
+
+    private fun traitLevel(
+        name: String,
+        attr: ControllingAttribute,
+        traits: List<Trait>,
+        attributeLevel: (ControllingAttribute) -> Int,
+    ): Int? = if (name == PHYSICIAN && TraitNames.levelOf(traits, MEDICAL_TRAINING) != null) {
+        attributeLevel(attr) + MEDICAL_TRAINING_PENALTY
+    } else {
+        null
+    }
+
+    /**
+     * The level [key] stands at with no points in it: the better of its
+     * default and a trait's granted level (Medical Training's IQ-2). What a
+     * potion's +N sits on for an unbought skill (v6.9i; owner's ruling 1).
+     */
+    fun unboughtLevel(
+        key: SkillKey,
+        attributeLevel: (ControllingAttribute) -> Int,
+        defaultBonus: Int,
+        traits: List<Trait>,
+    ): Int? = listOfNotNull(
+        untrainedLevel(key, attributeLevel, defaultBonus),
+        traitLevel(key.name, key.attr, traits, attributeLevel),
+    ).maxOrNull()
 
     /**
      * Whether holding [owned] is holding the book's [row].

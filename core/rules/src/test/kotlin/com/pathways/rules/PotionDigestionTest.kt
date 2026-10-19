@@ -53,6 +53,32 @@ class PotionDigestionTest {
     }
 
     @Test
+    fun `a bracket on a row the book prints once and unspecialized is the same skill`() {
+        // Demoness 7 grants "Ritualistic Magic (Mirror, Dowsing)" +4 (book
+        // 6847-6849); the catalogue prints one Ritualistic Magic with no
+        // specialization, so the builder's purchase is the skill it names.
+        val key = SkillKey("Ritualistic Magic", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.VERY_HARD)
+        val trained = mortal.copy(skills = listOf(PurchasedSkill(key, points = 4)))
+        val bought = Derive.of(trained).skillLevels.getValue(key)
+        val witch = PotionDigestion.digestThrough(trained, "Demoness", 7, ContentLoader.pathways())
+        assertEquals(bought + 4, witch.skillLevels.entries.single { it.key.name == "Ritualistic Magic" }.value)
+        // A specializable row stays two skills: Hidden Lore (Spirits) is not Hidden Lore.
+        val lore = SkillKey("Hidden Lore", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE)
+        assertFalse(PotionDigestion.isSameSkill(lore, lore.copy(specialization = "Spirits")))
+    }
+
+    @Test
+    fun `Medical Training's Physician is the unbought base a potion's bonus sits on`() {
+        // "Use Physician at IQ-2 without purchasing the skill" (book 929) is
+        // a better unbought level than IQ-6, so Death 9's +2 lands on it.
+        val trained = mortal.copy(
+            traits = listOf(com.pathways.model.Trait(SkillDefaults.MEDICAL_TRAINING, 5, com.pathways.model.TraitKind.ADVANTAGE)),
+        )
+        val death = PotionDigestion.digestThrough(trained, "Death", 9, ContentLoader.pathways())
+        assertEquals(death.effectiveAttributes.iq - 2 + 2, death.skillLevels.entries.single { it.key.name == "Physician" }.value)
+    }
+
+    @Test
     fun `a no-default skill takes its waiting bonus once bought`() {
         val key = SkillKey("Ritualistic Magic", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.VERY_HARD)
         val trained = mortal.copy(skills = listOf(PurchasedSkill(key, points = 4)))

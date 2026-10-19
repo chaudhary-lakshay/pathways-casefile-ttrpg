@@ -681,7 +681,8 @@ class BeyonderSession(
      * [dice] so the roll log sees it; null for a stale second tap (6ei).
      */
     fun actingMethodRoll(drawnDigestion: Int, dice: RandomSource): Int? {
-        if (isLost || state?.digestion != drawnDigestion) return null
+        // At 100% the clamp would leave the picture unchanged, so a second tap would roll again.
+        if (isLost || state?.digestion != drawnDigestion || drawnDigestion >= 100) return null
         return dice.threeDSix().also(::digest)
     }
 

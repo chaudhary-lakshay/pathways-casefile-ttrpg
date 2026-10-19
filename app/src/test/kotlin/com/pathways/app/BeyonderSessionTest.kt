@@ -349,6 +349,10 @@ class BeyonderSessionTest {
         assertEquals(12, s.state?.digestion)
         assertNull(s.actingMethodRoll(drawnDigestion = 0, fixed(4)), "a stale tap of the picture drawn at 0%")
         assertEquals(12, saved().beyonder?.digestion)
+        // At 100% there is nothing to gain, and the clamp would leave the
+        // guard's picture unchanged, so a second tap would roll again.
+        val (full, _) = session(SavedSession(beyonder = fool9.digested(100)))
+        assertNull(full.actingMethodRoll(drawnDigestion = 100, RandomSource { error("rolled at 100%") }))
     }
 
     /**

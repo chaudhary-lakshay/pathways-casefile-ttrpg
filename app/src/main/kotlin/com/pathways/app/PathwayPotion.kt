@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.model.SkillKey
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -95,8 +96,9 @@ internal fun LazyListScope.potionContent(
                     // Lore (Spirits) at Seq 8 and (Spirit World) at Seq 6.
                     val base = grant.name.substringBefore(" (")
                     val spec = if (" (" in grant.name) grant.name.substringAfter(" (").removeSuffix(")") else null
+                    val granted = SkillKey(base, spec, grant.attr, grant.difficulty)
                     val level = digested.grants.skillLevels.entries.firstOrNull {
-                        it.key.name == base && it.key.specialization == spec && it.key.difficulty == grant.difficulty
+                        PotionDigestion.isSameSkill(it.key, granted)
                     }?.value
                     SkillLine(
                         grant.name,
