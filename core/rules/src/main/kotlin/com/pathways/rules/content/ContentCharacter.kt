@@ -374,11 +374,11 @@ data class CoreBand(
 )
 
 /**
- * One pool that can be spent to push a roll (Ch. 2, p. 9).
+ * One pool that can be spent before a roll (Ch. 2, v6.9i lines 459-468).
  *
- * [max] is the FP row's "+5 per roll" and is ABSENT on the SPI row, which
- * says "There is no cap" in words. Read through
- * [com.pathways.rules.EffortBurn].
+ * [combatTraits] are the traits that allow the burn in combat, and an EMPTY
+ * list means none is needed; [outOfCombatTraits] absent means never out of
+ * combat. Read through [com.pathways.rules.EffortBurn].
  */
 @Serializable
 data class BurnablePool(
@@ -386,7 +386,8 @@ data class BurnablePool(
     val kind: String,
     val scope: String,
     val perPoint: Int = 1,
-    val max: Int? = null,
+    val combatTraits: List<String> = emptyList(),
+    val outOfCombatTraits: List<String>? = null,
 )
 
 /** One worked Quick Contest (Ch. 2, p. 9) -- who rolls what against whom. */

@@ -13,7 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -26,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.threeDSix
-import com.pathways.rules.BurnKind
-import com.pathways.rules.Pools
 import com.pathways.rules.AntiDivination
 import com.pathways.rules.AntiDivinationResult
 import com.pathways.rules.AntiDivinationTechniques
@@ -87,7 +84,6 @@ fun DivinationDialog(
      * without the breakdown saying why is how these stopped reconciling (6ag).
      */
     spiTrait: Int = 0,
-    spiAvailable: Int,
     // The diviner's own Sequence, or null for a mortal. Sec. 6's Sequence
     // Advantage compares the two parties, so withholding this silently picked
     // the side that always applies the full penalty.
@@ -130,8 +126,8 @@ fun DivinationDialog(
     // The row prices one repeat and the engine multiplies; without this the
     // second attempt cost what the first did.
     var repeats by remember { mutableIntStateOf(1) }
-    // p. 55: "As with rituals, you may spend additional SPI (1 SPI = +1, no
-    // cap) after seeing your result." Accumulated here and charged at [finish].
+    // "As with rituals, you may spend additional SPI (1 SPI = +1, no cap)
+    // before rolling" (v6.9i 3671). Charged at the Ask with the method's cost.
     var burned by remember { mutableIntStateOf(0) }
     // null = an ordinary target. The two counters reset with it, so a link
     // ticked against a demigod cannot survive onto a shopkeeper -- the stale
@@ -193,28 +189,12 @@ fun DivinationDialog(
     val picks = rows.filter { it.source in chosen }
     val overrides = overridesFor(picks, picked)
     val circumstances = Divination.modifierTotal(picks, overrides, repeats) +
-        conditionPenaltyAfterSpending(cost)
+        conditionPenaltyAfterSpending(cost + burned)
     val extras = circumstances + protection.penalty + shock + states.total + spiTrait
-    val target = Divination.targetFor(skillLevel, difficulty, extras)
+    val target = Divination.targetFor(skillLevel, difficulty, extras, burned)
+    val spent = cost + burned
 
-    // Charged by zeroing what it accumulated, so paying is idempotent and
-    // every exit from one question pays exactly once -- Close, a back press,
-    // the scrim, and "Ask again", which ends a question as surely as closing
-    // does. Nothing else is deferred: the backlash is a sample already taken,
-    // shown only while the outcome it belongs to is still a critical one.
-    val settleBurn = {
-        if (burned > 0) {
-            onSpendSpi(burned)
-            burned = 0
-        }
-    }
-    // See RitualDialog: leaving composition is not a dismiss request, and
-    // `remember` does not survive it.
-    DisposableEffect(Unit) { onDispose { settleBurn() } }
-    val finish = {
-        settleBurn()
-        onDismiss()
-    }
+    val finish = onDismiss
     AlertDialog(
         onDismissRequest = finish,
         confirmButton = { CloseButton(finish) },
@@ -222,15 +202,13 @@ fun DivinationDialog(
             if (outcome != null) {
                 CloseButton(
                     onClick = {
-                        // The push bought the question that is ending, so it
-                        // is paid for here rather than carried into the next.
-                        settleBurn()
                         // The backlash belongs to the roll that caused it;
                         // carrying it into the next question would report a
                         // critical the diviner never rolled.
                         outcome = null
                         backlash = null
                         hpBurned = 0
+                        burned = 0
                     },
                     label = "Ask again",
                     color = MaterialTheme.colorScheme.onSurface,
@@ -242,37 +220,7 @@ fun DivinationDialog(
             val answer = outcome
             if (answer != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    // The backlash is shown only while the roll it came from
-                    // is still critical: a push can take a margin-based
-                    // critical failure off that row, and printing the ritual
-                    // table's answer beside a merely-failed reading would
-                    // report a disaster the diviner spent SPI to avoid.
                     Result(answer, backlash?.takeIf { answer.isCritical }, hpBurned)
-                    if (Divination.canPush(answer)) {
-                        BurnRow(
-                            kind = BurnKind.MYSTICAL,
-                            burned = burned,
-                            spiAvailable = spiAvailable - burned,
-                            note = "Separate from the method's cost, which is " +
-                                "already paid. Charged when this question ends.",
-                        ) { points ->
-                            // See RitualDialog: the row was drawn against a
-                            // value two taps can outrun.
-                            val live = outcome ?: return@BurnRow
-                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
-                                return@BurnRow
-                            }
-                            burned += points
-                            outcome = Divination.pushed(live, points)
-                        }
-                    } else if (burned > 0) {
-                        // A push that reached the clearest row ends the row,
-                        // and the SPI it took is still owed.
-                        Text(
-                            "Pushed $burned SPI. Charged when this question ends.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
                 }
                 return@steadyBody
             }
@@ -498,6 +446,12 @@ fun DivinationDialog(
                         }
                     }
 
+                    OptionStepper(
+                        label = "Burn SPI",
+                        value = burned,
+                        shown = "+$burned",
+                        note = "before rolling: 1 SPI buys +1, no cap, beside the method's cost",
+                    ) { burned = (burned + it).coerceAtLeast(0) }
                     if (protection.requiresCritical) {
                         // Not expressible as a penalty, so it cannot be left to the
                         // target number: the book forbids the ordinary success a
@@ -520,9 +474,6 @@ fun DivinationDialog(
                         ).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) }
                     }
                 }
-                // At 0 SPI the pool table says a Beyonder "cannot activate any
-                // SPI-cost abilities". Withdrawn rather than refused on tap.
-                val affordable = Pools.canAffordSpi(cost, spiAvailable)
                 RitualFooter(
                     // Every signed number here sums to the target beside it
                     // (6ag, 6ai).
@@ -533,17 +484,14 @@ fun DivinationDialog(
                         states.line,
                         if (spiTrait != 0) "${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}" else null,
                         if (circumstances != 0) "circumstances ${signed(circumstances)}" else null,
+                        if (burned > 0) "+$burned SPI burned" else null,
                     ) + protection.parts,
                     target = target,
                     // What will actually be CHARGED, not the printed range:
                     // the range is above, beside the chips that choose inside it.
-                    cost = "costs $cost SPI, takes ${method.time.lowercase()}",
-                    refusal = if (affordable) {
-                        null
-                    } else {
-                        "No question — this method costs $cost SPI and only " +
-                            "$spiAvailable is left. SPI cannot be spent below 0."
-                    },
+                    cost = "costs $spent SPI, takes ${method.time.lowercase()}",
+                    // v6.9i prints no floor on spending SPI (ruling 11).
+                    refusal = null,
                     targetText = if (protection.requiresCritical) "3d6: a 3 or 4 only" else SuccessRoll.printed(target),
                     label = "Ask",
                     icon = Icons.Filled.Visibility,
@@ -552,7 +500,7 @@ fun DivinationDialog(
                     // before the button leaves the tree, and the second
                     // would charge the SPI again -- which below 0 buys
                     // Soul Debt, and that CoR never comes back (Codex).
-                    if (outcome != null || !affordable) return@RitualFooter
+                    if (outcome != null) return@RitualFooter
                     // Against the target printed above, never composed
                     // a second time here (6eg, 6eh).
                     val result = Divination.rollAgainst(
@@ -575,7 +523,7 @@ fun DivinationDialog(
                     } else {
                         null
                     }
-                    onSpendSpi(cost)
+                    onSpendSpi(spent)
                 }
             }
         },

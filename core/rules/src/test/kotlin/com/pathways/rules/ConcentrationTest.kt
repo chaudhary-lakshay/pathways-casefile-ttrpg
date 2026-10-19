@@ -40,7 +40,7 @@ class ConcentrationTest {
      * the book -- a ritual's channelling, the gauntlet's aura, the Astral
      * projection -- with a penalty that names a circumstance none of them is
      * in. Refused rather than answered, the call `Detection.attributeFor`
-     * (6ah) and `Pools.canAffordSpi` (6ar) each needed.
+     * (6ah) needed.
      */
     @Test
     fun `an undisturbed concentration is refused rather than rolled`() {

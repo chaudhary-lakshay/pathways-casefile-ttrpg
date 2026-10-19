@@ -38,6 +38,7 @@ import com.pathways.rules.content.HitLocation
 import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.UnarmedAttack
 import com.pathways.rules.content.WeaponMode
+import com.pathways.rules.EffortBurn
 
 @Composable
 internal fun AttackOptions(
@@ -80,6 +81,10 @@ internal fun AttackOptions(
     onPlan: (AttackPlan) -> Unit,
     standing: SkillTarget,
     fromTrackers: Int,
+    /** Ch. 2's burn, declared before the roll; null where none is allowed. */
+    burn: BurnOffer?,
+    burnPoints: Int,
+    onBurnPoints: (Int) -> Unit,
     onRoll: () -> Unit,
 ) {
     val maxDeceptive = Attacks.maxDeceptive(skillLevel)
@@ -269,6 +274,9 @@ internal fun AttackOptions(
                 },
                 modifier = Modifier.padding(vertical = 4.dp),
             )
+            // "attack rolls, dodging, climbing, lifting" are the FP row's own
+            // examples. Each attack is its own roll, so a burn is paid per attack.
+            if (burn != null) BurnStepper(burn, burnPoints, onBurnPoints)
         }
         val fp = Attacks.fpCost(plan)
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
@@ -339,6 +347,11 @@ internal fun AttackOptions(
         // this dialog gave before the dice.
         if (fromTrackers != 0) {
             lines += "Injury, fatigue and attrition: ${signed(fromTrackers)}"
+        }
+        if (burn != null && burnPoints > 0) {
+            val pool = EffortBurn.pool(burn.kind).pool
+            lines += "Burned $pool: +$burnPoints" +
+                if (count > 1) " on each attack, costs ${burnPoints * count} $pool" else ""
         }
         AttackFooter(lines.filter { it.isNotEmpty() }, standing, count, onRoll)
     }

@@ -237,50 +237,6 @@ object Pools {
      * from SPI loss" (p. 35). Below zero it buys Soul Debt instead, one CoR
      * per point, which [Corruption] then caps against Will.
      */
-    /** SPI can never be spent below this BY CHOICE. See [spendableSpi]. */
-    const val SPI_VOLUNTARY_FLOOR = 0
-
-    /**
-     * How much SPI a character may VOLUNTARILY spend right now.
-     *
-     * The book separates two routes to a negative pool, and this is the one it
-     * closes. Soul Debt is defined twice and both definitions sit inside
-     * **Spirit Body Damage** -- "you may choose a pool already at 0 (risking
-     * death, unconsciousness, or Soul Debt)" and "SPI below 0: Soul Debt". It
-     * is what an ATTACK on the spirit body does to you.
-     *
-     * Spending is capped by what you have, in two places:
-     *  - the pool table's own 0 SPI row -- "Spiritual Exhaustion: all Beyonder
-     *    abilities deactivate; **cannot activate any SPI-cost abilities**";
-     *  - ch. 7's Power Source A -- "The caster pays SPI equal to the ritual's
-     *    complexity cost. **SPI cannot be reduced below 0.**"
-     *
-     * **The contrast with FP is the evidence, not either sentence alone.**
-     * p. 42 prints "Every point of FP spent below 0 also costs 1 HP", so the
-     * book knows exactly how to permit overspending and price it. It does
-     * that for FP and states the opposite for SPI. Treating the two pools
-     * alike erases a distinction the book draws in two directions at once --
-     * which is what this app did, charging permanent Soul Debt CoR for
-     * rituals, divinations and artifact uses no caster could have paid for.
-     *
-     * [current] may be negative -- spirit damage can leave it there -- and a
-     * character already in debt may spend NOTHING rather than a negative
-     * amount.
-     */
-    fun spendableSpi(current: Int): Int = current.coerceAtLeast(SPI_VOLUNTARY_FLOOR)
-
-    /**
-     * Whether [cost] can be paid from [current] without going below zero.
-     *
-     * A cost of zero is affordable at any pool, a mortal's included: the book
-     * charges nothing for it, and refusing would gate an action it gives away
-     * free.
-     */
-    fun canAffordSpi(cost: Int, current: Int): Boolean {
-        require(cost >= 0) { "an SPI cost cannot be negative (was $cost)" }
-        return cost <= spendableSpi(current)
-    }
-
     fun spi(current: Int, max: Int): PoolStatus {
         require(max >= 1) {
             "SPI max must be at least 1; a mortal has no SPI pool to report on (p. 41)"

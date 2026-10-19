@@ -182,39 +182,9 @@ class PoolsTest {
     }
 
     @Test
-    fun `voluntary SPI spending stops at zero`() {
-        // Ch. 7's Power Source A: "SPI cannot be reduced below 0." A caster
-        // with 2 SPI can fund a 2 SPI ritual and not a 3 SPI one.
-        assertTrue(Pools.canAffordSpi(2, current = 2))
-        assertFalse(Pools.canAffordSpi(3, current = 2))
-        assertEquals(2, Pools.spendableSpi(2))
-    }
-
-    @Test
-    fun `a mortal can spend nothing, and a free action is still free`() {
-        // SPI 0 is the pool table's Spiritual Exhaustion row -- "cannot
-        // activate any SPI-cost abilities". A cost of zero is not an SPI-cost
-        // ability, so it stays available: the book charges nothing for it.
-        assertEquals(0, Pools.spendableSpi(0))
-        assertFalse(Pools.canAffordSpi(1, current = 0))
-        assertTrue(Pools.canAffordSpi(0, current = 0))
-    }
-
-    @Test
-    fun `a character already in Soul Debt may spend nothing, not a negative`() {
-        // Spirit body damage can leave the pool negative -- that IS the route
-        // the book sends below 0. Spending from there floors at nothing
-        // rather than returning -4, which would make canAffordSpi nonsense.
-        assertEquals(0, Pools.spendableSpi(-4))
-        assertFalse(Pools.canAffordSpi(1, current = -4))
-        assertEquals(0, Pools.SPI_VOLUNTARY_FLOOR)
-    }
-
-    @Test
-    fun `the pool table still reports the states spending can no longer reach`() {
-        // The floor is on SPENDING, not on the pool. Soul Debt remains real
-        // and reportable, because spirit body damage still goes there -- and
-        // 6m's charge for it is untouched.
+    fun `the pool table reports Soul Debt and the exhaustion row`() {
+        // v6.9i prints no floor on spending SPI (owner's ruling 11), so a
+        // spend below 0 is Soul Debt, reported here as spirit damage's is.
         assertEquals(3, Pools.spi(-3, 9).corGained)
         // Exactly 0 is the Exhaustion row, NOT Soul Debt: the book charges
         // "+1 CoR per 1 point BELOW 0", so the boundary is the whole assertion
@@ -222,11 +192,6 @@ class PoolsTest {
         val exhausted = Pools.spi(0, 9)
         assertTrue(exhausted.abilitiesOffline, "0 SPI still deactivates abilities")
         assertEquals(0, exhausted.corGained, "0 is not yet below 0")
-    }
-
-    @Test
-    fun `a negative cost is refused, not treated as a refund`() {
-        assertThrows<IllegalArgumentException> { Pools.canAffordSpi(-1, current = 5) }
     }
 
     @Test

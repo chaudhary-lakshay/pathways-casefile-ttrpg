@@ -544,116 +544,26 @@ class RitualResolutionTest {
         assertEquals(8, target)
     }
 
-    @Test
-    fun `burning SPI re-reads the dice already cast against a higher target`() {
-        // p. 66: "you may spend additional SPI after seeing your roll to boost
-        // it (+1 per SPI, no cap)". The total never moves -- rolling again
-        // would be a different ritual.
-        val plain = RitualResolution.attempt(14, light, cor = 0, source = fixed(4))
-        val pushed = RitualResolution.pushed(plain, 2)
-        assertEquals(plain.roll.total, pushed.roll.total)
-        assertEquals(plain.target + 2, pushed.target)
-        assertEquals(plain.target + 2, pushed.roll.target)
-        assertThrows<IllegalArgumentException> { RitualResolution.pushed(plain, -1) }
-    }
-
-    @Test
-    fun `a push can carry a failed ritual over the line`() {
-        // 3d6 of 5s is 15 against a Heavy target of 10: a failure by 5.
-        val failed = RitualResolution.attempt(14, heavy, cor = 0, source = fixed(5))
-        assertFalse(failed.succeeded)
-        val saved = RitualResolution.pushed(failed, 5)
-        assertTrue(saved.succeeded)
-        assertNull(saved.consequence)
-        assertEquals(0, saved.marginOfFailure)
-        assertNotNull(saved.success)
-    }
-
     /**
-     * A severe misfire, reached by MARGIN rather than by a rolled 17-18.
-     *
-     * Skill 6 on a Heavy ritual is a target of 2, and 5s on 3d6 is a 15 --
-     * missed by 13, which is the "Failure by 10+" row, while the total stays
-     * under the 17 that would take the other one. The distinction is the whole
-     * point: only the by-margin row can be pushed off the table.
+     * v6.9i line 3960: "Before rolling, spend additional SPI (1 SPI = +1, no
+     * cap) to improve the roll. This is separate from the ritual's fuel
+     * cost." v6.9d's post-roll push is gone: the burn is part of the target.
      */
-    private val severeMisfire
-        get() = RitualResolution.attempt(6, heavy, cor = 0, source = fixed(5))
-
     @Test
-    fun `a push that clears the Critical Failure Table clears its roll too`() {
-        // Pushing shrinks the margin, and a consequence row that no longer
-        // reaches the table must not keep a roll the GM would still read --
-        // nor the CoR that row charges.
-        val misfire = severeMisfire
-        assertEquals(13, misfire.marginOfFailure)
-        assertNotNull(misfire.criticalRoll)
-        assertNotNull(misfire.critical)
-        val pushed = RitualResolution.pushed(misfire, 4)
-        assertEquals(9, pushed.marginOfFailure)
-        assertNull(pushed.criticalRoll)
-        assertNull(pushed.critical)
-    }
-
-    @Test
-    fun `a push that stays on the table keeps the roll it already made`() {
-        // Re-rolling here would hand the caster a fresh chance at a milder
-        // row that the book never offered.
-        val misfire = severeMisfire
-        val pushed = RitualResolution.pushed(misfire, 1)
-        assertEquals(12, pushed.marginOfFailure)
-        assertEquals(misfire.criticalRoll, pushed.criticalRoll)
-        assertEquals(misfire.critical, pushed.critical)
-    }
-
-    @Test
-    fun `a rolled 17 or 18 takes no push, because nothing can move it`() {
-        // Its consequence row is named for the ROLL, not the margin, and 17-18
-        // fails against any target -- so a point spent here buys nothing.
-        // EffortBurn.canPush refuses a critical-only rule for the same reason.
-        //
-        // BOTH totals, because the row names both: a threshold that slipped to
-        // 18 would let a 17 be pushed with only the 18 under test (Codex).
-        val eighteen = RitualResolution.attempt(14, light, cor = 0, source = fixed(6))
-        val seventeen = RitualResolution.attempt(
-            14, light, cor = 0, source = scripted(6, 6, 5),
-        )
-        assertEquals(18, eighteen.roll.total)
-        assertEquals(17, seventeen.roll.total)
-        for (disaster in listOf(seventeen, eighteen)) {
-            assertEquals(Outcome.CRITICAL_FAILURE, disaster.roll.outcome)
-            assertFalse(RitualResolution.canPush(disaster))
-            assertEquals(disaster, RitualResolution.pushed(disaster, 5))
+    fun `SPI burned before the roll raises the target one for one`() {
+        val plain = RitualResolution.targetFor(skillLevel = 12, weight = heavy, cor = 0)
+        assertEquals(plain + 5, RitualResolution.targetFor(skillLevel = 12, weight = heavy, cor = 0, burned = 5))
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.targetFor(skillLevel = 12, weight = heavy, cor = 0, burned = -1)
         }
     }
 
     @Test
-    fun `a push improves the success band it lands on`() {
-        // Named rather than merely different: a pushed outcome that dropped
-        // its band to null is also "not equal" (Codex).
-        val plain = RitualResolution.attempt(14, light, cor = 0, source = fixed(4))
-        assertTrue(plain.succeeded)
-        // By the band's own lower bound rather than its printed text: the
-        // book sets that with an en-dash and a hand-typed hyphen would fail
-        // for a reason that has nothing to do with the rule.
-        assertEquals(0, plain.success?.from)
-        val pushed = RitualResolution.pushed(plain, 6)
-        assertEquals(3, pushed.success?.from)
-    }
-
-    /**
-     * Step 4 prints nothing above "Success by 3+" (line 4094), so a point
-     * spent there buys nothing: play session 4 was offered +1 to +4 at a
-     * margin of 11. Divination.canPush refuses its clearest row the same way
-     * (6hw). One below the band stays pushable.
-     */
-    @Test
-    fun `a success already in the top band takes no push`() {
-        val surpassing = RitualResolution.attempt(14, light, cor = 0, source = fixed(3))
-        assertEquals(null, surpassing.success?.to)
-        assertFalse(RitualResolution.canPush(surpassing))
-        assertFalse(Boons.canPush(surpassing))
-        val asIntended = RitualResolution.attempt(14, light, cor = 0, source = fixed(4))
-        assertTrue(RitualResolution.canPush(asIntended))
+    fun `a burn declared before the roll can carry a ritual over the line`() {
+        // 3d6 of 5s is 15 against a Heavy target of 10: a failure by 5.
+        assertFalse(RitualResolution.attempt(14, heavy, cor = 0, source = fixed(5)).succeeded)
+        val burned = RitualResolution.attempt(14, heavy, cor = 0, source = fixed(5), burned = 5)
+        assertTrue(burned.succeeded)
+        assertEquals(15, burned.target)
     }
 }

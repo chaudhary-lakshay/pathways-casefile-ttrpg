@@ -154,9 +154,8 @@ internal fun SheetDialogs(
     // unwired looks like an oversight rather than a decision (Codex, 6bo).
     val spiTrait = TraitAttributeRolls.spiRollBonus(traits)
 
-    // Ch. 2's burn, charged the moment it is bought. The book allows it after
-    // the result is seen, so the pool moves when the player pushes -- printing
-    // the rule and not charging it is how a tracker starts lying (6m).
+    // Ch. 2's burn, charged with the roll it was declared for -- printing the
+    // rule and not charging it is how a tracker starts lying (6m).
     //
     // ONE lambda for both dialogs that offer the push. The attack dialog used
     // to charge only the physical half, so a mystical push there would have
@@ -193,17 +192,13 @@ internal fun SheetDialogs(
         RollDialog(
             label = skill.label,
             base = skill.base,
-            // Which pool may push this roll, decided by the skill's own
-            // controlling attribute. Null for IQ, Will and Per, which the
-            // book's two rows name neither of -- so no burn is offered
-            // rather than fatigue being allowed on a Research roll.
-            burnKind = EffortBurn.kindFor(skill.key)
-                ?.takeIf { it != BurnKind.MYSTICAL || vitals.maxSpi > 0 },
-            // The pool's BALANCE, not its maximum. The gate above excludes a
-            // mortal, who never had SPI; this excludes a Beyonder who has
-            // spent it, which the gate above cannot see.
-            spiAvailable = vitals.maxSpi - session.spiSpent,
-            conditionalBurnNote = EffortBurn.conditionalScope(skill.key),
+            // Which pool may be burned on this roll, decided by the skill's
+            // controlling attribute, and when, decided by Fit / Very Fit.
+            // A mortal has no SPI pool to burn.
+            burn = BurnOffer.of(
+                EffortBurn.kindFor(skill.key)?.takeIf { it != BurnKind.MYSTICAL || vitals.maxSpi > 0 },
+                traits,
+            ),
             // Chapter 8's gear that names this exact skill, printed as the
             // book prints it. Not a chip: the save records weapons carried
             // and no other gear, so the screen cannot assert possession, and
@@ -352,8 +347,7 @@ internal fun SheetDialogs(
         // A plain live expression, deliberately NOT remembered: `fpLost` is
         // observable state and `vitals` is keyed on the sheet, the walk and the
         // edits, so a remembered halving would freeze at whatever the pool held
-        // when one of THOSE last changed. The same reason `spiAvailable` below
-        // is written out rather than cached.
+        // when one of THOSE last changed.
         val fatigue = fpNow
         DefenseDialog(
             // p. 42: "At 1/3 FP or below ... Move and Dodge halved". The sheet
@@ -413,15 +407,8 @@ internal fun SheetDialogs(
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.
             // Distinct from [burn]: this is the maneuver's printed price, not
-            // Ch. 2's push.
+            // Ch. 2's burn.
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
-            // A plain expression, deliberately NOT remembered. `spiSpent` is
-            // observable state, so this recomputes on every recomposition and
-            // the second attack of a Rapid Strike sees what the first one
-            // spent. Captured in a `remember` it would go stale and let one
-            // maneuver spend the same SPI twice (a design review's finding,
-            // and invisible in a diff because the stale version looks right).
-            spiAvailable = vitals.maxSpi - session.spiSpent,
             onBurn = burn,
             darknessReduction = TraitEffects.darknessReduction(traits),
             traits = traits,
@@ -464,7 +451,6 @@ internal fun SheetDialogs(
             },
             shock = shockOnSkill,
             states = states,
-            spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Divination"),
             // Through the tracker, so a question asked at 0 SPI buys the Soul
             // Debt the book charges for it.
@@ -543,7 +529,6 @@ internal fun SheetDialogs(
             shock = shockOnSkill,
             states = states,
             cor = session.cor,
-            spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Ritual"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             // Through the tracker, so a ritual fuelled past 0 SPI buys the
@@ -581,7 +566,6 @@ internal fun SheetDialogs(
             shock = shockOnSkill,
             states = states,
             cor = session.cor,
-            spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Boon"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             held = session.boon,

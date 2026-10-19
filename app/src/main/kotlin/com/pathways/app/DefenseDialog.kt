@@ -11,6 +11,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -19,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.Weapon
+import com.pathways.rules.BurnKind
+import com.pathways.rules.EffortBurn
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.ActiveDefenses
 import com.pathways.rules.Facing
@@ -152,13 +155,21 @@ internal fun DefenseDialog(
     // all hand it out. It is not a DefenseRefusal -- it prices the defences
     // rather than withdrawing them.
     var stunned by stunnedState
+    // Ch. 2's FP burn, whose scope names "dodging": declared before the roll,
+    // on every defence row, and charged with each defence rolled (v6.9i).
+    val burn = remember(traits) { BurnOffer.of(BurnKind.PHYSICAL, traits) }
+    var burnPoints by remember { mutableIntStateOf(0) }
+    val drawnBurn = if (burn == null) 0 else burnPoints
     val everyDefence = remember(traits, stunned, shocked, poolPenalty, states) {
         ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty, states.total)
-    }
+    } + EffortBurn.bonusFor(BurnKind.PHYSICAL, drawnBurn)
+    val chargeBurn = { if (drawnBurn > 0) onSpendFp(drawnBurn) }
     val refusal = ActiveDefenses.state(round.declared, traits)
     // A defence is a plain 3d6 against the figure the row prints (play
     // session 1: the numbers were shown and nothing rolled them).
-    val rollDefence = { label: String -> { target: Int -> SuccessRoll.against(target, dice.dice(label)) } }
+    val rollDefence = { label: String ->
+        { target: Int -> SuccessRoll.against(target, dice.dice(label)).also { chargeBurn() } }
+    }
     // A parry rolled is a parry made: the round counts it (play session 5).
     val rollParry = { label: String -> { target: Int -> rollDefence(label)(target).also { round = round.parried() } } }
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
@@ -312,6 +323,7 @@ internal fun DefenseDialog(
                     // the one above, so a withdrawn set of defences does not
                     // offer a -4 on nothing.
                     StunPicker(stunned) { stunned = !stunned }
+                    if (burn != null) BurnStepper(burn, burnPoints) { burnPoints = it }
                     // Beside the stun, because it is the other thing already
                     // inside every row below -- and inside this same block, so
                     // a withdrawn set of defences does not announce a penalty
@@ -386,7 +398,10 @@ internal fun DefenseDialog(
                     // the bottom, which now shows only what this app does NOT
                     // apply -- one sentence printed in both places, with
                     // neither marked, is 6bl's defect on this same screen.
-                    val acrobaticStanding = acrobatics?.let { acrobaticTarget(it, conditions, traits) }
+                    val acrobaticStanding = acrobatics?.let { skill ->
+                        val burned = listOfNotNull(EffortBurn.modifier(BurnKind.PHYSICAL, drawnBurn))
+                        acrobaticTarget(skill, { conditions(it) + burned }, traits)
+                    }
                     AcrobaticDodge(
                         skill = acrobatics,
                         standing = acrobaticStanding,
@@ -394,6 +409,7 @@ internal fun DefenseDialog(
                         onRoll = {
                             acrobaticStanding?.let { printed ->
                                 round = round.copy(acrobatic = SkillRoll.rollAgainst(printed, dice.dice("Acrobatic Dodge")))
+                                chargeBurn()
                             }
                         },
                         onClear = { round = round.copy(acrobatic = null) },

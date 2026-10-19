@@ -12,9 +12,9 @@ class BoonDialogTest {
     private val broker = BoonState("Chaos Mist", 9)
 
     @Test
-    fun `a prayer needs the skill, a patron, a rung to ask for and its fuel`() {
-        fun refusal(skill: Int? = 12, patron: String? = "Chaos Mist", held: BoonState? = null, next: BoonState? = broker, spi: Int = 9, lost: Boolean = false) =
-            boonRefusal(skill, patron, held, next, cost = 4, spiAvailable = spi, lost = lost)
+    fun `a prayer needs the skill, a patron and a rung to ask for`() {
+        fun refusal(skill: Int? = 12, patron: String? = "Chaos Mist", held: BoonState? = null, next: BoonState? = broker, lost: Boolean = false) =
+            boonRefusal(skill, patron, held, next, lost = lost)
         assertNull(refusal())
         // Ch. 7 II: the skill "has no default and cannot be substituted".
         assertTrue("Ritualistic Magic" in refusal(skill = null)!!)
@@ -23,7 +23,6 @@ class BoonDialogTest {
         // The last printed rung is held: the book records nothing further.
         val last = BoonState("Chaos Mist", 8)
         assertTrue("Sequence 8" in refusal(held = last, next = null)!!)
-        assertTrue("4 SPI" in refusal(spi = 3)!!)
         // The session offers a lost character no rung: say why, not "no boon".
         assertTrue("GM" in refusal(next = null, lost = true)!!)
     }
@@ -39,28 +38,13 @@ class BoonDialogTest {
         assertTrue("GM" in standingRefusal(skillLevel = 12, lost = true)!!)
         assertNull(standingRefusal(skillLevel = 12, lost = false))
         // The same words the footer prints: one copy.
-        assertEquals(standingRefusal(null, false), boonRefusal(null, null, null, null, cost = 4, spiAvailable = 9))
-    }
-
-    @Test
-    fun `blood pays for a prayer that SPI cannot`() {
-        // Ch. 13: "a mortal may acquire a boon", by "the standard Ritualistic
-        // Magic system"; ch. 7 IV.B: HP "in addition to or instead of SPI",
-        // "Every 2 HP spent counts as 1 SPI". A mortal plays SPI 0.
-        fun refusal(spi: Int, hp: Int) =
-            boonRefusal(12, "Chaos Mist", null, broker, cost = 4, spiAvailable = spi, hpSacrificed = hp)
-        assertNull(refusal(spi = 0, hp = 8))
-        assertNull(refusal(spi = 2, hp = 4))
-        // 6 HP covers 3 of the 4: the line names what is still owed.
-        assertTrue("costs 1 SPI" in refusal(spi = 0, hp = 6)!!)
-        // And the refusal says where the fuel can come from.
-        assertTrue("HP" in refusal(spi = 0, hp = 0)!!)
+        assertEquals(standingRefusal(null, false), boonRefusal(null, null, null, null))
     }
 
     @Test
     fun `a prayer in a Broken tongue is refused`() {
         val broken = Languages.proficiencies(Languages.MYSTICAL).first { !Languages.canPerformRituals(it) }
-        val refusal = boonRefusal(12, "Chaos Mist", null, broker, cost = 4, spiAvailable = 9, language = broken)
+        val refusal = boonRefusal(12, "Chaos Mist", null, broker, language = broken)
         assertTrue(broken.proficiency in refusal!!)
     }
 

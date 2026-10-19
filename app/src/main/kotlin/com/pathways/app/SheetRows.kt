@@ -57,6 +57,7 @@ import com.pathways.model.RollResult
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.BurnKind
+import com.pathways.rules.BurnWhen
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.EffortBurn
 import com.pathways.rules.PenaltyScope
@@ -578,81 +579,29 @@ private fun RowTag(text: String, color: Color) {
 }
 
 /**
- * Ch. 2's burn (p. 9), offered once the dice are known.
- *
- * One pool per roll, and which one is decided by the SKILL, not by the
- * player: the FP row names ST/DX/HT rolls and the SPI row names SPI-based
- * ones, so a roll can only ever reach one of them and the book's "you cannot
- * spend both" cannot be violated from here. An IQ, Will or Per skill is named
- * by neither row and gets no burn at all, which is why this row is absent
- * rather than empty on most rolls.
+ * A pool a roll may be burned with, and when the book allows it (ch. 2,
+ * v6.9i lines 459-468). Null from [of] where the skill names no pool or the
+ * character lacks the trait the FP row asks for.
+ */
+internal data class BurnOffer(val kind: BurnKind, val whenAllowed: BurnWhen) {
+    companion object {
+        fun of(kind: BurnKind?, traits: List<Trait>): BurnOffer? =
+            kind?.let { k -> EffortBurn.whenAllowed(k, traits)?.let { BurnOffer(k, it) } }
+    }
+}
+
+/**
+ * Ch. 2's burn, declared before the roll: "You must declare this before the
+ * roll." The app keeps no combat state, so a burn the book allows only in
+ * combat says so in its label and the player declares it.
  */
 @Composable
-internal fun BurnRow(
-    kind: BurnKind,
-    burned: Int,
-    spiAvailable: Int,
-    /**
-     * What this screen's own chapter adds to chapter 2's row, or null.
-     *
-     * The ritual and divination screens have already charged a cost, and the
-     * book is explicit that the push is "separate from the ritual's fuel
-     * cost" -- a caster reading a second SPI figure needs that sentence, and
-     * the plain skill roll, which charged nothing, does not.
-     */
-    note: String? = null,
-    onBurn: (Int) -> Unit,
-) {
-    val pool = EffortBurn.pool(kind)
-    val cap = pool.max
-    // Ch. 7 Power Source A: "SPI cannot be reduced below 0." The burn is a
-    // CHOICE, so it is capped by what the caster has -- the floor 6ar applied
-    // to the ritual, boon, artifact and divination dialogs and missed here,
-    // in the one SPI spend that is not a dialog of its own. FP is deliberately
-    // untouched: p. 42 prices FP below 0 at 1 HP per point, so an unbounded
-    // physical push is the book's own rule, and treating the two pools alike
-    // is exactly the merge 6ar was written to undo.
-    val affordable = EffortBurn.affordable(kind, burned, spiAvailable)
-    if (affordable == 0 && kind == BurnKind.MYSTICAL) {
-        Text(
-            "Push the roll — ${pool.pool} on ${pool.scope}",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(top = 12.dp),
-        )
-        Text(
-            "No push — this character has no spirituality left, and personal " +
-                "SPI cannot be spent below 0.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error,
-        )
-        return
-    }
-    Text(
-        "Push the roll — ${pool.pool} on ${pool.scope}",
-        style = MaterialTheme.typography.labelLarge,
-        modifier = Modifier.padding(top = 12.dp),
-    )
-    Text(
-        if (cap == null) {
-            "1 ${pool.pool} buys +1, and the book prints no cap. Spent so far: $burned."
-        } else {
-            "1 ${pool.pool} buys +1, at most +$cap per roll. Spent so far: $burned."
-        },
-        style = MaterialTheme.typography.bodySmall,
-    )
-    note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-    // Four steps, or fewer when the printed cap is closer. The uncapped pool
-    // is not offered without limit: the book names no ceiling, and a stepper
-    // running to a hundred is not a choice worth making at the table -- the
-    // same reading the open-ended ritual fuel cell already takes (6q).
-    val steps = (1..minOf(4, affordable)).toList()
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        steps.forEach { points ->
-            CaseChip(
-                selected = false,
-                onClick = { onBurn(points) },
-                label = { Text("+$points") },
-            )
-        }
-    }
+internal fun BurnStepper(offer: BurnOffer, points: Int, onPoints: (Int) -> Unit) {
+    val pool = EffortBurn.pool(offer.kind).pool
+    OptionStepper(
+        label = if (offer.whenAllowed == BurnWhen.IN_COMBAT) "Burn $pool (in combat)" else "Burn $pool",
+        value = points,
+        shown = "+$points",
+        note = "before the roll: 1 $pool buys +1, no cap",
+    ) { onPoints((points + it).coerceAtLeast(0)) }
 }

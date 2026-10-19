@@ -224,9 +224,15 @@ object Divination {
         }
     }
 
-    /** The number to roll under: skill, the question's difficulty, and [extras]. */
-    fun targetFor(skill: Int, difficulty: DivinationDifficulty, extras: Int = 0): Int =
-        skill + difficulty.modifier + extras
+    /**
+     * The number to roll under: skill, the question's difficulty, [extras],
+     * and [burned] SPI -- "you may spend additional SPI (1 SPI = +1, no cap)
+     * before rolling" (v6.9i line 3671).
+     */
+    fun targetFor(skill: Int, difficulty: DivinationDifficulty, extras: Int = 0, burned: Int = 0): Int {
+        require(burned >= 0) { "cannot burn a negative number of SPI; was $burned" }
+        return skill + difficulty.modifier + extras + Math.multiplyExact(burned, BURN_PER_SPI)
+    }
 
     /**
      * The clarity row a [roll] lands on.
@@ -267,11 +273,8 @@ object Divination {
     }
 
     /**
-     * One divination: roll against [skill] for [difficulty], plus [extras].
-     *
-     * [burned] is SPI spent after seeing the roll to push it -- "1 SPI = +1,
-     * no cap" -- and is added to the TARGET rather than subtracted from the
-     * total, because the book raises the number you roll under.
+     * One divination: roll against [skill] for [difficulty], plus [extras]
+     * and the SPI [burned] before rolling.
      */
     fun attempt(
         skill: Int,
@@ -279,7 +282,8 @@ object Divination {
         source: RandomSource,
         extras: Int = 0,
         requiresCritical: Boolean = false,
-    ): DivinationOutcome = rollAgainst(targetFor(skill, difficulty, extras), source, requiresCritical)
+        burned: Int = 0,
+    ): DivinationOutcome = rollAgainst(targetFor(skill, difficulty, extras, burned), source, requiresCritical)
 
     /**
      * The roll itself, against a [target] already composed by [targetFor] --
@@ -293,77 +297,25 @@ object Divination {
         target: Int,
         source: RandomSource,
         requiresCritical: Boolean = false,
-    ): DivinationOutcome = read(SuccessRoll.against(target, source), 0, requiresCritical)
+    ): DivinationOutcome = read(SuccessRoll.against(target, source), requiresCritical)
 
     /**
-     * Whether a burn can still move [outcome] (p. 55).
-     *
-     * False under Sequence Immunity's critical-only rule, and for the same
-     * arithmetic reason [EffortBurn.canPush] gives: a push raises the TARGET
-     * and never the total, so no amount of it reaches a rolled 3 or 4. True
-     * everywhere else, a critical success included -- the clarity table has
-     * no critical row and grades one by margin like any other roll, so a
-     * point still buys a clearer answer -- until the answer is the clearest
-     * the table prints, where a point buys nothing (play session 3).
-     */
-    fun canPush(outcome: DivinationOutcome): Boolean =
-        !outcome.requiresCritical && outcome.clarity != clearest()
-
-    /** The success row with the deepest margin: nothing is clearer. */
-    private fun clearest(): DivinationClarity =
-        clarities().filter { !it.isFailure && !it.isCritical }.maxBy { it.margin ?: 0 }
-
-    /**
-     * The same dice read against a target [points] SPI higher (p. 55).
-     *
-     * "Burning SPI to improve the roll: As with rituals, you may spend
-     * additional SPI (1 SPI = +1, no cap) after seeing your result." After is
-     * the load-bearing word, and it is why this is a second step rather than
-     * an argument to [attempt]: the dice are already cast, so the same total
-     * is re-read against a higher number. [spiFor] takes the same points as
-     * COST; this takes them as the bonus.
-     *
-     * [points] is what is spent on THIS call, and [DivinationOutcome.spiBurned]
-     * accumulates -- a caller pushing twice has spent both.
-     *
-     * Returns [outcome] unchanged when [canPush] is false, so a caller that
-     * forgets to ask cannot spend SPI on a roll the burn cannot move. SPI's
-     * Soul Debt is permanent (6m), which is why that is refused here rather
-     * than left to the screen.
-     */
-    fun pushed(outcome: DivinationOutcome, points: Int): DivinationOutcome {
-        require(points >= 0) { "cannot burn a negative number of SPI; was $points" }
-        if (points == 0 || !canPush(outcome)) return outcome
-        val target = Math.addExact(outcome.roll.target, points * BURN_PER_SPI)
-        return read(
-            SuccessRoll.evaluate(outcome.roll.total, target),
-            Math.addExact(outcome.spiBurned, points),
-            outcome.requiresCritical,
-        )
-    }
-
-    /**
-     * What a resolved [roll] means, in one place.
-     *
-     * [attempt] and [pushed] read the same clarity table off the same roll and
-     * must not answer that twice -- the demotion in particular, which is easy
-     * to apply on one path and forget on the other.
+     * What a resolved [roll] means.
      */
     private fun read(
         roll: RollResult,
-        burned: Int,
         requiresCritical: Boolean,
     ): DivinationOutcome {
         // Sec. 5's "only a critical success (3-4) can succeed" against a Seq 4
         // or Seq 3 target. Not expressible as a penalty, which is the whole
         // point of it -- see [AntiDivination].
         val demoted = requiresCritical && roll.outcome == Outcome.SUCCESS
-        return DivinationOutcome(roll, clarityFor(roll, demoted), burned, requiresCritical)
+        return DivinationOutcome(roll, clarityFor(roll, demoted), requiresCritical)
     }
 
     /**
      * What [method] costs when the GM picks [chosen] inside its printed range,
-     * plus anything [burned] to push the roll.
+     * plus anything [burned] before the roll.
      *
      * Dowsing Rods prints "1-2", and defaulting to the low end while the
      * screen displayed the range charged 1 SPI for a 2 SPI question (Codex).
@@ -391,7 +343,6 @@ object Divination {
 data class DivinationOutcome(
     val roll: RollResult,
     val clarity: DivinationClarity,
-    val spiBurned: Int,
     val requiresCritical: Boolean = false,
 ) {
     val isCritical: Boolean get() = clarity.isCritical

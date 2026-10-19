@@ -32,7 +32,7 @@ data class ConcentrationOutcome(val target: Int, val roll: RollResult) {
  * Will-3 would tax every act of focus in the book with a penalty it never
  * printed, so [attempt] refuses a roll nobody asked for rather than answering
  * one -- the refusal-over-a-plausible-number call [Detection.attributeFor]
- * (6ah) and [Pools.canAffordSpi] (6ar) each needed.
+ * (6ah) needed.
  *
  * **One declaration, because the book prints one sentence and one number.**
  * The three defence refusals are three causes (6bg) precisely because they

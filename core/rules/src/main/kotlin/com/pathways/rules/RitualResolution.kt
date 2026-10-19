@@ -162,6 +162,11 @@ object RitualResolution {
      * language -- is REFUSED by [Languages.ritualModifier] rather than rolled
      * at a penalty: the book forbids the attempt, and a roll at -4 is not the
      * same answer as no roll.
+     *
+     * [burned] is SPI spent "Before rolling ... (1 SPI = +1, no cap) to
+     * improve the roll. This is separate from the ritual's fuel cost" (v6.9i
+     * line 3960). v6.9d let the caster push after seeing the dice; v6.9i
+     * does not, so the burn is part of the target and never re-reads a roll.
      */
     fun targetFor(
         skillLevel: Int,
@@ -176,7 +181,8 @@ object RitualResolution {
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
         preparationValue: Int? = null,
         linkValue: Int? = null,
-    ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
+        burned: Int = 0,
+    ): Int = skillLevel + weight.modifier + burnBonus(burned) + Corruption.ritualPenalty(cor) +
         mode.modifierTotal(
             preparation, link, flourish,
             preparationValue = preparationValue, linkValue = linkValue,
@@ -207,11 +213,12 @@ object RitualResolution {
         successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
         preparationValue: Int? = null,
         linkValue: Int? = null,
+        burned: Int = 0,
     ): RitualOutcome = rollAgainst(
         targetFor(
             skillLevel, weight, cor, preparation, language, mode, link, flourish,
             complexity, powerSources,
-            preparationValue = preparationValue, linkValue = linkValue,
+            preparationValue = preparationValue, linkValue = linkValue, burned = burned,
         ),
         source, failures, criticals, successBands,
     )
@@ -226,8 +233,7 @@ object RitualResolution {
      * [targetFor] refuses the mismatch by throwing (6ef, 6eg).
      *
      * [target] is not checked for where it came from. [classify] needs the
-     * dice and the number to agree, not the number's provenance, and [pushed]
-     * already re-reads a roll against a target no [targetFor] returned.
+     * dice and the number to agree, not the number's provenance.
      */
     fun rollAgainst(
         target: Int,
@@ -247,72 +253,10 @@ object RitualResolution {
     }
 
     /**
-     * Whether a burn can still move [outcome] (p. 63, p. 66).
-     *
-     * False for a rolled 17 or 18. That row is named for the ROLL and not for
-     * the margin -- "Critical Failure (17-18)" is taken against any target
-     * however high, and it carries no -2 to adjust. Nothing a caster spends
-     * there buys anything, which is the arithmetic [EffortBurn.canPush]
-     * refuses a critical-only rule on rather than a reading of the sentence.
-     * Every other result is pushable, a success included: Step 4 grades that
-     * by margin, so a point still buys a better grade -- until the top band,
-     * "Success by 3+" (line 4094), above which the table prints nothing to
-     * buy. Play session 4 was offered a push at a margin of 11; this is
-     * [Divination.canPush]'s clearest-row refusal, on Step 4's own table.
-     */
-    fun canPush(outcome: RitualOutcome): Boolean =
-        outcome.roll.total < CRITICAL_ROLL_FLOOR &&
-            !(outcome.success != null && outcome.success.to == null)
-
-    /**
-     * The same dice read against a target [points] SPI higher (p. 63, p. 66).
-     *
-     * "You may spend additional SPI (1 SPI = +1, no cap) after seeing your
-     * result, separate from the ritual's fuel cost." Separate is the load-
-     * bearing word: [spiFor] takes the same points as COST and this takes
-     * them as the bonus, so the two halves of one spend live apart. The dice
-     * are never rolled again -- "after seeing your result" is the whole reason
-     * this is a second step rather than a modifier.
-     *
-     * **The Critical Failure Table's roll is a second sample, not derived
-     * data.** It is kept where the pushed outcome still reaches the table and
-     * dropped where it no longer does: rolling it again would hand the caster
-     * a fresh chance at a milder row the book never offered, and a caster who
-     * pushes OFF the table must not be left holding a row -- nor the CoR that
-     * row charges. A push can only shrink the margin, so it can never need a
-     * sample that was not already taken, and that is asserted rather than
-     * quietly handled.
-     *
-     * Returns [outcome] unchanged when [canPush] is false, so a caller that
-     * forgets to ask cannot spend SPI on a result the burn cannot move.
-     */
-    fun pushed(
-        outcome: RitualOutcome,
-        points: Int,
-        failures: List<RitualFailure> = ContentLoader.ritualFailures(),
-        criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
-        successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
-    ): RitualOutcome {
-        require(points >= 0) { "cannot burn a negative number of SPI; was $points" }
-        if (points == 0 || !canPush(outcome)) return outcome
-        val target = Math.addExact(outcome.target, points * BURN_PER_SPI)
-        val roll = SuccessRoll.evaluate(outcome.roll.total, target)
-        return classify(roll, target, failures, criticals, successBands) {
-            requireNotNull(outcome.criticalRoll) {
-                "a push shrinks the margin, so it cannot reach a Critical " +
-                    "Failure Table the unpushed ritual missed"
-            }
-        }
-    }
-
-    /**
      * What a known total against a known target means, in one place.
      *
-     * [attempt] and [pushed] ask the same question of the same three tables
-     * and must not answer it twice. [tableRoll] is the only thing they differ
-     * on, and it takes the shift so that the caller which SAMPLES can apply
-     * it -- the caller which re-uses an earlier sample has no use for it,
-     * because the shift is already inside the number it kept.
+     * [tableRoll] samples the Critical Failure Table and takes the by-margin
+     * row's shift.
      */
     private fun classify(
         roll: RollResult,
@@ -410,6 +354,12 @@ object RitualResolution {
      */
     private val RitualFailure.reachesTheTable: Boolean
         get() = "Critical Failure Table" in consequence
+
+    /** [burned] SPI as a bonus: one for one, uncapped, never negative. */
+    fun burnBonus(burned: Int): Int {
+        require(burned >= 0) { "cannot burn a negative number of SPI; was $burned" }
+        return Math.multiplyExact(burned, BURN_PER_SPI)
+    }
 
     private fun rollThreeDSix(source: RandomSource) = source.threeDSix()
 }

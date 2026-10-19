@@ -21,8 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.ClauseBonus
-import com.pathways.rules.BurnKind
-import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
 import com.pathways.rules.Incantations
 import com.pathways.rules.Languages
@@ -40,24 +38,16 @@ import com.pathways.rules.content.TargetLink
 /** The skill every ritual is rolled against (Ch. 7). */
 const val RITUAL_SKILL = "Ritualistic Magic"
 
-/** What stands between a ritual and its cast; null when nothing does. */
-internal fun ritualRefusal(
-    canSpeak: Boolean,
-    cost: Int,
-    hpSacrificed: Int,
-    spiAvailable: Int,
-): String? = when {
-    // Broken is offered as a chip and then refuses, rather than being
-    // hidden: a caster who only speaks it needs to see WHY there is no roll.
-    !canSpeak -> "No roll — the book forbids this attempt."
-    // Personal spirituality cannot be spent below 0; the book's own answer
-    // is the rest of Section IV: bleed for it, or bring assistants.
-    !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
-        "No roll — ${PowerSources.spiOwed(cost, hpSacrificed)} SPI is more than the " +
-            "$spiAvailable this caster has, and personal spirituality cannot be spent " +
-            "below 0. Pay in HP or bring assistants' SPI."
-    else -> null
-}
+/**
+ * What stands between a ritual and its cast; null when nothing does.
+ *
+ * Broken is offered as a chip and then refuses, rather than being hidden: a
+ * caster who only speaks it needs to see WHY there is no roll. v6.9i prints
+ * no floor on spending SPI (owner's ruling 11), so fuel never refuses: an
+ * overspend is Soul Debt, charged by the tracker.
+ */
+internal fun ritualRefusal(canSpeak: Boolean): String? =
+    if (canSpeak) null else "No roll — the book forbids this attempt."
 
 
 /**
@@ -91,7 +81,6 @@ fun RitualDialog(
     /** The held rows' declared "-N to all rolls" (6gs), named for the same reason. */
     states: ClauseBonus = ClauseBonus(0, null),
     cor: Int,
-    spiAvailable: Int,
     /**
      * The mystical languages this character BOUGHT, each as "Hermes, Native,
      * written only". Printed beside the picker and never fed to it: owning a
@@ -158,9 +147,8 @@ fun RitualDialog(
     // ritual costs, so a sacrifice left over from a 12 SPI ritual would throw
     // on a 2 SPI one rather than merely mislead.
     var hpSacrificed by remember(weight, spiChoice) { mutableIntStateOf(0) }
-    // "you may spend additional SPI (1 SPI = +1, no cap)", separate from the
-    // ritual's fuel cost. Accumulated rather than charged per tap, so the
-    // balance the chips are offered against cannot go stale between two.
+    // "Before rolling, spend additional SPI (1 SPI = +1, no cap) to improve
+    // the roll. This is separate from the ritual's fuel cost." (v6.9i 3960)
     var burned by remember { mutableIntStateOf(0) }
     var settled by remember { mutableStateOf(false) }
     var pacing by remember { mutableStateOf(RitualPacing.NORMAL) }
@@ -200,6 +188,7 @@ fun RitualDialog(
             weight, cor, preparation, language, mode, link, flourish,
             complexity = complexity, powerSources = declaration,
             preparationValue = preparationPick, linkValue = linkPick,
+            burned = burned,
         )
     } else {
         null
@@ -212,17 +201,12 @@ fun RitualDialog(
     // The HP as DRAWN beside that SPI: the state read in the handler could be
     // a newer pick the printed cost never saw (Codex).
     val declaredHp = hpSacrificed
+    val declaredBurn = burned
 
-    // The push window closes when the dialog does, and that is the ONE place
-    // the pushed SPI and the outcome's consequences are charged. Both are read
-    // off the FINAL outcome, because a push can take a ritual off the Critical
-    // Failure Table and the CoR that row charges must go with it -- charging
-    // at Roll, as this screen used to, left corruption paid for a consequence
-    // the caster spent SPI to avoid.
+    // The outcome's CoR is charged once, when the dialog closes.
     val settle = {
         if (!settled) {
             settled = true
-            if (burned > 0) onSpendSpi(burned)
             outcome?.critical?.corGained?.let(onCorGained)
         }
     }
@@ -256,33 +240,6 @@ fun RitualDialog(
             if (result != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     RitualResultCard(result)
-                    if (RitualResolution.canPush(result)) {
-                        BurnRow(
-                            kind = BurnKind.MYSTICAL,
-                            burned = burned,
-                            spiAvailable = spiAvailable - burned,
-                            note = "Separate from the ritual's fuel, which is " +
-                                "already paid. Charged when this closes.",
-                        ) { points ->
-                            // The LIVE outcome, not the one this row was drawn
-                            // against: two taps land before a recomposition,
-                            // and pushing the captured value would throw the
-                            // first away while charging for it.
-                            val live = outcome ?: return@BurnRow
-                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
-                                return@BurnRow
-                            }
-                            burned += points
-                            outcome = RitualResolution.pushed(live, points)
-                        }
-                    } else if (burned > 0) {
-                        // A push that reached the top band ends the row, and
-                        // the SPI it took is still owed (Divination's, 6hw).
-                        Text(
-                            "Pushed $burned SPI. Charged when this closes.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
                 }
                 return@steadyBody
             }
@@ -348,6 +305,13 @@ fun RitualDialog(
                                 .coerceIn(PowerSources.INVOCATION_LOWEST, PowerSources.INVOCATION_HIGHEST)
                         },
                     )
+                    // Out of combat too: ch. 9's own burn (owner's ruling 2).
+                    OptionStepper(
+                        label = "Burn SPI",
+                        value = burned,
+                        shown = "+$burned",
+                        note = "before rolling: 1 SPI buys +1, no cap, separate from the fuel",
+                    ) { burned = (burned + it).coerceAtLeast(0) }
                     SectionLabel(if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)")
                     FlowRow {
                         preparations.forEach { option ->
@@ -487,12 +451,13 @@ fun RitualDialog(
                         ?.let { "${signed(it)} from $assistants assisting" },
                     sacrifice.takeIf { it != 0 }?.let { "${signed(it)} sacrifice" },
                     if (suspended) "${signed(PowerSources.SUSPENSION_PENALTY)} suspended" else null,
+                    if (burned > 0) "+$burned SPI burned" else null,
                 )
-                val refusal = ritualRefusal(canSpeak, cost, hpSacrificed, spiAvailable)
+                val refusal = ritualRefusal(canSpeak)
                 RitualFooter(
                     terms = terms,
                     target = target,
-                    cost = "costs " + fuelLine(declaredSpi, hpSacrificed),
+                    cost = "costs " + fuelLine(declaredSpi + declaredBurn, hpSacrificed),
                     refusal = refusal,
                     onCast = {
                         // One Cast spends once: a second tap before the
@@ -509,10 +474,8 @@ fun RitualDialog(
                         // effect. SPI and materials spent." HP goes through
                         // the tracker too.
                         //
-                        // The CoR is NOT charged here: a push can move this
-                        // ritual off the Critical Failure Table altogether,
-                        // so the row's price is read once, at [finish].
-                        onSpendSpi(declaredSpi)
+                        // The burn with it: both are spent before the dice.
+                        onSpendSpi(declaredSpi + declaredBurn)
                         if (declaredHp > 0) onSpendHp(declaredHp)
                     },
                 )

@@ -247,89 +247,22 @@ class DivinationTest {
         assertFalse(clarity.isCritical)
     }
 
-    @Test
-    fun `burning SPI raises the number you roll under, on the dice already cast`() {
-        // "You may spend additional SPI (1 SPI = +1, no cap) AFTER seeing your
-        // result" (p. 55). So the same total is re-read against a higher
-        // target; nothing is rolled twice.
-        val trivial = difficulty("Trivial")
-        val plain = Divination.attempt(10, trivial, fixed(4))
-        val pushed = Divination.pushed(plain, 3)
-        assertEquals(12, plain.roll.target)
-        assertEquals(15, pushed.roll.target)
-        assertEquals(plain.roll.total, pushed.roll.total)
-        assertEquals(3, pushed.spiBurned)
-        assertThrows<IllegalArgumentException> { Divination.pushed(plain, -1) }
-    }
-
-    @Test
-    fun `pushes accumulate on one question`() {
-        val plain = Divination.attempt(10, difficulty("Trivial"), fixed(4))
-        val twice = Divination.pushed(Divination.pushed(plain, 1), 2)
-        assertEquals(15, twice.roll.target)
-        assertEquals(3, twice.spiBurned)
-    }
-
-    @Test
-    fun `a push re-reads the clarity band, not just the target`() {
-        // 12 against a target of 12 is a bare success -- the mildest band.
-        // One SPI moves the margin and the row it lands on with it.
-        val plain = Divination.attempt(10, difficulty("Trivial"), fixed(4))
-        assertEquals(Outcome.SUCCESS, plain.roll.outcome)
-        val pushed = Divination.pushed(plain, 5)
-        assertEquals(5, pushed.roll.margin)
-        assertNotEquals(plain.clarity.clarity, pushed.clarity.clarity)
-    }
-
-    @Test
-    fun `a push is offered on a critical success, which still has a band to improve`() {
-        // EffortBurn refuses a roll under a critical-only rule because nothing
-        // can move it. A critical success is the opposite case: the book grades
-        // it by margin like any other, so a push still buys a better reading.
-        //
-        // Skill 1 on a Trivial (+2) question is a target of 3, and 1s on 3d6
-        // is a 3 -- a critical success by a margin of 0, which is the MILDEST
-        // band. A fixture already at "Crystal clear" would pass this test
-        // while the push did nothing.
-        val crit = Divination.attempt(1, difficulty("Trivial"), fixed(1))
-        assertEquals(Outcome.CRITICAL_SUCCESS, crit.roll.outcome)
-        assertEquals("Vague", crit.clarity.clarity)
-        assertTrue(Divination.canPush(crit))
-        val pushed = Divination.pushed(crit, 5)
-        assertEquals(Outcome.CRITICAL_SUCCESS, pushed.roll.outcome)
-        assertEquals(8, pushed.roll.target)
-        assertEquals("Crystal clear", pushed.clarity.clarity)
-    }
-
     /**
-     * A push buys a clearer answer and nothing else, and "Crystal clear" has
-     * none above it: play session 3 was offered +1 to +4 SPI there.
+     * v6.9i line 3671: "Burning SPI to improve the roll: As with rituals, you
+     * may spend additional SPI (1 SPI = +1, no cap) before rolling." v6.9d
+     * said "after seeing your result"; the push that re-read cast dice is gone.
      */
     @Test
-    fun `a crystal clear answer has nothing left to push for`() {
-        val clear = Divination.attempt(12, difficulty("Trivial"), fixed(1))
-        assertEquals("Crystal clear", clear.clarity.clarity)
-        assertFalse(Divination.canPush(clear))
-        assertEquals(clear, Divination.pushed(clear, 3))
-    }
-
-    @Test
-    fun `the critical-only rule survives a push, and refuses one`() {
-        // Sequence Immunity demotes a plain success. A burn moves the target
-        // and never the total, so no amount of it reaches a 3 or 4 -- the
-        // arithmetic EffortBurn.canPush already refuses.
-        //
-        // Asserted as the WHOLE outcome coming back: checking only the demoted
-        // verdict passes on a push that happened, because a higher target
-        // still demotes (Codex).
-        val warded = Divination.attempt(
-            10, difficulty("Trivial"), fixed(4), requiresCritical = true,
-        )
-        assertFalse(Divination.canPush(warded))
-        val pushed = Divination.pushed(warded, 4)
-        assertEquals(warded, pushed)
-        assertEquals(0, pushed.spiBurned)
-        assertEquals(Outcome.FAILURE, pushed.effectiveOutcome)
+    fun `SPI burned before rolling raises the number you roll under`() {
+        val trivial = difficulty("Trivial")
+        assertEquals(12, Divination.targetFor(10, trivial))
+        assertEquals(15, Divination.targetFor(10, trivial, burned = 3))
+        assertThrows<IllegalArgumentException> { Divination.targetFor(10, trivial, burned = -1) }
+        // 12 against a target of 12 is a bare success; 5 burned beforehand
+        // makes the same dice a margin of 5, read on the clarity table.
+        val burned = Divination.attempt(10, trivial, fixed(4), burned = 5)
+        assertEquals(5, burned.roll.margin)
+        assertEquals("Crystal clear", burned.clarity.clarity)
     }
 
     @Test

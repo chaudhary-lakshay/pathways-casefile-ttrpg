@@ -58,26 +58,6 @@ object Boons {
         RitualResolution.spiFor(weight(), chosen, burned)
 
     /**
-     * Whether a burn can still move [outcome] (ch. 13 via ch. 7, p. 66).
-     *
-     * **Chapter 13 prints no burn sentence of its own, and that is not its
-     * silence.** "The boon granting ritual uses the standard Ritualistic Magic
-     * system (see Chapter 7)" is the chapter's own first line about the
-     * procedure, and chapter 2's SPI row names Ritualistic Magic outright. So
-     * the push arrives here by referral rather than by resemblance -- the bar
-     * 6ck set for widening a rule, cleared by a sentence rather than by the
-     * two screens looking alike (6cx). What chapter 13 fixes is the baseline:
-     * Heavy complexity, Moderate weight. It replaces no part of chapter 7 it
-     * does not name. So ch. 7's top band refuses a push here too (play
-     * session 4): read off Step 4's band, which the boon dialog does not print.
-     */
-    fun canPush(outcome: RitualOutcome): Boolean = RitualResolution.canPush(outcome)
-
-    /** The same dice read against a target [points] SPI higher. See [canPush]. */
-    fun pushed(outcome: RitualOutcome, points: Int): RitualOutcome =
-        RitualResolution.pushed(outcome, points)
-
-    /**
      * The penalty for supplicating a boon at [sequence].
      *
      * READING. The book prints "Sequence 9 equivalent (+0), Sequence 8 (-2),
@@ -158,6 +138,10 @@ object Boons {
      * And no Flourish Bonus, for the same reason as the preparation it sits
      * beside: Phase II awards it for narrating the incantation, and chapter 13
      * prices that whole performance through its own Ritual quality row.
+     *
+     * [burned] is ch. 9's "Before rolling, spend additional SPI" (line 3960):
+     * the boon ritual "uses the standard Ritualistic Magic system", so the
+     * ritual's burn reaches it by that referral.
      */
     fun targetFor(
         skillLevel: Int,
@@ -166,11 +150,13 @@ object Boons {
         chosen: List<BoonModifier> = emptyList(),
         gmValue: Map<String, Int> = emptyMap(),
         language: LanguageProficiency? = null,
+        burned: Int = 0,
     ): Int = RitualResolution.targetFor(
         skillLevel = skillLevel + penaltyForSequence(sequence) + modifierTotal(chosen, gmValue),
         weight = weight(),
         cor = cor,
         language = language,
+        burned = burned,
     )
 
     /**

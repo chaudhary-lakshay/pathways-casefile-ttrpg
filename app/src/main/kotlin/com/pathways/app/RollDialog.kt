@@ -59,20 +59,13 @@ import com.pathways.rules.content.CommonModifier
 internal fun RollDialog(
     label: String,
     base: Int,
-    burnKind: BurnKind? = null,
-    // What the mystical push may spend. Not the maximum and not what the
-    // tracker shows: SPI already spent is gone, and 6ah's lesson is that
-    // passing a pool where a rule wants a different quantity is a defect no
-    // test catches.
-    spiAvailable: Int = 0,
-    // A push the book allows on part of what this skill covers, which the
-    // engine cannot test for itself. Shown, never applied.
-    conditionalBurnNote: String? = null,
+    // Ch. 2's burn, declared before the roll; null where none is allowed.
+    burn: BurnOffer? = null,
     // Chapter 8's equipment rows whose printed note names this skill in a
     // signed clause. Reference, never a modifier: this app records no gear
     // owned but weapons, the table prices two disguise kits that would stack, and
     // one of its penalties is aimed at whoever is looking FOR the wearer.
-    // Shown for the same reason the conditional push above is shown.
+    // Shown, never applied.
     equipment: List<String> = emptyList(),
     // The character's own conditional rows for this roll: the social ones on
     // a social skill and the ones naming this skill
@@ -90,10 +83,9 @@ internal fun RollDialog(
     onDismiss: () -> Unit,
 ) {
     var out by remember { mutableStateOf<SkillRollOutcome?>(null) }
-    // Points already burned on THIS roll. The book caps the FP side at +5 and
-    // caps the SPI side at nothing, so the ceiling comes from EffortBurn
-    // rather than from a number chosen here.
-    var burned by remember { mutableIntStateOf(0) }
+    // Points declared to burn on this roll: no cap (v6.9i).
+    var burnPoints by remember { mutableIntStateOf(0) }
+    val drawnBurn = if (burn == null) 0 else burnPoints
     val chosen = remember { mutableStateListOf<CommonModifier>() }
     // Which of this character's social circumstances the GM says hold. Keyed
     // on the clause, because Social Anxiety prints two that can both hold.
@@ -116,7 +108,10 @@ internal fun RollDialog(
             gmValue = gmValue.filterKeys { key ->
                 chosen.any { it.situation == key }
             },
-        ) + listOfNotNull(CommonModifiers.gmRuling(gmRuling)),
+        ) + listOfNotNull(
+            CommonModifiers.gmRuling(gmRuling),
+            burn?.let { EffortBurn.modifier(it.kind, drawnBurn) },
+        ),
         declaredClauses.toSet(),
     )
 
@@ -138,7 +133,12 @@ internal fun RollDialog(
                     // `standing` as this button was drawn beside it, never
                     // resolved again here: the number printed is the number
                     // rolled (6eg).
-                    if (out == null) out = roll(standing)
+                    // The burn is charged with the roll it bought, inside
+                    // the same guard, so a second tap charges nothing.
+                    if (out == null) {
+                        out = roll(standing)
+                        if (burn != null && drawnBurn > 0) onBurn(burn.kind, drawnBurn)
+                    }
                 },
             )
         },
@@ -189,6 +189,7 @@ internal fun RollDialog(
                         shown = signed(gmRuling),
                         note = "the GM's, for anything the chips do not name",
                     ) { gmRuling += it }
+                    if (burn != null) BurnStepper(burn, burnPoints) { burnPoints = it }
                     // What the target above is made of beyond the chips:
                     // the trackers and the traits. A circumstance picked
                     // here is already on screen as its own lit chip, and
@@ -232,52 +233,6 @@ internal fun RollDialog(
                     return@Column
                 }
                 ResultCard(shownOut)
-                // Ch. 2, p. 9: "You may use this after seeing the result."
-                // That is the whole reason this sits BELOW the result rather
-                // than beside the chips -- it is a decision made once the
-                // dice are known, and the same dice are then re-read against
-                // a higher target.
-                // Withheld when the burn cannot move the result: a roll that
-                // never happened, or one only a critical can win, where the
-                // total decides and raising the target changes nothing.
-                if (burnKind != null && EffortBurn.canPush(shownOut)) {
-                    // The count this row's chips are offered against.
-                    val drawn = burned
-                    BurnRow(burnKind, burned, spiAvailable) { points ->
-                        // The LIVE outcome, never the `shownOut` captured when
-                        // this lambda was composed: two taps before a
-                        // recomposition would both read the stale one, so the
-                        // second push would overwrite the first while the pool
-                        // paid for both. Bail rather than guess if it is gone.
-                        val live = out ?: return@BurnRow
-                        // And the live count. A second tap of the same
-                        // picture buys nothing: its chip was offered against
-                        // `drawn`, so +3 twice threw past the FP cap, and on
-                        // the SPI row it spent a pool the first tap had
-                        // emptied, which is permanent CoR. Dropped, not
-                        // honoured: the pool moves at the tap here, and
-                        // `spiAvailable` is the balance this row was drawn
-                        // with (the design review). The row redraws.
-                        if (burned != drawn) return@BurnRow
-                        out = EffortBurn.pushed(live, burnKind, points, burned, spiAvailable)
-                            ?: return@BurnRow
-                        onBurn(burnKind, points)
-                        burned += points
-                    }
-                }
-                // Occultism's push is scoped to "vs. Beyonder phenomena", and
-                // a SkillKey carries no subject matter. Naming it beats both
-                // alternatives: granting it would push rolls the book does
-                // not, and withholding it in silence would hide a printed
-                // rule -- the shape a wealth level's reaction modifier and a
-                // called shot's multiplier already take.
-                if (conditionalBurnNote != null && EffortBurn.canPush(shownOut)) {
-                    Text(
-                        conditionalBurnNote,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 12.dp),
-                    )
-                }
             }
         },
     )

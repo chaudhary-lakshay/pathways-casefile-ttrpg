@@ -27,8 +27,6 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Corruption
 import com.pathways.rules.Languages
 import com.pathways.rules.content.LanguageProficiency
-import com.pathways.rules.BurnKind
-import com.pathways.rules.Pools
 import com.pathways.rules.PowerSources
 import com.pathways.rules.Boons
 import com.pathways.rules.RitualResolution
@@ -64,10 +62,7 @@ internal fun boonRefusal(
     patron: String?,
     held: BoonState?,
     next: BoonState?,
-    cost: Int,
-    spiAvailable: Int,
     lost: Boolean = false,
-    hpSacrificed: Int = 0,
     language: LanguageProficiency? = null,
 ): String? = standingRefusal(skillLevel, lost) ?: when {
     patron == null -> "Choose a patron."
@@ -77,12 +72,7 @@ internal fun boonRefusal(
     // Ch. 3's mystical table, by the owner's ruling (6hq).
     language != null && !Languages.canPerformRituals(language) ->
         "No prayer in a ${language.proficiency} tongue: the book forbids a ritual in it."
-    // Ch. 9 IV, which ch. 15 III defers to: "2 HP = 1 SPI toward ritual
-    // cost". It is how a mortal, who plays SPI 0, prays at all.
-    !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
-        "No supplication — this costs ${PowerSources.spiOwed(cost, hpSacrificed)} SPI and only " +
-            "$spiAvailable is left. SPI cannot be spent below 0. Pay in HP: " +
-            "${PowerSources.HP_PER_SPI} HP counts as 1 SPI."
+    // No fuel refusal: v6.9i prints no floor on spending SPI (ruling 11).
     else -> null
 }
 
@@ -153,7 +143,7 @@ private fun endsOf(row: BoonModifier): List<Int> = endsBetween(row.modifier, row
  * weight at Moderate (the "Heavy" it also prints is the running time), and
  * the Sequence asked for is [nextBoon]'s: the next rung the book prints for
  * the patron. A granted boon is handed to [onGranted] when the dialog
- * settles, never at the roll -- a push can still turn the verdict.
+ * settles.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -166,7 +156,6 @@ fun BoonDialog(
     /** The held rows' declared "-N to all rolls" (6gs), named for the same reason. */
     states: ClauseBonus = ClauseBonus(0, null),
     cor: Int,
-    spiAvailable: Int,
     /** The boon already held: its patron is the only one petitioned again. */
     held: BoonState?,
     nextBoon: (String) -> BoonState?,
@@ -199,8 +188,8 @@ fun BoonDialog(
     // label, which the two groups are free to share.
     val picked = remember { mutableStateMapOf<String, Int>() }
     var spiChoice by remember { mutableIntStateOf(granting.spi) }
-    // Ch. 13's ritual is chapter 7's, by its own first sentence about the
-    // procedure -- so chapter 7's post-roll push reaches it. See Boons.canPush.
+    // Ch. 9's "Before rolling, spend additional SPI": the boon ritual "uses
+    // the standard Ritualistic Magic system". See Boons.targetFor.
     var burned by remember { mutableIntStateOf(0) }
     var settled by remember { mutableStateOf(false) }
     var patron by remember { mutableStateOf(held?.pathway) }
@@ -226,7 +215,7 @@ fun BoonDialog(
     } else {
         Boons.targetFor(
             skillLevel + hurt + shock + states.total, cor, next.sequence, picks, overrides,
-            language = language,
+            language = language, burned = burned,
         )
     }
     val cost = Boons.spiFor(spiChoice)
@@ -236,13 +225,12 @@ fun BoonDialog(
     val spiOwed = PowerSources.spiOwed(cost, hpSacrificed)
     // The HP as DRAWN beside that SPI, for the handler (Codex).
     val hpOwed = hpSacrificed
+    val burnOwed = burned
 
-    // One place charges the push and the consequence and stores the grant,
-    // off the FINAL outcome: see RitualDialog for why not at the roll.
+    // One place charges the consequence and stores the grant.
     val settle = {
         if (!settled) {
             settled = true
-            if (burned > 0) onSpendSpi(burned)
             outcome?.critical?.corGained?.let(onCorGained)
             if (outcome?.succeeded == true) asked?.let(onGranted)
         }
@@ -261,8 +249,6 @@ fun BoonDialog(
             val result = outcome
             if (result != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    // The final outcome, pushed or not: a push re-reads the
-                    // same dice against the raised target, roll and all.
                     VerdictCard(
                         if (result.succeeded) "The boon is granted" else "The prayer fails",
                         result.succeeded,
@@ -271,31 +257,6 @@ fun BoonDialog(
                         // No Step 4 grade: the old screen never printed one
                         // for a boon, and printing it is a rule claim.
                         RitualFailureLines(result)
-                    }
-                    if (Boons.canPush(result)) {
-                        BurnRow(
-                            kind = BurnKind.MYSTICAL,
-                            burned = burned,
-                            spiAvailable = spiAvailable - burned,
-                            note = "Separate from the ritual's fuel, which is " +
-                                "already paid. Charged when this closes.",
-                        ) { points ->
-                            // See RitualDialog: the row was drawn against a
-                            // value two taps can outrun.
-                            val live = outcome ?: return@BurnRow
-                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
-                                return@BurnRow
-                            }
-                            burned += points
-                            outcome = Boons.pushed(live, points)
-                        }
-                    } else if (burned > 0) {
-                        // A push that reached the top band ends the row, and
-                        // the SPI it took is still owed (Divination's, 6hw).
-                        Text(
-                            "Pushed $burned SPI. Charged when this closes.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
                     }
                     val granted = asked
                     if (result.succeeded && granted != null) {
@@ -392,6 +353,12 @@ fun BoonDialog(
                             )
                         }
                     }
+                    OptionStepper(
+                        label = "Burn SPI",
+                        value = burned,
+                        shown = "+$burned",
+                        note = "before rolling: 1 SPI buys +1, no cap, separate from the fuel",
+                    ) { burned = (burned + it).coerceAtLeast(0) }
                     // Ch. 7 IV.B. Fuel, never a bonus.
                     SectionLabel("Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)")
                     FlowRow {
@@ -433,13 +400,7 @@ fun BoonDialog(
                         Text(granting.boonLevelRule, style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                // A boon IS a ch. 7 ritual with its parameters fixed (6r),
-                // so Power Source A's floor applies here too: "SPI cannot
-                // be reduced below 0."
-                val refusal = boonRefusal(
-                    skillLevel, patron, held, next, cost, spiAvailable, lost, hpSacrificed,
-                    language = language,
-                )
+                val refusal = boonRefusal(skillLevel, patron, held, next, lost, language = language)
                 RitualFooter(
                     terms = listOfNotNull(
                         skillLevel?.let { "${granting.skill} $it" },
@@ -451,9 +412,10 @@ fun BoonDialog(
                         if (shock != 0) "$shock shock" else null,
                         states.line,
                         Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
+                        if (burned > 0) "+$burned SPI burned" else null,
                     ),
                     target = target,
-                    cost = "costs " + fuelLine(spiOwed, hpSacrificed) + ", takes ${granting.complexityTime}",
+                    cost = "costs " + fuelLine(spiOwed + burnOwed, hpSacrificed) + ", takes ${granting.complexityTime}",
                     refusal = refusal,
                     label = "Pray",
                     icon = Icons.Filled.Church,
@@ -466,11 +428,9 @@ fun BoonDialog(
                     outcome = RitualResolution.rollAgainst(target, dice)
                     // Spent whether or not the Great One grants it: "No
                     // effect. SPI and materials spent."
-                    onSpendSpi(spiOwed)
+                    onSpendSpi(spiOwed + burnOwed)
                     if (hpOwed > 0) onSpendHp(hpOwed)
-                    // The CoR and the grant wait for [finish]: a push
-                    // can take this off the Critical Failure Table, or
-                    // onto a success.
+                    // The CoR and the grant wait for [finish].
                 }
             }
         },

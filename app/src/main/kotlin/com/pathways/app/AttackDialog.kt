@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -84,28 +85,11 @@ internal fun AttackDialog(
     dice: CharacterDice,
     onSpendFp: (Int) -> Unit,
     /**
-     * What is left of the character's SPI, for Ch. 2's mystical push.
-     *
-     * This was a hardcoded 0 from the day [BurnRow] gained the parameter, and
-     * no slice ever argued for it. `EffortBurn.affordable` reads it, so a 0
-     * drove that row's early return and told a Beyonder at full SPI they had
-     * "no spirituality left" -- on a screen that had just printed the rule
-     * granting the push. That was reachable while every owned skill was
-     * offered here. No COMBAT SKILLS row is SPI-based, so no attack pushes
-     * with SPI today; the balance is still passed, live, so the row stays
-     * true if one ever does.
-     *
-     * Must be passed as a LIVE expression by the caller, never a remembered
-     * one: a maneuver can make two attacks and they share this one pool.
-     */
-    spiAvailable: Int,
-    /**
-     * Ch. 2's push, charged through the tracker.
+     * Ch. 2's burn, charged through the tracker with the roll it bought.
      *
      * Takes the KIND rather than being a second FP-shaped callback: the
      * kind-to-pool question is answered once, in the caller both dialogs
-     * share. The old handler charged the physical half and silently dropped
-     * the mystical one, which would have moved a target for free.
+     * share.
      */
     onBurn: (BurnKind, Int) -> Unit,
     /**
@@ -207,11 +191,8 @@ internal fun AttackDialog(
     // charged once -- rolling the second attack as a fresh maneuver would
     // charge the 2 FP twice.
     var outcomes by remember { mutableStateOf<List<SkillRollOutcome>>(emptyList()) }
-    // Points pushed onto each roll, keyed by its index in [outcomes]. Keyed
-    // rather than counted once because "Max +5 per roll" is per ROLL, and a
-    // Rapid Strike is two -- the per-call-vs-per-roll slip 6ak already made
-    // once, here in the one place the distinction is visible on screen.
-    var burned by remember { mutableStateOf<Map<Int, Int>>(emptyMap()) }
+    // Points declared to burn on each attack roll, before the dice (v6.9i).
+    var burnPoints by remember { mutableIntStateOf(0) }
     // The damage the attack was drawn with, kept at Roll so a hit rolls what
     // was printed, and each hit's throw by index (play session 1: "2d pi"
     // printed and nothing rolled it).
@@ -234,6 +215,8 @@ internal fun AttackDialog(
     // the handler drawn beside it, so the two cannot disagree (6eg).
     val charm = chosen?.let { charmFor(traits, it.key) }
     val traitMods = chosen?.let { traitTerms(traits, it.key, killerTarget, setOfNotNull(charm?.key?.takeIf { charmLit })) }.orEmpty()
+    val burn = chosen?.let { BurnOffer.of(EffortBurn.kindFor(it.key), traits) }
+    val drawnBurn = if (burn == null) 0 else burnPoints
     val isMastered = chosen != null && level != chosen.level
     val label = chosen?.let {
         it.key.label() + when {
@@ -254,8 +237,7 @@ internal fun AttackDialog(
                         // or cover would modify the next roll invisibly
                         // (Codex).
                         outcomes = emptyList()
-                        // The pushes belong to the rolls they were spent on.
-                        burned = emptyMap()
+                        burnPoints = 0
                         rolledDamage = null
                         damageRolls = emptyMap()
                         picked = null
@@ -301,46 +283,6 @@ internal fun AttackDialog(
                                     val attack = outcome.roll?.outcome ?: Outcome.SUCCESS
                                     damageRolls = damageRolls + (index to Damage.onAttack(thrown, attack))
                                 }
-                            }
-                        }
-                        // Ch. 2's FP push, whose scope names attack rolls
-                        // outright: "any roll based on ST, DX, or HT (attack
-                        // rolls, dodging, climbing, lifting, etc.)". It was
-                        // wired only into the generic skill dialog, so the
-                        // one roll the rule names first could not use it.
-                        //
-                        // PER OUTCOME, because the cap is "Max +5 per roll"
-                        // and All-Out Double and Rapid Strike each make two:
-                        // one shared budget would let a fighter push one
-                        // attack with the other's allowance. `burned` is
-                        // therefore keyed by index and reset with the roll.
-                        // One skill per maneuver, so every outcome here shares
-                        // one kind: "you cannot spend both FP and SPI on the
-                        // same roll" cannot be violated from this dialog, and
-                        // EffortBurn.requireOnePool is deliberately not called.
-                        // Said out loud because a future multi-skill combo
-                        // would break that silently (a design review).
-                        val kind = chosen?.key?.let(EffortBurn::kindFor)
-                        if (kind != null && EffortBurn.canPush(outcome)) {
-                            // Every count the chips below are offered against.
-                            val drawn = burned
-                            BurnRow(kind, drawn[index] ?: 0, spiAvailable) { points ->
-                                // The skill dialog's two guards, which this
-                                // row had neither of. A second tap of the
-                                // same picture pushed the `outcome` this item
-                                // was drawn with, so +1 twice charged 2 FP for
-                                // +1, and +3 twice threw past the cap. The
-                                // whole map, because a push on the other
-                                // attack moves the pool this one is drawn
-                                // against.
-                                if (burned != drawn) return@BurnRow
-                                val live = outcomes.getOrNull(index) ?: return@BurnRow
-                                val already = burned[index] ?: 0
-                                val next = EffortBurn.pushed(live, kind, points, already, spiAvailable)
-                                    ?: return@BurnRow
-                                outcomes = outcomes.toMutableList().also { it[index] = next }
-                                burned = burned + (index to already + points)
-                                onBurn(kind, points)
                             }
                         }
                     }
@@ -412,7 +354,10 @@ internal fun AttackDialog(
                             meleeModifiers(plan, circumstances) +
                             traitMods +
                             stateModifiers +
-                            listOfNotNull(location?.let(Wounds::modifier)),
+                            listOfNotNull(
+                                location?.let(Wounds::modifier),
+                                burn?.let { EffortBurn.modifier(it.kind, drawnBurn) },
+                            ),
                     )
                     val attacks = Attacks.attackCount(plan)
                     val fp = Attacks.fpCost(plan)
@@ -545,13 +490,14 @@ internal fun AttackDialog(
                         },
                         standing = standing.target,
                         fromTrackers = standing.fromTrackers,
+                        burn = burn,
+                        burnPoints = drawnBurn,
+                        onBurnPoints = { burnPoints = it },
                         onRoll = onRoll@{
                             // The guard every roll button here carries (6p), and
                             // this one did not: a second tap of the same picture
                             // rolled again and charged the plan's FP again.
                             if (outcomes.isNotEmpty()) return@onRoll
-                            // A fresh roll starts with a fresh +5 budget per roll.
-                            burned = emptyMap()
                             // The target printed above the button, the count and
                             // the cost as they were drawn. Nothing the plan is
                             // made of is read again here (6eg).
@@ -559,6 +505,8 @@ internal fun AttackDialog(
                             rolledDamage = damage
                             damageRolls = emptyMap()
                             fp.takeIf { it > 0 }?.let(onSpendFp)
+                            // The declared burn, once per attack roll it bought.
+                            if (burn != null && drawnBurn > 0) onBurn(burn.kind, drawnBurn * attacks)
                         },
                     )
                 }

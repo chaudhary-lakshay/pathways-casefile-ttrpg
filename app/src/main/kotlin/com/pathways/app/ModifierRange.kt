@@ -82,9 +82,8 @@ internal fun <R : Any> pickInside(row: R?, held: Pair<R, Int>?): Int? =
  * made at a table.
  *
  * **That ceiling is harder here than the burn's, and the difference is
- * deliberate.** `BurnRow` offers four as an INCREMENT, so a caster who taps
- * twice has spent eight; this is a terminal selection, so a seventh repeat is
- * unexpressible. The narrower reading ships because the penalty grows without
+ * deliberate.** The burn is a stepper with no top; this is a terminal
+ * selection, so a seventh repeat is unexpressible. The narrower reading ships because the penalty grows without
  * limit and the row is the GM's declaration about history rather than a
  * purchase -- a diviner who has asked the same question seven times is in
  * territory the screen should hand back to the GM rather than price. Widen it
