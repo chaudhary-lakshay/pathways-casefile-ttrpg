@@ -298,7 +298,7 @@ Pick *Invocation* to borrow an entity's power. The GM sets the bonus from +1 to 
 
 #### Petitioning for revelations
 
-A ritual that asks an entity for revelations takes that entity's penalty. Tap *Seven Lights of the Divine Throne -20* or *Deities (Orthodox or Hidden) -40*. For the Seven Lights, step **Sacrifices to appease**: each one reduces the penalty by 5, down to 0. A deity's penalty stays at -40, because the book's *Blessed by Deity* advantage is in no advantage table.
+A ritual that asks an entity for revelations takes that entity's penalty. Tap *Seven Lights of the Divine Throne -20* or *Deities (Orthodox or Hidden) -40*. For the Seven Lights, step **Sacrifices to appease**: each one reduces the penalty by 5, down to 0. A deity's penalty is -40, or -10 if the caster has the *Blessed by Deity* advantage. That advantage is in no advantage table, so it cannot be bought: the GM declares it with *Blessed by Deity, the GM declares: -10*.
 
 A failure rolls on the failure table and a critical on its own table.
 

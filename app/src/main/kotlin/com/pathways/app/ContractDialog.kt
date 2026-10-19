@@ -91,11 +91,12 @@ internal fun ContractDialog(
                     }
                 }
                 RollFooter(
-                    lines = listOfNotNull(
+                    // Every line drawn from the start, so a step moves no button.
+                    lines = listOf(
                         "Ritualistic Magic $skillLevel",
                         "Sequence -$sequence",
-                        held.takeIf { it > 0 }?.let { "-${it}d6, rolled at Cast" },
-                        burned.takeIf { it > 0 }?.let { "Burn +$it" },
+                        "-${held}d6, rolled at Cast",
+                        "Burn +$burned",
                         "${SpiritContract.spi() + burned} SPI",
                     ),
                     caption = if (full) "$maxContracts contracts held: no other can be made" else SuccessRoll.printed(before),

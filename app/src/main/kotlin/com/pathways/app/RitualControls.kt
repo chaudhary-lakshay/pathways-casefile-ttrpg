@@ -263,8 +263,10 @@ internal fun RitualPowerSourceChips(
 internal fun RevelationPicker(
     revelation: RitualRevelation?,
     sacrifices: Int,
+    blessed: Boolean,
     onRevelation: (RitualRevelation?) -> Unit,
     onSacrificeStep: (Int) -> Unit,
+    onToggleBlessed: () -> Unit,
 ) {
     SectionLabel("Petitioning for revelations")
     FlowRow {
@@ -284,16 +286,28 @@ internal fun RevelationPicker(
         }
     }
     val reduces = revelation?.perSacrifice != null
+    val blessable = revelation?.reducibleTo != null
+    // Both drawn for every pick, with one-line notes, so a pick moves no row.
     OptionStepper(
         label = "Sacrifices to appease",
         value = sacrifices,
-        shown = signed(revelation?.let { PowerSources.revelationPenalty(it, if (reduces) sacrifices else 0) } ?: 0),
+        shown = signed(
+            revelation?.let {
+                PowerSources.revelationPenalty(it, if (reduces) sacrifices else 0, blessable && blessed)
+            } ?: 0,
+        ),
         note = when {
             revelation == null -> "no entity petitioned"
-            reduces -> revelation.reduction
-            else -> "no sacrifice reduces it; Blessed by Deity is in no advantage table"
+            reduces -> "-5 each; the GM says what counts"
+            else -> "no sacrifice reduces a deity's"
         },
         onStep = { if (reduces) onSacrificeStep(it) },
+    )
+    CaseChip(
+        selected = blessable && blessed,
+        enabled = blessable,
+        onClick = { if (blessable) onToggleBlessed() },
+        label = { Text("Blessed by Deity, the GM declares: -10") },
     )
 }
 

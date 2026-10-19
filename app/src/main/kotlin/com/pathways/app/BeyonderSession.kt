@@ -643,7 +643,7 @@ class BeyonderSession(
      */
     fun rest(recovery: com.pathways.rules.RestRecovery, drawn: Pair<Int, Int>): Boolean {
         if (isLost || drawn != (fpLost to spiSpent)) return false
-        fpLost = (fpLost - recovery.fp).coerceAtLeast(0)
+        fpLost = if (recovery.allFp) 0 else (fpLost - recovery.fp).coerceAtLeast(0)
         spiSpent = (spiSpent - recovery.spi).coerceAtLeast(0)
         persist()
         return true

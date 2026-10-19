@@ -17,7 +17,8 @@ class RestTest {
     @Test
     fun `a long rest restores all FP and 9 SPI, 18 with Cogitation`() {
         val long = Rest.named("Long Rest")
-        assertEquals(RestRecovery(fp = 12, spi = 9), Rest.recovery(long, cogitated = false, maxFp = 12))
-        assertEquals(RestRecovery(fp = 12, spi = 18), Rest.recovery(long, cogitated = true, maxFp = 12))
+        // "All FP restored": all of it, even from below 0, so the recovery says so.
+        assertEquals(RestRecovery(fp = 12, spi = 9, allFp = true), Rest.recovery(long, cogitated = false, maxFp = 12))
+        assertEquals(RestRecovery(fp = 12, spi = 18, allFp = true), Rest.recovery(long, cogitated = true, maxFp = 12))
     }
 }

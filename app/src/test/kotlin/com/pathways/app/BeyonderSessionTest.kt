@@ -500,6 +500,10 @@ class BeyonderSessionTest {
         assertEquals(0, s.spiSpent)
         assertFalse(s.rest(com.pathways.rules.RestRecovery(fp = 18, spi = 3), drawn = 10 to 2))
         assertEquals(0, saved().fpLost)
+        // A long rest from below 0 FP ends full: "All FP restored" (book 3513).
+        val (low, _) = session(SavedSession(fpLost = 15))
+        assertTrue(low.rest(com.pathways.rules.RestRecovery(fp = 12, spi = 9, allFp = true), drawn = 15 to 0))
+        assertEquals(0, low.fpLost)
     }
 
     /**

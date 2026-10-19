@@ -250,5 +250,10 @@ class PowerSourcesTest {
         assertEquals(-40, PowerSources.revelationPenalty(deity, sacrifices = 0))
         assertThrows<IllegalArgumentException> { PowerSources.revelationPenalty(deity, sacrifices = 1) }
         assertTrue(ContentLoader.advantages().none { it.name.startsWith("Blessed by") })
+        // So the GM declares it: "Reducible to -10 if the caster possesses the
+        // Blessed by Deity advantage" (4022), applied on the declaration.
+        assertEquals(-10, PowerSources.revelationPenalty(deity, sacrifices = 0, blessedByDeity = true))
+        val lights = PowerSources.revelationNamed("Seven Lights of the Divine Throne")
+        assertThrows<IllegalArgumentException> { PowerSources.revelationPenalty(lights, 0, blessedByDeity = true) }
     }
 }

@@ -33,8 +33,11 @@ data class PowerSourceDeclaration(
     val revelation: Revelation? = null,
 )
 
-/** A petition for revelations (v6.9i 4008): the entity, and the sacrifices made to it. */
-data class Revelation(val entity: RitualRevelation, val sacrifices: Int = 0)
+/**
+ * A petition for revelations (v6.9i 4008): the entity, the sacrifices made
+ * to it, and whether the GM declares the caster holds Blessed by Deity.
+ */
+data class Revelation(val entity: RitualRevelation, val sacrifices: Int = 0, val blessedByDeity: Boolean = false)
 
 /**
  * Ritual power sources (Ch. 9 IV, v6.9i).
@@ -94,11 +97,16 @@ object PowerSources {
     /**
      * The penalty petitioning [entity] puts on the Ritualistic Magic roll.
      * The Seven Lights' "-5 per sacrifice" reduces it, READ as reaching 0
-     * and never a bonus. The deities' "-10 with Blessed by Deity" is not
-     * applied: no advantage table prints that row, so no character holds it.
+     * and never a bonus: the column is a reduction of a penalty. The
+     * deities' "Reducible to -10 if the caster possesses the Blessed by Deity
+     * advantage" is applied on the GM's declaration: no advantage table
+     * prints that row, so it cannot be bought, only declared.
      */
-    fun revelationPenalty(entity: RitualRevelation, sacrifices: Int): Int {
+    fun revelationPenalty(entity: RitualRevelation, sacrifices: Int, blessedByDeity: Boolean = false): Int {
         require(sacrifices >= 0) { "sacrifices cannot be negative (was $sacrifices)" }
+        if (blessedByDeity) {
+            return requireNotNull(entity.reducibleTo) { "${entity.entity} prints no Blessed by Deity reduction" }
+        }
         val per = entity.perSacrifice ?: 0
         require(sacrifices == 0 || per > 0) { "${entity.entity} prints no reduction per sacrifice" }
         return minOf(0, entity.penalty + per * sacrifices)
@@ -192,6 +200,6 @@ object PowerSources {
             sacrificeBonus(declaration.sacrifice) +
             invocationBonus(declaration.invocation) +
             (if (declaration.suspended) SUSPENSION_PENALTY else 0) +
-            (declaration.revelation?.let { revelationPenalty(it.entity, it.sacrifices) } ?: 0)
+            (declaration.revelation?.let { revelationPenalty(it.entity, it.sacrifices, it.blessedByDeity) } ?: 0)
     }
 }

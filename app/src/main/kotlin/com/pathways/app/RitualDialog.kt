@@ -170,6 +170,7 @@ fun RitualDialog(
     var invocation by remember { mutableIntStateOf(PowerSources.INVOCATION_LOWEST) }
     var revelation by remember { mutableStateOf<RitualRevelation?>(null) }
     var sacrifices by remember { mutableIntStateOf(0) }
+    var blessed by remember { mutableStateOf(false) }
     // Injury and fatigue reach a ritual like any other roll; the CoR penalty
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
@@ -182,7 +183,9 @@ fun RitualDialog(
         sacrifice = sacrifice,
         suspended = suspended,
         invocation = invocationApplied(invoked, orthodox, invocation),
-        revelation = revelation?.let { Revelation(it, if (it.perSacrifice != null) sacrifices else 0) },
+        revelation = revelation?.let {
+            Revelation(it, if (it.perSacrifice != null) sacrifices else 0, it.reducibleTo != null && blessed)
+        },
     )
     // Not computed at all when the book forbids the attempt: Broken prints
     // "Cannot perform rituals in the language", and targetFor refuses it
@@ -320,7 +323,9 @@ fun RitualDialog(
                     RevelationPicker(
                         revelation = revelation,
                         sacrifices = sacrifices,
+                        blessed = blessed,
                         onRevelation = { revelation = it },
+                        onToggleBlessed = { blessed = !blessed },
                         // Stepped from the live value, so two taps step twice.
                         onSacrificeStep = { sacrifices = (sacrifices + it).coerceAtLeast(0) },
                     )

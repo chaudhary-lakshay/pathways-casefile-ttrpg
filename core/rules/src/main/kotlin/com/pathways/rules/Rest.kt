@@ -3,8 +3,12 @@ package com.pathways.rules
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.RestPeriod
 
-/** What a rest gives back: FP and SPI, each to be capped by the pool it refills. */
-data class RestRecovery(val fp: Int, val spi: Int)
+/**
+ * What a rest gives back: FP and SPI, each to be capped by the pool it
+ * refills. [allFp] is a long rest's "All FP restored", which ends full even
+ * from below 0, where [fp] alone would not.
+ */
+data class RestRecovery(val fp: Int, val spi: Int, val allFp: Boolean = false)
 
 /**
  * Ch. 7's Rest (v6.9i): a Short Rest (3 hours) or a Long Rest (9 hours).
@@ -32,6 +36,6 @@ object Rest {
     fun recovery(rest: RestPeriod, cogitated: Boolean, maxFp: Int): RestRecovery {
         val spi = ContentLoader.restFile().spi
         val fp = if (rest.allFp) maxFp else Math.floorDiv(rest.hours * 60, MINUTES_PER_FP)
-        return RestRecovery(fp, rest.hours * if (cogitated) spi.cogitationPerHour else spi.perHour)
+        return RestRecovery(fp, rest.hours * if (cogitated) spi.cogitationPerHour else spi.perHour, rest.allFp)
     }
 }
