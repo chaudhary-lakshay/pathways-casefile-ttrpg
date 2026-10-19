@@ -14,8 +14,9 @@ import org.junit.jupiter.api.Test
  * The page prints THREE things and only one of them is new content. Its
  * "Cumulative CP" grid (source lines 2206-2230) is a truncated second printing
  * of the skill cost grid `skill_ladder.json` already carries from p. 25-26,
- * and its Character Creation Summary (2238-2244) restates constants
- * [PointBudget] and [AttributeCosts] have held since M0. Both are checked here
+ * and its Character Creation Summary (v6.9d 2238-2244; v6.9i deleted the
+ * box, and ch. 2's point budget table and Step 3 now print the same
+ * numbers) restates constants [PointBudget] and [AttributeCosts] hold. Both are checked here
  * rather than stored: a second copy of a table this repo already commits is
  * the silent merge 4.1 forbids, and the AGREEMENT is the only thing a second
  * printing is good for -- the standard 6y's two preparation tables and 6aa's
@@ -202,15 +203,15 @@ class GoldenStudyPointsTest {
 
     @Test
     fun `the printed budget agrees with the constants it is built from`() {
-        // Lines 2239-2244, bullet by bullet. Every one is a live constant,
-        // which is what makes the summary checkable rather than authoritative
-        // -- 6v's rule, and the reason it is not extracted either.
+        // v6.9i's Point Budget table (563-575) and Step 3 (1201-1203), the
+        // numbers v6.9d's deleted summary box printed. Every one is a live
+        // constant -- 6v's rule, and the reason it is not extracted either.
         assertEquals(70, PointBudget.STARTING_TOTAL)
         assertEquals(40, PointBudget.MAX_DISADVANTAGES)
         // And the third constant, which is NOT in that box: the summary prints
         // the -40 and says nothing about quirks, so a guard reading only those
         // bullets had a corpus that excluded MAX_QUIRKS. Its printing wraps
-        // across lines 1121-1122 -- "Up to 5 ADDITIONAL points of quirks
+        // across v6.9i lines 1202-1203 -- "Up to 5 additional points of quirks
         // (minor personality traits at -1 pt each) are allowed" -- and
         // `additional` is what makes the budget 70 + min(dis, 40) +
         // min(quirks, 5) rather than quirks coming out of the -40. The
