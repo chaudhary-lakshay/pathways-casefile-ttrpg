@@ -97,7 +97,7 @@ class ModifierRangeTest {
         }
         // The INTERIOR, which first-and-last cannot see: "-2 to -4" prints -3,
         // and an offer of the two ends alone passes everything above.
-        val poorOrNone = RitualMode.QUICK.preparationNamed("Poor / None")
+        val poorOrNone = RitualMode.QUICK.preparationNamed("Poor/None")
         assertEquals(
             listOf(-2, -3, -4),
             valuesOf(poorOrNone.modifier, poorOrNone.best, poorOrNone.openEnded),

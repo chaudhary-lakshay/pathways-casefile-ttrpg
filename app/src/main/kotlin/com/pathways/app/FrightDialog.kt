@@ -217,7 +217,9 @@ internal fun FrightDialog(
                     triggers.forEach { trigger ->
                         TriggerRow(trigger, selected = trigger == chosen) {
                             picked = trigger
-                            modifier = trigger.modifier
+                            // "GM discretion" prints no number: start at
+                            // +0 and let the GM step it.
+                            modifier = trigger.modifier ?: 0
                         }
                     }
                     // Three of the book's five rows do not print a single

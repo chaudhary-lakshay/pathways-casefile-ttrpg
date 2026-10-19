@@ -82,12 +82,23 @@ class FrightCheckTest {
 
     @Test
     fun `triggers keep the range the GM chooses inside`() {
-        val monster = FrightCheck.triggers().single { it.trigger.startsWith("Encountering a monster") }
-        assertEquals(-2, monster.modifier)
-        assertEquals(-6, monster.worstCase)
+        // v6.9i prints one row per monster Sequence, 9 down to 0, each a
+        // single number: no range left to choose inside.
+        val seq9 = FrightCheck.triggers().single { it.trigger.startsWith("Encountering a Seq 9") }
+        assertEquals(-2, seq9.modifier)
+        assertNull(seq9.worstCase)
         val outerGod = FrightCheck.triggers().single { it.trigger.startsWith("Outer God") }
         assertTrue(outerGod.openEnded)
         assertNull(outerGod.worstCase)
+    }
+
+    @Test
+    fun `the mundane fright row prints no number, so it carries none`() {
+        // "Frightening situations with no Beyonder influence: GM discretion".
+        val mundane = FrightCheck.triggers().single { it.trigger.startsWith("Frightening situations") }
+        assertTrue(mundane.gmDiscretion)
+        assertNull(mundane.modifier)
+        assertEquals(14, FrightCheck.triggers().size)
     }
 
     @Test

@@ -606,11 +606,10 @@ fun RitualDialog(
                                 "Consequential magic — three phases. Preparation " +
                                     "reaches +3 and already includes the link."
                             },
-                            "${weight.weight}: ${weight.categories}",
+                            weight.categories?.let { "${weight.weight}: $it" },
                             "${complexity.complexity}: ${complexity.description} — ${complexity.baseTime}",
                             sacrifice?.let { "${it.tier} sacrifice: ${it.looksLike}" },
-                            "${preparation.quality} preparation: ${preparation.looksLike}",
-                            link?.let { "${it.link} link: ${it.looksLike}" },
+                            link?.let { l -> l.looksLike?.let { "${l.link} link: $it" } },
                             language?.let { "${it.proficiency}: ${it.effect}" },
                         ).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) }
                     }

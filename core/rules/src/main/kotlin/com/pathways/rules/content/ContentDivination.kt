@@ -242,7 +242,6 @@ data class TechniqueBullet(val label: String, val text: String)
 data class AntiDivinationItem(
     val name: String,
     val effect: String,
-    val cost: String,
     val detectionBonus: Int? = null,
     val ritualDetectionPenalty: Int? = null,
 )

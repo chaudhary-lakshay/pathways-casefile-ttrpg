@@ -47,22 +47,31 @@ data class HpRecoveryRow(val method: String, val recovered: String, val notes: S
 }
 
 /**
- * One row of the Fright Check trigger table (Ch. 5, p. 43).
+ * One row of the Fright Check trigger table (Ch. 5).
  *
- * [modifier] is the gentler end of what the row prints, because that is the
- * only figure all three printed shapes share: a flat "+2", a range
- * ("-2 to -6", whose other end is [worstCase]), and "-8 or worse" (which sets
- * [openEnded] and has no other end at all). The GM picks inside the range;
- * [printed] is what they are picking from.
+ * [modifier] is the gentler end of what the row prints: a flat "+2", a range
+ * (whose other end is [worstCase]), or "-20 or worse" (which sets [openEnded]
+ * and has no other end at all). [printed] is what the GM picks from.
+ *
+ * [gmDiscretion] marks v6.9i's mundane row, which prints "GM discretion" and
+ * no number: [modifier] is null there, because the book charging nothing is
+ * not the same as charging zero.
  */
 @Serializable
 data class FrightTrigger(
     val trigger: String,
     val printed: String,
-    val modifier: Int,
+    val modifier: Int? = null,
     val worstCase: Int? = null,
     val openEnded: Boolean = false,
-)
+    val gmDiscretion: Boolean = false,
+) {
+    init {
+        require(gmDiscretion != (modifier != null)) {
+            "fright row '$trigger' must print a number or defer to the GM, not both or neither"
+        }
+    }
+}
 
 /**
  * One band of the Fright / Awe / Confusion effects table (Ch. 5, p. 43-44).

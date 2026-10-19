@@ -249,7 +249,7 @@ class GoldenRitualTest {
 
         val outside = rituals.filter { ritual ->
             val weight = RitualResolution.weights().firstOrNull {
-                it.categories.contains(ritual.category, ignoreCase = true)
+                it.categories?.contains(ritual.category, ignoreCase = true) == true
             } ?: return@filter false
             val top = if (weight.spiOpen) null else weight.spiMax ?: weight.spi
             ritual.spi < weight.spi || (top != null && ritual.spi > top)

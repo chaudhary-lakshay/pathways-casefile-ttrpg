@@ -143,8 +143,8 @@ enum class RitualMode(
         // there: nothing can reach it yet, and that is what stops the next
         // caller finding it (6l).
         //
-        // Containment is an exact test because the two tables share no row --
-        // even Adequate, +0 in both, prints a different `looksLike` cell.
+        // Containment is by value: v6.9i's Adequate is "+0" in both tables
+        // with no other cell, so either table's row is the same price.
         require(preparation == null || preparation in preparations()) {
             "'${preparation?.quality}' at ${preparation?.printed} is not a row in " +
                 "the $name ritual's preparation table, which prints " +

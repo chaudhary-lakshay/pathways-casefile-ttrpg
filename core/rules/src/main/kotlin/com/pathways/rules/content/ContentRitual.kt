@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 data class RitualWeight(
     val weight: String,
     val modifier: Int,
-    val categories: String,
+    /** Null on Major, the one row v6.9i's Quick table adds without examples. */
+    val categories: String? = null,
     val spi: Int = 0,
     val spiMax: Int? = null,
     val spiOpen: Boolean = false,
@@ -125,7 +126,6 @@ data class RitualPreparation(
     val printed: String,
     val best: Int? = null,
     val openEnded: Boolean = false,
-    val looksLike: String,
 )
 
 /**
@@ -318,5 +318,6 @@ data class TargetLink(
     val modifier: Int,
     val printed: String,
     val best: Int? = null,
-    val looksLike: String,
+    /** Null on None, the one row v6.9i prints without an example. */
+    val looksLike: String? = null,
 )

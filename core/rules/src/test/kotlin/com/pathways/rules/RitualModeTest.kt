@@ -38,7 +38,7 @@ class RitualModeTest {
     @Test
     fun `each mode offers only its own table's rows`() {
         assertEquals(
-            listOf("Excellent", "Adequate", "Poor / None"),
+            listOf("Excellent", "Adequate", "Poor/None"),
             RitualMode.QUICK.preparations().map { it.quality },
         )
         assertEquals(
@@ -207,7 +207,7 @@ class RitualModeTest {
         assertEquals(
             -6,
             RitualMode.QUICK.modifierTotal(
-                preparation = RitualMode.QUICK.preparationNamed("Poor / None"),
+                preparation = RitualMode.QUICK.preparationNamed("Poor/None"),
                 link = RitualMode.linkNamed("None"),
             ),
             "-2 at the gentle end of its range, and -4",
@@ -222,8 +222,8 @@ class RitualModeTest {
         // darkness has had a picker since 6dz, the fright trigger a stepper
         // since M4, and the preparations since 6ef. The near end is the
         // DEFAULT, which is this app's policy and not the book's rule.
-        assertEquals(-2, RitualMode.QUICK.preparationNamed("Poor / None").modifier)
-        assertEquals(-4, RitualMode.QUICK.preparationNamed("Poor / None").best)
+        assertEquals(-2, RitualMode.QUICK.preparationNamed("Poor/None").modifier)
+        assertEquals(-4, RitualMode.QUICK.preparationNamed("Poor/None").best)
         assertEquals(0, RitualMode.linkNamed("Weak").modifier)
         assertEquals(-1, RitualMode.linkNamed("Weak").best)
     }
@@ -246,14 +246,14 @@ class RitualModeTest {
         assertEquals(
             -1,
             RitualMode.QUICK.modifierTotal(
-                preparation = RitualMode.QUICK.preparationNamed("Poor / None"),
+                preparation = RitualMode.QUICK.preparationNamed("Poor/None"),
                 link = RitualMode.linkNamed("Strong"),
                 preparationValue = -4,
                 linkValue = 3,
             ),
         )
         // "-2 to -4" prints -3 as surely as it prints its two ends.
-        assertEquals(-3, RitualMode.valueFor(RitualMode.QUICK.preparationNamed("Poor / None"), -3))
+        assertEquals(-3, RitualMode.valueFor(RitualMode.QUICK.preparationNamed("Poor/None"), -3))
     }
 
     /**
