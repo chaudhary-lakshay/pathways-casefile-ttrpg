@@ -443,8 +443,7 @@ object TraitEffects {
      *
      * **This was an UNAPPLIED entry reading "every skill on a sheet is bought,
      * so no default is rolled here".** [Divination.divinationLevelFor] rolls
-     * Divination Arts at Ritualistic Magic-2, and p. 54 calls that number a
-     * default in its own word.
+     * Divination Arts at SPI-4, which ch. 8 I calls a default in its own word.
      *
      * **Then it was a [PARTLY_APPLIED] entry reading "this app offers no
      * other roll at a default"**, which [SkillDefaults] made false in turn

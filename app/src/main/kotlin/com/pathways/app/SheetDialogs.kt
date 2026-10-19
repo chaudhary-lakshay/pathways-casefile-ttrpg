@@ -91,6 +91,7 @@ internal fun SheetDialogs(
     // Every throw is logged under the dialog that rolled it (RollLog).
     val dice = LocalDice.current
     val divinationLevel = divination.level
+    val divinationKey = Divination.keyFor(divination)
     // Derived once for both bare Will rolls. Two `remember`s over one input
     // is two chances to key them differently, which is the drift this file
     // records against every re-derived value (6ai).
@@ -441,25 +442,21 @@ internal fun SheetDialogs(
     if (SheetDialog.DIVINE in open) {
         DivinationDialog(
             skillLevel = divinationLevel,
-            // Divination Arts is SPI/Hard, and this dialog builds its target
-            // through Divination.targetFor rather than the ledger.
-            spiTrait = spiTrait,
+            // Only the SPI-4 default is an SPI-based roll (Divination.keyFor),
+            // and this dialog builds its target through Divination.targetFor
+            // rather than the ledger, so it is handed the number.
+            spiTrait = if (divinationKey.attr == ControllingAttribute.Spi) spiTrait else 0,
             sourceLine = Divination.sourceLine(divination),
             // Null for a mortal, who has no Sequence for Sec. 6 to compare.
             divinerSequence = drunk?.sequence,
-            // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
-            // The CoR ladder does not: it is scoped to ritual rolls (p. 68).
-            // Asked per method cost, not computed once: paying for the
-            // question can itself push the diviner across a Spiritual
-            // Attrition threshold, and the book charges before it rolls.
+            // Spiritual Attrition reaches the SPI default and not the owned
+            // IQ skill; the key decides. The CoR ladder reaches neither: it
+            // is scoped to ritual rolls. Asked per method cost, not computed
+            // once: paying for the question can itself push the diviner
+            // across a threshold, and the book charges before it rolls.
             conditionPenaltyAfterSpending = { cost ->
                 conditionsFor(
-                    key = SkillKey(
-                        Divination.SKILL,
-                        null,
-                        ControllingAttribute.Spi,
-                        Difficulty.HARD,
-                    ),
+                    key = divinationKey,
                     cor = 0,
                     spiAboutToSpend = cost,
                     withStates = false,

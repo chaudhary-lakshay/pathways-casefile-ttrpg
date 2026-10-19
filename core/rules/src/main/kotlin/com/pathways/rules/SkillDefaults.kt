@@ -338,9 +338,7 @@ object SkillDefaults {
                 grantedBy(skill, traits, attributeLevel)?.let { (level, source) ->
                     return@mapNotNull Untrained(key, level, source)
                 }
-                val (level, source) = defaultOf(skill, attributeLevel, defaultBonus)
-                    ?: return@mapNotNull null
-                Untrained(key, level, source + suffix)
+                defaultOf(skill, key, attributeLevel, defaultBonus)?.let { it.copy(source = it.source + suffix) }
             }
     }
 
@@ -415,23 +413,36 @@ object SkillDefaults {
         )
     }
 
-    /** The level and where it came from, or null where the book gives no default. */
+    /**
+     * The row rolled at [key]'s default, or null where the book gives none.
+     * Divination Arts is rolled under [Divination.keyFor]'s SPI key, because
+     * its default is SPI-based and the skill is not.
+     */
     private fun defaultOf(
         skill: SkillDefinition,
+        key: SkillKey,
         attributeLevel: (ControllingAttribute) -> Int,
         defaultBonus: Int,
-    ): Pair<Int, String>? {
+    ): Untrained? {
         val attribute = attributeLevel(skill.attr)
         return when (skill.name) {
             WRESTLING -> null
-            BRAWLING -> attribute + BRAWLING_PENALTY + defaultBonus to
-                "${skill.attr.code}$BRAWLING_PENALTY, the book's own line for $BRAWLING"
-            Divination.SKILL ->
-                Divination.divinationLevelFor(null, attributeLevel(ControllingAttribute.Spi), defaultBonus).level to
-                    "SPI${Divination.DEFAULT_PENALTY}, the book's own line for ${Divination.SKILL}"
+            BRAWLING -> Untrained(
+                key,
+                attribute + BRAWLING_PENALTY + defaultBonus,
+                "${skill.attr.code}$BRAWLING_PENALTY, the book's own line for $BRAWLING",
+            )
+            Divination.SKILL -> {
+                val chosen = Divination.divinationLevelFor(null, attributeLevel(ControllingAttribute.Spi), defaultBonus)
+                Untrained(
+                    Divination.keyFor(chosen),
+                    chosen.level,
+                    "SPI${Divination.DEFAULT_PENALTY}, the book's own line for ${Divination.SKILL}",
+                )
+            }
             else -> {
                 val level = SkillLadder.defaultFor(skill.difficulty, attribute) ?: return null
-                level + defaultBonus to "${skill.attr.code}${skill.difficulty.defaultPenalty}"
+                Untrained(key, level + defaultBonus, "${skill.attr.code}${skill.difficulty.defaultPenalty}")
             }
         }
     }

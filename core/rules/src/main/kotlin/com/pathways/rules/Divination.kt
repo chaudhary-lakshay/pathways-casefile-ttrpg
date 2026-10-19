@@ -1,6 +1,10 @@
 package com.pathways.rules
 
+import com.pathways.model.Attr
+import com.pathways.model.ControllingAttribute
+import com.pathways.model.Difficulty
 import com.pathways.model.Outcome
+import com.pathways.model.SkillKey
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.DivinationClarity
@@ -156,6 +160,23 @@ object Divination {
             SkillOrDefault(defaulted, isDefault = true, own = own, defaultBonus = defaultBonus)
         }
     }
+
+    /**
+     * The key [chosen] is rolled under, which decides what reaches it.
+     *
+     * Spiritual Attrition is "-3 to all SPI-based skill rolls" and Ether Body
+     * Damage "-1 to all SPI-based rolls", and v6.9i prints no SPI-controlled
+     * skill: Divination Arts is IQ/Hard. The SPI-4 default is the one roll
+     * made OFF SPI, so it alone is SPI-based -- a reading of the word,
+     * recorded as one. The Divine tile and the Skills tab's untrained row
+     * both ask this, so the two cannot take different penalties.
+     */
+    fun keyFor(chosen: SkillOrDefault): SkillKey = SkillKey(
+        SKILL,
+        null,
+        if (chosen.isDefault) ControllingAttribute.Spi else ControllingAttribute.Buyable(Attr.IQ),
+        Difficulty.HARD,
+    )
 
     fun difficulties(): List<DivinationDifficulty> = ContentLoader.divinationDifficulty()
     fun methods(): List<DivinationMethod> = ContentLoader.divinationMethods()

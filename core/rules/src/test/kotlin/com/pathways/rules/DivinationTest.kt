@@ -1,5 +1,7 @@
 package com.pathways.rules
 
+import com.pathways.model.Attr
+import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.Outcome
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -63,6 +65,26 @@ class DivinationTest {
         val hasWorse = Divination.sourceLine(Divination.divinationLevelFor(7, spi = 14, defaultBonus = 0))!!
         assertTrue("${Divination.SKILL} 7" in hasWorse, hasWorse)
         assertNull(Divination.sourceLine(Divination.divinationLevelFor(12, spi = 10, defaultBonus = 0)))
+    }
+
+    /**
+     * Spiritual Attrition is "-3 to all SPI-based skill rolls", and v6.9i
+     * prints no SPI-controlled skill at all: Divination Arts is IQ/Hard. The
+     * SPI-4 default is the one roll here made OFF SPI, so it is SPI-based and
+     * the owned IQ skill is not. A reading of "SPI-based", recorded as one.
+     */
+    @Test
+    fun `only the SPI default is an SPI-based roll`() {
+        val defaulted = Divination.keyFor(Divination.divinationLevelFor(null, spi = 12, defaultBonus = 0))
+        val owned = Divination.keyFor(Divination.divinationLevelFor(12, spi = 12, defaultBonus = 0))
+        assertEquals(ControllingAttribute.Spi, defaulted.attr)
+        assertEquals(ControllingAttribute.Buyable(Attr.IQ), owned.attr)
+        assertEquals(Divination.SKILL, owned.name)
+        val drained = Pools.spi(current = 2, max = 12)
+        val ok = Pools.hp(10, 10)
+        val fp = Pools.fp(10, 10)
+        assertTrue(Conditions.forSkill(defaulted, ok, fp, drained).isNotEmpty())
+        assertTrue(Conditions.forSkill(owned, ok, fp, drained).isEmpty())
     }
 
     @Test

@@ -179,6 +179,7 @@ class SkillDefaultsTest {
         val spi12: (ControllingAttribute) -> Int = { if (it == ControllingAttribute.Spi) 12 else 10 }
         val row = SkillDefaults.offered(emptyMap(), spi12, 1, emptyList()).single { it.key.name == Divination.SKILL }
         assertEquals(9, row.level)
+        assertEquals(ControllingAttribute.Spi, row.key.attr, "rolled off SPI, so SPI-based")
         assertEquals(Divination.divinationLevelFor(null, 12, 1).level, row.level)
         assertEquals("SPI-4, the book's own line for ${Divination.SKILL}, +1 ${TraitEffects.VERSATILE}", row.source)
     }
