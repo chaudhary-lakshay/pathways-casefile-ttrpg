@@ -17,17 +17,17 @@
   "basicMove": 4,
   "dodge": 7,
   "bpTotal": 100,
-  "totalSpent": 74,
-  "unspent": 26,
+  "totalSpent": 77,
+  "unspent": 23,
   "attributesSubtotal": 10,
-  "advantagesSubtotal": 14,
+  "advantagesSubtotal": 17,
   "disadvantagesSubtotal": 30,
   "skillsSubtotal": 50
  },
  "advantages": [
   {
    "name": "Acute Vision",
-   "cost": 2
+   "cost": 5
   },
   {
    "name": "Acute Hearing",

@@ -28,6 +28,7 @@ import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.Secondaries
 import com.pathways.rules.SkillLadder
+import com.pathways.rules.TraitGrants
 import com.pathways.rules.Weapons
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
@@ -628,4 +629,27 @@ fun SavedEdits.withAttribute(attr: Attr, level: Int): SavedEdits = when (attr) {
     Attr.DX -> copy(dx = level)
     Attr.IQ -> copy(iq = level)
     Attr.HT -> copy(ht = level)
+}
+
+/**
+ * The traits in play after these edits: [sheet]'s composed character's, or
+ * the bought rows alone without a sheet, plus every potion and boon grant.
+ */
+internal fun SavedEdits.traitsInPlay(sheet: PremadeSheet?, state: BeyonderState?): List<Trait> =
+    TraitGrants.withGrantedTraits(
+        sheet?.let { applyTo(it.toCharacter()).traits }
+            ?: traits.mapNotNull { PurchasableTraits.named(it)?.toTrait() },
+        state,
+        boon,
+    )
+
+/**
+ * Whether every bought row still holds its printed prerequisite (v6.9i:
+ * Very Fit's Fit, Incisive Vision's Acute Vision), counted among the
+ * traits in play, so a potion's Fit serves.
+ */
+internal fun SavedEdits.keepsPrerequisites(sheet: PremadeSheet?, state: BeyonderState?): Boolean {
+    val held = traitsInPlay(sheet, state)
+    return traits.mapNotNull { PurchasableTraits.named(it) }
+        .none { PurchasableTraits.missingPrerequisite(it, held) != null }
 }

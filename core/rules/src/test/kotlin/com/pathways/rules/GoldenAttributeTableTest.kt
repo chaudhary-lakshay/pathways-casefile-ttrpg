@@ -10,44 +10,24 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 /**
- * Ch. 3's attribute cost table (p. 10-11) marking [AttributeCosts] -- 6ao.
- *
- * [AttributeCosts] has been production code since M0 and every point total the
- * app displays runs through it; nothing had ever compared it to the table it
- * was written from. `GoldenSkillLadderTest` (6ac) did this for skills and
- * `GoldenStudyPointsTest` (6an) for the study page's restatement of it. This
- * is the attribute half, and it is the one with real money on it: the grid is
- * twenty printed cells and the book works two totals in public.
- *
- * **The table prints INCREMENTAL costs; [AttributeCosts.costOf] returns the
- * CUMULATIVE total.** The two worked examples are the only place the book
- * gives a cumulative figure, which makes them the bridge between the two
- * quantities and the reason this test can check `costOf` at all. 6an's summary
- * test had to discover that distinction the hard way, comparing 10/20/40
- * against 10/30/70 and reading it as a disagreement.
+ * Ch. 2's attribute cost table marking [AttributeCosts] -- 6ao, re-anchored
+ * to v6.9i, whose table is FLAT: "each level above the baseline costs a flat
+ * rate that does not increase" (book 540-541). The book prints it twice
+ * (353-366 and 542-550) and works two cumulative totals (552-553).
  */
 class GoldenAttributeTableTest {
 
-    /**
-     * The printed grid, source lines 468-499: one row per attribute, one
-     * column per raise, INCREMENTAL cost in each cell.
-     */
-    private val printedGrid = mapOf(
-        Attr.ST to listOf(10, 20, 40, 80, 160),
-        Attr.DX to listOf(20, 40, 80, 160, 320),
-        Attr.IQ to listOf(20, 40, 80, 160, 320),
-        Attr.HT to listOf(10, 20, 40, 80, 160),
-    )
+    /** The printed rate, one cell per attribute, at every rung. */
+    private val printedRate = mapOf(Attr.ST to 10, Attr.DX to 20, Attr.IQ to 20, Attr.HT to 20)
 
     @Test
     fun `every printed cell comes back out of costOf as a difference`() {
-        printedGrid.forEach { (attr, steps) ->
-            steps.forEachIndexed { i, printed ->
-                val to = BASE_ATTRIBUTE + 1 + i
+        printedRate.forEach { (attr, rate) ->
+            (BASE_ATTRIBUTE + 1..BASE_ATTRIBUTE + 5).forEach { to ->
                 assertEquals(
-                    printed,
+                    rate,
                     AttributeCosts.costOf(attr, to) - AttributeCosts.costOf(attr, to - 1),
-                    "$attr ${to - 1}->$to should cost $printed",
+                    "$attr ${to - 1}->$to should cost $rate",
                 )
             }
         }
@@ -55,12 +35,12 @@ class GoldenAttributeTableTest {
 
     @Test
     fun `the two worked totals reproduce, which is the cumulative check`() {
-        // "Example -- DX 11: 9->10 costs 20 pts, 10->11 costs 40 pts.
-        //  Total: 60 pts for DX 11."         (source line 500)
-        assertEquals(60, AttributeCosts.costOf(Attr.DX, 11))
-        // "Example -- ST 12: 9->10 costs 10 pts, 10->11 costs 20 pts,
-        //  11->12 costs 40 pts. Total: 70 pts for ST 12."   (line 501)
-        assertEquals(70, AttributeCosts.costOf(Attr.ST, 12))
+        // "Example -- DX 11: Two levels (9->10, 10->11) at 20 pts each.
+        //  Total: 40 pts for DX 11."          (source line 552)
+        assertEquals(40, AttributeCosts.costOf(Attr.DX, 11))
+        // "Example -- ST 12: Three levels (9->10, 10->11, 11->12) at 10 pts
+        //  each. Total: 30 pts for ST 12."     (line 553)
+        assertEquals(30, AttributeCosts.costOf(Attr.ST, 12))
     }
 
     @Test
@@ -79,26 +59,12 @@ class GoldenAttributeTableTest {
     }
 
     @Test
-    fun `ST and HT are the cheap pair and DX and IQ the dear one, at every rung`() {
-        // The table's whole shape: two base rates, not four. Asserted across
-        // the printed width rather than at one cell, because a single-cell
-        // check passes for any ladder that happens to agree at that rung.
+    fun `ST is the one cheap attribute and HT costs what DX and IQ do`() {
+        // v6.9i moved HT from ST's 10 to 20; the shape is one cheap row now.
         (BASE_ATTRIBUTE + 1..BASE_ATTRIBUTE + 5).forEach { level ->
-            assertEquals(
-                AttributeCosts.costOf(Attr.ST, level),
-                AttributeCosts.costOf(Attr.HT, level),
-                "ST and HT part company at $level",
-            )
-            assertEquals(
-                AttributeCosts.costOf(Attr.DX, level),
-                AttributeCosts.costOf(Attr.IQ, level),
-                "DX and IQ part company at $level",
-            )
-            assertEquals(
-                2 * AttributeCosts.costOf(Attr.ST, level),
-                AttributeCosts.costOf(Attr.DX, level),
-                "the dear pair should be exactly twice the cheap pair at $level",
-            )
+            assertEquals(AttributeCosts.costOf(Attr.DX, level), AttributeCosts.costOf(Attr.HT, level), "HT at $level")
+            assertEquals(AttributeCosts.costOf(Attr.DX, level), AttributeCosts.costOf(Attr.IQ, level), "IQ at $level")
+            assertEquals(2 * AttributeCosts.costOf(Attr.ST, level), AttributeCosts.costOf(Attr.DX, level), "ST at $level")
         }
     }
 

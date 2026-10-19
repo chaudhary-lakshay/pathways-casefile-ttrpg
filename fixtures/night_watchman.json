@@ -17,9 +17,9 @@
   "basicMove": 4,
   "dodge": 7,
   "bpTotal": 95,
-  "totalSpent": 95,
-  "unspent": 0,
-  "attributesSubtotal": 20,
+  "totalSpent": 105,
+  "unspent": -10,
+  "attributesSubtotal": 30,
   "advantagesSubtotal": 15,
   "disadvantagesSubtotal": 25,
   "skillsSubtotal": 60

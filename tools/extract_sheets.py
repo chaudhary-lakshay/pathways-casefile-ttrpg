@@ -17,6 +17,8 @@ workstation:
 """
 import argparse, glob, json, os, pathlib, re
 
+from reprice_sheets import reprice
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DEFAULT_SRC = pathlib.Path(os.path.expanduser("~/Downloads/LOTM TTRPG Sheets"))
 OUT = ROOT / "fixtures"
@@ -252,7 +254,9 @@ def main() -> None:
         p = pathlib.Path(f)
         if p.name.startswith("~$"):        # Excel lock file
             continue
-        data = extract(p)
+        # As printed first (the Roll/Cost checksum reads the printed
+        # subtotals), then moved to v6.9i prices: the owner's ruling 3.
+        data = reprice(extract(p))
         (OUT / f"{slug(p.stem)}.json").write_text(
             json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
         n += 1

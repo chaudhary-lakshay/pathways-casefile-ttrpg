@@ -216,22 +216,16 @@ class GoldenStudyPointsTest {
         // min(quirks, 5) rather than quirks coming out of the -40. The
         // sentence itself is pinned in test_tools_ritual_modes.py, which can read the book.
         assertEquals(5, PointBudget.MAX_QUIRKS)
-        // "each level doubles the previous: ST: 10 -> 20 -> 40 |
-        //  DX/IQ: 20 -> 40 -> 80 | HT: 10 -> 20 -> 40"
-        //
-        // The summary prints the cost of EACH level; `costOf` returns the
-        // running total from the free baseline of 9. They agree once diffed
-        // -- ST reads 10/30/70 cumulatively, whose steps are 10/20/40 -- and
-        // comparing the two shapes directly is how a reader concludes the
-        // engine disagrees with the book when it does not. Written as a diff
-        // so the assertion says which quantity it is checking.
+        // v6.9i deleted that summary box and its doubling line; ch. 2 now
+        // prints "a flat rate per level" (354): ST 10, DX/IQ/HT 20. Diffed,
+        // because `costOf` returns the running total from the free 9.
         fun steps(attr: Attr) = (10..12).map {
             AttributeCosts.costOf(attr, it) - AttributeCosts.costOf(attr, it - 1)
         }
-        assertEquals(listOf(10, 20, 40), steps(Attr.ST))
-        assertEquals(listOf(20, 40, 80), steps(Attr.DX))
-        assertEquals(listOf(20, 40, 80), steps(Attr.IQ))
-        assertEquals(listOf(10, 20, 40), steps(Attr.HT))
+        assertEquals(listOf(10, 10, 10), steps(Attr.ST))
+        assertEquals(listOf(20, 20, 20), steps(Attr.DX))
+        assertEquals(listOf(20, 20, 20), steps(Attr.IQ))
+        assertEquals(listOf(20, 20, 20), steps(Attr.HT))
         // And the baseline the doubling starts from: "All attributes fixed at
         // 9 | No points refunded for baseline."
         Attr.entries.forEach { assertEquals(0, AttributeCosts.costOf(it, 9), it.name) }

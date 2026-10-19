@@ -380,6 +380,10 @@ data class CoreBand(
  * list means none is needed; [outOfCombatTraits] absent means never out of
  * combat. Read through [com.pathways.rules.EffortBurn].
  */
+/** One row of ch. 2's attribute table: "ST (Strength) 10 pts" per level. */
+@Serializable
+data class AttributeCost(val attr: String, val costPerLevel: Int)
+
 @Serializable
 data class BurnablePool(
     val pool: String,

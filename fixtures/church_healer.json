@@ -16,10 +16,10 @@
   "basicSpeed": 4,
   "basicMove": 4,
   "dodge": 7,
-  "bpTotal": 105,
-  "totalSpent": 102,
-  "unspent": 3,
-  "attributesSubtotal": 60,
+  "bpTotal": 110,
+  "totalSpent": 82,
+  "unspent": 28,
+  "attributesSubtotal": 40,
   "advantagesSubtotal": 13,
   "disadvantagesSubtotal": null,
   "skillsSubtotal": 29
@@ -36,8 +36,8 @@
  ],
  "disadvantages": [
   {
-   "name": "Charity - Cannot ignore genuine need. Must roll vs. Will to avoid helping anyone\nwho asks for assistance you can reasonably provide. May be exploited.",
-   "cost": 10
+   "name": "Charity - Cannot ignore genuine need. Must roll vs. 12 or help anyone who asks for assistance you can reasonably provide. May be exploited.",
+   "cost": 15
   },
   {
    "name": "Vow (Poverty)",

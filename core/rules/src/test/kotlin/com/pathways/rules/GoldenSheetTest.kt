@@ -81,6 +81,19 @@ class GoldenSheetTest {
         "University Librarian",
     )
 
+    /**
+     * The sheets that overspend once re-priced to v6.9i (owner's ruling 3).
+     * Each bought HT 10 or 11, which v6.9i prices at a flat 20 a level where
+     * v6.9d's first step was 10: the character is unchanged and the book's
+     * price for it rose. Recorded, never repaired by editing the character.
+     */
+    private val overspentAtV69i = mapOf(
+        "Factory Foreman" to 9,
+        "Military Police" to 9,
+        "Night Watchman" to 10,
+        "Street Acrobat" to 1,
+    )
+
     private fun playable() = Premades.all().filter { it.skills.isNotEmpty() }
 
     @Test
@@ -229,12 +242,23 @@ class GoldenSheetTest {
 
     @TestFactory
     fun `point budgets balance where the sheet recorded one`(): List<DynamicTest> =
-        playable().filter { it.published.bpTotal != null }.map { f ->
+        playable().filter { it.published.bpTotal != null && it.name !in overspentAtV69i }.map { f ->
             DynamicTest.dynamicTest(f.name) {
                 val r = Derive.of(f.toCharacter()).budget
                 assertTrue(r.spent <= r.budget, "${f.name}: spent ${r.spent} exceeds budget ${r.budget}")
             }
         }
+
+    @Test
+    fun `the v6-9i overspends are exactly the HT re-pricing - guard against silent repair`() {
+        for ((name, over) in overspentAtV69i) {
+            val f = Premades.byName(name)
+            val r = Derive.of(f.toCharacter()).budget
+            assertEquals(over, r.spent - r.budget, name)
+            assertEquals(-over, f.published.unspent, name)
+            assertTrue(f.attributes.getValue(Attr.HT) > 9, name)
+        }
+    }
 
     // --- Phase D: per-category point breakdown (KNOWN_ISSUES: "fixtures
     // carry no per-category point breakdown" - attribute costing was

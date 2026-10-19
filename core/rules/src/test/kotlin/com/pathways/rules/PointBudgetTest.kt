@@ -82,10 +82,10 @@ class PointBudgetTest {
         // One fact, one predicate: the builder's budget card reads surplus,
         // and a violation line for it grew the pinned header under a finger.
         val r = PointBudget.report(
-            Attributes(iq = 12), SecondaryDelta(), emptyList(), emptyList(),
+            Attributes(iq = 14), SecondaryDelta(), emptyList(), emptyList(),
         )
-        assertEquals(140, r.spent)      // 20 + 40 + 80
-        assertEquals(-70, r.surplus)
+        assertEquals(100, r.spent)      // five flat levels at 20
+        assertEquals(-30, r.surplus)
         assertTrue(r.violations.isEmpty())
     }
 

@@ -273,12 +273,8 @@ class TraitReportedTest {
                         it.trait == trait && (segment.contains(it.printed) || it.printed.contains(segment))
                     } ||
                     granted.any { segment.startsWith("Use $it at") } ||
-                    // ...and v6.9i's burn clause, which EffortBurn.whenAllowed reads...
-                    (
-                        segment.startsWith("Allows you to Burn FP") &&
-                            EffortBurn.all().any { trait in it.combatTraits || trait in it.outOfCombatTraits.orEmpty() }
-                        ) ||
-                    // ...and a prerequisite, which the builder gates on.
+                    // ...and v6.9i's burn clause (EffortBurn.whenAllowed) and a prerequisite (the builder's gate).
+                    (segment.startsWith("Allows you to Burn FP") && EffortBurn.all().any { trait in it.combatTraits }) ||
                     PurchasableTraits.PREREQUISITES[trait]?.let { segment == "Prerequisite: $it" } == true ||
                     reported.any { it.contains(segment) || segment.contains(it) }
                 assertTrue(handled, "$trait drops the clause \"$segment\"")

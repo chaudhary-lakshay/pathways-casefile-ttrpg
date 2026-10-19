@@ -69,6 +69,7 @@ object ContentLoader {
     }
     private val coreMechanicLazy: List<CoreBand> by lazy { load("core_mechanic.json") }
     private val effortBurnLazy: List<BurnablePool> by lazy { load("effort_burn.json") }
+    private val attributeCostsLazy: List<AttributeCost> by lazy { load("attribute_costs.json") }
     private val quickContestsLazy: List<QuickContest> by lazy {
         load("quick_contests.json")
     }
@@ -474,6 +475,9 @@ object ContentLoader {
      * [com.pathways.rules.EffortBurn].
      */
     fun effortBurn(): List<BurnablePool> = effortBurnLazy
+
+    /** Ch. 2's flat cost per attribute level (v6.9i). Read through [com.pathways.rules.AttributeCosts]. */
+    fun attributeCosts(): List<AttributeCost> = attributeCostsLazy
 
     /**
      * The six worked Quick Contests (Ch. 2, p. 9), in printed order. Shown to

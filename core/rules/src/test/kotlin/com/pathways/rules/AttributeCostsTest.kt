@@ -2,9 +2,9 @@ package com.pathways.rules
 
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
+import com.pathways.rules.content.ContentLoader
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
 
 class AttributeCostsTest {
@@ -15,16 +15,27 @@ class AttributeCostsTest {
 
     @Test
     fun `the book's worked examples hold`() {
-        assertEquals(60, AttributeCosts.costOf(Attr.DX, 11))   // 20 + 40
-        assertEquals(70, AttributeCosts.costOf(Attr.ST, 12))   // 10 + 20 + 40
+        // v6.9i 552-553: "DX 11: Two levels ... at 20 pts each. Total: 40 pts"
+        // and "ST 12: Three levels ... at 10 pts each. Total: 30 pts".
+        assertEquals(40, AttributeCosts.costOf(Attr.DX, 11))
+        assertEquals(30, AttributeCosts.costOf(Attr.ST, 12))
     }
 
     @Test
-    fun `ST and HT are half the price of DX and IQ`() {
-        assertEquals(10, AttributeCosts.costOf(Attr.ST, 10))
-        assertEquals(10, AttributeCosts.costOf(Attr.HT, 10))
-        assertEquals(20, AttributeCosts.costOf(Attr.DX, 10))
-        assertEquals(20, AttributeCosts.costOf(Attr.IQ, 10))
+    fun `every level costs the flat rate attribute_costs json prints`() {
+        // v6.9i 354: "Raising them costs a flat rate per level": ST 10, DX,
+        // IQ and HT 20. HT was 10 under v6.9d's doubling table.
+        val printed = ContentLoader.attributeCosts().associate { it.attr to it.costPerLevel }
+        assertEquals(mapOf("ST" to 10, "DX" to 20, "IQ" to 20, "HT" to 20), printed)
+        for (attr in Attr.entries) {
+            for (level in 10..20) {
+                assertEquals(
+                    printed.getValue(attr.name),
+                    AttributeCosts.costOf(attr, level) - AttributeCosts.costOf(attr, level - 1),
+                    "$attr ${level - 1}->$level",
+                )
+            }
+        }
     }
 
     @Test
@@ -39,17 +50,14 @@ class AttributeCostsTest {
     }
 
     @Test
-    fun `above MAX_ATTRIBUTE is rejected before the doubling ladder can overflow`() {
-        // KNOWN_ISSUES: costOf's shift ladder overflows Int past roughly level
-        // 40. MAX_ATTRIBUTE (30) rejects well before that, at construction time.
+    fun `above MAX_ATTRIBUTE is rejected`() {
         assertFailsWith<IllegalArgumentException> {
             AttributeCosts.costOf(Attr.DX, com.pathways.model.MAX_ATTRIBUTE + 1)
         }
     }
 
     @Test
-    fun `MAX_ATTRIBUTE itself is still a legal, non-overflowing purchase`() {
-        val cost = AttributeCosts.costOf(Attr.DX, com.pathways.model.MAX_ATTRIBUTE)
-        assertTrue(cost > 0)
+    fun `MAX_ATTRIBUTE itself is a legal purchase at the flat rate`() {
+        assertEquals(20 * (com.pathways.model.MAX_ATTRIBUTE - 9), AttributeCosts.costOf(Attr.DX, com.pathways.model.MAX_ATTRIBUTE))
     }
 }
