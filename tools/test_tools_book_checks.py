@@ -359,3 +359,28 @@ def test_shaken_is_one_of_two_deferred_terms_the_book_prints_once():
     assert [n for n, t in byn.items() if "shaken" in t.lower()] == [5805, 7267, 7833]
     assert "shaken awake" in byn[5805]
     assert "damaged, shaken, or a loud noise" in byn[7833]
+
+
+@pytest.mark.skipif(not (OUT / "book.txt").exists(), reason="build/extract/book.txt not extracted")
+def test_chapter_2_summary_and_chapter_5_disagree_on_four_defence_rules():
+    """v6.9i's ch. 2 "Parry & Block Calculations" against ch. 5's table.
+
+    The app follows ch. 5, the combat chapter (owner's ruling 6 for the
+    unarmed parry; the same chapter for the rest). Each disagreement is
+    pinned on BOTH sides, so a corrected book reddens here rather than the
+    app quietly following a summary that changed (4.1: recorded, not repaired).
+    """
+    book = (OUT / "book.txt").read_text(encoding="utf-8")
+    shields = {r["type"]: r["db"] for r in json.loads((CONTENT / "shields.json").read_text(encoding="utf-8"))["entries"]}
+    # The unarmed parry's operand.
+    assert "Unarmed Parry: Brawling or Wrestling ÷ 2 + 3" in book
+    assert "Brawling or DX ÷ 2 + 3" in book
+    # Shield DB: ch. 2 prints two sizes, ch. 5's table three.
+    assert "Light shields (buckler, target) give +1 DB; Heavy shields (kite, tower) give +2 DB" in book
+    assert shields["Heavy (tower, riot)"] == 3
+    # Block: until your next turn against once per round.
+    assert "cannot block again until your next turn" in book
+    assert "Once per round. Add shield's DB to your Block score." in book
+    # Extra parries: ch. 5 adds a rapier step ch. 2 does not print.
+    assert "(-2 for fencing weapons like rapier, shortsword, or spear)" in book
+    assert "Cumulative -4 per additional parry (-2 fencing, -1" in book
