@@ -9,7 +9,6 @@ import com.pathways.rules.TraitEffects.CLEANSED_SPIRIT
 import com.pathways.rules.TraitEffects.ETHER_BODY_DAMAGE
 import com.pathways.rules.TraitEffects.FAST_HEALER
 import com.pathways.rules.TraitEffects.FATE_DEBT
-import com.pathways.rules.TraitEffects.FIT
 import com.pathways.rules.TraitEffects.GOD_OF_COMBAT
 import com.pathways.rules.TraitEffects.GREAT_BALANCE
 import com.pathways.rules.TraitEffects.IRON_JAW
@@ -144,24 +143,16 @@ internal object TraitRefusals {
             "Injuries that would leave others bedridden leave you functional in half the time" to
                 "this app tracks no wounds and holds no clock to halve",
         ),
-        FIT to listOf(
-            "recover FP at twice the normal rate" to
-                "this app holds no clock to recover against",
-        ),
         // The to-hit clauses are declared in the Attack dialog and the Aim
         // rows withdrawn; the Will roll is the row's own self-control check.
         RELUCTANT_KILLER to listOf(
             "become morose for 3d days" to
                 "this app holds no clock to count the days against",
         ),
-        // The moment Very Fit's HT clause was applied (6de), its other two
-        // became clauses of a HANDLED trait -- which is what the guard test
-        // says must be reported. Both are FP rates, and the rates are the
-        // half of p. 42 this app deliberately does not run.
+        // Very Fit's HT clause is applied (6de) and its burn clause read by
+        // [EffortBurn.whenAllowed]; v6.9i dropped "lose FP at half the
+        // normal rate" and Fit's recovery clause, leaving this one rate.
         VERY_FIT to listOf(
-            "lose FP at half the normal rate" to
-                "this app charges FP where the book prices it, and halving a " +
-                "RATE needs a clock it does not hold",
             "recover FP at twice the normal rate" to
                 "this app holds no clock to recover against",
         ),
@@ -242,16 +233,11 @@ internal object TraitRefusals {
                 "Church doctrine or history honestly" to
                 "this app holds no session to count, and the answer is the GM's",
         ),
-        // Charisma's cell prints its two halves in ONE sentence joined by
-        // "and", which is why the clause guard cannot see the reaction half
-        // on its own -- the whole cell is a single segment and the skill
-        // names inside it satisfy the check. Reported explicitly for that
-        // reason. Outdoorsman's cell has no second clause at all.
+        // v6.9i's Charisma cell dropped "+1/level to reaction rolls"; its
+        // second half is now the trust clause, which names no roll.
         CHARISMA to listOf(
-            "+1/level to reaction rolls" to
-                "this book prints no reaction roll to make, and at least five " +
-                "sources hand one out, so each is shown beside its source " +
-                "rather than summed",
+            "NPCs are predisposed to trust and listen to you" to
+                "the book hands this to the GM, not to a roll",
         ),
         // The first DISADVANTAGE to reach this map, and its second clause is
         // word for word the refusal Fit's own mirror clause already carries.

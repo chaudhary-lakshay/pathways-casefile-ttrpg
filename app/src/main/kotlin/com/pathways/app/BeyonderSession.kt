@@ -20,6 +20,7 @@ import com.pathways.rules.PotionConsumption
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.RandomSource
+import com.pathways.rules.threeDSix
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.TraitEffects
@@ -666,6 +667,16 @@ class BeyonderSession(
     fun act(quality: ActingQuality, drawnDigestion: Int) {
         if (state?.digestion != drawnDigestion) return
         quality.minGain?.takeUnless { quality.losesProgress }?.let(::digest)
+    }
+
+    /**
+     * Knows the Acting Method's end-of-session roll (v6.9i): 3d6, read as
+     * the percentage of digestion gained on top of [act]'s. Rolled through
+     * [dice] so the roll log sees it; null for a stale second tap (6ei).
+     */
+    fun actingMethodRoll(drawnDigestion: Int, dice: RandomSource): Int? {
+        if (isLost || state?.digestion != drawnDigestion) return null
+        return dice.threeDSix().also(::digest)
     }
 
     /**

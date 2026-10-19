@@ -226,6 +226,7 @@ fun PathwayScreen(
                                 title = if (current) "Digesting this potion" else "Digesting ${potionName(drunk)}",
                                 onDigest = session::digest,
                                 onAct = session::act,
+                                onActingMethod = { drawn -> session.actingMethodRoll(drawn, dice) },
                             )
                         }
                     }

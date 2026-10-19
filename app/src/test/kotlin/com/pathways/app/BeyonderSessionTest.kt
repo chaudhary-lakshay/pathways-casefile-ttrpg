@@ -338,6 +338,20 @@ class BeyonderSessionTest {
     }
 
     /**
+     * Knows the Acting Method (v6.9i): "At the end of each session, roll 3d6
+     * -- the result is the percentage of digestion progress you gain", on
+     * top of the table's gain. One roll a picture, as [act] is.
+     */
+    @Test
+    fun `the Acting Method roll adds its 3d6 as percent once per picture`() {
+        val (s, saved) = session(SavedSession(beyonder = fool9))
+        assertEquals(12, s.actingMethodRoll(drawnDigestion = 0, fixed(4)))
+        assertEquals(12, s.state?.digestion)
+        assertNull(s.actingMethodRoll(drawnDigestion = 0, fixed(4)), "a stale tap of the picture drawn at 0%")
+        assertEquals(12, saved().beyonder?.digestion)
+    }
+
+    /**
      * Drink is the one irreversible button, and its handler belongs to the
      * composition that drew it. If the session has moved since -- a second
      * tap, a CoR step, a lost roll -- the screen is showing a past the GM is

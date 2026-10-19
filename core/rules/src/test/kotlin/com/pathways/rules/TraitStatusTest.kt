@@ -20,8 +20,10 @@ class TraitStatusTest {
     @Test
     fun `each kind of held row gets the status its notes say`() {
         assertEquals(Applied.APPLIED, statusOf("Alertness"))
-        // "+1 to all HT rolls" applied, "recover FP at twice the normal rate" not.
-        assertEquals(Applied.PARTLY, statusOf("Fit"))
+        // "+2 to all HT rolls" applied, "recover FP at twice the normal rate" not.
+        assertEquals(Applied.PARTLY, statusOf("Very Fit"))
+        // v6.9i: Fit's HT clause and its burn clause are both read.
+        assertEquals(Applied.APPLIED, statusOf("Fit"))
         assertEquals(Applied.ROLL_ONLY, statusOf("Overconfidence", TraitKind.DISADVANTAGE))
         assertEquals(Applied.GM, statusOf("Legal Enforcement Powers"))
         assertEquals(Applied.GM, statusOf("Voice"))

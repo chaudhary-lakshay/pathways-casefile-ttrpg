@@ -16,6 +16,27 @@ import org.junit.jupiter.api.Test
 /** Buying a trait in play: which rows, at what price, and which are withheld. */
 class PurchasableTraitsTest {
 
+    /**
+     * v6.9i prints two prerequisites: Very Fit's "Prerequisite: Fit." (book
+     * 882) and Incisive Vision's "Prerequisite: Acute Vision." (1008). The
+     * map is pinned against every "Prerequisite:" the catalogue prints.
+     */
+    @Test
+    fun `a printed prerequisite gates its row`() {
+        val veryFit = PurchasableTraits.named(TraitEffects.VERY_FIT)!!
+        assertEquals(TraitEffects.FIT, PurchasableTraits.missingPrerequisite(veryFit, emptyList()))
+        assertNull(PurchasableTraits.missingPrerequisite(veryFit, listOf(Trait("Fit", 5, TraitKind.ADVANTAGE))))
+        val incisive = PurchasableTraits.named(TraitEffects.INCISIVE_VISION)!!
+        assertEquals("Acute Vision", PurchasableTraits.missingPrerequisite(incisive, emptyList()))
+        assertNull(PurchasableTraits.missingPrerequisite(PurchasableTraits.named("Fit")!!, emptyList()))
+
+        val printed = (ContentLoader.advantages() + ContentLoader.disadvantages()).mapNotNull { row ->
+            Regex("""Prerequisite: ([^.]+)\.""").find(row.notes)?.let { row.name to it.groupValues[1] }
+        }.toMap()
+        assertEquals(2, printed.size, printed.toString())
+        assertEquals(printed, PurchasableTraits.PREREQUISITES)
+    }
+
     @Test
     fun `the trait this whole slice exists for is buyable`() {
         // No premade carries Ether Body Damage and no potion grants a trait,

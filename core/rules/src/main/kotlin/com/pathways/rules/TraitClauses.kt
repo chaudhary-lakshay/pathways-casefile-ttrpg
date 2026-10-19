@@ -462,14 +462,14 @@ object TraitClauses {
     private val SENSE_CLAUSES: List<TraitClause> = listOf(
         TraitClause(ACUTE_VISION, ACUTE_VISION, "+2 to Vision rolls", 2, conditional = true),
         TraitClause(ACUTE_HEARING, ACUTE_HEARING, "+2 to Hearing rolls", 2, conditional = true),
+        // v6.9i prints Incisive Vision as a catalogue row (book 1008).
+        TraitClause(INCISIVE_VISION, INCISIVE_VISION, "+4 to all Vision rolls", 4, conditional = true),
     )
 
     /**
      * The sense rows no catalogue prints: a potion's alone (6fi), each as its
      * block prints it. Pinned against that prose, never against [TraitEffects.known],
-     * which is the advantage catalogue's census. Incisive Vision prints a
-     * name and "+4" and nothing else (line 6334), so its chip says exactly
-     * that and the GM says what it reaches.
+     * which is the advantage catalogue's census.
      *
      * **A different row is a different chip.** Greater Acute Vision (Demoness
      * 6) and Incisive Vision (Visionary 8) follow an Acute Vision their
@@ -492,7 +492,6 @@ object TraitClauses {
         ),
         TraitClause(ACUTE_TOUCH, ACUTE_TOUCH, "+2 to touch-based Perception rolls", 2, conditional = true),
         TraitClause(ACUTE_SMELL, ACUTE_SMELL, "+2 sharper sense of smell", 2, conditional = true),
-        TraitClause(INCISIVE_VISION, INCISIVE_VISION, "+4", 4, conditional = true),
     )
     internal fun senseClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
         val bare = catalogueName(owned.name)

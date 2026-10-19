@@ -343,7 +343,7 @@ class TraitNamesTest {
         assertEquals(
             listOf(
                 "Language (specify)", "Resistant (specify)",
-                "Duty (specify)", "Vow (specify)", "Phobia (specify)",
+                "Duty (specify)", "Addiction (specify)", "Vow (specify)", "Phobia (specify)",
             ),
             placeholders,
             "the set of rows printing a placeholder changed",

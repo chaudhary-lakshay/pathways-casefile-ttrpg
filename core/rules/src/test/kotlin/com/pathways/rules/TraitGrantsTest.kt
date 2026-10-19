@@ -339,7 +339,6 @@ class TraitGrantsTest {
         // Held, each prints its whole row, copied from its block (6fr), and
         // what of it the chip does not carry. Two rows run past the bonus.
         val rows = mapOf(
-            "Incisive Vision" to ("+4" to null),
             "Acute Smell" to ("+2 sharper sense of smell; detect subtle scents and emotional cues" to
                 "detect subtle scents and emotional cues"),
             "Greater Acute Vision" to ("+4 to all vision-based Perception rolls; allows the Pleasure to see their own Spider's Threads" to
@@ -355,6 +354,13 @@ class TraitGrantsTest {
             assertEquals(cell, held.cell, name)
             assertEquals(listOfNotNull(rest), held.notes.map { it.printed }, name)
         }
+
+        // v6.9i prints Incisive Vision as a catalogue row (book 1008), so it
+        // holds the catalogue cell and its block prints the same clause.
+        assertTrue(prose.any { "Incisive Vision +4 to all Vision rolls" in it })
+        val incisiveHeld = TraitReport.held(listOf(advantage("Incisive Vision")), TraitKind.ADVANTAGE).single()
+        assertEquals("Prerequisite: Acute Vision. +4 to all Vision rolls.", incisiveHeld.cell)
+        assertEquals(emptyList<String>(), incisiveHeld.notes.map { it.printed })
 
         val bought = listOf(advantage("Acute Vision"))
         val conspirer = TraitGrants.withGrantedTraits(bought, com.pathways.model.BeyonderState("Red Priest", 6))

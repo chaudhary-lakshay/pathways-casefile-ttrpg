@@ -11,7 +11,6 @@ import com.pathways.model.ModifierSource
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
-import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.TraitAttributeRolls.HT_ROLL_TRAITS
 import com.pathways.rules.TraitAttributeRolls.SPI_ROLL_TRAITS
@@ -519,27 +518,13 @@ object TraitEffects {
     /** Whether [traits] hold [FAST_HEALER]: the recovery row asks before saying so (6fc). */
     fun healsFast(traits: List<Trait>): Boolean = levelOf(traits, FAST_HEALER) != null
 
-    /** Whether [traits] hold [ACTING_METHOD]: the question a screen asks before saying so. */
-    fun doublesActingGains(traits: List<Trait>): Boolean = levelOf(traits, ACTING_METHOD) != null
-
-    /** "all Digestion Gain Per Session is doubled". */
-    private const val ACTING_GAIN_FACTOR = 2
-
     /**
-     * The Acting Method table (Ch. 6) as [traits] digest by it: every gain
-     * range doubled for a holder of [ACTING_METHOD], whose cell prints its own
-     * example -- "Exemplary +15-20% becomes +30-40%" (6ez).
-     *
-     * The GM still picks the figure inside a range and moves the tracker; the
-     * app moves nothing on its own, so the doubled table IS the application.
-     * "None" loses progress, which is not a gain, and stays as printed.
+     * Whether [traits] hold [ACTING_METHOD], whose v6.9i cell prints "At the
+     * end of each session, roll 3d6 -- the result is the percentage of
+     * digestion progress you gain ... in addition to your normal Digestion
+     * Gain Per Session". v6.9d's doubling is gone.
      */
-    fun actingGains(traits: List<Trait>): List<ActingQuality> {
-        if (!doublesActingGains(traits)) return ContentLoader.actingMethod()
-        return ContentLoader.actingMethod().map {
-            it.copy(minGain = it.minGain?.times(ACTING_GAIN_FACTOR), maxGain = it.maxGain?.times(ACTING_GAIN_FACTOR))
-        }
-    }
+    fun rollsActingMethod(traits: List<Trait>): Boolean = levelOf(traits, ACTING_METHOD) != null
 
     /** Night Eyes' cell, quoted rather than paraphrased. */
     fun printedNightEyes(): String =
@@ -692,7 +677,7 @@ object TraitEffects {
             // other since M4. Both clauses of Night Eyes are applied
             // ([DarknessCause]), so neither has anything to report.
             setOf(NIGHT_EYES, Corruption.FORTITUDE) +
-            // The seventh, from 6es's untriaged list: [actingGains] (6ez).
+            // The seventh, from 6es's untriaged list: [rollsActingMethod] (6ez).
             setOf(ACTING_METHOD) +
             // The eighth: [SkillDefaults.offered] reads it for Physician at
             // IQ-2 (6gy). Its First Aid +1 already had it in [SKILL_BONUSES],

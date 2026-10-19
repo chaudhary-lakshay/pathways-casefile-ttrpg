@@ -159,11 +159,12 @@ class TraitEffectsTest {
      * not because nothing could be done with it.
      */
     @Test
-    fun `Charisma's reaction half is reported and its skill half applied`() {
+    fun `Charisma's trust half is reported and its skill half applied`() {
         val owned = listOf(advantage("${TraitEffects.CHARISMA} 2"))
         val reported = TraitReport.reported(owned)
         assertEquals(1, reported.size, reported.toString())
-        assertTrue(reported.single().printed.contains("reaction rolls"), reported.toString())
+        // v6.9i dropped "+1/level to reaction rolls"; the trust clause took its place.
+        assertTrue(reported.single().printed.contains("NPCs are predisposed to trust"), reported.toString())
         val cell = ContentLoader.advantages().first { it.name == TraitEffects.CHARISMA }.notes
         assertTrue(cell.contains(reported.single().printed), cell)
         // ...while the named skills still take the bonus.
@@ -730,20 +731,13 @@ class TraitEffectsTest {
      * progress is not a gain, so "None" stays a loss.
      */
     @Test
-    fun `Knows the Acting Method doubles every printed gain and not a loss`() {
+    fun `Knows the Acting Method rolls 3d6 percent beside the table, doubling nothing`() {
         val cell = ContentLoader.advantages().single { it.name == TraitEffects.ACTING_METHOD }.notes
-        assertTrue("all Digestion Gain Per Session is doubled" in cell, cell)
-        assertEquals(ContentLoader.actingMethod(), TraitEffects.actingGains(emptyList()))
-
-        val holder = TraitEffects.actingGains(listOf(advantage(TraitEffects.ACTING_METHOD)))
-        val exemplary = holder.single { it.quality == "Exemplary" }
-        assertEquals(30 to 40, exemplary.minGain to exemplary.maxGain)
-        val none = holder.single { it.quality == "None" }
-        assertTrue(none.losesProgress)
-        assertNull(none.maxGain)
+        assertTrue("roll 3d6 — the result is the percentage of digestion progress" in cell, cell)
+        assertTrue("doubled" !in cell, cell)
         assertTrue(TraitEffects.ACTING_METHOD in TraitEffects.known())
-        assertTrue(TraitEffects.doublesActingGains(listOf(advantage(TraitEffects.ACTING_METHOD))))
-        assertTrue(!TraitEffects.doublesActingGains(emptyList()))
+        assertTrue(TraitEffects.rollsActingMethod(listOf(advantage(TraitEffects.ACTING_METHOD))))
+        assertTrue(!TraitEffects.rollsActingMethod(emptyList()))
     }
 
     /** One answer for the two bare Per rolls, Detection and Spirit Vision (6fe). */

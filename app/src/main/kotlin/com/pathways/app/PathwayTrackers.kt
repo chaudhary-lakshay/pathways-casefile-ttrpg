@@ -58,14 +58,15 @@ internal fun DigestionTracker(
     state: BeyonderState,
     /** The character's CoR, which lowers the PCR one per point (v6.9i). */
     cor: Int,
-    /** Read for Knows the Acting Method, which doubles the table (6ez). */
+    /** Read for Knows the Acting Method's end-of-session 3d6% roll (v6.9i). */
     traits: List<Trait>,
     /** "Digesting this potion", or the potion's name while another rung is read. */
     title: String,
     onDigest: (Int) -> Unit,
     onAct: (ActingQuality, drawnDigestion: Int) -> Unit,
+    onActingMethod: (drawnDigestion: Int) -> Unit,
 ) {
-    val gains = remember(traits) { TraitEffects.actingGains(traits) }
+    val gains = remember { ContentLoader.actingMethod() }
     StepperCard(
         title = title,
         minus = "-5%",
@@ -108,11 +109,12 @@ internal fun DigestionTracker(
                 }
             }
         }
-        // Said, because a doubled range reads as a misprint of the book's.
-        if (TraitEffects.doublesActingGains(traits)) {
-            Text(
-                "${TraitEffects.ACTING_METHOD}: \"all Digestion Gain Per Session is doubled\".",
-                style = MaterialTheme.typography.bodySmall,
+        // v6.9i: a holder rolls 3d6 at session end, read as percent gained.
+        if (TraitEffects.rollsActingMethod(traits)) {
+            val drawn = state.digestion
+            InkAction(
+                "${TraitEffects.ACTING_METHOD}: roll 3d6%",
+                onClick = { onActingMethod(drawn) },
                 modifier = Modifier.padding(top = 8.dp),
             )
         }

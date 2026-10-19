@@ -231,6 +231,20 @@ object PurchasableTraits {
         held.none { TraitNames.catalogueName(it.name).equals(trait.name, ignoreCase = true) }
 
     /**
+     * Every "Prerequisite:" the v6.9i catalogue prints, row to the row it
+     * needs: Very Fit's Fit (book 882) and Incisive Vision's Acute Vision
+     * (1008). Pinned against the cells by `PurchasableTraitsTest`.
+     */
+    val PREREQUISITES: Map<String, String> = mapOf(
+        TraitEffects.VERY_FIT to TraitEffects.FIT,
+        TraitEffects.INCISIVE_VISION to TraitEffects.ACUTE_VISION,
+    )
+
+    /** The row [trait] needs and [held] lacks, or null when it may be bought. */
+    fun missingPrerequisite(trait: PurchasableTrait, held: List<Trait>): String? =
+        PREREQUISITES[trait.name]?.takeIf { TraitNames.levelOf(held, it) == null }
+
+    /**
      * The row called [name], or null when the book no longer prints one.
      *
      * A save stores the NAME alone, exactly as a bought skill and a chosen

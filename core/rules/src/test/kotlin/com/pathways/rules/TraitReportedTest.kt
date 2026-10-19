@@ -273,6 +273,13 @@ class TraitReportedTest {
                         it.trait == trait && (segment.contains(it.printed) || it.printed.contains(segment))
                     } ||
                     granted.any { segment.startsWith("Use $it at") } ||
+                    // ...and v6.9i's burn clause, which EffortBurn.whenAllowed reads...
+                    (
+                        segment.startsWith("Allows you to Burn FP") &&
+                            EffortBurn.all().any { trait in it.combatTraits || trait in it.outOfCombatTraits.orEmpty() }
+                        ) ||
+                    // ...and a prerequisite, which the builder gates on.
+                    PurchasableTraits.PREREQUISITES[trait]?.let { segment == "Prerequisite: $it" } == true ||
                     reported.any { it.contains(segment) || segment.contains(it) }
                 assertTrue(handled, "$trait drops the clause \"$segment\"")
             }
@@ -376,8 +383,9 @@ class TraitReportedTest {
      */
     @Test
     fun `a partly applied trait reports the clauses that reach nothing`() {
-        val notes = TraitReport.reported(listOf(advantage("Combat Reflexes"), advantage("Fit")))
-        assertEquals(listOf("Fit"), notes.map { it.trait })
+        // v6.9i's Fit is applied whole (its burn clause is EffortBurn's), so Very Fit serves.
+        val notes = TraitReport.reported(listOf(advantage("Combat Reflexes"), advantage("Very Fit")))
+        assertEquals(listOf("Very Fit"), notes.map { it.trait })
         assertEquals(listOf("recover FP at twice the normal rate"), notes.map { it.printed })
         // Every applied clause is absent -- none is left over. The last of the
         // three, "+6 to recover from stun", left this list in 6dr; the other
@@ -667,8 +675,9 @@ class TraitReportedTest {
             .filter { it.selfControl != null && it.name !in TraitEffects.known() }
         // 28 when written (6ew); Reluctant Killer left for the Attack dialog,
         // and Absent-Mindedness for every skill roll (6gj), and Reckless for
-        // the declared all-rolls chips (6hg).
-        assertEquals(25, swept.size)
+        // the declared all-rolls chips (6hg). v6.9i adds Addiction (specify);
+        // its Alcoholism is read as an all-rolls clause, so is not swept.
+        assertEquals(26, swept.size)
         for (row in swept) {
             val held = Trait(row.name, 5, TraitKind.DISADVANTAGE)
             // The sentence says the roll is applied: the roll must be offered.
@@ -728,10 +737,8 @@ class TraitReportedTest {
         // Stated here, not asked of `reported`: applied in full says nothing,
         // and a cell with one clause left over names that clause alone.
         assertEquals(emptyList<Any>(), cop.single { it.shown == "Alertness 1" }.notes)
-        assertEquals(
-            listOf("recover FP at twice the normal rate"),
-            cop.single { it.shown == TraitEffects.FIT }.notes.map { it.printed },
-        )
+        // v6.9i's Fit cell has no recovery clause left, so it is applied in full.
+        assertEquals(emptyList<Any>(), cop.single { it.shown == TraitEffects.FIT }.notes)
     }
 
     /**

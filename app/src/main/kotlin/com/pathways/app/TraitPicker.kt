@@ -316,7 +316,8 @@ internal fun TraitPicker(
                             val blocked = if (!PurchasableTraits.canBuy(row, held) || row.name in bought) {
                                 ALREADY_HELD
                             } else {
-                                refusalFor(row.name)
+                                PurchasableTraits.missingPrerequisite(row, held)?.let { "needs $it" }
+                                    ?: refusalFor(row.name)
                             }
                             val key = "$heading/${row.name}"
                             PickerRow(
