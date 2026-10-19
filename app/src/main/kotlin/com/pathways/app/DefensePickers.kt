@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AssistChip
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.pathways.model.RollResult
@@ -473,6 +474,10 @@ internal fun DefenseRow(name: String, targets: List<Int>, roll: (Int) -> RollRes
     // by 4 (play session 5), and the verdict it just made must not vanish
     // with the old figure. The line names its own target, so it stays true.
     var rolled by remember(name) { mutableStateOf<RollResult?>(null) }
+    // The second-tap guard counts rolls rather than comparing results: a
+    // re-roll equal to the last one is not a state change, so an identity
+    // check let a second tap roll, and charge a burn, again (Codex).
+    var rolls by remember(name) { mutableIntStateOf(0) }
     // Frame 15: a ruled tile on the paper tint, the figure small at the
     // right, a boxed roll, and the verdict in mono, red on a failure.
     Surface(
@@ -491,9 +496,14 @@ internal fun DefenseRow(name: String, targets: List<Int>, roll: (Int) -> RollRes
                 )
             }
             Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                val drawn = rolled
+                val drawn = rolls
                 targets.forEach { target ->
-                    BoxedRoll("Roll ≤ $target", Modifier.padding(end = 6.dp)) { if (rolled === drawn) rolled = roll(target) }
+                    BoxedRoll("Roll ≤ $target", Modifier.padding(end = 6.dp)) {
+                        if (rolls == drawn) {
+                            rolls = drawn + 1
+                            rolled = roll(target)
+                        }
+                    }
                 }
             }
             val shown = rolled
