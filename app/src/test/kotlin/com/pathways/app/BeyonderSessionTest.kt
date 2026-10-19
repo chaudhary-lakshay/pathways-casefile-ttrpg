@@ -238,6 +238,27 @@ class BeyonderSessionTest {
     }
 
     @Test
+    fun `a power used while drained costs one CoR on top of the Soul Debt`() {
+        // v6.9i line 3180: "Using powers while drained of Spirituality -- 1
+        // CoR per use". Drained is the pool at 0 or below when it is used.
+        val (s, saved) = session()
+        repeat(9) { s.usePower(1, maxSpi = 9, maxCor = 20) }
+        assertEquals(0, s.cor, "spent down to 0 from a full pool: never drained")
+        s.usePower(1, maxSpi = 9, maxCor = 20)
+        assertEquals(2, s.cor, "1 for the drained use, 1 Soul Debt for SPI -1")
+        assertEquals(10, saved().spiSpent)
+    }
+
+    @Test
+    fun `a power that crosses zero is not a drained use`() {
+        // 2 SPI left and a 3 SPI power: the pool was not drained when used,
+        // so only the Soul Debt it buys is charged.
+        val (s, _) = session(SavedSession(spiSpent = 7))
+        s.usePower(3, maxSpi = 9, maxCor = 20)
+        assertEquals(1, s.cor)
+    }
+
+    @Test
     fun `SPI above zero buys no corruption at all`() {
         val (s, _) = session()
         repeat(9) { s.spend(Pool.SPI, 1, max = 9, maxCor = 10) }

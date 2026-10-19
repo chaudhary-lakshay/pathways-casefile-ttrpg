@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
 import com.pathways.model.canDrink
 import com.pathways.rules.PcrOutcome
-import com.pathways.rules.Pool
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
@@ -263,7 +262,7 @@ fun PathwayScreen(
                                 // A stale tap of the same picture: the SPI it
                                 // was drawn with is already spent (6ei).
                                 val left = maxSpi - session.spiSpent
-                                if (left == drawnLeft && left >= price) session.spend(Pool.SPI, price, maxSpi, maxCor)
+                                if (left == drawnLeft) session.usePower(price, maxSpi, maxCor)
                             }
                         },
                     )

@@ -560,6 +560,18 @@ class BeyonderSession(
     }
 
     /**
+     * Use a power that costs [price] SPI: the spend, its Soul Debt, and the
+     * 1 CoR a use while drained costs ([Corruption.drainedUse], judged on
+     * the pool BEFORE the use). Rituals and divinations are skill rolls, not
+     * powers, and spend through [spend] alone.
+     */
+    fun usePower(price: Int, maxSpi: Int, maxCor: Int) {
+        val drained = Corruption.drainedUse(maxSpi - spiSpent)
+        spend(Pool.SPI, price, maxSpi, maxCor)
+        if (drained > 0) gainCor(drained, maxCor)
+    }
+
+    /**
      * Spend or restore [pool] by [delta] points against a maximum of [max],
      * never taking the pool above that maximum.
      *

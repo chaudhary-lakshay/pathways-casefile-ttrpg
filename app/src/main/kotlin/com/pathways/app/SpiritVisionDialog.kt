@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.pathways.rules.Pools
 import com.pathways.rules.SpiritVision
 
 /**
@@ -40,7 +39,6 @@ fun SpiritVisionDialog(
     onDismiss: () -> Unit,
 ) {
     val activation = SpiritVision.activation()
-    val affordable = Pools.canAffordSpi(activation, spiAvailable)
     var activations by remember { mutableIntStateOf(0) }
     // The count as drawn, for the second-tap guard.
     val drawn = activations
@@ -85,17 +83,16 @@ fun SpiritVisionDialog(
                 RollFooter(
                     lines = listOfNotNull(
                         "$activation SPI per activation, regardless of duration.",
-                        if (affordable) null else "Not enough SPI: $spiAvailable left, $activation to activate.",
+                        // Both printed rows: the state, and what acting in it costs.
+                        if (spiAvailable > 0) null else "Drained: abilities deactivate at 0 SPI, and each use costs 1 CoR.",
                     ),
                     caption = "No roll",
                     target = null,
-                    enabled = affordable,
                     label = if (drawn == 0) "Activate ($activation SPI)" else "Activate again ($activation SPI)",
                     icon = Icons.Filled.Visibility,
                 ) {
                     // A second tap of the same picture is dropped (6ei):
-                    // the first may have emptied the pool, and a second
-                    // spend below 0 is permanent CoR.
+                    // each spend below 0 is permanent CoR.
                     if (activations != drawn) return@RollFooter
                     onSpendSpi(activation)
                     activations = drawn + 1

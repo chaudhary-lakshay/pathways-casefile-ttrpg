@@ -126,6 +126,15 @@ class CorruptionTest {
     }
 
     @Test
+    fun `a power used while drained costs the row's one CoR`() {
+        // Line 3180-3181: "Using powers while drained of Spirituality -- 1
+        // CoR per use". Read from the row, so the number has one home.
+        assertEquals(1, Corruption.drainedUse(currentSpi = 0))
+        assertEquals(1, Corruption.drainedUse(currentSpi = -3))
+        assertEquals(0, Corruption.drainedUse(currentSpi = 1))
+    }
+
+    @Test
     fun `a maximum below one is a bad call, not a lost character`() {
         assertThrows<IllegalArgumentException> { Corruption.clamp(0, max = 0) }
         assertThrows<IllegalArgumentException> { Corruption.isLostAt(0, max = -1) }

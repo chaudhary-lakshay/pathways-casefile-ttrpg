@@ -510,8 +510,9 @@ internal fun SheetDialogs(
     if (SheetDialog.SPIRIT_VISION in open && hasSpiritVision) {
         SpiritVisionDialog(
             spiAvailable = vitals.maxSpi - session.spiSpent,
-            // Through the tracker, so activating actually costs the point.
-            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            // Through the tracker, so activating actually costs the point,
+            // and the drained-use CoR with it.
+            onSpendSpi = { session.usePower(it, vitals.maxSpi, maxCor) },
             onDismiss = { onClose(SheetDialog.SPIRIT_VISION) },
         )
     }

@@ -51,6 +51,23 @@ object Corruption {
     fun gained(): List<CorGain> = ContentLoader.corGained()
 
     /**
+     * What using a power costs in CoR with [currentSpi] in the pool BEFORE the
+     * use: "Using powers while drained of Spirituality -- 1 CoR per use"
+     * (v6.9i line 3180), read from that row. Drained is the 0 SPI row and
+     * below; a use that only crosses zero is charged its Soul Debt, not this.
+     *
+     * Nothing forbids the use: the 0 SPI row's "All Beyonder abilities
+     * deactivate" is reported as the state, and this row prices acting in it.
+     */
+    fun drainedUse(currentSpi: Int): Int =
+        if (currentSpi > 0) 0
+        else gained().firstOrNull { it.action.startsWith(DRAINED_USE) }?.minimum
+            ?: error("cor_gained.json has no priced row starting '$DRAINED_USE'")
+
+    /** The opening of the row [drainedUse] reads. */
+    const val DRAINED_USE = "Using powers while drained"
+
+    /**
      * Maximum CoR for [character]: their Will, plus 3 with [FORTITUDE].
      *
      * Will comes from [Derive], not from IQ, so a bought Will -- or a potion's,

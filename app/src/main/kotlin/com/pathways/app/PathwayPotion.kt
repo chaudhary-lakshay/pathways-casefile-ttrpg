@@ -270,11 +270,11 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
         AbilityText(ability)
         val price = spiPriceOf(tag)
         if (spend != null && price != null) {
-            // Personal SPI "cannot be reduced below 0" (ch. 7 Power Source A).
+            // v6.9i prints no floor: past 0 the pool buys Soul Debt, and a
+            // use while drained costs 1 CoR more (line 3180).
             InkAction(
-                if (spend.left >= price) "Spend $price SPI" else "Spend $price SPI: ${spend.left} left",
+                if (spend.left > 0) "Spend $price SPI" else "Spend $price SPI · +1 CoR, drained",
                 onClick = { spend.onSpend(price, spend.left) },
-                enabled = spend.left >= price,
                 modifier = Modifier.padding(bottom = 12.dp),
             )
         }
