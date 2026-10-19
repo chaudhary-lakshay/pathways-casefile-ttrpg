@@ -4,7 +4,7 @@ import com.pathways.rules.content.AntiDivinationTechnique
 import com.pathways.rules.content.ContentLoader
 
 /**
- * What a target spends SPI to hide behind (Ch. 6.5, Sec. 3, 3A-3F).
+ * What a target spends SPI to hide behind (Ch. 8 IV, Sec. 3, 3A-3B).
  *
  * This is what fills [AntiDivination.against]'s `techniquePenalty`, which has
  * been a parameter with no caller since the diviner's half of the chapter was
@@ -14,17 +14,14 @@ import com.pathways.rules.content.ContentLoader
  * **Sum, then halve.** "All active techniques stack -- their penalties add
  * together when a divination is attempted", so they are one penalty by the
  * moment Sec. 6 acts on it. The book's own numbers cannot tell that apart from
- * halving each and then summing: only 3A (-2) and 3B (-4) print a penalty and
- * both are EVEN, so the two orders agree on every combination this book can
- * produce -- the Major Wound trap (6n) with the parities the other way round.
+ * halving each and then summing: only 3A (-2) prints a penalty and it is
+ * EVEN, so the two orders agree on every combination this book can produce.
  * `extract_detection.verify()` fails the day an odd one is printed, which is
  * the day this reading has to be made again rather than inherited.
  *
- * **Four of the six price no divination attempt at all.** 3C diverts the
- * divination to someone else, 3D redirects it, 3E answers with a historical
- * figure and 3F with a false echo. None of them is a to-hit penalty, so none
- * carries one -- charging them 0 would be indistinguishable from a technique
- * that genuinely costs the diviner nothing.
+ * **3B prices no divination attempt at all.** It redirects the divination,
+ * which is not a to-hit penalty, so it carries none -- charging it 0 would be
+ * indistinguishable from a technique that genuinely costs the diviner nothing.
  *
  * **3A reaches both rolls**, and they are separate fields for that reason: -2
  * on the diviner's and +2 on the target's own detection roll ([Detection]).
@@ -70,30 +67,12 @@ object AntiDivinationTechniques {
      * any guard on it must read one predicate, or a widening moves the chips
      * and leaves the guard checking the set it used to be.
      *
-     * **This is not the payable set.** It answers which rows move the roll,
-     * and [spiFor] answers what a set costs -- two questions, and the second
-     * refuses a row priced in prose (3F). A row that helped the target notice
-     * AND priced itself that way would belong here and not there, because
-     * withdrawing a printed rule for being unsummable is the 4.1 sin. The
-     * screen prints each row's own Cost bullet for that reason; a caller that
-     * SUMS this set has to answer the question again.
+     * It answers which rows move the roll, and [spiFor] what a set costs.
      */
     fun onDetectionRoll(): List<AntiDivinationTechnique> =
         all().filter { it.detectionBonus != null }
 
-    /**
-     * What [chosen] costs the target in SPI.
-     *
-     * Refuses a technique the book prices in prose rather than in a number:
-     * 3F costs "SPI equal to what a divination of that scope would normally
-     * cost", which is the divination's own cost and not this object's to
-     * guess. Reading it as free would be the cheapest technique in the
-     * chapter having the strongest effect.
-     */
+    /** What [chosen] costs the target in SPI. */
     fun spiFor(chosen: List<AntiDivinationTechnique>): Int =
-        chosen.distinctBy { it.id }.sumOf {
-            it.spi ?: throw IllegalArgumentException(
-                "${it.id} ${it.name} prints no SPI cost: \"${it.bullet("Cost")}\"",
-            )
-        }
+        chosen.distinctBy { it.id }.sumOf { it.spi }
 }

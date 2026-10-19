@@ -445,8 +445,8 @@ object ContentLoader {
     fun detectionModifiers(): List<DetectionModifier> = detectionModifiersLazy
 
     /**
-     * Ch. 6.5's six active anti-divination techniques (Sec. 3, 3A-3F). Only
-     * two price a divination attempt; read through
+     * Ch. 8 IV's two active anti-divination techniques (Sec. 3, 3A-3B). Only
+     * 3A prices a divination attempt; read through
      * [com.pathways.rules.AntiDivinationTechniques].
      */
     fun antiDivinationTechniques(): List<AntiDivinationTechnique> =

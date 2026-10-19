@@ -448,16 +448,15 @@ fun DivinationDialog(
                         }
                     }
                     techniques.forEach { chosen ->
-                        // Four of the six price no roll at all -- they divert,
-                        // redirect or answer falsely. Saying what one DOES is the
-                        // only honest thing to show beside a chip worth +0.
+                        // 3B prices no roll at all -- it redirects. Saying what
+                        // one DOES is the only honest thing to show beside a chip
+                        // worth +0.
                         //
                         // Every printed line, not just the Effect. Each technique
-                        // also prints who may use it ("Fool Pathway, Seq 6 --
-                        // Faceless") and its own caveats -- 3A's ward breaks on a
-                        // wound over HP/3, 3D fails against a diviner 2+ Sequences
-                        // stronger, 3B extends to another target for +1 SPI. The
-                        // target has no sheet here, so none of it can be checked;
+                        // also prints who may use it ("Door Pathway, Seq 5 --
+                        // Traveler") and its own caveats -- 3A's ward breaks on a
+                        // wound over HP/3, 3B fails against a diviner 2+ Sequences
+                        // stronger. The target has no sheet here, so none of it can be checked;
                         // showing it is the call 6af made for the Sealed Artifact
                         // grade table, and a caveat that is extracted but never
                         // rendered is one the GM cannot apply either.

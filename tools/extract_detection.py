@@ -459,10 +459,8 @@ def build_technique(t):
     }
     cost = TECHNIQUE_SPI.match(bullets.get("Cost", ""))
     if cost:
-        # 3F prices itself as "SPI equal to what a divination of that scope
-        # would normally cost", which is a rule and not a number. No field --
-        # the distinction RitualCritical.corGained draws between charging
-        # nothing and charging zero.
+        # A cost that is not a number writes no field, and the Kotlin model
+        # requires one, so such a row fails to load rather than reading free.
         row["spi"] = int(cost.group(1))
     penalty = EFFECT_PENALTY.search(bullets.get("Effect", ""))
     if penalty:

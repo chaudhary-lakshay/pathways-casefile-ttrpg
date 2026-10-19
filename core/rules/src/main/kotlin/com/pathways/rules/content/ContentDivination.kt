@@ -176,15 +176,11 @@ data class DetectionOutcome(
 data class DetectionModifier(val situation: String, val modifier: Int)
 
 /**
- * One active anti-divination technique (Ch. 6.5, Sec. 3, p. 58-59).
+ * One active anti-divination technique (Ch. 8 IV, Sec. 3).
  *
  * [divinationPenalty] is what the DIVINER takes; [detectionBonus] is what the
  * target gains on its own roll. 3A prints both, which is why the two are
  * separate fields rather than one signed number.
- *
- * [spi] is absent rather than zero for 3F, which prices itself as "SPI equal
- * to what a divination of that scope would normally cost" -- a rule, not a
- * number, the distinction [RitualCritical.corGained] already draws.
  */
 @Serializable
 data class AntiDivinationTechnique(
@@ -192,7 +188,7 @@ data class AntiDivinationTechnique(
     val name: String,
     val availability: String,
     val bullets: List<TechniqueBullet>,
-    val spi: Int? = null,
+    val spi: Int,
     val divinationPenalty: Int? = null,
     val detectionBonus: Int? = null,
 ) {

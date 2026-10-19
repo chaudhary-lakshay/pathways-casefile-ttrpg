@@ -2,37 +2,39 @@ package com.pathways.rules
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-/** Ch. 6.5 Sec. 3 -- what the target pays to be hard to find. */
+/** Ch. 8 IV Sec. 3 -- what the target pays to be hard to find. */
 class AntiDivinationTechniquesTest {
 
     private val ward = AntiDivinationTechniques.named("3A")
-    private val concealment = AntiDivinationTechniques.named("3B")
+    private val misdirection = AntiDivinationTechniques.named("3B")
 
     @Test
-    fun `the book prints six, in order`() {
+    fun `the book prints two, in order`() {
         assertEquals(
-            listOf("3A", "3B", "3C", "3D", "3E", "3F"),
+            listOf("3A", "3B"),
             AntiDivinationTechniques.all().map { it.id },
         )
     }
 
     @Test
     fun `a technique answers to its id or its printed name`() {
-        assertEquals("3B", AntiDivinationTechniques.named("Concealment").id)
-        assertThrows<IllegalArgumentException> { AntiDivinationTechniques.named("3G") }
+        assertEquals("3B", AntiDivinationTechniques.named("Door Misdirection").id)
+        assertThrows<IllegalArgumentException> { AntiDivinationTechniques.named("3C") }
     }
 
     // ---- stacking, and the two halvings ---------------------------------
 
-    /** "All active techniques stack -- their penalties add together." */
+    /**
+     * "All active techniques stack -- their penalties add together." Only the
+     * ward prints one, so misdirection adds nothing to it.
+     */
     @Test
     fun `penalties add`() {
-        assertEquals(-6, AntiDivinationTechniques.penaltyTotal(listOf(ward, concealment)))
+        assertEquals(-2, AntiDivinationTechniques.penaltyTotal(listOf(ward, misdirection)))
     }
 
     /** A target has one ward; naming it twice is not two wards. */
@@ -47,7 +49,7 @@ class AntiDivinationTechniquesTest {
      * Sec. 3 makes the techniques one penalty "when a divination is
      * attempted", which is the moment Sec. 6's two halvings act. The book's
      * own numbers cannot distinguish that from halving each and then summing:
-     * only two rows print a penalty and BOTH ARE EVEN, so the orders agree on
+     * only one row prints a penalty and IT IS EVEN, so the orders agree on
      * every combination this book can produce. `extract_detection.verify()`
      * fails on the first odd one, which is when this decision has to be made
      * again rather than inherited.
@@ -55,11 +57,11 @@ class AntiDivinationTechniquesTest {
     @Test
     fun `every printed penalty is even, so the two stacking orders agree`() {
         val printed = AntiDivinationTechniques.all().mapNotNull { it.divinationPenalty }
-        assertEquals(listOf(-2, -4), printed)
+        assertEquals(listOf(-2), printed)
         assertTrue(printed.all { it % 2 == 0 })
 
         val summedThenHalved = AntiDivination.halvedMagnitude(
-            AntiDivinationTechniques.penaltyTotal(listOf(ward, concealment)),
+            AntiDivinationTechniques.penaltyTotal(listOf(ward, misdirection)),
             roundUp = true,
         )
         val halvedThenSummed =
@@ -67,7 +69,7 @@ class AntiDivinationTechniquesTest {
         assertEquals(summedThenHalved, halvedThenSummed)
         // and the same again in the other rounding direction (Direct Link)
         assertEquals(
-            AntiDivination.halvedMagnitude(-6, roundUp = false),
+            AntiDivination.halvedMagnitude(-2, roundUp = false),
             printed.sumOf { AntiDivination.halvedMagnitude(it, roundUp = false) },
         )
     }
@@ -86,18 +88,17 @@ class AntiDivinationTechniquesTest {
         assertTrue(result.parts.any { it.contains("active techniques") })
     }
 
-    // ---- the four that price nothing -------------------------------------
+    // ---- the one that prices nothing --------------------------------------
 
     /**
-     * 3C diverts, 3D redirects, 3E answers as someone else and 3F answers
-     * falsely. None is a penalty on the roll, so none carries a zero -- the
-     * distinction `RitualCritical.corGained` draws between charging nothing
-     * and charging zero.
+     * 3B redirects the divination. That is not a penalty on the roll, so it
+     * carries no zero -- the distinction `RitualCritical.corGained` draws
+     * between charging nothing and charging zero.
      */
     @Test
-    fun `four techniques print no penalty at all`() {
+    fun `misdirection prints no penalty at all`() {
         val silent = AntiDivinationTechniques.all().filter { it.divinationPenalty == null }
-        assertEquals(listOf("3C", "3D", "3E", "3F"), silent.map { it.id })
+        assertEquals(listOf("3B"), silent.map { it.id })
         assertEquals(0, AntiDivinationTechniques.penaltyTotal(silent))
     }
 
@@ -105,23 +106,7 @@ class AntiDivinationTechniquesTest {
 
     @Test
     fun `SPI costs add`() {
-        val misdirection = AntiDivinationTechniques.named("3D")
         assertEquals(5, AntiDivinationTechniques.spiFor(listOf(ward, misdirection)))
-    }
-
-    /**
-     * 3F prices itself as the divination's own cost, which is a rule and not
-     * a number. Refused rather than read as free: the strongest effect in the
-     * section would otherwise be the cheapest.
-     */
-    @Test
-    fun `the technique with no printed number is refused, not free`() {
-        val echo = AntiDivinationTechniques.named("3F")
-        assertNull(echo.spi)
-        val thrown = assertThrows<IllegalArgumentException> {
-            AntiDivinationTechniques.spiFor(listOf(echo))
-        }
-        assertTrue(thrown.message!!.contains("prints no SPI cost"))
     }
 
     // ---- 3A reaches both rolls -------------------------------------------
@@ -143,10 +128,9 @@ class AntiDivinationTechniquesTest {
 
     /**
      * **Every printed line survives to a reader.** Each technique names who
-     * may use it ("Fool Pathway, Seq 6 -- Faceless") and prints its own
+     * may use it ("Door Pathway, Seq 5 -- Traveler") and prints its own
      * caveats beside the Effect -- 3A's ward breaking on a wound over HP/3,
-     * 3D failing against a diviner 2+ Sequences stronger, 3B's +1 SPI per
-     * extra target. The screen showed the Effect alone for a whole slice, so
+     * 3B failing against a diviner 2+ Sequences stronger. The screen showed the Effect alone for a whole slice, so
      * a GM ticking a Darkness-only technique for a Justiciar saw nothing to
      * stop them. None of it can be enforced here (the target has no sheet),
      * which is exactly why it has to be shown -- 6af's call for the Sealed
@@ -167,7 +151,7 @@ class AntiDivinationTechniquesTest {
         // The caveats specifically, since they are the ones the Effect hides.
         assertEquals(
             "Limitation",
-            AntiDivinationTechniques.named("3D").bullets.last().label,
+            AntiDivinationTechniques.named("3B").bullets.last().label,
         )
     }
 
