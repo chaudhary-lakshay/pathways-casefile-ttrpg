@@ -380,6 +380,17 @@ data class CoreBand(
  * list means none is needed; [outOfCombatTraits] absent means never out of
  * combat. Read through [com.pathways.rules.EffortBurn].
  */
+/** One row of ch. 2's Encumbrance Levels (v6.9i 404-422): the load limit in multiples of BL. */
+@Serializable
+data class EncumbranceLevel(
+    val level: Int,
+    val name: String,
+    val maxLoadBl: Int,
+    val movePenalty: Int,
+    val dodgePenalty: Int,
+    val cannotRun: Boolean = false,
+)
+
 /** One row of ch. 2's attribute table: "ST (Strength) 10 pts" per level. */
 @Serializable
 data class AttributeCost(val attr: String, val costPerLevel: Int)

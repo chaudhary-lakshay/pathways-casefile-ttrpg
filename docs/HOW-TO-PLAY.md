@@ -95,6 +95,8 @@ If some values differ from the published sheet, the card gets an *Amended* stamp
 
 **Does any of this hold?** appears when one of your drawbacks gives "-N to all rolls" in a situation only the GM can see. Examples are a phobia's trigger, laudanum withdrawal, or an entity nearby. Tap the line to turn it on. It then counts on every roll on every screen, and each roll names it, until you tap it again. Perceptual Splitting's line counts only on rolls based on ST, DX or HT. These lines are not saved. Closing the app clears them, and so does **Reset to sheet**. Each character keeps their own while the app is open.
 
+**Carrying** takes the total weight your character carries, in pounds. The line under it shows Basic Lift (ST × ST ÷ 5, with Lifting ST added to ST) and the encumbrance level, for example *Light: Move -1, Dodge -1*. Defend takes the Dodge penalty. The weight is not saved, and it is cleared like the lines above.
+
 ### Skills
 
 Each row is a skill and its level. Tap the row to roll. See [Roll a skill](#3-roll-a-skill).
@@ -401,6 +403,8 @@ In a few places the book does not settle a rule. The app picks a reading, and so
 - Dead Language Fluency's free language is the owner's reading. The book names no level, price or list.
 - A potion's skill bonus on a skill with no points adds to its default, Versatile's +1 included.
 - Fit and Very Fit held together each add their bonus to HT rolls, +3 in all.
+- Encumbrance lowers Dodge before low FP halves it.
+- A Seven Lights sacrifice reduces the penalty to 0 at most, never to a bonus.
 
 The GM can rule differently. Use the **Modifier** stepper for the difference.
 

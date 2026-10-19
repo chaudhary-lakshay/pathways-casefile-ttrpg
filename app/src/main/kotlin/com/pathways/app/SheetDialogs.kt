@@ -59,6 +59,8 @@ internal fun SheetDialogs(
     stunnedState: MutableState<Boolean>,
     /** The weapons declared used repeatedly this session ([SheetScene.warmed]). */
     warmedState: MutableState<Set<String>>,
+    /** The carried load's Dodge penalty (v6.9i), 0 or less. */
+    encumbranceDodge: Int,
     sheet: PremadeSheet,
     session: BeyonderSession,
     drunk: BeyonderState?,
@@ -357,7 +359,9 @@ internal fun SheetDialogs(
             // one tap away offered the whole Dodge. Halved here, at the one
             // reader of the derived score -- the published-vs-computed row in
             // SheetComparison is an audit of the DERIVATION and stays whole.
-            dodge = Pools.halvedForFatigue(vitals.dodge, fatigue),
+            // Encumbrance first, then the halving: a READING of the order,
+            // which v6.9i does not print.
+            dodge = Pools.halvedForFatigue(vitals.dodge + encumbranceDodge, fatigue),
             fatigued = Pools.isFatigued(fatigue),
             // p. 40 and p. 42's "-1 to all rolls", added to every row. The
             // halving above is the fatigue row's OTHER clause and lands on the

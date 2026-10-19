@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.pathways.model.TraitKind
+import com.pathways.rules.Encumbrance
 import com.pathways.rules.Conditions
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
@@ -550,6 +551,9 @@ internal fun SheetScreen(
                     states = physicalStates,
                     secondaryLines = secondaryLines,
                     onRollAttribute = { open = open + rollDialogFor(it) },
+                    carried = scene.carried.value,
+                    basicLift = Encumbrance.basicLift(attributes.st, traits),
+                    onCarried = { scene.carried.value = it },
                 )
                 SheetTab.TRAITS -> traitsTab(
                     advantages = advantages,
@@ -603,6 +607,7 @@ internal fun SheetScreen(
         roundState = scene.round,
         stunnedState = scene.stunned,
         warmedState = scene.warmed,
+        encumbranceDodge = encumbranceDodge(scene.carried.value, Encumbrance.basicLift(attributes.st, traits)),
         sheet = sheet,
         session = session,
         drunk = drunk,

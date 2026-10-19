@@ -684,7 +684,9 @@ object TraitEffects {
             // the second-route cover this KDoc records against Outdoorsman.
             setOf(SkillDefaults.MEDICAL_TRAINING) +
             // The ninth: [SpiritVision.isHeldBy] gates the sheet's tile on it.
-            setOf(SpiritVision.TRAIT)
+            setOf(SpiritVision.TRAIT) +
+            // The tenth: [Encumbrance.basicLift] adds it to ST (v6.9i 401).
+            setOf(Encumbrance.LIFTING_ST)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys

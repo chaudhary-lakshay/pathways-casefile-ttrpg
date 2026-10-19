@@ -65,6 +65,10 @@ internal fun LazyListScope.vitalsTab(
     secondaryLines: List<PlayedLine>,
     /** A Will or Per row tapped: its bare roll (play session 4). */
     onRollAttribute: (AttributeRoll.Kind) -> Unit,
+    /** The weight carried, typed, and the Basic Lift it is measured against (v6.9i). */
+    carried: Double?,
+    basicLift: Double,
+    onCarried: (Double?) -> Unit,
 ) {
     item {
         PoolTrackers(
@@ -124,6 +128,7 @@ internal fun LazyListScope.vitalsTab(
     // so each prints the number PLAYED, and the disagreement with the
     // published sheet is printed beside it ([PlayedLine]).
     item { VitalsCard(diffSummary, amended, amendedOnly, onAmendedOnly, secondaryLines, sheetFigures, onRollAttribute) }
+    item { EncumbranceCard(carried, basicLift, onCarried) }
 }
 
 internal fun LazyListScope.traitsTab(

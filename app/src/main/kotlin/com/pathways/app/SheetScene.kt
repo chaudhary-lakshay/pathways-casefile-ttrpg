@@ -34,6 +34,8 @@ internal class SheetScene {
      * Attack and read by Defend's parry.
      */
     val warmed = mutableStateOf(emptySet<String>())
+    /** The weight carried, typed by the player (v6.9i encumbrance), or null for none. */
+    val carried = mutableStateOf<Double?>(null)
 }
 
 /** Each character's [SheetScene], kept across trips to the gallery, as [RollLog] keeps throws. */
