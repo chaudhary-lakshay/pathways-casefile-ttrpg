@@ -17,7 +17,7 @@ import com.pathways.model.BeyonderState
 
 /** The sheet's dialogs a hub tile opens; [SheetScreen] holds which are open. */
 enum class SheetDialog {
-    FRIGHT, CONCENTRATE, DETECT, ATTACK, DEFEND, DAMAGE, RITUAL, DIVINE, SPIRIT_VISION, BOON, ARTIFACTS,
+    FRIGHT, CONCENTRATE, DETECT, ATTACK, DEFEND, DAMAGE, RITUAL, DIVINE, SPIRIT_VISION, BOON,
     /** The bare attribute rolls, opened from their Vitals rows (play session 4). */
     WILL_ROLL, PER_ROLL,
 }
@@ -107,11 +107,6 @@ internal fun SheetActions(
             }
             // Underlined, as frames 02 and 04 draw these two.
             ActionChip("Spend points", underlined = true, onClick = onBuild)
-            // Not gated: a Sealed Artifact is found, not bought or awarded by
-            // Sequence, and church rank is not modelled. See SealedArtifacts.
-            ActionChip("Artifacts", underlined = true) {
-                onOpen(SheetDialog.ARTIFACTS)
-            }
         }
     }
 }

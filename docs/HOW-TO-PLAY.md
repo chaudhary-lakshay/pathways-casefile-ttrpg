@@ -130,7 +130,7 @@ Four sheets print SPI 9 with no pathway: Apothecary, Barmaid Brawler, Docks Boun
 
 ### Reference text
 
-Longer rule text in a dialog sits in a dashed box that is closed until you tap it. Examples are the shield rules, the incantation, Spirit Vision's color key and an artifact's description. Targets, costs and refusals always stay open.
+Longer rule text in a dialog sits in a dashed box that is closed until you tap it. Examples are the shield rules, the incantation, and Spirit Vision's color key. Targets, costs and refusals always stay open.
 
 ---
 
@@ -319,11 +319,9 @@ A rejection ends the prayer and costs nothing. No response ends it, grants no bo
 
 A granted boon is saved when you close the dialog. Its gains stay on the sheet next to any potions, and the header shows *Boon · name · Seq N*. Some of its traits count in rolls, marked *"from the boon"*. The GM handles the rest. The book lists nothing past Sequence 8, so you cannot pray again after that.
 
-### Spirit Vision, Detect and Artifacts
+### Spirit Vision and Detect
 
 **Spirit Vision** (the red chip, under your pathway's name for it) rolls the look into the spirit world. **Detect** rolls the detection checks, and applies a target's anti-divination counters. With Acute Vision, a chip offers *+2 to Vision rolls*. Tap it if the GM says it helps. A look that leaves your SPI at a third of its maximum or less gets *Spiritual Attrition -3*. A Light Sleeper gets +4 on Perception rolls while asleep.
-
-**Artifacts** lists sealed artifacts, their grades and what each ability costs in SPI or HP. The grade does not stop you from using one.
 
 ---
 

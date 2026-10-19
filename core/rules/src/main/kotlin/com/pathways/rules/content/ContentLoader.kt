@@ -84,9 +84,6 @@ object ContentLoader {
     private val sealedArtifactGradesLazy: List<SealedArtifactGrade> by lazy {
         load("sealed_artifact_grades.json")
     }
-    private val sealedArtifactsLazy: List<SealedArtifact> by lazy {
-        load("sealed_artifacts.json")
-    }
     private val divinationDifficultyLazy: List<DivinationDifficulty> by lazy {
         load("divination_difficulty.json")
     }
@@ -509,13 +506,6 @@ object ContentLoader {
      * read through [com.pathways.rules.SealedArtifacts].
      */
     fun sealedArtifactGrades(): List<SealedArtifactGrade> = sealedArtifactGradesLazy
-
-    /**
-     * The four documented Sealed Artifacts (Ch. 6, p. 49-53), in printed order.
-     * Their SPI and HP costs are the part the app spends; every effect,
-     * drawback and sealing instruction is prose the GM reads.
-     */
-    fun sealedArtifacts(): List<SealedArtifact> = sealedArtifactsLazy
 
     /**
      * Ch. 2's own success-roll list (p. 7), in printed order. Corroborates

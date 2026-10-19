@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
  *
  * This replaces one grid of thirteen equal tiles, which spent 40% of a tablet
  * screen before a single stat and gave the Attack button the same weight as
- * Artifacts. Before the grid there was a scrolling row that hid nine actions,
+ * Detect. Before the grid there was a scrolling row that hid nine actions,
  * and before that four labelled chip groups that read as four lists. The
  * bracketed words keep every action one tap away. The big buttons are what
  * is used every turn.

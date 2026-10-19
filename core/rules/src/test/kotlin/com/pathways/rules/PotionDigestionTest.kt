@@ -343,8 +343,8 @@ class PotionDigestionTest {
 
     @Test
     fun `a per-turn boolean cannot carry what the book prints`() {
-        // Why the SealedArtifacts cost shape was refused for these. That record
-        // has ArtifactCost.perTurn, a Boolean rendered "per turn maintained".
+        // Why a per-turn boolean cost shape (the deleted Sealed Artifact
+        // record's) was refused for these.
         // These abilities are priced per minute as well -- and one turn is one
         // second in this engine -- so the two are 60x apart and a boolean puts
         // them in the same bucket.

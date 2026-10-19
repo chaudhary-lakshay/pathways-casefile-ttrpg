@@ -608,17 +608,6 @@ internal fun SheetDialogs(
             onDismiss = { onClose(SheetDialog.RITUAL) },
         )
     }
-    if (SheetDialog.ARTIFACTS in open) {
-        ArtifactDialog(
-            spiAvailable = vitals.maxSpi - session.spiSpent,
-            // Both through the tracker, so an artifact used at 0 SPI buys the
-            // Soul Debt the book charges for it, and the gauntlet's Soul's
-            // Price actually wounds the hand it is worn on.
-            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
-            onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
-            onDismiss = { onClose(SheetDialog.ARTIFACTS) },
-        )
-    }
     // Ungated: without Ritualistic Magic the dialog says what is missing,
     // where an absent chip read as a feature that did not work.
     if (SheetDialog.BOON in open) {

@@ -106,8 +106,8 @@ object PotionDigestion {
      *
      * What a design review stopped, and what the next attempt has to fix:
      *
-     *  - **The price is not one number with a boolean.** `ArtifactCost` carries
-     *    `perTurn`, and `ArtifactDialog` renders it "per turn maintained". The
+     *  - **The price is not one number with a boolean.** The deleted Sealed
+     *    Artifact cost record carried a `perTurn` boolean. The
      *    book prices these abilities in **at least three kinds** of qualifier,
      *    which is the part a test pins: recurring per turn AND per minute
      *    (this app's clock is one turn = one second, so collapsing those is a
@@ -134,10 +134,7 @@ object PotionDigestion {
      *    guards in [digestThrough] and answers a different question than the
      *    caller asked.
      *
-     * [SealedArtifacts] is the right precedent for the SPEND mechanism only.
-     * It is not the precedent for possession: `SealedArtifacts.all()` is
-     * ungated and offers every artifact to every character, so it never had to
-     * answer that question. [digestThrough] is what answers it here.
+     * Possession is the chain's question: [digestThrough] answers it.
      */
     val UNPARSED = mapOf(
         "ability" to

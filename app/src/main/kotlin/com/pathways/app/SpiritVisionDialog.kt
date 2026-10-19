@@ -57,8 +57,7 @@ import com.pathways.rules.TraitClauses
  * refusal); activation is charged, the rate is printed, and the minutes are
  * the GM's.
  *
- * **Looking again is a fresh activation and is charged as one**, which is
- * `ArtifactDialog`'s "Use again" exactly. The button names the price so the
+ * **Looking again is a fresh activation and is charged as one**. The button names the price so the
  * second press is not a cheaper-looking version of the first, and it
  * disables itself when the pool cannot pay: [spiAvailable] is computed by the
  * caller from `session.spiSpent`, which is `mutableIntStateOf`, so spending
