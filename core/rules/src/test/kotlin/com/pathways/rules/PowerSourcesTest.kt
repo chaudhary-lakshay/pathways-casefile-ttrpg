@@ -2,86 +2,16 @@ package com.pathways.rules
 
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+/** Ch. 9 IV, v6.9i: the power sources and what each adds to the roll. */
 class PowerSourcesTest {
 
     private val light = PowerSources.complexityNamed("Light")
     private val heavy = PowerSources.complexityNamed("Heavy")
     private val major = PowerSources.complexityNamed("Major")
-
-    @Test
-    fun `the ladder prints four rungs where the weight table prints three`() {
-        assertEquals(
-            listOf("Light", "Moderate", "Heavy", "Major"),
-            PowerSources.complexities().map { it.complexity },
-        )
-        assertEquals(3, RitualResolution.weights().size)
-        assertTrue(RitualResolution.weights().none { it.weight == "Major" }) {
-            "Major has no base difficulty modifier, which is why it is a complexity"
-        }
-    }
-
-    /**
-     * The disagreement this slice exists to keep. Section V prices a Light
-     * ritual at a flat 2 and a Heavy one at 8+; the ladder says 2-3 and 7-10,
-     * and the book's own worked rituals charge 3 and 7. Repairing either table
-     * from the other is the failure mode.
-     */
-    @Test
-    fun `the two SPI tables disagree at both ends and agree in the middle`() {
-        val weights = RitualResolution.weights().associateBy { it.weight }
-        assertEquals(2, weights.getValue("Light").spi)
-        assertNull(weights.getValue("Light").spiMax)
-        assertEquals(2 to 3, light.spi to light.spiMax)
-
-        assertEquals(8, weights.getValue("Heavy").spi)
-        assertEquals(7 to 10, heavy.spi to heavy.spiMax)
-
-        val moderateWeight = weights.getValue("Moderate")
-        val moderate = PowerSources.complexityNamed("Moderate")
-        assertEquals(moderateWeight.spi to moderateWeight.spiMax, moderate.spi to moderate.spiMax)
-    }
-
-    @Test
-    fun `the book's own worked rituals fall inside the ladder and outside the weight column`() {
-        // Ritual 2: a Light divination charged 3 SPI.
-        assertEquals(3, PowerSources.spiFor(light, chosen = 3))
-        // Ritual 3: a Heavy summoning charged 7, below the weight column's floor of 8.
-        assertEquals(7, PowerSources.spiFor(heavy, chosen = 7))
-        assertTrue(7 < RitualResolution.weights().single { it.weight == "Heavy" }.spi)
-    }
-
-    @Test
-    fun `a cost outside the printed cell is refused rather than clamped`() {
-        assertThrows<IllegalArgumentException> { PowerSources.spiFor(light, chosen = 4) }
-        assertThrows<IllegalArgumentException> { PowerSources.spiFor(light, chosen = 1) }
-    }
-
-    /** "11-15+" prints a ceiling AND a plus, so the plus wins and there is none. */
-    @Test
-    fun `the Major rung has an open top and no ceiling to exceed`() {
-        assertEquals("11-15+ SPI", major.printedCost)
-        assertEquals(40, PowerSources.spiFor(major, chosen = 40))
-        assertThrows<IllegalArgumentException> { PowerSources.spiFor(major, chosen = 10) }
-    }
-
-    /** Burning is a second use of SPI, cumulative with the fuel. */
-    @Test
-    fun `burned SPI adds to the fuel rather than replacing it`() {
-        assertEquals(7, PowerSources.spiFor(light, chosen = 3, burned = 4))
-        assertThrows<IllegalArgumentException> { PowerSources.spiFor(light, burned = -1) }
-    }
-
-    @Test
-    fun `an open cell cannot overflow into a negative cost`() {
-        assertThrows<IllegalArgumentException> {
-            PowerSources.spiFor(major, chosen = Int.MAX_VALUE, burned = 1)
-        }
-    }
 
     // ---- B. HP sacrifice -------------------------------------------------
 
@@ -120,12 +50,12 @@ class PowerSourcesTest {
     // ---- C. Multiple participants ----------------------------------------
 
     /**
-     * Ritual 3 prints "Two trained assistants ... +2". Read as "beyond the
-     * first ASSISTANT" that pair is +1, and every ritual with helpers rolls a
-     * point low.
+     * "Each assistant beyond the first gives +1". The first is the caster:
+     * the owner's ruling (2026-10-19), since v6.9i deleted the worked Ritual
+     * 3 that used to settle it.
      */
     @Test
-    fun `two assistants are worth two, as the book's own ritual prints`() {
+    fun `two assistants are worth two, the caster being the first`() {
         assertEquals(0, PowerSources.participantBonus(0))
         assertEquals(1, PowerSources.participantBonus(1))
         assertEquals(2, PowerSources.participantBonus(2))
@@ -140,38 +70,37 @@ class PowerSourcesTest {
 
     // ---- D. External sacrifice -------------------------------------------
 
+    // ---- External Sacrifice/Catalysts -------------------------------------
+
+    /**
+     * "Sacrifice quality ranges from -40 to +40 depending on quality and
+     * domain relevance at GM's discretion." One GM number: v6.9i deleted the
+     * three tiers, the +2 per sentient being and the separate catalyst.
+     */
     @Test
-    fun `the three tiers price as printed and no sacrifice is worth nothing`() {
-        assertEquals(
-            listOf("Ordinary" to 0, "Meaningful" to 2, "Precious" to 4),
-            PowerSources.sacrificeTiers().map { it.tier to it.modifier },
-        )
-        assertEquals(0, PowerSources.sacrificeBonus(null))
+    fun `a sacrifice is the GM's number between -40 and +40`() {
+        assertEquals(0, PowerSources.sacrificeBonus(0))
+        assertEquals(-40, PowerSources.sacrificeBonus(-40))
+        assertEquals(40, PowerSources.sacrificeBonus(40))
+        assertThrows<IllegalArgumentException> { PowerSources.sacrificeBonus(41) }
+        assertThrows<IllegalArgumentException> { PowerSources.sacrificeBonus(-41) }
     }
 
-    /** Two consecutive sentences, both applied: the tier AND the per-being bonus. */
-    @Test
-    fun `a sentient offering adds to its tier rather than replacing it`() {
-        val precious = PowerSources.sacrificeNamed("Precious")
-        assertEquals(6, PowerSources.sacrificeBonus(precious, sentientBeings = 1))
-        assertEquals(8, PowerSources.sacrificeBonus(precious, sentientBeings = 2))
-    }
+    // ---- Invocation --------------------------------------------------------
 
+    /**
+     * "Adds +1 to +5 to the ritual roll (GM discretion ...)". Praying to
+     * oneself (null) adds nothing; an orthodox deity in good standing is the
+     * +2 inside that range (owner's ruling, 2026-10-19).
+     */
     @Test
-    fun `a sentient offering with no sacrifice declared is refused, not ignored`() {
-        assertThrows<IllegalArgumentException> {
-            PowerSources.sacrificeBonus(null, sentientBeings = 1)
-        }
-    }
-
-    // ---- E. Catalysts ----------------------------------------------------
-
-    @Test
-    fun `a catalyst is validated against both printed ends`() {
-        assertEquals(0, PowerSources.catalystBonus(0))
-        assertEquals(2, PowerSources.catalystBonus(2))
-        assertThrows<IllegalArgumentException> { PowerSources.catalystBonus(3) }
-        assertThrows<IllegalArgumentException> { PowerSources.catalystBonus(-1) }
+    fun `an invocation adds the GM's +1 to +5 and praying to oneself adds nothing`() {
+        assertEquals(0, PowerSources.invocationBonus(null))
+        assertEquals(1, PowerSources.invocationBonus(1))
+        assertEquals(5, PowerSources.invocationBonus(5))
+        assertEquals(2, PowerSources.ORTHODOX_BONUS)
+        assertThrows<IllegalArgumentException> { PowerSources.invocationBonus(0) }
+        assertThrows<IllegalArgumentException> { PowerSources.invocationBonus(6) }
     }
 
     // ---- Pacing and the total --------------------------------------------
@@ -207,18 +136,17 @@ class PowerSourcesTest {
             PowerSourceDeclaration(
                 pacing = RitualPacing.EXTENDED,
                 assistants = 2,
-                sacrifice = PowerSources.sacrificeNamed("Meaningful"),
-                catalyst = 1,
+                sacrifice = 3,
+                invocation = 4,
             ),
         )
-        // +2 extended, +2 for two assistants, +2 Meaningful, +1 catalyst.
-        assertEquals(7, total)
+        // +2 extended, +2 for two assistants, +3 sacrifice, +4 invoked.
+        assertEquals(11, total)
     }
 
     @Test
-    fun `an unprinted complexity or tier is refused rather than defaulted`() {
+    fun `an unprinted complexity is refused rather than defaulted`() {
         assertThrows<IllegalArgumentException> { PowerSources.complexityNamed("Trivial") }
-        assertThrows<IllegalArgumentException> { PowerSources.sacrificeNamed("Priceless") }
     }
 
     // ---- Reaching the roll -----------------------------------------------
@@ -255,13 +183,12 @@ class PowerSourcesTest {
             powerSources = PowerSourceDeclaration(
                 pacing = RitualPacing.RUSHED,
                 assistants = 2,
-                sacrifice = PowerSources.sacrificeNamed("Precious"),
-                catalyst = 2,
+                sacrifice = -6,
                 suspended = true,
             ),
         )
-        // -4 rushed at Heavy, +2 assistants, +4 Precious, +2 catalyst, -2 suspended.
-        assertEquals(bare + 2, declared)
+        // -4 rushed at Heavy, +2 assistants, -6 sacrifice, -2 suspended.
+        assertEquals(bare - 10, declared)
     }
 
     /** Rushed is -3 at one rung and -5 at another; there is no safe default. */
@@ -276,7 +203,7 @@ class PowerSourcesTest {
                 powerSources = PowerSourceDeclaration(pacing = RitualPacing.RUSHED),
             )
         }
-        // The four rung-independent sources still apply without one.
+        // The rung-independent sources still apply without one.
         assertEquals(
             2,
             PowerSources.modifierTotal(null, PowerSourceDeclaration(assistants = 2)),
@@ -284,11 +211,20 @@ class PowerSourcesTest {
     }
 
     @Test
-    fun `every rung prints a base time and a look`() {
+    fun `every rung prints a base time and both pacing cells`() {
         ContentLoader.ritualComplexity().forEach {
             assertTrue(it.baseTime.isNotBlank()) { "${it.complexity} lost its base time" }
-            assertTrue(it.description.isNotBlank()) { "${it.complexity} lost its description" }
-            assertTrue(it.looksLike.contains("(")) { "${it.complexity} lost its examples" }
+            assertTrue(it.rushed < 0 && it.extended > 0) { it.complexity }
+        }
+    }
+
+    /** v6.9i prints the time table and the weight table on the same four names. */
+    @Test
+    fun `each weight reads its pacing off the complexity of the same name`() {
+        RitualResolution.weights().forEach { weight ->
+            val rung = PowerSources.complexityFor(weight)
+            assertEquals(weight.weight, rung.complexity)
+            assertEquals(weight.baseTime, rung.baseTime)
         }
     }
 }

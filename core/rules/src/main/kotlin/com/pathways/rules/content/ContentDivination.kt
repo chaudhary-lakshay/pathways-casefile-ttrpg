@@ -109,10 +109,6 @@ data class DivinationClarity(
     val isFailure: Boolean = false,
 )
 
-/** One row of the Supporting Skills table (Ch. 6.5), each worth +1. */
-@Serializable
-data class DivinationSupport(val skill: String, val bonus: Int)
-
 /**
  * One row of Ch. 6.5's Sequence Immunity table (Sec. 5, p. 59-60).
  *

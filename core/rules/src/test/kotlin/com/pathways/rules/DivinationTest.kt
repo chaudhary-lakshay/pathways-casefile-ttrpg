@@ -301,60 +301,6 @@ class DivinationTest {
     }
 
     @Test
-    fun `supporting skills cap at plus two however many you have`() {
-        val all = Divination.supportingSkills()
-        assertEquals(4, all.size, "four skills at +1 each would be +4 uncapped")
-        assertEquals(Divination.MAX_SUPPORT_BONUS, Divination.supportBonus(all))
-        assertEquals(1, Divination.supportBonus(all.take(1)))
-        assertEquals(0, Divination.supportBonus(emptyList()))
-        // Named twice pays once: a character has one Occultism.
-        assertEquals(1, Divination.supportBonus(listOf(all.first(), all.first())))
-    }
-
-    /**
-     * **The bracket is the book asking for a domain, not part of a name.**
-     *
-     * Ch. 6.5 prints "Hidden Lore (relevant)" and no sheet spells it that way,
-     * so keyed on the printed string the row is unreachable — 6am's finding
-     * for ch. 7's own list, which that slice fixed on the ritual side only.
-     * Only the ROW's bracket is stripped, so a character's specialization
-     * still matches: relevance is the GM's call, not a spelling.
-     */
-    @Test
-    fun `a supporting skill matches whatever domain the sheet spells`() {
-        val owned = listOf("Hidden Lore", "Occultism", "Camouflage")
-        val got = Divination.supportSkillsOwnedBy(owned).map { it.skill }.toSet()
-        assertEquals(setOf("Occultism", "Hidden Lore (relevant)"), got)
-        assertEquals(2, Divination.supportBonus(Divination.supportSkillsOwnedBy(owned)))
-
-        // The sheet's own specialization, which is how every premade prints it.
-        assertEquals(
-            listOf("Hidden Lore (relevant)"),
-            Divination.supportSkillsOwnedBy(listOf("Hidden Lore (Fae)")).map { it.skill },
-        )
-        // ...and a diviner with none of the four gets nothing rather than a
-        // default: the empty branch the screen names the four skills for.
-        assertEquals(
-            emptyList<String>(),
-            Divination.supportSkillsOwnedBy(listOf("Brawling")).map { it.skill },
-        )
-    }
-
-    /**
-     * **Divination caps at +2 and rituals cap at +3, and both are printed.**
-     *
-     * Ch. 6.5 line 3580 prints "cumulative but cap at +2 total from supporting
-     * skills"; ch. 7 prints +3 for its own five. Two printed rules, the shape
-     * 6y's two preparation tables already have — straightening them is the
-     * 4.1 sin, and 6at named this pair while sweeping code back to the book.
-     */
-    @Test
-    fun `the two support caps are different printed rules`() {
-        assertEquals(2, Divination.MAX_SUPPORT_BONUS)
-        assertEquals(3, RitualMode.SUPPORT_CAP)
-    }
-
-    @Test
     fun `clarity is read from the margin of a success`() {
         assertEquals("Crystal clear", Divination.clarityFor(SuccessRoll.evaluate(5, 12)).clarity)
         assertEquals("Clear", Divination.clarityFor(SuccessRoll.evaluate(9, 12)).clarity)

@@ -168,29 +168,22 @@ class RitualModeTest {
     }
 
     /**
-     * Containment is exact only because the two tables share no row. Adequate
-     * is +0 in both and is the one place a borrowed row could slip through --
-     * it does not, because the printed `looksLike` cells differ. If they ever
-     * stop differing, this guard needs a test other than equality, so the
-     * difference is pinned rather than assumed.
+     * v6.9i prints Adequate as a bare "+0" in both tables, so the two rows are
+     * equal and containment accepts either in either mode -- at the same
+     * price, which is why that is harmless. Excellent is where they differ.
      */
     @Test
-    fun `the two tables share no row, which is what makes the guard exact`() {
+    fun `the tables agree on Adequate and differ on Excellent`() {
         val full = RitualMode.FULL.preparations()
         val quick = RitualMode.QUICK.preparations()
-        assertTrue(full.intersect(quick.toSet()).isEmpty())
-
-        val bothAdequate = listOf(full, quick).map { rows ->
-            rows.single { it.quality.equals("Adequate", ignoreCase = true) }
-        }
         assertEquals(
-            bothAdequate[0].modifier,
-            bothAdequate[1].modifier,
-            "the two tables agree that Adequate is +0 -- 6y's own warrant",
+            full.single { it.quality == "Adequate" },
+            quick.single { it.quality == "Adequate" },
         )
-        assertTrue(
-            bothAdequate[0] != bothAdequate[1],
-            "and still differ elsewhere in the row, which is what equality catches",
+        assertEquals(listOf(quick.single { it.quality == "Adequate" }), full.intersect(quick.toSet()).toList())
+        assertNotEquals(
+            full.single { it.quality == "Excellent" }.modifier,
+            quick.single { it.quality == "Excellent" }.modifier,
         )
     }
 
@@ -328,116 +321,16 @@ class RitualModeTest {
         assertTrue("no target link" in noLink.message!!, noLink.message)
     }
 
-    @Test
-    fun `five supporting skills grant five points and the book allows three`() {
-        // "These bonuses are cumulative but cap at +3 total from supporting
-        // skills." Without the cap a scholar with the lot rolls at +5.
-        assertEquals(5, RitualMode.supportSkills().size)
-        assertTrue(RitualMode.supportSkills().all { it.bonus == 1 })
-        assertEquals(3, RitualMode.supportBonus(RitualMode.supportSkills().map { it.skill }))
-        assertEquals(2, RitualMode.supportBonus(listOf("Occultism", "Thaumatology")))
-        assertEquals(0, RitualMode.supportBonus(emptyList()))
-    }
-
-    @Test
-    fun `a skill the table does not print grants nothing, and is refused`() {
-        // Silently ignoring it would let a typo cost a caster a point they
-        // thought they had.
-        assertThrows<IllegalArgumentException> { RitualMode.supportBonus(listOf("Brawling")) }
-    }
-
-    @Test
-    fun `naming one supporting skill twice does not pay twice`() {
-        assertEquals(1, RitualMode.supportBonus(listOf("Occultism", "Occultism")))
-    }
-
-    @Test
-    fun `the row printed with a bracket is reachable from a real sheet`() {
-        // "Hidden Lore (relevant domain)" is the book telling the caster to
-        // pick a domain, not a skill's name -- the shape "Duty (specify)"
-        // already has one list over. No sheet spells it that way, so keyed on
-        // the printed string the row was unreachable and its +1 vanished in
-        // silence. Four premades carry Hidden Lore.
-        assertEquals(1, RitualMode.supportBonus(listOf("Hidden Lore")))
-        assertEquals(2, RitualMode.supportBonus(listOf("Hidden Lore", "Occultism")))
-        // ...and the printed spelling still answers, so the book's own string
-        // is not the thing that broke.
-        assertEquals(1, RitualMode.supportBonus(listOf("Hidden Lore (relevant domain)")))
-        // One skill, one point: the two spellings are the same row.
-        assertEquals(
-            1,
-            RitualMode.supportBonus(listOf("Hidden Lore", "Hidden Lore (relevant domain)")),
-        )
-    }
-
-    @Test
-    fun `a caster is offered exactly the supporting skills they own`() {
-        // The Academic Researcher's own list. Three of the five, and the one
-        // that used to be dropped is in it.
-        val owned = listOf(
-            "Research", "Writing", "History", "Occultism",
-            "Hidden Lore", "Literature", "Mathematics",
-        )
-        assertEquals(
-            listOf("Occultism", "Hidden Lore (relevant domain)", "Research"),
-            RitualMode.supportSkillsOwnedBy(owned),
-        )
-        // A character with none of them is offered nothing rather than all
-        // five -- the book means the skills the caster brings.
-        assertTrue(RitualMode.supportSkillsOwnedBy(listOf("Brawling")).isEmpty())
-    }
-
-    @Test
-    fun `the support bonus applies in both modes`() {
-        // Section II sits above the mode split and says nothing about either,
-        // so it is not scoped to one -- unlike the link, which each mode
-        // handles its own way.
-        assertEquals(3, RitualMode.QUICK.supportCap)
-        assertEquals(3, RitualMode.FULL.supportCap)
-    }
-
     /**
-     * "For Praying to Oneself, replace the four-part structure with the
-     * three-line self-description" (p. 65).
-     *
-     * The book's own selection rule, and it keys on the power source the
-     * dialog's two-chip pair already sets. A caster using HP, assistants or a
-     * catalyst while not invoking is still praying to oneself: p. 62 labels
-     * that choice "Personal SPI (Praying to Oneself)", and Section IV.B-E are
-     * fuel and bonuses stacked ON a source rather than sources of their own.
+     * v6.9i's Phase II names one structure for every full ritual -- "4-part
+     * Hermes structure: Invocation, Grace, Request, Empowerment" -- and
+     * deleted Praying to Oneself's self-description.
      */
     @Test
-    fun `the power source chooses which structure the caster recites`() {
-        assertEquals(
-            "Four-part Hermes",
-            Incantations.forPowerSource(isInvoking = true).structure,
-        )
-        assertEquals(
-            "Three-line self-description",
-            Incantations.forPowerSource(isInvoking = false).structure,
-        )
-    }
-
-    /**
-     * The four parts, which are the whole point of showing the structure.
-     *
-     * Two of them wrap onto a second line carrying their worked example, and
-     * a part without its example is a part a player cannot use.
-     */
-    @Test
-    fun `the standard incantation keeps all four parts and both examples`() {
-        val hermes = Incantations.forPowerSource(isInvoking = true)
-        assertEquals(4, hermes.parts.size)
-        assertTrue(hermes.parts[0].endsWith("controls fate...\""))
-        assertTrue(hermes.parts[3].endsWith("powers to my incantation.\""))
-        // The paragraph printed AFTER the parts, which the screen renders
-        // last. Read from the committed file rather than from the parse: a
-        // failing extractor leaves its old JSON in place, and this field is
-        // exactly what a stale file was missing when Codex found it.
-        assertTrue(
-            hermes.note!!.startsWith("As long as the four-part structure"),
-            "the note the page prints after the list is gone",
-        )
+    fun `every full ritual recites the four-part Hermes structure`() {
+        val hermes = Incantations.standard()
+        assertEquals("Four-part Hermes", hermes.structure)
+        assertEquals(listOf("Invocation", "Grace", "Request", "Empowerment"), hermes.parts)
     }
 
     /**
@@ -446,7 +339,7 @@ class RitualModeTest {
      *
      * The weight is picked and its category list is display text, so gating on
      * Heavy would claim "summoning" of binding, affliction and four others.
-     * It is shown, never selected -- so [forPowerSource] must not be able to
+     * It is shown, never selected -- so [Incantations.standard] must not
      * return it, which is what this asserts rather than the flag alone.
      */
     @Test
@@ -454,16 +347,16 @@ class RitualModeTest {
         val summoning = Incantations.all().single { it.referenceOnly }
         assertEquals("Summoning a spiritual creature", summoning.scope)
         // What the screen actually prints for it, read through the loader.
-        // The scope and the flag survived a stale content file once; the TEXT
-        // is the field a re-extraction would move, and it is chapter 7.5's
-        // only claimed content.
+        // The scope and the flag survived a stale content file once; the
+        // PARTS are what a re-extraction would move.
+        assertEquals(3, summoning.parts.size)
         assertTrue(
-            "resident realm of the creature" in summoning.text,
-            "ch. 7.5's incantation rule is gone from the row that claims it",
+            "I summon in my name." in summoning.parts[1],
+            "the summoning incantation's own words are gone from the row that claims it",
         )
         assertTrue(
-            listOf(true, false).none { Incantations.forPowerSource(it) == summoning },
-            "a reference-only structure was selectable by power source",
+            Incantations.standard() != summoning,
+            "a reference-only structure was selectable",
         )
     }
 }

@@ -24,10 +24,7 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
-import com.pathways.rules.EntityAnswer
-import com.pathways.rules.Fuel
 import com.pathways.rules.Incantations
-import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
 import com.pathways.rules.PowerSourceDeclaration
 import com.pathways.rules.PowerSources
@@ -38,40 +35,27 @@ import com.pathways.rules.RitualPacing
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualPreparation
-import com.pathways.rules.content.SacrificeTier
 import com.pathways.rules.content.TargetLink
 
 /** The skill every ritual is rolled against (Ch. 7). */
 const val RITUAL_SKILL = "Ritualistic Magic"
 
-/**
- * What stands between a ritual and its asking or its cast; null when nothing
- * does. What forbids the cast forbids the asking, because an invoked ritual
- * pays its fuel when the entity is asked (6hr).
- *
- * [paid]: the fuel went at the asking, and the SPI left is what is left
- * after it. The declaration is the most an asking can charge -- No
- * response's 2 never exceeds a rung's SPI -- so checking it is enough.
- */
+/** What stands between a ritual and its cast; null when nothing does. */
 internal fun ritualRefusal(
     canSpeak: Boolean,
-    rejected: Boolean,
     cost: Int,
     hpSacrificed: Int,
     spiAvailable: Int,
-    paid: Boolean,
 ): String? = when {
-    rejected -> "No roll — the entity rejected the ritual. Nothing was spent."
     // Broken is offered as a chip and then refuses, rather than being
     // hidden: a caster who only speaks it needs to see WHY there is no roll.
     !canSpeak -> "No roll — the book forbids this attempt."
-    // Ch. 7's Power Source A: "SPI cannot be reduced below 0." The book's
-    // own answer is the rest of Section IV: bleed for it, bring assistants,
-    // offer a sacrifice.
-    !paid && !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
+    // Personal spirituality cannot be spent below 0; the book's own answer
+    // is the rest of Section IV: bleed for it, or bring assistants.
+    !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
         "No roll — ${PowerSources.spiOwed(cost, hpSacrificed)} SPI is more than the " +
             "$spiAvailable this caster has, and personal spirituality cannot be spent " +
-            "below 0. Pay in HP, bring assistants, or offer a sacrifice."
+            "below 0. Pay in HP or bring assistants' SPI."
     else -> null
 }
 
@@ -109,15 +93,6 @@ fun RitualDialog(
     cor: Int,
     spiAvailable: Int,
     /**
-     * The Section II supporting skills this character actually owns.
-     *
-     * Not the book's five: those are skills the CASTER brings, and this app
-     * knows the sheet, so offering a skill the character has never bought
-     * would let a GM claim an Occultism that is not there. Computed at the
-     * call site against [RitualMode.supportSkills].
-     */
-    ownedSupportSkills: List<String>,
-    /**
      * The mystical languages this character BOUGHT, each as "Hermes, Native,
      * written only". Printed beside the picker and never fed to it: owning a
      * language does not say which one this ritual is cast in, and a trait
@@ -128,11 +103,6 @@ fun RitualDialog(
     /** The languages a potion drunk granted, the same way (6fo). */
     grantedLanguages: List<String>,
     dice: RandomSource,
-    /**
-     * The entity's table roll, logged under its own name: on the ritual's
-     * dice it read "Boon 11" beside the prayer's "Boon 7 vs 18" (play session 4).
-     */
-    askingDice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
     onSpendHp: (Int) -> Unit,
@@ -177,124 +147,68 @@ fun RitualDialog(
     // rather than merely mislead. False by default because the book has the GM
     // award it -- a bonus that started ticked would be one nobody granted.
     var flourish by remember(mode) { mutableStateOf(false) }
-    // Section IV.A's axis, and the one the fuel comes off. NOT the weight:
-    // the weight gives the base modifier above, this gives the cost, and the
-    // book's own worked rituals charge outside the weight column three times
-    // in six. See RitualComplexity.
-    var complexity by remember { mutableStateOf(PowerSources.complexities().first()) }
-    // Reset with the complexity, or a Major ritual's 11 SPI would follow the
+    // The time row on the weight's own name: v6.9i prints the weight and the
+    // Time & Complexity table on the same four names, and the fuel is the
+    // weight's.
+    val complexity = PowerSources.complexityFor(weight)
+    // Reset with the weight, or a Major ritual's 12 SPI would follow the
     // caster onto a Light one that costs 2.
-    var spiChoice by remember(complexity) { mutableIntStateOf(complexity.spi) }
-    // Reset with the FUEL, and for the harder reason the quick mode's link
-    // had: spiOwed REFUSES HP that covers more than the ritual costs, so a
-    // sacrifice left over from an 11 SPI ritual would throw on a 2 SPI one
-    // rather than merely mislead.
-    // Keyed on the complexity TOO, not on the fuel's value alone: two rungs
-    // can coincide on a base cost, and the stated intent is that a sacrifice
-    // does not outlive the ritual it was offered for.
-    var hpSacrificed by remember(complexity, spiChoice) { mutableIntStateOf(0) }
-    // p. 63 and p. 66: "you may spend additional SPI (1 SPI = +1, no cap)
-    // after seeing your result, separate from the ritual's fuel cost."
-    // Accumulated rather than charged per tap, so the balance the chips are
-    // offered against cannot go stale between two of them.
+    var spiChoice by remember(weight) { mutableIntStateOf(weight.spi) }
+    // Reset with the FUEL: spiOwed REFUSES HP that covers more than the
+    // ritual costs, so a sacrifice left over from a 12 SPI ritual would throw
+    // on a 2 SPI one rather than merely mislead.
+    var hpSacrificed by remember(weight, spiChoice) { mutableIntStateOf(0) }
+    // "you may spend additional SPI (1 SPI = +1, no cap)", separate from the
+    // ritual's fuel cost. Accumulated rather than charged per tap, so the
+    // balance the chips are offered against cannot go stale between two.
     var burned by remember { mutableIntStateOf(0) }
     var settled by remember { mutableStateOf(false) }
-    // Section II's supporting skills: +1 each, capped at +3 by a sentence
-    // rather than by the table (6y). Extracted, implemented and tested in
-    // that slice and reachable from no screen until now -- `targetFor` has
-    // taken a `support` list since then and this dialog never passed one, so
-    // the bonus was unreachable. The same shape as 6ai's `freeRoll`.
-    // NOT keyed on the mode: the book prints these above the Quick/Full
-    // split and scopes them to neither, which is the opposite call to the
-    // target link and made for the same reason -- scope follows the text.
-    var support by remember { mutableStateOf(emptyList<String>()) }
     var pacing by remember { mutableStateOf(RitualPacing.NORMAL) }
     var assistants by remember { mutableIntStateOf(0) }
-    var sacrifice by remember { mutableStateOf<SacrificeTier?>(null) }
-    // Reset with the tier for the same reason: sacrificeBonus refuses sentient
-    // beings offered with no sacrifice declared.
-    var sentientBeings by remember(sacrifice) { mutableIntStateOf(0) }
-    var catalyst by remember { mutableIntStateOf(0) }
+    // External Sacrifice/Catalysts: the GM's -40..+40.
+    var sacrifice by remember { mutableIntStateOf(0) }
     var suspended by remember { mutableStateOf(false) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
     // Null by default -- "not stated" -- so a ritual described without a
-    // language rolls exactly where it did before Ch. 3's table was read. The
-    // builder sells a language now, and this is still the GM's declaration:
-    // which language a ritual is cast in is a fact about the ritual.
+    // language rolls exactly where it did before Ch. 3's table was read.
     var language by remember { mutableStateOf<LanguageProficiency?>(null) }
     val canSpeak = language?.let { Languages.canPerformRituals(it) } != false
-    // The entity is asked once, before the ritual roll: "The GM rolls secretly
-    // on the Entity Response Table first, then applies the entity's modifier".
-    // Null means the caster is praying to themselves, which is the safest
-    // power source and the one that needs no table.
+    // Invocation: "Adds +1 to +5 to the ritual roll (GM discretion ...)".
+    // Praying to oneself is the default and adds nothing.
     var invoked by remember { mutableStateOf(false) }
-    var goodStanding by remember { mutableStateOf(false) }
-    var answer by remember { mutableStateOf<EntityAnswer?>(null) }
-    // An invoked ritual pays when the entity is asked (6hr, the owner's
-    // ruling, as the prayer does): paid at the cast, a closed dialog asked
-    // the table again for nothing. Closed after asking, the answer is lost
-    // and the fuel is not. Once set it never resets, so every control that
-    // would reprice or re-ask the answer guards on it LIVE: a chip drawn
-    // enabled can still be tapped in the frame Ask ran in.
-    var paid by remember { mutableStateOf<Fuel?>(null) }
-    // Blood paid at the asking does not lower the ritual it paid for, as it
-    // could not when the fuel went at the cast: the penalty is the one the
-    // entity was asked under (the prayer's reading, 6hq).
-    var hurtAtAsking by remember { mutableStateOf<Int?>(null) }
-    val hurt = hurtAtAsking ?: conditionPenalty
+    var orthodox by remember { mutableStateOf(false) }
+    var invocation by remember { mutableIntStateOf(PowerSources.INVOCATION_LOWEST) }
     // Injury and fatigue reach a ritual like any other roll; the CoR penalty
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
     // once for the ladder and once again for the same ladder.
+    val hurt = conditionPenalty
     val effectiveSkill = skillLevel + hurt + shock + states.total
-    // Not computed at all when the book forbids the attempt: Broken prints
-    // "Cannot perform rituals in the language", and targetFor refuses it
-    // rather than inventing a penalty to roll at.
-    // An entity that actively rejects the ritual fails it outright, so there
-    // is no target to show -- the same shape as a language the caster cannot
-    // speak. An entity not yet asked contributes nothing.
-    val rejected = answer?.failsRitual == true
     val declaration = PowerSourceDeclaration(
         pacing = pacing,
         assistants = assistants,
         sacrifice = sacrifice,
-        sentientBeings = sentientBeings,
-        catalyst = catalyst,
         suspended = suspended,
+        invocation = invocationApplied(invoked, orthodox, invocation),
     )
-    val target = if (canSpeak && !rejected) {
+    // Not computed at all when the book forbids the attempt: Broken prints
+    // "Cannot perform rituals in the language", and targetFor refuses it
+    // rather than inventing a penalty to roll at.
+    val target = if (canSpeak) {
         RitualResolution.targetFor(
-            effectiveSkill + (answer?.ritualModifier ?: 0),
-            weight, cor, preparation, language, mode, link, flourish, support,
+            effectiveSkill,
+            weight, cor, preparation, language, mode, link, flourish,
             complexity = complexity, powerSources = declaration,
             preparationValue = preparationPick, linkValue = linkPick,
         )
     } else {
         null
     }
-    val cost = PowerSources.spiFor(complexity, spiChoice)
-    // B: HP is fuel and nothing else. It never reaches `declaration`, because
-    // the book says in its own sentence that it "does not grant a bonus to
-    // the roll" -- and a fuel rule printed one line above a list of roll
-    // modifiers is exactly the sentence that gets turned into one.
+    val cost = RitualResolution.spiFor(weight, spiChoice)
+    // HP is fuel and nothing else. It never reaches `declaration`, because
+    // the book says in its own sentence that it "does not grant a roll
+    // bonus".
     val declaredSpi = PowerSources.spiOwed(cost, hpSacrificed)
-    // F: an entity that does not answer prices the attempt itself -- "treat as
-    // 2 SPI personal" -- out of the fuel declared, HP first. The decision
-    // lives in [Invocation.fuelFor]; re-deriving it here is how this
-    // breakdown stopped reconciling in 6ag and 6ai.
-    val residual = answer?.unanswered == true
-    // Read off the picture: this button asks while an invoked ritual has no
-    // answer, and the handler branches on THAT, never on live state -- a
-    // second tap in the frame Ask ran in must not cast against a target
-    // drawn before the answer moved it.
-    val asking = invoked && answer == null
-    // What this picture's Ask would charge and shift by. A tap whose live
-    // fuel or standing moved since it was drawn is dropped, as is one whose
-    // ritual is no longer invoked: it would pay for a price nobody saw.
-    // The raw inputs, never a price recomputed from live state: in that
-    // frame `spiChoice` still holds the old rung's value, and spiFor
-    // throws on a choice outside the rung.
-    val drawnAsking = listOf(complexity, spiChoice, hpSacrificed, goodStanding)
 
     // The push window closes when the dialog does, and that is the ONE place
     // the pushed SPI and the outcome's consequences are charged. Both are read
@@ -399,6 +313,7 @@ fun RitualDialog(
                         }
                     }
                     RitualPowerSourceChips(
+                        weight = weight,
                         complexity = complexity,
                         spiChoice = spiChoice,
                         cost = cost,
@@ -406,23 +321,29 @@ fun RitualDialog(
                         pacing = pacing,
                         assistants = assistants,
                         sacrifice = sacrifice,
-                        sentientBeings = sentientBeings,
-                        catalyst = catalyst,
                         suspended = suspended,
-                        // The fuel's three controls: spent once the entity
-                        // is asked, and guarded live (see [paid]).
-                        fuelEnabled = paid == null,
-                        onComplexity = { if (paid == null) complexity = it },
-                        onSpiChoice = { if (paid == null) spiChoice = it },
-                        onHpSacrificed = { if (paid == null) hpSacrificed = it },
+                        invoked = invoked,
+                        orthodox = orthodox,
+                        invocation = invocation,
+                        onSpiChoice = { spiChoice = it },
+                        onHpSacrificed = { hpSacrificed = it },
                         onPacing = { pacing = it },
                         onAssistants = { assistants = it },
-                        onSacrifice = { sacrifice = it },
-                        onSentientBeings = { sentientBeings = it },
-                        onCatalyst = { catalyst = it },
-                        // Defined here, not in the child: it reads the state live, so two
-                        // taps in one frame flip twice, as they did before the split.
+                        // Stepped from the LIVE value and held to the printed
+                        // span, so two taps in one frame step twice, in range.
+                        onSacrificeStep = {
+                            sacrifice = (sacrifice + it)
+                                .coerceIn(PowerSources.SACRIFICE_LOWEST, PowerSources.SACRIFICE_HIGHEST)
+                        },
+                        // Defined here, not in the child: they read the state
+                        // live, so two taps in one frame flip twice.
                         onToggleSuspended = { suspended = !suspended },
+                        onInvoked = { invoked = it },
+                        onToggleOrthodox = { orthodox = !orthodox },
+                        onInvocationStep = {
+                            invocation = (invocation + it)
+                                .coerceIn(PowerSources.INVOCATION_LOWEST, PowerSources.INVOCATION_HIGHEST)
+                        },
                     )
                     SectionLabel(if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)")
                     FlowRow {
@@ -493,104 +414,30 @@ fun RitualDialog(
                         )
                     }
 
-                    // Ch. 7 IV.F. Invoking is optional -- praying to oneself
-                    // needs no entity and no table.
-                    SectionLabel("Power source")
-                    FlowRow {
-                        CaseChip(
-                            selected = !invoked,
-                            // Paid for an invocation, the ritual is one.
-                            enabled = paid == null,
-                            onClick = { if (paid == null) invoked = false },
-                            label = { Text("Personal SPI") },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                        CaseChip(
-                            selected = invoked,
-                            enabled = paid == null,
-                            onClick = { if (paid == null) invoked = true },
-                            label = { Text("Invocation") },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                    // Drawn under Personal SPI too, disabled: appearing on the
-                    // Invocation pick moved the rows below it (play session 4).
-                    CaseChip(
-                        selected = invoked && goodStanding,
-                        // It shifted the roll already made.
-                        enabled = invoked && paid == null,
-                        onClick = { if (invoked && paid == null) goodStanding = !goodStanding },
-                        label = { Text("Orthodox deity, in good standing") },
-                    )
-                    Text(
-                        // Spelled out because the -2 is the slice's whole
-                        // trap: it moves the GM's table roll toward the
-                        // good rows, and would be a penalty on the ritual.
-                        "Shifts the entity's 3d6 by −2, toward a better response.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    if (invoked) {
-                        // Asked from the footer: asking is what pays (6hr).
-                        answer?.let { given ->
-                            Text(
-                                "Rolled ${given.roll}" +
-                                    (if (given.shifted != given.roll) " → ${given.shifted}" else "") +
-                                    ": ${given.response.response}",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
-
-                    // The reference Phase II points at: "(4-part Hermes
-                    // structure — see reference below)". The Flourish chip
-                    // above quoted the rest of that sentence and dropped the
-                    // parenthetical, so the app awarded +1 for narrating a
-                    // structure it never showed. Rendered HERE rather than
-                    // beside the chip because the book's own note picks the
-                    // structure off the power source chosen just above, and a
-                    // reference that changes with a control below it reads as
-                    // a glitch. Full mode only, on the same warrant as the
-                    // chip: the Quick Ritual's four steps print no narration.
+                    // The reference Phase II names: "Narrate incantation (4-part
+                    // Hermes structure: Invocation, Grace, Request,
+                    // Empowerment)". Full mode only, on the same warrant as
+                    // the Flourish chip: the Quick line prints no narration.
                     if (mode.usesFlourish) {
-                        val incantation = Incantations.forPowerSource(invoked)
+                        val incantation = Incantations.standard()
                         // What to say, read once: closed until asked (6gl).
                         RuleNote("Incantation (Phase II)") {
-                        Text(
-                            "${incantation.structure} — ${incantation.text}",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        incantation.parts.forEach {
-                            Text(it, style = MaterialTheme.typography.bodySmall)
-                        }
-                        incantation.note?.let {
-                            Text(it, style = MaterialTheme.typography.bodySmall)
-                        }
-                        // Shown, never chosen: nothing here can say a ritual IS
-                        // a summoning, and gating on Heavy would say it of
-                        // binding and affliction too.
-                        Incantations.all().filter { it.referenceOnly }.forEach {
-                            Text(
-                                "${it.scope}: ${it.text}",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
+                            Text(incantation.text, style = MaterialTheme.typography.bodySmall)
+                            // Shown, never chosen: nothing here can say a
+                            // ritual IS a summoning.
+                            Incantations.all().filter { it.referenceOnly }.forEach { ref ->
+                                Text(
+                                    "${ref.scope}: ${ref.text}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                ref.parts.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+                                ref.note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                            }
                         }
                     }
 
-                    RitualSupportAndLanguage(
-                        ownedSupportSkills = ownedSupportSkills,
-                        support = support,
-                        language = language,
-                        boughtLanguages = boughtLanguages,
-                        grantedLanguages = grantedLanguages,
-                        // Reads `support` live, for the same reason as Suspended's toggle.
-                        onToggleSupport = { name ->
-                            support = if (name in support) {
-                                support - name
-                            } else {
-                                support + name
-                            }
-                        },
+                    MysticalLanguagePicker(
+                        language, boughtLanguages, grantedLanguages,
                         onLanguage = { language = it },
                     )
                     // What each pick means, read once: closed (the owner,
@@ -607,8 +454,7 @@ fun RitualDialog(
                                     "reaches +3 and already includes the link."
                             },
                             weight.categories?.let { "${weight.weight}: $it" },
-                            "${complexity.complexity}: ${complexity.description} — ${complexity.baseTime}",
-                            sacrifice?.let { "${it.tier} sacrifice: ${it.looksLike}" },
+                            "${weight.weight}: ${weight.printedCost}, ${weight.baseTime} base time",
                             link?.let { l -> l.looksLike?.let { "${l.link} link: $it" } },
                             language?.let { "${it.proficiency}: ${it.effect}" },
                         ).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) }
@@ -625,84 +471,46 @@ fun RitualDialog(
                     "preparation ${signed(RitualMode.valueFor(preparation, preparationPick))}",
                     link?.let { "${signed(RitualMode.valueFor(it, linkPick))} ${it.link.lowercase()} link" },
                     if (flourish) "${signed(RitualMode.FLOURISH_BONUS)} flourish" else null,
-                    answer?.ritualModifier?.takeIf { it != 0 }?.let { "${signed(it)} from the entity" },
+                    invocationApplied(invoked, orthodox, invocation)
+                        ?.let { "${signed(it)} invoked" },
                     language?.ritualModifier?.takeIf { it != 0 }?.let { "$it for an accented tongue" },
                     if (hurt != 0) "$hurt hurt or tired" else null,
                     if (shock != 0) "$shock shock" else null,
                     states.line,
                     Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
-                    RitualMode.supportBonus(support).takeIf { it != 0 }
-                        ?.let { "${signed(it)} from supporting skills" },
                     PowerSources.pacingModifier(complexity, pacing).takeIf { it != 0 }
                         ?.let { "${signed(it)} ${pacing.name.lowercase()}" },
                     PowerSources.participantBonus(assistants).takeIf { it != 0 }
                         ?.let { "${signed(it)} from $assistants assisting" },
-                    sacrifice?.let { "${signed(PowerSources.sacrificeBonus(it, sentientBeings))} sacrifice" },
-                    catalyst.takeIf { it != 0 }?.let { "${signed(it)} catalyst" },
+                    sacrifice.takeIf { it != 0 }?.let { "${signed(it)} sacrifice" },
                     if (suspended) "${signed(PowerSources.SUSPENSION_PENALTY)} suspended" else null,
                 )
-                val refusal = ritualRefusal(
-                    canSpeak, rejected, cost, hpSacrificed, spiAvailable, paid = paid != null,
-                )
-                val spent = paid
+                val refusal = ritualRefusal(canSpeak, cost, hpSacrificed, spiAvailable)
                 RitualFooter(
                     terms = terms,
                     target = target,
-                    cost = when {
-                        spent != null -> "spent on asking: " + fuelLine(spent.spi, spent.hp) +
-                            (if (residual) ", residual power only — the entity did not answer" else "")
-                        asking -> "costs " + fuelLine(declaredSpi, hpSacrificed) + " when the entity is asked"
-                        else -> "costs " + fuelLine(declaredSpi, hpSacrificed)
-                    },
+                    cost = "costs " + fuelLine(declaredSpi, hpSacrificed),
                     refusal = refusal,
-                    label = if (asking) "Ask the entity" else "Cast",
                     onCast = {
-                        if (asking) {
-                            // "The GM rolls secretly on the Entity Response
-                            // Table FIRST, then applies the entity's modifier
-                            // to the Ritualistic Magic roll" (p. 66), and the
-                            // fuel goes then (6hr). Guarded on live [paid]:
-                            // two taps both reach this handler, and the book
-                            // has the GM roll once.
-                            if (paid != null || refusal != null || target == null) return@RitualFooter
-                            if (!invoked || listOf(complexity, spiChoice, hpSacrificed, goodStanding) != drawnAsking) {
-                                return@RitualFooter
-                            }
-                            val reply = Invocation.ask(askingDice, goodStanding)
-                            val fuel = Invocation.fuelFor(reply, cost, hpSacrificed)
-                            answer = reply
-                            paid = fuel
-                            hurtAtAsking = conditionPenalty
-                            // Spent whether or not it works: "No effect. SPI
-                            // and materials spent" (p. 62).
-                            if (fuel.spi > 0) onSpendSpi(fuel.spi)
-                            if (fuel.hp > 0) onSpendHp(fuel.hp)
-                            return@RitualFooter
-                        }
                         // One Cast spends once: a second tap before the
                         // button leaves the tree would charge the fuel
                         // again, and below 0 that buys permanent CoR.
                         if (outcome != null || target == null || refusal != null) return@RitualFooter
                         // Against the number PRINTED above, and nothing read
                         // here: this handler belongs to the composition that
-                        // drew it, so a state it read now could be a row, a
-                        // mode or a complexity that number never saw -- which
-                        // targetFor refuses by throwing.
+                        // drew it, so a state it read now could be a row or a
+                        // mode that number never saw -- which targetFor
+                        // refuses by throwing.
                         outcome = RitualResolution.rollAgainst(target, dice)
                         // The fuel is spent whether or not it works: "No
-                        // effect. SPI and materials spent" (p. 62). HP goes
-                        // through the tracker too -- printing a sacrifice the
-                        // app then fails to charge is how a tracker starts
-                        // lying. An invoked ritual paid at the asking; this
-                        // picture's [spent] says so.
+                        // effect. SPI and materials spent." HP goes through
+                        // the tracker too.
                         //
                         // The CoR is NOT charged here: a push can move this
                         // ritual off the Critical Failure Table altogether,
                         // so the row's price is read once, at [finish].
-                        if (spent == null) {
-                            onSpendSpi(declaredSpi)
-                            if (hpSacrificed > 0) onSpendHp(hpSacrificed)
-                        }
+                        onSpendSpi(declaredSpi)
+                        if (hpSacrificed > 0) onSpendHp(hpSacrificed)
                     },
                 )
             }

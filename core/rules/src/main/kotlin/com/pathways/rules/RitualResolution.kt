@@ -51,8 +51,9 @@ data class RitualOutcome(
  * penalty is ritual-scoped rather than general.
  *
  * **Two ways into the Critical Failure Table, and they are not the same.**
- * The book names one row by the ROLL ("Critical Failure (roll 17-18)") and
- * one by the MARGIN ("Failure by 10+... with -2 to the result roll"). Under
+ * The book names one row by the ROLL (the Quick table's "Critical Failure
+ * (17-18)", which Section V prints as "Critical Failure ... immediately") and
+ * one by the MARGIN ("Failure by 10+ ... with -2 to result roll"). Under
  * GURPS a failure by 10 or more is already a critical failure, so the two
  * overlap -- an 18 against a low target is both. The row named for the roll
  * wins, because that is the condition the book actually printed on it, and it
@@ -90,18 +91,12 @@ object RitualResolution {
     /**
      * What [weight] costs in SPI when the GM picks [chosen] inside its cell.
      *
-     * Every weight prints a cost -- 2, "4-6", "8+" -- and the app charged none
-     * of them until this slice, which made a ritual something a caster could
-     * repeat forever. Two of the three cells are not a single number, so the
-     * end is the GM's; a value outside what the book prints is refused rather
-     * than clamped, because a clamp would quietly charge a different ritual.
-     *
-     * **The app no longer charges from here.** Section IV.A prints a second,
-     * fuller SPI table on the COMPLEXITY axis, and the book's own six worked
-     * rituals follow that one -- three of them fall outside these cells. Fuel
-     * comes from [PowerSources.spiFor] now. This reader stays because Section
-     * V's column is genuinely printed and refusing to read it would be its own
-     * kind of repair; see [com.pathways.rules.content.RitualComplexity].
+     * Every weight prints a cost -- 2, "4-6", "8+", "12+" -- and this is what
+     * the ritual and boon dialogs charge (v6.9i: the complexity ladder prints
+     * no SPI column, and the worked rituals that once argued for one are
+     * gone). Three of the four cells are not a single number, so the end is
+     * the GM's; a value outside what the book prints is refused rather than
+     * clamped, because a clamp would quietly charge a different ritual.
      */
     fun spiFor(weight: RitualWeight, chosen: Int = weight.spi, burned: Int = 0): Int {
         require(burned >= 0) { "SPI burned cannot be negative; was $burned" }
@@ -149,19 +144,16 @@ object RitualResolution {
      * the honest default, because the bonus is something a GM AWARDS rather
      * than something a caster has.
      *
-     * [complexity] and [powerSources] are Section IV's declaration (p. 65-66):
-     * how long the caster took, who helped, what was sacrificed, what was
-     * burned as a catalyst, and whether the work was suspended part-way. They
+     * [complexity] and [powerSources] are Section IV's declaration: how long
+     * the caster took, who helped, what was sacrificed, which entity was
+     * invoked, and whether the work was suspended part-way. They
      * default to "nothing declared", which leaves the target exactly where it
      * was before that section was read. HP sacrifice is NOT among them -- it
      * is fuel, and the book says in its own sentence that it "does not grant a
      * bonus to the roll". See [PowerSources].
      *
-     * [complexity] also carries the ritual's SPI cost, on a different axis
-     * from [weight]: the weight is the CATEGORY and gives the modifier above,
-     * the complexity is the SCOPE and gives the fuel. See
-     * [com.pathways.rules.content.RitualComplexity] for why they are not one
-     * table, and for the three worked rituals that settle it.
+     * [complexity] is the time row that prices [powerSources]' pacing; the
+     * fuel is the [weight]'s ([spiFor]).
      *
      * [language] is the mystical proficiency the ritual is spoken in (Ch. 3,
      * p. 14). Null leaves the target exactly where it was before that table
@@ -180,7 +172,6 @@ object RitualResolution {
         mode: RitualMode = RitualMode.FULL,
         link: TargetLink? = null,
         flourish: Boolean = false,
-        support: List<String> = emptyList(),
         complexity: RitualComplexity? = null,
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
         preparationValue: Int? = null,
@@ -190,7 +181,6 @@ object RitualResolution {
             preparation, link, flourish,
             preparationValue = preparationValue, linkValue = linkValue,
         ) +
-        RitualMode.supportBonus(support) +
         Languages.ritualModifier(language) +
         PowerSources.modifierTotal(complexity, powerSources)
 
@@ -210,7 +200,6 @@ object RitualResolution {
         mode: RitualMode = RitualMode.FULL,
         link: TargetLink? = null,
         flourish: Boolean = false,
-        support: List<String> = emptyList(),
         complexity: RitualComplexity? = null,
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
@@ -221,7 +210,7 @@ object RitualResolution {
     ): RitualOutcome = rollAgainst(
         targetFor(
             skillLevel, weight, cor, preparation, language, mode, link, flourish,
-            support, complexity, powerSources,
+            complexity, powerSources,
             preparationValue = preparationValue, linkValue = linkValue,
         ),
         source, failures, criticals, successBands,

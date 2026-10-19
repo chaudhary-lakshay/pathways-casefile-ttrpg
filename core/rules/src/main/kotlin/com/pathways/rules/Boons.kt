@@ -138,13 +138,12 @@ object Boons {
      * The number to roll under: the caster's skill, the fixed Moderate weight,
      * the boon's sequence, their corruption, and the circumstances chosen.
      *
-     * **[language] and [answer] are the owner's rulings (2026-10-13, 6hq),
-     * not this chapter's list**, which names neither. A prayer is said in a
-     * mystical tongue and priced as chapter 3 prices any ritual in one, and
-     * the patron is asked on chapter 7's Entity Response Table first. Until
-     * then this refused both, on "the actual power comes from the patron".
-     * An [answer] that ends the prayer has no target and is refused: ask
-     * [endsPrayer] first.
+     * **[language] is the owner's ruling (2026-10-13, 6hq), not this
+     * chapter's list**, which names none: a prayer is said in a mystical
+     * tongue and priced as chapter 3 prices any ritual in one. v6.9i deleted
+     * the Entity Response Table the patron used to be asked on first, and
+     * chapter 15 now rolls the prayer itself "to determine the Great
+     * Existence's response".
      *
      * No preparation: this chapter prints its own Ritual quality row for it,
      * and that reason still stands. No power sources either: chapter 13
@@ -167,45 +166,20 @@ object Boons {
         chosen: List<BoonModifier> = emptyList(),
         gmValue: Map<String, Int> = emptyMap(),
         language: LanguageProficiency? = null,
-        answer: EntityAnswer? = null,
-    ): Int {
-        require(answer == null || !endsPrayer(answer)) {
-            "the patron's answer ended the prayer; there is no roll to compose"
-        }
-        return RitualResolution.targetFor(
-            skillLevel = skillLevel + penaltyForSequence(sequence) + modifierTotal(chosen, gmValue) +
-                (answer?.ritualModifier ?: 0),
-            weight = weight(),
-            cor = cor,
-            language = language,
-        )
-    }
-
-    /**
-     * Ask the patron, on chapter 7's table. Never shifted: "Hidden
-     * existences and evil gods use the table unmodified" (line 4297), and
-     * the Great Ones are "hidden existences" (line 8912).
-     */
-    fun ask(source: RandomSource): EntityAnswer = Invocation.ask(source, orthodoxInGoodStanding = false)
-
-    /**
-     * Whether [answer] leaves no prayer to roll.
-     *
-     * A rejection is the table's own: "Ritual fails automatically". **No
-     * response is the owner's ruling, against chapter 7**, which lets that
-     * ritual go on at +0 on the caster's residual power: a boon's power
-     * "comes from the patron" (line 8939), and a patron who did not answer
-     * gave none.
-     */
-    fun endsPrayer(answer: EntityAnswer): Boolean = answer.failsRitual || answer.unanswered
+    ): Int = RitualResolution.targetFor(
+        skillLevel = skillLevel + penaltyForSequence(sequence) + modifierTotal(chosen, gmValue),
+        weight = weight(),
+        cor = cor,
+        language = language,
+    )
 
     /**
      * Petition for the boon, and let Chapter 7 resolve what comes back.
      *
      * The sequence penalty and the chosen circumstances ride on the skill
      * rather than being a second weight, because the weight is the one thing
-     * this chapter fixes. No tongue and no patron's answer: this has no
-     * production caller, and the screen composes [targetFor] with both.
+     * this chapter fixes. No tongue: this has no production caller, and the
+     * screen composes [targetFor] with one.
      */
     fun attempt(
         skillLevel: Int,

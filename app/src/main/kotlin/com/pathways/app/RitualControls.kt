@@ -10,28 +10,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.Languages
 import com.pathways.rules.PowerSources
-import com.pathways.rules.RitualMode
 import com.pathways.rules.RitualPacing
 import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualComplexity
-import com.pathways.rules.content.SacrificeTier
+import com.pathways.rules.content.RitualWeight
 
 /**
- * The fuel amounts to offer for [complexity].
+ * The fuel amounts to offer for [weight].
  *
- * A closed cell ("2-3 SPI") offers exactly what it prints. An open one
- * ("11-15+") offers three above its printed ceiling: the book names no top,
+ * A closed cell ("4-6 SPI") offers exactly what it prints. An open one
+ * ("8+", "12+") offers three above its printed floor: the book names no top,
  * and a stepper that could run to a hundred is not a choice a GM needs made
  * for them at the table.
  * ponytail: widen it if a GM asks.
- *
- * Read off the COMPLEXITY, not the weight. The weight table prints its own
- * cost column and the book's own worked rituals fall outside it three times
- * in six -- see RitualComplexity.
  */
-private fun spiChoices(complexity: RitualComplexity): List<Int> {
-    val top = complexity.spiMax ?: complexity.spi
-    return (complexity.spi..(if (complexity.spiOpen) top + OPEN_END_STEPS else top)).toList()
+internal fun spiChoices(weight: RitualWeight): List<Int> {
+    val top = weight.spiMax ?: weight.spi
+    return (weight.spi..(if (weight.spiOpen) top + OPEN_END_STEPS else top)).toList()
+}
+
+/**
+ * The invocation bonus a ritual takes: none when the caster prays to
+ * themselves, +2 for an orthodox deity in good standing (the owner's ruling,
+ * 2026-10-19), else the GM's +1..+5.
+ */
+internal fun invocationApplied(invoked: Boolean, orthodox: Boolean, gmValue: Int): Int? = when {
+    !invoked -> null
+    orthodox -> PowerSources.ORTHODOX_BONUS
+    else -> gmValue
 }
 
 /**
@@ -81,63 +87,41 @@ internal fun CellValueChips(printed: String, values: List<Int>, applied: Int, on
 }
 
 /**
- * Ch. 7 IV's declarations, from Complexity to Suspended: a view of
- * [RitualDialog]'s state, which it owns. Every setter here takes an absolute
- * value; the one toggle, [onToggleSuspended], is defined by the dialog so it
- * reads the state live (split step 8a).
+ * Ch. 9's declarations, from Fuel to Invocation: a view of [RitualDialog]'s
+ * state, which it owns. Every setter here takes an absolute value or a step;
+ * the toggles are defined by the dialog so they read the state live.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun RitualPowerSourceChips(
+    weight: RitualWeight,
     complexity: RitualComplexity,
     spiChoice: Int,
     cost: Int,
     hpSacrificed: Int,
     pacing: RitualPacing,
     assistants: Int,
-    sacrifice: SacrificeTier?,
-    sentientBeings: Int,
-    catalyst: Int,
+    sacrifice: Int,
     suspended: Boolean,
-    /** False once the fuel is spent: complexity, SPI and HP are what it paid. */
-    fuelEnabled: Boolean,
-    onComplexity: (RitualComplexity) -> Unit,
+    invoked: Boolean,
+    orthodox: Boolean,
+    invocation: Int,
     onSpiChoice: (Int) -> Unit,
     onHpSacrificed: (Int) -> Unit,
     onPacing: (RitualPacing) -> Unit,
     onAssistants: (Int) -> Unit,
-    onSacrifice: (SacrificeTier?) -> Unit,
-    onSentientBeings: (Int) -> Unit,
-    onCatalyst: (Int) -> Unit,
+    onSacrificeStep: (Int) -> Unit,
     onToggleSuspended: () -> Unit,
+    onInvoked: (Boolean) -> Unit,
+    onToggleOrthodox: () -> Unit,
+    onInvocationStep: (Int) -> Unit,
 ) {
-    // Ch. 7 IV.A. A SECOND axis, not a restatement of the
-    // weight above: the weight is the category and gives the
-    // modifier, this is the scope and gives the cost and the
-    // time. The book prints a Major rung here and none in the
-    // weight table, which is why Major has no base modifier.
-    SectionLabel("Complexity")
-    FlowRow {
-        PowerSources.complexities().forEach { option ->
-            CaseChip(
-                selected = option.complexity == complexity.complexity,
-                enabled = fuelEnabled,
-                onClick = { onComplexity(option) },
-                label = { Text(option.complexity) },
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
-    }
-
-    // Every cell is a range, so the end is the GM's; the open
-    // one ("11-15+") offers three above its printed ceiling
-    // rather than pretending to know the top.
+    // The weight's own SPI cell: "Light 2, Moderate 4-6, Heavy 8+, Major 12+".
     SectionLabel("Fuel")
     FlowRow {
-        spiChoices(complexity).forEach { option ->
+        spiChoices(weight).forEach { option ->
             CaseChip(
                 selected = option == spiChoice,
-                enabled = fuelEnabled,
                 onClick = { onSpiChoice(option) },
                 label = { Text("$option SPI") },
                 modifier = Modifier.padding(end = 8.dp),
@@ -145,15 +129,13 @@ internal fun RitualPowerSourceChips(
         }
     }
 
-    // Ch. 7 IV.B. Fuel, never a bonus -- the panel says so
-    // out loud, because the sentence next to it in the book
-    // is the one that gets misread.
+    // Fuel, never a bonus -- the panel says so out loud, because the
+    // sentence next to it in the book is the one that gets misread.
     SectionLabel("Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)")
     FlowRow {
         hpChoices(cost).forEach { option ->
             CaseChip(
                 selected = option == hpSacrificed,
-                enabled = fuelEnabled,
                 onClick = { onHpSacrificed(option) },
                 label = { Text(if (option == 0) "None" else "$option HP") },
                 modifier = Modifier.padding(end = 8.dp),
@@ -161,9 +143,8 @@ internal fun RitualPowerSourceChips(
         }
     }
 
-    // The Time & Complexity table, whose Rushed and Extended
-    // values differ BY RUNG -- -3 at Light, -5 at Major -- so
-    // they are read off the complexity chosen above.
+    // The Time & Complexity table on the weight's own name: Rushed and
+    // Extended differ BY RUNG, -3 at Light and -5 at Major.
     SectionLabel("Pacing")
     FlowRow {
         RitualPacing.entries.forEach { option ->
@@ -185,9 +166,8 @@ internal fun RitualPowerSourceChips(
         }
     }
 
-    // Ch. 7 IV.C. Every assistant is worth +1 -- the book's
-    // own Ritual 3 prints "Two trained assistants  +2", which
-    // is the only thing that disambiguates "beyond the first".
+    // "Each assistant beyond the first gives +1 (max +3)": the caster is the
+    // first (the owner's ruling, 2026-10-19).
     SectionLabel("Assistants")
     FlowRow {
         (0..4).forEach { option ->
@@ -204,68 +184,28 @@ internal fun RitualPowerSourceChips(
             )
         }
     }
-    if (assistants > PowerSources.PARTICIPANT_CAP) {
-        Text(
-            "Capped at ${signed(PowerSources.PARTICIPANT_CAP)}; " +
-                "the rest still pool their SPI.",
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
+    // Drawn from the start, so picking a fourth helper cannot grow the
+    // dialog under the finger.
+    Text(
+        if (assistants > PowerSources.PARTICIPANT_CAP) {
+            "Capped at ${signed(PowerSources.PARTICIPANT_CAP)}; the rest still pool their SPI."
+        } else {
+            "+1 each, capped at ${signed(PowerSources.PARTICIPANT_CAP)}."
+        },
+        style = MaterialTheme.typography.bodySmall,
+    )
 
-    // Ch. 7 IV.D.
-    SectionLabel("External sacrifice")
-    FlowRow {
-        CaseChip(
-            selected = sacrifice == null,
-            onClick = { onSacrifice(null) },
-            label = { Text("None") },
-            modifier = Modifier.padding(end = 8.dp),
-        )
-        PowerSources.sacrificeTiers().forEach { option ->
-            CaseChip(
-                selected = sacrifice?.tier == option.tier,
-                onClick = { onSacrifice(option) },
-                label = { Text("${option.tier} ${signed(option.modifier)}") },
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
-    }
-    sacrifice?.let { tier ->
-        // Offered only alongside a tier, because the per-being
-        // bonus rides on one and sacrificeBonus refuses it
-        // without. It ADDS to the tier rather than replacing
-        // it -- two consecutive sentences, both applied.
-        SectionLabel("Sentient beings offered (${signed(PowerSources.SENTIENT_BONUS)} each, on top)")
-        FlowRow {
-            (0..3).forEach { option ->
-                CaseChip(
-                    selected = option == sentientBeings,
-                    onClick = { onSentientBeings(option) },
-                    label = { Text(if (option == 0) "None" else "$option") },
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-            }
-        }
-    }
+    // "Sacrifice quality ranges from -40 to +40 ... at GM's discretion."
+    OptionStepper(
+        label = "Sacrifice or catalyst",
+        value = sacrifice,
+        shown = signed(sacrifice),
+        note = "the GM's call, ${PowerSources.SACRIFICE_LOWEST} to " +
+            "${signed(PowerSources.SACRIFICE_HIGHEST)}",
+        onStep = onSacrificeStep,
+    )
 
-    // Ch. 7 IV.E. A range the GM picks inside, like darkness.
-    SectionLabel("Catalyst")
-    FlowRow {
-        (PowerSources.CATALYST_LOWEST..PowerSources.CATALYST_HIGHEST)
-            .forEach { option ->
-                CaseChip(
-                    selected = option == catalyst,
-                    onClick = { onCatalyst(option) },
-                    label = {
-                        Text(if (option == 0) "None" else signed(option))
-                    },
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-            }
-    }
-
-    // p. 65, above the Time table. Not a power source, but the
-    // same declaration: it moves the effective skill.
+    // Not a power source, but the same declaration: it moves the skill.
     CaseChip(
         selected = suspended,
         onClick = onToggleSuspended,
@@ -274,54 +214,42 @@ internal fun RitualPowerSourceChips(
         },
         modifier = Modifier.padding(top = 8.dp),
     )
-}
 
-/**
- * Section II's supporting skills and Ch. 3's mystical language, as a view of
- * [RitualDialog]'s state. [onToggleSupport] is defined by the dialog so it
- * reads `support` live (split step 8a).
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-internal fun RitualSupportAndLanguage(
-    ownedSupportSkills: List<String>,
-    support: List<String>,
-    language: LanguageProficiency?,
-    boughtLanguages: List<String>,
-    grantedLanguages: List<String>,
-    onToggleSupport: (String) -> Unit,
-    onLanguage: (LanguageProficiency?) -> Unit,
-) {
-    // Section II, and the one part of this chapter that is
-    // scoped to neither mode. A skill the character does not
-    // own is not offered, so the list is empty for most
-    // casters -- said out loud rather than shown as a gap.
-    SectionLabel("Supporting skills")
-    if (ownedSupportSkills.isEmpty()) {
-        Text(
-            "This character has none of the book's " +
-                "${RitualMode.supportSkills().size} supporting skills " +
-                "(${RitualMode.supportSkills().joinToString { it.skill }}).",
-            style = MaterialTheme.typography.bodySmall,
+    SectionLabel("Power source")
+    FlowRow {
+        CaseChip(
+            selected = !invoked,
+            onClick = { onInvoked(false) },
+            label = { Text("Personal SPI") },
+            modifier = Modifier.padding(end = 8.dp),
         )
-    } else {
-        Text(
-            "+1 each, capped at +${RitualMode.SUPPORT_CAP} in total.",
-            style = MaterialTheme.typography.bodySmall,
+        CaseChip(
+            selected = invoked,
+            onClick = { onInvoked(true) },
+            label = { Text("Invocation") },
+            modifier = Modifier.padding(end = 8.dp),
         )
-        FlowRow {
-            ownedSupportSkills.forEach { name ->
-                CaseChip(
-                    selected = name in support,
-                    onClick = { onToggleSupport(name) },
-                    label = { Text(name) },
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-            }
-        }
     }
-
-    MysticalLanguagePicker(language, boughtLanguages, grantedLanguages, onLanguage)
+    // Both drawn under Personal SPI too, disabled: appearing on the
+    // Invocation pick moved the rows below it (play session 4).
+    CaseChip(
+        selected = invoked && orthodox,
+        enabled = invoked,
+        onClick = { if (invoked) onToggleOrthodox() },
+        label = { Text("Orthodox deity, in good standing ${signed(PowerSources.ORTHODOX_BONUS)}") },
+    )
+    OptionStepper(
+        label = "Invocation",
+        value = invocation,
+        shown = signed(invocationApplied(invoked, orthodox, invocation) ?: 0),
+        note = when {
+            !invoked -> "praying to oneself adds nothing"
+            orthodox -> "an orthodox deity's +${PowerSources.ORTHODOX_BONUS}"
+            else -> "the GM's call, ${signed(PowerSources.INVOCATION_LOWEST)} to " +
+                signed(PowerSources.INVOCATION_HIGHEST)
+        },
+        onStep = { if (invoked && !orthodox) onInvocationStep(it) },
+    )
 }
 
 /** The tongue a ritual or a prayer is said in: the GM's declaration. */

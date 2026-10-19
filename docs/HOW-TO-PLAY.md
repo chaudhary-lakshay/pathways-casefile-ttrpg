@@ -279,9 +279,10 @@ A Hanged Man picks one of three drawbacks at Sequence 9. On the **Potion** tab, 
 
 ### Ritual
 
-1. Pick the ritual's weight, your preparation, the language, the link to the target, and any support skills.
-2. Read the target and the SPI cost at the bottom. The Corruption penalty is already in the target.
-3. Tap **Cast**. If you do not have enough SPI, or the book or the entity refuses, **Cast** is grey and the reason shows in red.
+1. Pick the ritual's weight (Light, Moderate, Heavy or Major), its fuel, your preparation, the language and the link to the target.
+2. Add the power sources: HP paid as fuel, assistants (+1 each, up to +3), the GM's sacrifice value (-40 to +40), and an invocation.
+3. Read the target and the SPI cost at the bottom. The Corruption penalty is already in the target.
+4. Tap **Cast**. If you do not have enough SPI, or the book forbids the language, **Cast** is grey and the reason shows in red.
 
 Quick and Full preparation use different tables. The dialog lists the mystical languages the character bought, then any from a potion. It does not pick one for you.
 
@@ -289,7 +290,7 @@ Some cells print a range, such as *Good +1 to +2* or *Strong +2 to +3*. Picking 
 
 #### Invocation
 
-With *Invocation* picked, the button first reads **Ask the entity**. Asking rolls the Entity Response Table and spends the fuel then. After that, the button reads **Cast** and costs nothing more. A rejection costs nothing. *No response* costs 2 SPI, taken first from the HP you offered, at 2 HP for each SPI. If you close the dialog after asking, the answer is lost but the fuel stays spent.
+Pick *Invocation* to borrow an entity's power. The GM sets the bonus from +1 to +5 with the **Invocation** stepper. For an orthodox deity whose domain matches the request, with the caster in good standing, tap *Orthodox deity, in good standing*: the bonus is then +2. *Personal SPI* adds nothing.
 
 A failure rolls on the failure table and a critical on its own table. You can push both. A roll of 17 or 18 cannot be pushed, because that result comes from the dice and not the margin.
 
@@ -312,10 +313,7 @@ Boon is a prayer to a patron for a gift. It needs Ritualistic Magic (buy it in *
 1. Pick the patron's pathway. You do not pick the Sequence: the first prayer asks for the first one the book lists, and each later prayer asks for the next one.
 2. Pick the sacrifice, the ritual's quality, and 4 to 6 SPI of fuel. You can pay any of it in HP, at 2 HP for 1 SPI. This is how a mortal with no SPI prays.
 3. Pick the **Mystical language**. *Accented* is -2. *Broken* forbids the prayer.
-4. Tap **Ask the patron**. This rolls the Entity Response Table and spends the fuel.
-5. Tap **Pray**.
-
-A rejection ends the prayer and costs nothing. No response ends it, grants no boon, and costs 2 SPI from your fuel, HP first.
+4. Tap **Pray**. The fuel is spent whether or not the boon is granted.
 
 A granted boon is saved when you close the dialog. Its gains stay on the sheet next to any potions, and the header shows *Boon · name · Seq N*. Some of its traits count in rolls, marked *"from the boon"*. The GM handles the rest. The book lists nothing past Sequence 8, so you cannot pray again after that.
 
@@ -388,7 +386,8 @@ In a few places the book does not settle a rule. The app picks a reading, and so
 - The bare-hand parry takes the same -3 against a weapon as Brawling does.
 - A Warrior, Pugilist or Weapon Master parries with a weapon at no less than DX.
 - Injury after a multiplier is rounded down.
-- *No response* to an invocation or a prayer takes its 2 SPI from the HP you offered first.
+- Each assistant gives +1, the caster counting as the first participant.
+- An orthodox deity's +2 is the invocation bonus, not +2 on top of it.
 - Dead Language Fluency's free language is the owner's reading. The book names no level, price or list.
 - A potion's granted skill levels stay fixed when a later potion raises the attribute. A skill you bought rises with it.
 

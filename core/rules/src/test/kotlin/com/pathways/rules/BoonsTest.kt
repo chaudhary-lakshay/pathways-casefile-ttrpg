@@ -200,13 +200,13 @@ class BoonsTest {
         assertTrue("doubling the penalty" in granting.boonLevelRule)
     }
 
-    // The owner's rulings, 2026-10-13 (6hq): a prayer is said in a tongue and
-    // the patron is asked first, as any ch. 7 invocation. fixed(1) rolls 3,
-    // Full response +5; fixed(4) rolls 12, No response; fixed(5) rolls 15,
-    // displeased -2; fixed(6) rolls 18, Active rejection.
+    // The owner's ruling, 2026-10-13 (6hq): a prayer is said in a tongue.
+    // v6.9i deleted the Entity Response Table, so the patron is no longer
+    // asked first: chapter 15 rolls the prayer itself "to determine the
+    // Great Existence's response".
 
     @Test
-    fun `a prayer takes the tongue it is said in and the patron's answer`() {
+    fun `a prayer takes the tongue it is said in`() {
         val plain = Boons.targetFor(skillLevel = 14, cor = 0, sequence = 9)
         val tongues = Languages.proficiencies(Languages.MYSTICAL)
         val accented = tongues.first { Languages.canPerformRituals(it) && Languages.ritualModifier(it) != 0 }
@@ -214,40 +214,6 @@ class BoonsTest {
         // Broken "Cannot perform rituals in the language": refused, not priced.
         val broken = tongues.first { !Languages.canPerformRituals(it) }
         assertThrows<IllegalArgumentException> { Boons.targetFor(14, 0, 9, language = broken) }
-
-        assertEquals(plain + 5, Boons.targetFor(14, 0, 9, answer = Boons.ask(fixed(1))))
-        assertEquals(plain - 2, Boons.targetFor(14, 0, 9, answer = Boons.ask(fixed(5))))
-        // No roll is left to print a target for.
-        assertThrows<IllegalArgumentException> { Boons.targetFor(14, 0, 9, answer = Boons.ask(fixed(4))) }
-        assertThrows<IllegalArgumentException> { Boons.targetFor(14, 0, 9, answer = Boons.ask(fixed(6))) }
-    }
-
-    @Test
-    fun `a Hidden Existence reads the table unshifted`() {
-        // Line 4297: "Hidden existences and evil gods use the table unmodified".
-        assertEquals(Invocation.ask(fixed(5), orthodoxInGoodStanding = false), Boons.ask(fixed(5)))
-        assertEquals(15, Boons.ask(fixed(5)).shifted)
-        assertEquals(13, Invocation.ask(fixed(5), orthodoxInGoodStanding = true).shifted)
-    }
-
-    @Test
-    fun `a patron who does not answer grants nothing, and neither does one who refuses`() {
-        // The first is the owner's ruling: ch. 7 lets that ritual go on.
-        assertTrue(Boons.endsPrayer(Boons.ask(fixed(4))))
-        assertTrue(Boons.ask(fixed(4)).unanswered)
-        assertTrue(Boons.endsPrayer(Boons.ask(fixed(6))))
-        assertFalse(Boons.ask(fixed(6)).unanswered)
-        assertFalse(Boons.endsPrayer(Boons.ask(fixed(1))))
-        assertFalse(Boons.endsPrayer(Boons.ask(fixed(5))))
-    }
-
-    @Test
-    fun `the fuel is owed once the patron is asked`() {
-        // The prayer's fuel is the ritual's (InvocationTest); this pins that
-        // the patron's unshifted answer prices it the same way.
-        assertEquals(Fuel(spi = 2, hp = 4), Invocation.fuelFor(Boons.ask(fixed(1)), cost = 4, hpSacrificed = 4))
-        assertEquals(Fuel(0, 0), Invocation.fuelFor(Boons.ask(fixed(6)), cost = 4, hpSacrificed = 4))
-        assertEquals(Fuel(0, 4), Invocation.fuelFor(Boons.ask(fixed(4)), cost = 4, hpSacrificed = 8))
     }
 
     /**

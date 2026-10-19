@@ -2,11 +2,21 @@ package com.pathways.rules.content
 
 import kotlinx.serialization.Serializable
 
-/** One row of the ritual weight table (Ch. 7, p. 67): how hard a category is. */
+/**
+ * One row of the ritual weight table (Ch. 9 II-III.A, v6.9i): its base
+ * modifier, base time and the SPI that fuels it.
+ *
+ * v6.9i's Quick table is the one fuel column: the complexity ladder beside it
+ * prints time and pacing only, and the worked rituals that once argued for
+ * charging off that ladder are gone. Personal Spirituality's "2-15+ SPI"
+ * disagrees with Major's open "12+"; the table wins, recorded in
+ * `PowerSourcesTest`.
+ */
 @Serializable
 data class RitualWeight(
     val weight: String,
     val modifier: Int,
+    val baseTime: String,
     /** Null on Major, the one row v6.9i's Quick table adds without examples. */
     val categories: String? = null,
     val spi: Int = 0,
@@ -22,91 +32,19 @@ data class RitualWeight(
 }
 
 /**
- * One rung of the ritual COMPLEXITY axis (Ch. 7, Section IV.A and the Time &
- * Complexity Reference, p. 65-66).
+ * One rung of the Time & Complexity table (Ch. 9 III.B, v6.9i): base time and
+ * what rushing or extending it does to the roll.
  *
- * Not the same axis as [RitualWeight], and deliberately not merged with it.
- * The weight is the ritual's CATEGORY -- divination, curse, summoning -- and
- * gives its base difficulty modifier. The complexity is its SCOPE -- duration,
- * target count, territory -- and gives its SPI cost, base time and pacing.
- *
- * Section V claims the weight determines the SPI cost too, and the book's own
- * six worked rituals disagree with it three times while agreeing with this
- * ladder six times out of six: a Light divination charged 3 where the weight
- * column says 2, a Heavy summoning charged 7 where it says 8+. The sentence
- * loses to the examples. `ritual_weights.json` keeps its printed cost anyway,
- * and `extract_power_sources.verify()` fails if the two ever reconcile.
- *
- * Section V prints no Major weight at all, which is why Major carries no base
- * difficulty modifier: it is a complexity, not a weight.
- *
- * [spiOpen] here means an open TOP on a printed range ("11-15+"). That is not
- * the weight table's "8+", which prints no ceiling at all.
+ * The same four names as [RitualWeight], and read off the weight of the same
+ * name ([com.pathways.rules.PowerSources.complexityFor]). The fuel is the
+ * weight's: this table prints no SPI.
  */
 @Serializable
 data class RitualComplexity(
     val complexity: String,
-    val looksLike: String,
     val baseTime: String,
     val rushed: Int,
     val extended: Int,
-    val description: String,
-    val spi: Int,
-    val spiMax: Int? = null,
-    val spiOpen: Boolean = false,
-) {
-    /** "2-3 SPI", "11-15+ SPI" -- the cell as the book prints it. */
-    val printedCost: String get() = buildString {
-        append(spi)
-        spiMax?.let { append("-").append(it) }
-        if (spiOpen) append("+")
-        append(" SPI")
-    }
-}
-
-/**
- * One tier of External Sacrifice (Ch. 7, Section IV.D, p. 66).
- *
- * Committed with its examples because a GM choosing a tier needs to know what
- * counts as Precious. The "+2 per sentient being" riding on top of these is a
- * number inside the same sentence, and lives in
- * [com.pathways.rules.PowerSources.SENTIENT_BONUS].
- */
-@Serializable
-data class SacrificeTier(val tier: String, val modifier: Int, val looksLike: String)
-
-/** One row of a worked ritual's modifier table (Ch. 7, Section VIII). */
-@Serializable
-data class RitualExampleModifier(val source: String, val value: Int)
-
-/**
- * One of Section VIII's worked rituals (Ch. 7, p. 69-72).
- *
- * The book doing its own arithmetic in public, seven times, for one stated
- * caster. `GoldenRitualTest` replays them against the engine the way
- * `GoldenSheetTest` replays the 23 character sheets -- as a PARTIAL oracle:
- * where a worked example disagrees with a printed table, the disagreement is
- * recorded and the table is not repaired from the example, nor the reverse.
- *
- * [baseDifficulty] is the ritual's own, and three of the seven print a -3 that
- * [RitualWeight]'s +0/-2/-4 cannot express. [spi] is its own too, and three
- * fall outside the weight table's cost column while all seven fall inside
- * [RitualComplexity]'s ladder -- which is the evidence that the ladder is the
- * operative one.
- */
-@Serializable
-data class RitualExample(
-    val number: Int,
-    val name: String,
-    val category: String,
-    val baseDifficulty: Int,
-    val time: String,
-    val modifiers: List<RitualExampleModifier>,
-    val net: Int,
-    val casterSkill: Int,
-    val effectiveSkill: Int,
-    val spi: Int,
-    val printedDelta: Int,
 )
 
 /**
@@ -257,7 +195,7 @@ data class BoonGranting(
  * the parts, so a screen can render intro, parts and note in that order.
  *
  * [referenceOnly] marks a structure no choice in this app selects: it is shown
- * and never chosen. See `Incantations.forPowerSource`.
+ * and never chosen. See `Incantations.standard`.
  */
 @Serializable
 data class Incantation(
@@ -268,37 +206,6 @@ data class Incantation(
     val note: String? = null,
     val referenceOnly: Boolean = false,
 )
-
-/**
- * One band of the Entity Response Table (Ch. 7, Section IV.F, p. 66).
- *
- * [ritualModifier] and [automaticFailure] are BOTH absent on the 12-14 row and
- * that is deliberate: "No response. Ritual draws only on caster's residual
- * power" is an entity that does not answer, so nothing is added and nothing
- * fails. The 18 row carries [automaticFailure] and no modifier -- it is a
- * refusal, not a penalty, the same way a Broken mystical language forbids the
- * attempt rather than pricing it.
- *
- * See [com.pathways.rules.Invocation], which also carries the orthodox shift:
- * a -2 on the roll AGAINST this table, never on the ritual roll.
- */
-@Serializable
-data class EntityResponse(
-    val low: Int,
-    val high: Int,
-    val response: String,
-    val ritualModifier: Int? = null,
-    val automaticFailure: Boolean = false,
-)
-
-/**
- * One supporting skill for a ritual (Ch. 7, Section II, p. 61).
- *
- * Each grants +1 and the five together are capped at +3 by a sentence, not a
- * column -- see [com.pathways.rules.RitualMode.SUPPORT_CAP].
- */
-@Serializable
-data class RitualSupportSkill(val skill: String, val bonus: Int, val notes: String)
 
 /**
  * One row of the Quick Ritual's Target Link table (Ch. 7, p. 62).

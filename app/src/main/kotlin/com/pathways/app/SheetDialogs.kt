@@ -25,7 +25,6 @@ import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.Pools
 import com.pathways.rules.PremadeSheet
-import com.pathways.rules.RitualMode
 import com.pathways.rules.RollKind
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.Shock
@@ -450,18 +449,6 @@ internal fun SheetDialogs(
             },
             // Null for a mortal, who has no Sequence for Sec. 6 to compare.
             divinerSequence = drunk?.sequence,
-            // Ch. 6.5 p. 55's four supporting skills, which this app has
-            // loaded since 6p and offered to nobody: Divination.supportBonus
-            // had no production caller at all, so a diviner with Occultism and
-            // Psychology rolled flat where the book gives +2. 6am's finding
-            // one chapter over, and that slice fixed the ritual half only.
-            // Read from the DIGESTED map for the same reason the ritual row
-            // is (6as): a potion grants Occultism and six spellings of Hidden
-            // Lore, and a Beyonder granted one would otherwise be denied the
-            // bonus in silence.
-            ownedSupportSkills = remember(skillLevels) {
-                Divination.supportSkillsOwnedBy(skillLevels.keys.map { it.name })
-            },
             // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
             // The CoR ladder does not: it is scoped to ritual rolls (p. 68).
             // Asked per method cost, not computed once: paying for the
@@ -554,23 +541,6 @@ internal fun SheetDialogs(
     if (SheetDialog.RITUAL in open && ritualLevel != null) {
         RitualDialog(
             skillLevel = ritualLevel,
-            // Section II's five, narrowed to the ones this character bought.
-            // Offering all five would let a GM claim an Occultism the sheet
-            // does not print; the book means skills the caster brings.
-            // The matching lives in RitualMode, not here: a screen with its
-            // own comparison can offer a chip `supportBonus` then refuses, or
-            // withhold one it would accept. It did -- one of the five rows is
-            // printed "Hidden Lore (relevant domain)" and no sheet spells it
-            // that way, so the caster's +1 was dropped in silence.
-            // Read from the DIGESTED map, not from what was purchased. A
-            // potion grants Occultism, Thaumatology, Research and six
-            // spellings of Hidden Lore, and a Beyonder granted one was denied
-            // Section II's +1 in silence -- the same silence this slice was
-            // written to end, one route over. `drunk` is in the memo key for
-            // the same reason: without it a potion would not recompute the row.
-            ownedSupportSkills = remember(skillLevels) {
-                RitualMode.supportSkillsOwnedBy(skillLevels.keys.map { it.name })
-            },
             // Through the one reading of what a save owns, so the note
             // cannot name a language the budget does not bill.
             boughtLanguages = remember(sheet, session.edits) {
@@ -597,7 +567,6 @@ internal fun SheetDialogs(
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Ritual"),
-            askingDice = dice.dice("Entity response"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             // Through the tracker, so a ritual fuelled past 0 SPI buys the
             // Soul Debt the book charges for it.
@@ -636,7 +605,6 @@ internal fun SheetDialogs(
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Boon"),
-            askingDice = dice.dice("Entity response"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             held = session.boon,
             nextBoon = session::nextBoon,

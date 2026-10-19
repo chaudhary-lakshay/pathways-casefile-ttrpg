@@ -2,10 +2,10 @@ package com.pathways.rules
 
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.RitualComplexity
-import com.pathways.rules.content.SacrificeTier
+import com.pathways.rules.content.RitualWeight
 
 /**
- * How long the caster took over it (the Time & Complexity Reference, p. 65).
+ * How long the caster took over it (the Time & Complexity table, ch. 9 III.B).
  *
  * [NORMAL] is the Base Time column, which prints no roll value -- taking the
  * time the book allots is neither rushed nor extended, and reading a modifier
@@ -15,69 +15,64 @@ enum class RitualPacing { RUSHED, NORMAL, EXTENDED }
 
 /**
  * Everything declared about a ritual's power sources before it is rolled
- * (Ch. 7, Section IV.B-E, p. 66).
+ * (Ch. 9 IV): "Declare your source before rolling -- it cannot be changed
+ * once begun".
  *
- * One object rather than five more parameters on [RitualResolution.targetFor],
- * which already takes eight. "Before rolling, you must declare where the
- * energy comes from. This choice cannot be changed once the ritual has begun."
- *
- * [assistants] counts helpers, NOT the caster. [sentientBeings] is meaningful
- * only alongside a [sacrifice], and is refused without one.
+ * [assistants] counts helpers, NOT the caster. [sacrifice] is the GM's value
+ * for External Sacrifice/Catalysts. [invocation] is null when the caster prays
+ * to themselves, and the GM's +1..+5 when an entity is invoked.
  */
 data class PowerSourceDeclaration(
     val pacing: RitualPacing = RitualPacing.NORMAL,
     val assistants: Int = 0,
-    val sacrifice: SacrificeTier? = null,
-    val sentientBeings: Int = 0,
-    val catalyst: Int = 0,
+    val sacrifice: Int = 0,
     val suspended: Boolean = false,
+    val invocation: Int? = null,
 )
 
 /**
- * Ritual power sources (Ch. 7, Section IV, p. 65-66).
+ * Ritual power sources (Ch. 9 IV, v6.9i).
  *
- * Five ways to fuel a ritual, and only three of them touch the roll.
- * A. Personal Spirituality and B. HP Sacrifice are FUEL; C. Multiple
- * Participants, D. External Sacrifice and E. Catalysts are BONUSES;
- * F. Invocation is its own table ([Invocation]).
+ * Personal Spirituality and HP Sacrifice are FUEL; Multiple Participants,
+ * External Sacrifice/Catalysts and Invocation are BONUSES to the roll.
  *
- * **HP sacrifice deliberately grants nothing to the roll.** "Every 2 HP spent
- * counts as 1 SPI toward the ritual cost" is followed immediately by "HP
- * sacrifice does not grant a bonus to the roll -- it only provides spiritual
- * fuel." A fuel rule sitting one line above a list of roll modifiers is
- * exactly the shape that gets read as a bonus, so [modifierTotal] never sees
- * HP at all and `extract_power_sources.verify()` pins that sentence.
+ * **HP sacrifice deliberately grants nothing to the roll.** "2 HP = 1 SPI
+ * toward ritual cost. HP sacrifice does not grant a roll bonus -- it only
+ * provides spiritual fuel." So [modifierTotal] never sees HP at all.
  *
- * **"Each assistant beyond the first" counts from the CASTER.** Read as
- * "beyond the first assistant", two helpers would be worth +1. The book's own
- * Ritual 3 prints "Two trained assistants ... +2", so every assistant counts
- * and the caster is the first participant. The sentence alone does not settle
- * it; the worked example does, and the extractor pins that row.
+ * **"Each assistant beyond the first" counts from the CASTER**: the owner's
+ * ruling (2026-10-19). v6.9i deleted the worked Ritual 3 that used to settle
+ * it ("Two trained assistants ... +2"), so the sentence alone now reads
+ * either way and the ruling picks.
  *
- * **The numbers here are inside sentences, which is why they are here.** Only
- * the complexity ladder and the three sacrifice tiers are real tables, and
- * those are committed content. A column for +1-per-assistant or +0-to-+2 for a
- * catalyst would make the book look like it printed a table it never did --
- * the split [RitualMode.SUPPORT_CAP], [Invocation.ORTHODOX_SHIFT] and the
- * maneuver table's +4/-4 all take.
+ * **The numbers here are inside sentences, which is why they are here.**
+ * Only the complexity ladder is a table, and that is committed content.
  */
 object PowerSources {
 
-    /** B: "Every 2 HP spent counts as 1 SPI toward the ritual cost." */
+    /** "2 HP = 1 SPI toward ritual cost." */
     const val HP_PER_SPI = 2
 
-    /** C: what each assistant adds, and the ceiling on the lot of them. */
+    /** What each assistant adds, and the ceiling on the lot of them. */
     const val PARTICIPANT_BONUS = 1
     const val PARTICIPANT_CAP = 3
 
-    /** D: "Living sacrifice adds +2 per sentient being offered." */
-    const val SENTIENT_BONUS = 2
+    /** "Sacrifice quality ranges from -40 to +40 ... at GM's discretion." */
+    const val SACRIFICE_LOWEST = -40
+    const val SACRIFICE_HIGHEST = 40
 
-    /** E: "A catalyst typically provides +0 to +2 ... at the GM's discretion." */
-    const val CATALYST_LOWEST = 0
-    const val CATALYST_HIGHEST = 2
+    /** Invocation "Adds +1 to +5 to the ritual roll (GM discretion ...)". */
+    const val INVOCATION_LOWEST = 1
+    const val INVOCATION_HIGHEST = 5
 
-    /** "At the GM's discretion, suspending a ritual costs -2 to the effective skill." */
+    /**
+     * "Orthodox deities grant +2 when the request aligns with their domain and
+     * the caster is in good standing." The value inside the +1..+5 range, not
+     * a second bonus on top: the owner's ruling (2026-10-19).
+     */
+    const val ORTHODOX_BONUS = 2
+
+    /** "At GM discretion, suspending costs -2 to effective skill." */
     const val SUSPENSION_PENALTY = -2
 
     /** The four rungs, cheapest first. */
@@ -91,61 +86,17 @@ object PowerSources {
                     complexities().joinToString { it.complexity },
             )
 
-    /** The three External Sacrifice tiers, cheapest first. */
-    fun sacrificeTiers(): List<SacrificeTier> = ContentLoader.ritualSacrifice()
-
-    /** The tier named [name]; refused rather than defaulted. */
-    fun sacrificeNamed(name: String): SacrificeTier =
-        sacrificeTiers().firstOrNull { it.tier.equals(name, ignoreCase = true) }
-            ?: throw IllegalArgumentException(
-                "no sacrifice tier named '$name'; the book prints " +
-                    sacrificeTiers().joinToString { it.tier },
-            )
-
-    /**
-     * What [complexity] costs in SPI when the GM picks [chosen] inside its
-     * cell, plus any [burned] on top.
-     *
-     * Burning is a SECOND use of SPI, not a cheaper first one: "you may spend
-     * additional SPI after seeing your roll to boost it (+1 per SPI, no cap)
-     * ... The two uses of SPI are cumulative."
-     *
-     * A value outside the printed cell is refused rather than clamped -- a
-     * clamp charges a different ritual than the one described. The open TOP on
-     * "11-15+" is a null ceiling rather than [Int.MAX_VALUE], because using
-     * the largest Int as one let `chosen + burned` wrap NEGATIVE, and a
-     * negative cost is paid back as healing (Codex, on the ritual slice).
-     */
-    fun spiFor(
-        complexity: RitualComplexity,
-        chosen: Int = complexity.spi,
-        burned: Int = 0,
-    ): Int {
-        require(burned >= 0) { "SPI burned cannot be negative; was $burned" }
-        val most = if (complexity.spiOpen) null else complexity.spiMax ?: complexity.spi
-        require(chosen >= complexity.spi && (most == null || chosen <= most)) {
-            "a ${complexity.complexity} ritual costs ${complexity.printedCost}; " +
-                "$chosen is outside that"
-        }
-        return try {
-            Math.addExact(chosen, burned)
-        } catch (overflow: ArithmeticException) {
-            throw IllegalArgumentException("$chosen SPI plus $burned burned does not fit", overflow)
-        }
-    }
+    /** The time row printed on the same name as [weight]. */
+    fun complexityFor(weight: RitualWeight): RitualComplexity = complexityNamed(weight.weight)
 
     /**
      * The SPI still owed after [hpSacrificed] HP is burned against a [cost].
      *
      * Floored, because the book buys SPI in whole units: 3 HP covers 1 SPI and
-     * the odd point is spent for nothing. That waste is the book's -- "every 2
-     * HP spent counts as 1 SPI" -- and rounding it up would hand out a free
-     * point of fuel. [Math.floorDiv], never `/`: this codebase has had the
-     * truncation defect three times.
+     * the odd point is spent for nothing. [Math.floorDiv], never `/`.
      *
      * Refused when the HP would cover more than the ritual costs, rather than
-     * clamped: HP spent past the cost buys nothing, and a caller asking for it
-     * has asked for something the book does not sell.
+     * clamped: HP spent past the cost buys nothing.
      */
     fun spiOwed(cost: Int, hpSacrificed: Int = 0): Int {
         require(cost >= 0) { "a ritual cannot cost negative SPI; was $cost" }
@@ -163,46 +114,26 @@ object PowerSources {
         return Math.multiplyExact(spi, HP_PER_SPI)
     }
 
-    /**
-     * C: what [assistants] add to the roll, capped at [PARTICIPANT_CAP].
-     *
-     * Every assistant counts -- see this object's KDoc for why, and for the
-     * worked example that settles it.
-     */
+    /** What [assistants] add to the roll, capped at [PARTICIPANT_CAP]. */
     fun participantBonus(assistants: Int): Int {
         require(assistants >= 0) { "a ritual cannot have negative assistants; was $assistants" }
         return minOf(assistants * PARTICIPANT_BONUS, PARTICIPANT_CAP)
     }
 
-    /**
-     * D: the tier's own value plus [SENTIENT_BONUS] per living offering.
-     *
-     * The two ADD. Precious names "sentient sacrifices" among its examples and
-     * the next sentence still says "Living sacrifice adds +2 per sentient
-     * being offered", so one sentient being on a Precious altar is +4 and +2.
-     * That is the literal reading of two consecutive sentences; excluding one
-     * from the other would need a clause the book does not print.
-     *
-     * [sentientBeings] without a [tier] is refused rather than ignored -- a
-     * modifier naming nothing chosen is the stale-value shape the boon dialog
-     * already had to be fixed for.
-     */
-    fun sacrificeBonus(tier: SacrificeTier?, sentientBeings: Int = 0): Int {
-        require(sentientBeings >= 0) {
-            "cannot offer negative sentient beings; was $sentientBeings"
+    /** The GM's sacrifice value, held to the printed -40..+40. */
+    fun sacrificeBonus(chosen: Int): Int {
+        require(chosen in SACRIFICE_LOWEST..SACRIFICE_HIGHEST) {
+            "sacrifice quality ranges from $SACRIFICE_LOWEST to +$SACRIFICE_HIGHEST; " +
+                "$chosen is outside that"
         }
-        require(tier != null || sentientBeings == 0) {
-            "$sentientBeings sentient beings were offered with no sacrifice declared; " +
-                "the per-being bonus rides on an External Sacrifice"
-        }
-        if (tier == null) return 0
-        return tier.modifier + sentientBeings * SENTIENT_BONUS
+        return chosen
     }
 
-    /** E: the GM's value inside "+0 to +2", validated against both ends. */
-    fun catalystBonus(chosen: Int): Int {
-        require(chosen in CATALYST_LOWEST..CATALYST_HIGHEST) {
-            "a catalyst provides +$CATALYST_LOWEST to +$CATALYST_HIGHEST; $chosen is outside that"
+    /** The GM's invocation value, held to +1..+5; null (praying to oneself) is 0. */
+    fun invocationBonus(chosen: Int?): Int {
+        if (chosen == null) return 0
+        require(chosen in INVOCATION_LOWEST..INVOCATION_HIGHEST) {
+            "an invocation adds +$INVOCATION_LOWEST to +$INVOCATION_HIGHEST; $chosen is outside that"
         }
         return chosen
     }
@@ -217,14 +148,11 @@ object PowerSources {
     /**
      * Everything [declaration] adds to the ritual roll.
      *
-     * HP sacrifice is deliberately absent: it is fuel, and the book says so in
-     * its own sentence. See this object's KDoc.
+     * HP sacrifice is deliberately absent: it is fuel.
      *
-     * [complexity] may be null -- a ritual whose scope was never declared --
+     * [complexity] may be null -- a ritual whose time was never declared --
      * and then a non-normal pacing is REFUSED rather than dropped. Rushed is
-     * -3 at one rung and -5 at another, so there is no safe value to assume,
-     * and silently ignoring it would leave a GM believing the rush was priced.
-     * The other four sources do not depend on the rung and still apply.
+     * -3 at one rung and -5 at another, so there is no safe value to assume.
      */
     fun modifierTotal(
         complexity: RitualComplexity?,
@@ -236,8 +164,8 @@ object PowerSources {
         }
         return (complexity?.let { pacingModifier(it, declaration.pacing) } ?: 0) +
             participantBonus(declaration.assistants) +
-            sacrificeBonus(declaration.sacrifice, declaration.sentientBeings) +
-            catalystBonus(declaration.catalyst) +
+            sacrificeBonus(declaration.sacrifice) +
+            invocationBonus(declaration.invocation) +
             (if (declaration.suspended) SUSPENSION_PENALTY else 0)
     }
 }

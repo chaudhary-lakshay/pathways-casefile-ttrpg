@@ -143,12 +143,12 @@ class RitualResolutionTest {
 
     @Test
     fun `a rolled seventeen consults the table with no shift`() {
-        // p. 67 names this row by the ROLL -- "Critical Failure (roll 17-18)"
-        // -- not by a margin, so it is entered before the by-10+ band even
+        // The Quick table names this row by the ROLL -- "Critical Failure
+        // (17-18)" -- not by a margin, so it is entered before the by-10+ band even
         // though GURPS would call both a critical failure.
         // Check 6+6+5 = 17 vs 16 (margin 1). Critical roll 4+4+4 = 12, unshifted.
         val outcome = RitualResolution.attempt(16, light, cor = 0, source = scripted(6, 6, 5, 4, 4, 4))
-        assertEquals("Critical Failure (roll 17-18)", outcome.consequence?.printed)
+        assertEquals("Critical Failure", outcome.consequence?.printed)
         assertEquals(12, outcome.criticalRoll)
         assertEquals("11-12", outcome.critical?.printed)
     }
@@ -158,7 +158,7 @@ class RitualResolutionTest {
         // 18 vs a target of 4 is a failure by 14 AND a rolled 18. The book's
         // own row is named for the roll, so it wins and the -2 is not applied.
         val outcome = RitualResolution.attempt(4, light, cor = 0, source = scripted(6, 6, 6, 4, 4, 4))
-        assertEquals("Critical Failure (roll 17-18)", outcome.consequence?.printed)
+        assertEquals("Critical Failure", outcome.consequence?.printed)
         assertEquals(12, outcome.criticalRoll, "no -2 shift on this row")
     }
 
@@ -169,7 +169,7 @@ class RitualResolutionTest {
         // reported the book's own Critical Failure row as a success.
         val outcome = RitualResolution.attempt(22, light, cor = 0, source = scripted(6, 6, 6, 4, 4, 4))
         assertFalse(outcome.succeeded)
-        assertEquals("Critical Failure (roll 17-18)", outcome.consequence?.printed)
+        assertEquals("Critical Failure", outcome.consequence?.printed)
         assertEquals(0, outcome.marginOfFailure, "nothing was overshot")
         assertEquals("11-12", outcome.critical?.printed)
     }
@@ -242,6 +242,25 @@ class RitualResolutionTest {
         assertEquals(8, RitualResolution.spiFor(heavy))
         assertEquals(20, RitualResolution.spiFor(heavy, chosen = 20))
         assertThrows<IllegalArgumentException> { RitualResolution.spiFor(heavy, chosen = 7) }
+    }
+
+    /**
+     * v6.9i's Quick table adds a Major row: -6, 3 hr, "12+ SPI". The weight
+     * is what charges the fuel now -- the worked rituals that once argued for
+     * the complexity ladder are gone, and the ladder prints no SPI column.
+     */
+    @Test
+    fun `a major ritual is minus six and its fuel is open from twelve`() {
+        val major = weight("Major")
+        assertEquals(-6, major.modifier)
+        assertEquals("3 hr", major.baseTime)
+        assertEquals("12+ SPI", major.printedCost)
+        assertEquals(12, RitualResolution.spiFor(major))
+        assertThrows<IllegalArgumentException> { RitualResolution.spiFor(major, chosen = 11) }
+        assertEquals(
+            listOf("Light", "Moderate", "Heavy", "Major"),
+            RitualResolution.weights().map { it.weight },
+        )
     }
 
     @Test
@@ -471,26 +490,6 @@ class RitualResolutionTest {
                 cor = 8,
                 preparation = RitualMode.FULL.preparationNamed("Adequate"),
                 mode = RitualMode.FULL,
-            ),
-        )
-    }
-
-    @Test
-    fun `supporting skills help both modes and stop at three`() {
-        // Five skills grant five points; the book allows three.
-        val all = RitualMode.supportSkills().map { it.skill }
-        assertEquals(
-            15,
-            RitualResolution.targetFor(
-                skillLevel = 12, weight = weight("Light"), cor = 0, support = all,
-            ),
-            "12 + 3, not 12 + 5",
-        )
-        assertEquals(
-            13,
-            RitualResolution.targetFor(
-                skillLevel = 12, weight = weight("Light"), cor = 0,
-                support = listOf("Occultism"),
             ),
         )
     }

@@ -56,10 +56,6 @@ class RollThrowsTest {
         everyDieReported { RitualResolution.rollAgainst(4, it) }
 
     @Test
-    fun `an entity's answer reports its dice`() =
-        everyDieReported { Invocation.ask(it, orthodoxInGoodStanding = false) }
-
-    @Test
     fun `damage reports its dice`() =
         everyDieReported { Damage.roll(DamageRoll(DiceExpr(2, 6, 1), "pi"), it) }
 

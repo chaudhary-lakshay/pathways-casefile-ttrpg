@@ -85,7 +85,7 @@ class ModifierRangeTest {
         val preparations = (RitualMode.FULL.preparations() + RitualMode.QUICK.preparations())
             .filter { it.best != null || it.openEnded }
         assertEquals(
-            listOf("Good +1 to +2", "Poor -1 to -2", "None -4 or worse", "Poor / None -2 to -4"),
+            listOf("Good +1 to +2", "Poor -1 to -2", "None -4 or worse", "Poor/None -2 to -4"),
             preparations.map { "${it.quality} ${it.printed}" },
         )
         for (row in preparations) {

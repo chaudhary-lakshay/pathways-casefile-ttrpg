@@ -39,7 +39,6 @@ import com.pathways.rules.RitualResolution
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.DivinationModifier
 import com.pathways.rules.content.DivinationMethod
-import com.pathways.rules.content.DivinationSupport
 
 /**
  * One divination, in the book's four steps (Ch. 6.5, Sec. III).
@@ -78,15 +77,6 @@ fun DivinationDialog(
     // was computed before the payment and could only ever describe the
     // caster who had not paid yet.
     conditionPenaltyAfterSpending: (Int) -> Int,
-    /**
-     * The book's four supporting skills this diviner actually has.
-     *
-     * Resolved by [Divination.supportSkillsOwnedBy] at the call site, never
-     * here: a screen comparing names itself could offer a chip the rules
-     * refuse, or withhold one they would accept (6am). Empty is a real answer
-     * and says so on screen rather than rendering an empty row.
-     */
-    ownedSupportSkills: List<DivinationSupport> = emptyList(),
     /** The Major Wound's shock: not a circumstance, so it is named on its own. */
     shock: Int = 0,
     /** The held rows' declared "-N to all rolls" (6gs), named for the same reason. */
@@ -125,12 +115,6 @@ fun DivinationDialog(
     var scope by remember { mutableStateOf(scopes.first()) }
     var method by remember { mutableStateOf(methods.first()) }
     var chosen by remember { mutableStateOf<Set<String>>(emptySet()) }
-    // Which of the diviner's own supporting skills they are bringing to bear.
-    // A choice rather than an automatic bonus, because the book's own row is
-    // "Hidden Lore (relevant)" -- whether the domain is relevant to THIS
-    // question is the GM's call, and granting it unasked would answer that
-    // question for them.
-    var supporting by remember { mutableStateOf<Set<String>>(emptySet()) }
     var outcome by remember { mutableStateOf<DivinationOutcome?>(null) }
     var backlash by remember { mutableStateOf<String?>(null) }
     // The HP the sacrifice actually charged, read off the protection at the
@@ -215,22 +199,13 @@ fun DivinationDialog(
     val overrides = overridesFor(picks, picked)
     val circumstances = Divination.modifierTotal(picks, overrides, repeats) +
         conditionPenaltyAfterSpending(cost)
-    // Ch. 6.5 p. 55's supporting skills. Named on their own rather than folded
-    // into `circumstances`, because the breakdown line has to add up to the
-    // target printed above it -- the invariant 6ag added a 300-case test for
-    // and 6ai reintroduced once. The cap is Divination's own +2, NOT ch. 7's
-    // +3: two printed rules, and straightening them is the 4.1 sin (6at).
-    val support = Divination.supportBonus(
-        ownedSupportSkills.filter { it.skill in supporting },
-    )
     // What reaching for Divination Arts at this scope costs. Named on its own
-    // rather than folded into `circumstances`, for the reason the support
-    // bonus is: the signed numbers on the breakdown line have to sum to the
-    // target printed above them. It is NOT the question's band -- that prices
+    // rather than folded into `circumstances`: the signed numbers on the
+    // breakdown line have to sum to the target printed above them. It is NOT the question's band -- that prices
     // how hard the question is and this prices which skill is asking.
     val scopePenalty = Divination.penaltyFor(scope)
     val extras =
-        circumstances + protection.penalty + shock + states.total + spiTrait + support + scopePenalty
+        circumstances + protection.penalty + shock + states.total + spiTrait + scopePenalty
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
     // Charged by zeroing what it accumulated, so paying is idempotent and
@@ -439,49 +414,9 @@ fun DivinationDialog(
                         }
                     }
 
-                    SectionLabel("Supporting skills")
-                    if (ownedSupportSkills.isEmpty()) {
-                        // Naming the four is the point: a bare absence reads as a
-                        // screen that forgot to render, which is the call 6am made
-                        // for the ritual dialog's own empty branch.
-                        Text(
-                            "This diviner has none of the book's " +
-                                "${Divination.supportingSkills().size} supporting skills " +
-                                "(${Divination.supportingSkills().joinToString { it.skill }}).",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    } else {
-                        Text(
-                            // What each skill is worth is on its own chip below, so
-                            // this line states only the cap. "+1 each" was a third
-                            // copy of a number the rows already print.
-                            "Capped at +${Divination.MAX_SUPPORT_BONUS} — the book's own cap " +
-                                "for divination, which is not ch. 7's " +
-                                "+${RitualMode.SUPPORT_CAP}.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        FlowRow {
-                            ownedSupportSkills.forEach { option ->
-                                CaseChip(
-                                    selected = option.skill in supporting,
-                                    onClick = {
-                                        supporting = if (option.skill in supporting) {
-                                            supporting - option.skill
-                                        } else {
-                                            supporting + option.skill
-                                        }
-                                    },
-                                    label = { Text("${option.skill} ${signed(option.bonus)}") },
-                                    modifier = Modifier.padding(end = 8.dp),
-                                )
-                            }
-                        }
-                    }
                     // A printed bonus this screen does not offer, said out loud
                     // rather than left silent, with its reason read from the rules
-                    // rather than paraphrased here. OUTSIDE the branch above: the
-                    // refusal has nothing to do with owning a supporting skill, and
-                    // a diviner who owns none is the likelier reader of it.
+                    // rather than paraphrased here.
                     Divination.UNAPPLIED.forEach { (rule, reason) ->
                         Text(
                             "$rule ${signed(Divination.SPECIALISATION_BONUS)} is not " +
@@ -626,9 +561,7 @@ fun DivinationDialog(
                 val affordable = Pools.canAffordSpi(cost, spiAvailable)
                 RitualFooter(
                     // Every signed number here sums to the target beside it
-                    // (6ag, 6ai). The support bonus is named rather than
-                    // folded into `circumstances`, because the cap means the
-                    // total is not the sum of the chips a GM ticked.
+                    // (6ag, 6ai).
                     terms = listOfNotNull(
                         "Skill $skillLevel",
                         "question ${signed(difficulty.modifier)}",
@@ -637,7 +570,6 @@ fun DivinationDialog(
                         states.line,
                         if (spiTrait != 0) "${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}" else null,
                         if (circumstances != 0) "circumstances ${signed(circumstances)}" else null,
-                        if (support != 0) "${signed(support)} from supporting skills" else null,
                     ) + protection.parts,
                     target = target,
                     // What will actually be CHARGED, not the printed range:

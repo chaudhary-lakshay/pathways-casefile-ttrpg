@@ -99,9 +99,6 @@ object ContentLoader {
     private val divinationClarityLazy: List<DivinationClarity> by lazy {
         load("divination_clarity.json")
     }
-    private val divinationSupportLazy: List<DivinationSupport> by lazy {
-        load("divination_support.json")
-    }
     private val nonStandardPathwaysLazy: List<SequenceBlock> by lazy {
         // A SEPARATE file from pathways.json on purpose: these advance by
         // boon, not potion, and PotionDigestion walks whatever pathways.json
@@ -126,13 +123,7 @@ object ContentLoader {
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
     private val glossaryLazy: List<GlossaryEntry> by lazy { load("glossary.json") }
     private val spiritVisionLazy: SpiritVisionFile by lazy { loadWhole("spirit_vision.json") }
-    private val entityResponseLazy: List<EntityResponse> by lazy {
-        load("entity_response.json")
-    }
     private val incantationsLazy: List<Incantation> by lazy { load("incantations.json") }
-    private val ritualSupportLazy: List<RitualSupportSkill> by lazy {
-        load("ritual_support.json")
-    }
     private val ritualQuickPreparationLazy: List<RitualPreparation> by lazy {
         load("ritual_quick_preparation.json")
     }
@@ -140,16 +131,7 @@ object ContentLoader {
         load("ritual_target_link.json")
     }
     private val ritualComplexityLazy: List<RitualComplexity> by lazy {
-        // A SEPARATE file from ritual_weights.json on purpose: they are two
-        // axes, they price the same rituals differently at both ends, and the
-        // book's own worked examples follow this one. See RitualComplexity.
         load("ritual_complexity.json")
-    }
-    private val ritualSacrificeLazy: List<SacrificeTier> by lazy {
-        load("ritual_sacrifice.json")
-    }
-    private val ritualExamplesLazy: List<RitualExample> by lazy {
-        load("ritual_examples.json")
     }
     private val skillLadderLazy: SkillLadderTable by lazy {
         // One entry, because it is one table rather than a row set -- the
@@ -264,9 +246,6 @@ object ContentLoader {
     /** The Step 4 clarity table (Ch. 6.5), best result first. */
     fun divinationClarity(): List<DivinationClarity> = divinationClarityLazy
 
-    /** The four skills that support a divination, each +1 (Ch. 6.5, Sec. I). */
-    fun divinationSupport(): List<DivinationSupport> = divinationSupportLazy
-
     /** The nine weapons (Ch. 8, p. 80), in printed order. */
     fun weapons(): List<CataloguedWeapon> = weaponsLazy
 
@@ -305,12 +284,6 @@ object ContentLoader {
      * one `entries` list. Read through [com.pathways.rules.SpiritVision].
      */
     fun spiritVision(): SpiritVisionFile = spiritVisionLazy
-
-    /** The six Entity Response bands (Ch. 7, p. 66). See [EntityResponse]. */
-    fun entityResponse(): List<EntityResponse> = entityResponseLazy
-
-    /** Section II's five supporting skills (Ch. 7, p. 61). */
-    fun ritualSupport(): List<RitualSupportSkill> = ritualSupportLazy
 
     /**
      * The QUICK Ritual's preparation table (Ch. 7, p. 62), which is a
@@ -386,22 +359,10 @@ object ContentLoader {
     fun ritualWeights(): List<RitualWeight> = ritualWeightsLazy
 
     /**
-     * What each SCOPE of ritual costs, takes, and gives up when rushed
-     * (Ch. 7, Section IV.A and the Time & Complexity Reference, p. 65-66).
-     *
-     * Four rungs against [ritualWeights]' three, and they disagree at both
-     * ends. Deliberately, on both counts -- see [RitualComplexity].
+     * The Time & Complexity table (Ch. 9 III.B): base time and pacing on the
+     * same four names as [ritualWeights]. See [RitualComplexity].
      */
     fun ritualComplexity(): List<RitualComplexity> = ritualComplexityLazy
-
-    /** The three External Sacrifice tiers (Ch. 7, Section IV.D, p. 66). */
-    fun ritualSacrifice(): List<SacrificeTier> = ritualSacrificeLazy
-
-    /**
-     * Section VIII's seven worked rituals (Ch. 7, p. 69-72) -- the chapter's
-     * own regression suite. A partial oracle; see [RitualExample].
-     */
-    fun ritualExamples(): List<RitualExample> = ritualExamplesLazy
 
     /**
      * The skill cost ladder (Ch. 3, p. 25-26) --

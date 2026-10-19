@@ -20,8 +20,7 @@ import com.pathways.rules.content.MajorWound
  *
  * Not every 3d6 is a kind. The Potion Consumption Roll is a roll against a
  * target and deliberately none, on the book's own sentence (see
- * [PotionConsumption]), so no state reaches it. `Invocation.ask` is the
- * entity's roll and not the character's. The 3d6 thrown ON a table (the
+ * [PotionConsumption]), so no state reaches it. The 3d6 thrown ON a table (the
  * fright effect, the ritual critical) is not listed here either.
  */
 enum class RollKind {
