@@ -501,4 +501,23 @@ class BeyonderSessionTest {
         assertFalse(s.rest(com.pathways.rules.RestRecovery(fp = 18, spi = 3), drawn = 10 to 2))
         assertEquals(0, saved().fpLost)
     }
+
+    /**
+     * "If the players begin the game as Beyonders, roll 4d20 for Digestion"
+     * (v6.9i 3149): offered at 0% only, rolled once, every die logged.
+     */
+    @Test
+    fun `a starting Beyonder rolls 4d20 percent once, from 0`() {
+        val (s, _) = session(SavedSession(beyonder = fool9))
+        val logged = mutableListOf<List<Int>>()
+        val dice = object : RandomSource {
+            override fun roll(sides: Int) = 7.also { require(sides == 20) }
+            override fun thrown(faces: List<Int>, target: Int?) { logged += faces }
+        }
+        assertEquals(28, s.startingDigestion(drawnDigestion = 0, dice))
+        assertEquals(28, s.state?.digestion)
+        assertEquals(listOf(listOf(7, 7, 7, 7)), logged)
+        assertNull(s.startingDigestion(drawnDigestion = 0, dice), "a stale tap")
+        assertNull(s.startingDigestion(drawnDigestion = 28, dice), "only from 0%")
+    }
 }

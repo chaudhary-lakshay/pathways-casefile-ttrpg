@@ -67,6 +67,7 @@ internal fun DigestionTracker(
     onDigest: (Int) -> Unit,
     onAct: (ActingQuality, drawnDigestion: Int) -> Unit,
     onActingMethod: (drawnDigestion: Int) -> Unit,
+    onStartingRoll: (drawnDigestion: Int) -> Unit,
 ) {
     val gains = remember { ContentLoader.actingMethod() }
     StepperCard(
@@ -111,6 +112,20 @@ internal fun DigestionTracker(
                 }
             }
         }
+        // Ch. 6: "1 character point = 1% digestion progress". Earned points,
+        // like study points, sit outside the 70-point budget and bill nothing.
+        OptionStepper(
+            label = "Earned CP",
+            value = state.digestion,
+            shown = "${state.digestion}%",
+            note = "1 earned character point buys 1% digestion",
+        ) { onDigest(it) }
+        // Drawn always, live at 0% only, so it moves no row when spent.
+        InkAction(
+            "Starting Beyonder: roll 4d20%",
+            onClick = { onStartingRoll(state.digestion) },
+            enabled = state.digestion == 0,
+        )
         // v6.9i: a holder rolls 3d6 at session end, read as percent gained.
         if (TraitEffects.rollsActingMethod(traits)) {
             val drawn = state.digestion
@@ -419,4 +434,19 @@ internal fun BeyonderSession.actingMethodRoll(drawnDigestion: Int, dice: RandomS
     if (isLost || state?.digestion != drawnDigestion || drawnDigestion >= 100) return null
     return dice.threeDSix().also(::digest)
 }
+
+/**
+ * "If the players begin the game as Beyonders, roll 4d20 for Digestion at the
+ * start of the game" (v6.9i 3149-3151): offered at 0% alone, and the GM says
+ * whether the game began this way. Every die reaches the roll log (6ht); null
+ * for a stale second tap, or anywhere but 0%.
+ */
+internal fun BeyonderSession.startingDigestion(drawnDigestion: Int, dice: RandomSource): Int? {
+    if (isLost || drawnDigestion != 0 || state?.digestion != 0) return null
+    val faces = List(STARTING_DIGESTION_DICE) { dice.roll(20) }
+    dice.thrown(faces, null)
+    return faces.sum().also(::digest)
+}
+
+private const val STARTING_DIGESTION_DICE = 4
 

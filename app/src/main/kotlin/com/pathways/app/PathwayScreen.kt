@@ -227,6 +227,7 @@ fun PathwayScreen(
                                 onDigest = session::digest,
                                 onAct = session::act,
                                 onActingMethod = { drawn -> session.actingMethodRoll(drawn, dice) },
+                                onStartingRoll = { drawn -> session.startingDigestion(drawn, dice) },
                             )
                         }
                     }
