@@ -89,6 +89,8 @@ internal fun AttackOptions(
     burn: BurnOffer?,
     burnPoints: Int,
     onBurnPoints: (Int) -> Unit,
+    /** Why no attack may be rolled at all, or null. */
+    refusal: String? = null,
     onRoll: () -> Unit,
 ) {
     val maxDeceptive = Attacks.maxDeceptive(skillLevel)
@@ -378,7 +380,7 @@ internal fun AttackOptions(
             lines += "Burned $pool: +$burnPoints" +
                 if (count > 1) " on each attack, costs ${burnPoints * count} $pool" else ""
         }
-        AttackFooter(lines.filter { it.isNotEmpty() }, standing, count, onRoll)
+        AttackFooter(lines.filter { it.isNotEmpty() }, standing, count, refusal, onRoll)
     }
 }
 

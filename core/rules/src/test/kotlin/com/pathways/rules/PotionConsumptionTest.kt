@@ -163,4 +163,13 @@ class PotionConsumptionTest {
         val digested = BeyonderState("Fool", 9, digestion = 100)
         assertEquals(BeyonderState("Fool", 8, digestion = 0), digested.advanced())
     }
+
+    /** A spirit hit's "-1 per point ... any roll" reaches the PCR too (v6.9i 2819). */
+    @Test
+    fun `a modifier moves the PCR target`() {
+        val state = com.pathways.model.BeyonderState("Fool", 9, digestion = 100)
+        val base = PotionConsumption.targetFor(100, cor = 0)
+        assertEquals(base - 3, PotionConsumption.targetFor(100, cor = 0, modifier = -3))
+        assertEquals(base - 3, PotionConsumption.attempt(state, cor = 0, source = { 1 }, modifier = -3).target)
+    }
 }

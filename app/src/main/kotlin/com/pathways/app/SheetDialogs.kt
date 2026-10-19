@@ -449,6 +449,8 @@ internal fun SheetDialogs(
             states = physicalStates,
             stateModifiers = stateModifiers(true),
             warmedState = warmedState,
+            spiritPending = spiritPendingState.value,
+            pinned = com.pathways.rules.DefenseRefusal.PINNED in roundState.value.declared,
             onDismiss = { onClose(SheetDialog.ATTACK) },
         )
     }

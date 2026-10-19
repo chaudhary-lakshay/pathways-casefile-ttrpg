@@ -71,6 +71,8 @@ internal fun AttackFooter(
     lines: List<String>,
     standing: SkillTarget,
     attacks: Int,
+    /** Why no attack may be rolled at all ("Pinned"), or null. */
+    refusal: String? = null,
     onRoll: () -> Unit,
 ) {
     FooterBand {
@@ -78,13 +80,15 @@ internal fun AttackFooter(
             Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         FooterRow(
-            standing.target.takeUnless { standing.forbidden },
+            standing.target.takeUnless { standing.forbidden || refusal != null },
             // Nothing to roll is nothing to pay for: the handler charges the
             // plan's FP whatever the dice do.
-            button = { RollButton("Roll", onRoll, enabled = !standing.forbidden) },
+            button = { RollButton("Roll", onRoll, enabled = !standing.forbidden && refusal == null) },
         ) {
             Column {
-                if (standing.forbidden) {
+                if (refusal != null) {
+                    Text(refusal, color = MaterialTheme.colorScheme.error)
+                } else if (standing.forbidden) {
                     Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
                 } else {
                     Text(

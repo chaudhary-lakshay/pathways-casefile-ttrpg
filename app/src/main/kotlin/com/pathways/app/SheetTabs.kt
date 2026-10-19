@@ -102,7 +102,7 @@ internal fun LazyListScope.vitalsTab(
             }
         }
     }
-    if (stunned) item { StunRow(stunRecoveryTarget, onClearStun) }
+    if (stunned) item { StunRow(stunRecoveryTarget, onClearStun, resetKey = stunRecoveryTarget - states.total) }
     if (spiritPending > 0) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {

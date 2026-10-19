@@ -68,6 +68,8 @@ internal fun DigestionTracker(
     onAct: (ActingQuality, drawnDigestion: Int) -> Unit,
     onActingMethod: (drawnDigestion: Int) -> Unit,
     onStartingRoll: (drawnDigestion: Int) -> Unit,
+    /** A spirit hit's pending penalty, which the next PCR takes (v6.9i 2819). */
+    pcrModifier: Int = 0,
 ) {
     val gains = remember { ContentLoader.actingMethod() }
     StepperCard(
@@ -79,7 +81,7 @@ internal fun DigestionTracker(
         onPlus = { onDigest(5) },
     ) {
         Text(
-            "next potion rolls ${pcrLine(state, cor)}",
+            "next potion rolls ${pcrLine(state, cor, pcrModifier)}",
             style = MaterialTheme.typography.bodySmall.tabular(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             // ponytail: the tablet's two lines; at 100% it fell to one and moved the bands.
@@ -146,9 +148,9 @@ internal fun DigestionTracker(
  * (v6.9i), and the cost is the book's "1d6 CoR", rolled on success only by
  * [BeyonderSession.drink].
  */
-internal fun pcrLine(state: BeyonderState, cor: Int): String {
+internal fun pcrLine(state: BeyonderState, cor: Int, modifier: Int = 0): String {
     val dice = PotionConsumption.corDiceFor(state)
-    return "3d6 ≤ ${PotionConsumption.targetFor(state.digestion, cor)}" +
+    return "3d6 ≤ ${PotionConsumption.targetFor(state.digestion, cor, modifier = modifier)}" +
         if (dice == null) "" else " — on success +${printedDice(dice)} CoR"
 }
 
@@ -171,8 +173,8 @@ private fun printedDice(dice: DiceExpr): String = "${dice.count}d${dice.sides}"
  * first potion can be refused too -- the one case a mortal ([state] null),
  * who makes no roll, gets a line at all.
  */
-internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int): String? {
-    val roll = state?.let { "at ${it.digestion}% digested, rolls ${pcrLine(it, cor)}" }
+internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int, modifier: Int = 0): String? {
+    val roll = state?.let { "at ${it.digestion}% digested, rolls ${pcrLine(it, cor, modifier)}" }
     if (!ScoreFloors.holdsCeiling(ceilingAfter)) {
         val refused = "CoR ceiling after this potion would be $ceilingAfter, and this app keeps it at " +
             "${ScoreFloors.MIN_COR_CEILING} or more — it cannot be drunk until the ceiling is raised"
@@ -410,8 +412,8 @@ internal fun drinkTarget(
 }
 
 /** The line under Drink: which potion, then the roll [drinkLine] prints. */
-internal fun drinkCaption(target: BeyonderState, drunk: BeyonderState?, cor: Int, ceilingAfter: Int): String? {
-    val line = drinkLine(drunk, cor, ceilingAfter) ?: return null
+internal fun drinkCaption(target: BeyonderState, drunk: BeyonderState?, cor: Int, ceilingAfter: Int, modifier: Int = 0): String? {
+    val line = drinkLine(drunk, cor, ceilingAfter, modifier) ?: return null
     return if (drunk == null) line else "next: Sequence ${target.sequence} of the ${target.pathway} Pathway · $line"
 }
 

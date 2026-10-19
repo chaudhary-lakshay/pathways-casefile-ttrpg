@@ -126,6 +126,10 @@ internal fun AttackDialog(
     stateModifiers: List<com.pathways.model.Modifier> = emptyList(),
     /** The weapons declared used repeatedly this session, held in [SheetScene.warmed]. */
     warmedState: androidx.compose.runtime.MutableState<Set<String>> = mutableStateOf(emptySet()),
+    /** A spirit hit's pending points, inside the target already: the first attack's alone. */
+    spiritPending: Int = 0,
+    /** Declared "Pinned" in Defend: "cannot attack" (v6.9i 2683). */
+    pinned: Boolean = false,
     onDismiss: () -> Unit,
 ) {
     val skills = remember(skillLevels, untrained) {
@@ -514,15 +518,19 @@ internal fun AttackDialog(
                         burn = burn,
                         burnPoints = drawnBurn,
                         onBurnPoints = { burnPoints = it },
+                        refusal = if (pinned) PINNED_REFUSAL else null,
                         onRoll = onRoll@{
                             // The guard every roll button here carries (6p), and
                             // this one did not: a second tap of the same picture
                             // rolled again and charged the plan's FP again.
-                            if (outcomes.isNotEmpty()) return@onRoll
+                            if (outcomes.isNotEmpty() || pinned) return@onRoll
                             // The target printed above the button, the count and
                             // the cost as they were drawn. Nothing the plan is
                             // made of is read again here (6eg).
-                            outcomes = List(attacks) { SkillRoll.rollAgainst(standing.target, dice.dice("Attack")) }
+                            // The spirit penalty is ONE roll's (v6.9i 2819): the first attack's.
+                            outcomes = attackTargets(standing.target.target, attacks, spiritPending).map {
+                                SkillRoll.rollAgainst(standing.target.copy(target = it), dice.dice("Attack"))
+                            }
                             rolledDamage = damage
                             damageRolls = emptyMap()
                             fp.takeIf { it > 0 }?.let(onSpendFp)
@@ -631,3 +639,14 @@ internal fun attackStanding(
         target.applied.filter { applied -> applied.ids.any { it in ids } }.sumOf { it.delta },
     )
 }
+
+/**
+ * The target of each of [attacks] rolls: [first] for the first, and the
+ * pending spirit penalty given back for the rest, since it "applies to a
+ * single roll ... and then clears" (v6.9i 2819).
+ */
+internal fun attackTargets(first: Int, attacks: Int, spiritPending: Int): List<Int> =
+    List(attacks) { if (it == 0) first else first + spiritPending }
+
+/** v6.9i 2683: "A pinned victim cannot attack, defend, or move"; an Escape is the GM's contest. */
+internal const val PINNED_REFUSAL = "Pinned: cannot attack. An Escape is a contest the GM runs."

@@ -76,6 +76,8 @@ fun PathwayScreen(
     dice: RandomSource,
     /** The gallery's file number, for the PCR form's "File Nº" (frame 12). */
     file: Int?,
+    /** A spirit hit's pending penalty, as a signed modifier on the next PCR (v6.9i 2819). */
+    pcrModifier: Int = 0,
     onBack: () -> Unit,
 ) {
     val drunk = session.state
@@ -188,6 +190,7 @@ fun PathwayScreen(
                 }
                 item {
                     DrinkRow(
+                        pcrModifier,
                         target = target,
                         drunk = drunk,
                         session = session,
@@ -200,12 +203,12 @@ fun PathwayScreen(
                             // handler before the screen redraws. `drink`
                             // refuses a state it was not offered by throwing,
                             // so a stale tap does nothing instead.
-                            if (session.stillShows(drunk, printedCor)) pcr = session.drink(t, dice, maxCorFor)
+                            if (session.stillShows(drunk, printedCor)) pcr = session.drink(t, dice, pcrModifier, maxCorFor)
                         },
                         onReroll = { t ->
                             // A second tap finds nothing pending.
                             if (session.pendingPcr == t && ScoreFloors.holdsCeiling(maxCorFor(t))) {
-                                pcr = session.rerollPcr(dice, maxCorFor)
+                                pcr = session.rerollPcr(dice, pcrModifier, maxCorFor)
                             }
                         },
                     )
@@ -228,6 +231,7 @@ fun PathwayScreen(
                                 onAct = session::act,
                                 onActingMethod = { drawn -> session.actingMethodRoll(drawn, dice) },
                                 onStartingRoll = { drawn -> session.startingDigestion(drawn, dice) },
+                                pcrModifier = pcrModifier,
                             )
                         }
                     }
@@ -294,6 +298,7 @@ fun PathwayScreen(
  */
 @Composable
 private fun DrinkRow(
+    pcrModifier: Int,
     target: BeyonderState?,
     drunk: BeyonderState?,
     session: BeyonderSession,
@@ -313,12 +318,12 @@ private fun DrinkRow(
     val ceilingAfter = if (rerolling || drinking) maxCorFor(target) else null
     val caption = when {
         rerolling -> listOfNotNull(
-            drinkCaption(target!!, drunk, session.cor, ceilingAfter!!),
+            drinkCaption(target!!, drunk, session.cor, ceilingAfter!!, pcrModifier),
             "lost to the Rampager, unless the reroll succeeds; the GM counts the session's rerolls",
         ).joinToString(". ")
         // Built from what stillShows compares, so it is the roll the tap
         // makes or the tap does nothing.
-        drinking -> drinkCaption(target!!, drunk, printedCor, ceilingAfter!!)
+        drinking -> drinkCaption(target!!, drunk, printedCor, ceilingAfter!!, pcrModifier)
         else -> null
     }
     Column {

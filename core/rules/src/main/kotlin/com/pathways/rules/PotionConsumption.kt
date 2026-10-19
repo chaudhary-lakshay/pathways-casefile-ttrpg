@@ -84,9 +84,15 @@ object PotionConsumption {
      * The table's "always fails" / "always succeeds" notes describe CoR 0;
      * past 18 nothing can fail and below 3 nothing can succeed either way.
      */
-    fun targetFor(digestion: Int, cor: Int, rows: List<PcrRow> = ContentLoader.potionConsumption()): Int {
+    fun targetFor(
+        digestion: Int,
+        cor: Int,
+        rows: List<PcrRow> = ContentLoader.potionConsumption(),
+        /** A pending penalty that reaches "any roll": a spirit hit's (v6.9i 2819). */
+        modifier: Int = 0,
+    ): Int {
         require(cor >= 0) { "CoR cannot be negative; was $cor" }
-        return rowFor(digestion, rows).effectiveTarget - cor
+        return rowFor(digestion, rows).effectiveTarget - cor + modifier
     }
 
     /**
@@ -102,8 +108,9 @@ object PotionConsumption {
         cor: Int,
         source: RandomSource,
         rows: List<PcrRow> = ContentLoader.potionConsumption(),
+        modifier: Int = 0,
     ): PcrOutcome {
-        val target = targetFor(state.digestion, cor, rows)
+        val target = targetFor(state.digestion, cor, rows, modifier)
         val roll = SuccessRoll.against(target, source)
         val dice = corDiceFor(state)
         val gained = if (roll.total <= target && dice != null) {

@@ -95,7 +95,9 @@ internal data class Vitals(
 @Composable
 private fun VitalRollRow(check: VitalCheck, hp: PoolStatus, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int, shock: Int, states: ClauseBonus) {
     val dice = LocalDice.current
-    var outcome by remember(check, target) { mutableStateOf<RollResult?>(null) }
+    // Keyed without the declared states: rolling clears a spirit hit's
+    // penalty, and the verdict it just made must not vanish with it.
+    var outcome by remember(check, target - states.total) { mutableStateOf<RollResult?>(null) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         Text(VitalRolls.printed(check, hp), style = MaterialTheme.typography.bodySmall)
         // The parts, because they have to sum to the number below them (6ag,
@@ -293,9 +295,10 @@ private fun EnteredStepper(value: Int, onMinus: () -> Unit, onPlus: () -> Unit) 
  * here too.
  */
 @Composable
-internal fun StunRow(target: Int, onClear: () -> Unit) {
+internal fun StunRow(target: Int, onClear: () -> Unit, resetKey: Int = target) {
     val dice = LocalDice.current
-    var outcome by remember(target) { mutableStateOf<RollResult?>(null) }
+    // [resetKey] leaves the declared states out, for VitalRollRow's reason.
+    var outcome by remember(resetKey) { mutableStateOf<RollResult?>(null) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(

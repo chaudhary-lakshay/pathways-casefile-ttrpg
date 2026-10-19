@@ -23,4 +23,11 @@ class SpiritPendingTest {
         assertEquals(0, scene.spiritPending.value)
         assertEquals(4, dice.roll(6))
     }
+
+    /** "The penalty applies to a single roll": a Double or Rapid Strike's first. */
+    @Test
+    fun `only the first of several attacks takes a pending spirit penalty`() {
+        assertEquals(listOf(7, 10, 10), attackTargets(7, attacks = 3, spiritPending = 3))
+        assertEquals(listOf(7, 7), attackTargets(7, attacks = 2, spiritPending = 0))
+    }
 }

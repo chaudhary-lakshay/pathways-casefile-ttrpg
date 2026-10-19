@@ -122,7 +122,7 @@ class BeyonderSession(
      * also fails there is no additional effect"). Spent either way: one
      * reroll per failure is this app's, and the session's count is the GM's.
      */
-    fun rerollPcr(dice: RandomSource, maxCorAfter: (BeyonderState) -> Int): PcrOutcome {
+    fun rerollPcr(dice: RandomSource, modifier: Int = 0, maxCorAfter: (BeyonderState) -> Int): PcrOutcome {
         val next = pendingPcr
         val current = state
         require(lost && !corrupted && next != null && current != null) { "no failed PCR to reroll" }
@@ -132,7 +132,7 @@ class BeyonderSession(
         require(ScoreFloors.holdsCeiling(ceilingAfter)) {
             "$next would leave a CoR ceiling of $ceilingAfter"
         }
-        val outcome = PotionConsumption.attempt(current, cor, dice)
+        val outcome = PotionConsumption.attempt(current, cor, dice, modifier = modifier)
         pendingPcr = null
         if (outcome.integrated) {
             // Cleared FIRST: gainCor does nothing for a lost character.
@@ -750,6 +750,8 @@ class BeyonderSession(
     fun drink(
         next: BeyonderState,
         dice: RandomSource,
+        /** A pending penalty on the next roll: a spirit hit's (v6.9i 2819). */
+        modifier: Int = 0,
         maxCorAfter: (BeyonderState) -> Int,
     ): PcrOutcome? {
         val current = state
@@ -773,7 +775,7 @@ class BeyonderSession(
             persist()
             return null
         }
-        val outcome = PotionConsumption.attempt(current, cor, dice)
+        val outcome = PotionConsumption.attempt(current, cor, dice, modifier = modifier)
         if (outcome.integrated) {
             state = next
             // Charged only on success: a failed PCR ends the character as a

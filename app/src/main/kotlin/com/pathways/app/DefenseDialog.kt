@@ -615,7 +615,8 @@ internal fun DefenseDialog(
                     // ...and no Shield skill means no Block row at all, so
                     // both halves gate it, exactly as the row itself does.
                     val payable = defenceLabels(
-                        dodge = true,
+                        // "the pinner cannot Dodge" (v6.9i 2684): no +2 to buy on it.
+                        dodge = !round.holdingPin,
                         armed,
                         standing,
                         block = shieldSkill != null && carried != null,
