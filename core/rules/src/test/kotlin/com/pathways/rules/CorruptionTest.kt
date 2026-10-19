@@ -2,6 +2,7 @@ package com.pathways.rules
 
 import com.pathways.model.Attributes
 import com.pathways.model.Character
+import com.pathways.model.DiceExpr
 import com.pathways.model.SecondaryDelta
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
@@ -114,15 +115,14 @@ class CorruptionTest {
     }
 
     @Test
-    fun `the advancement floor in the content matches what the PCR charges`() {
-        // `PotionConsumption.attempt` no longer states its own 10: it reads
-        // this row through `earlyAdvancementCor`, so what is guarded here is
-        // the DATA (4.2). If the row stops printing 10 this fails, the content
-        // change is the finding, and the charge has already moved with it.
+    fun `the advancement die in the content is what the PCR rolls`() {
+        // `PotionConsumption.attempt` states no die of its own: it reads this
+        // row through `earlyAdvancementDice`, so what is guarded here is the
+        // DATA (4.2). v6.9i prints "1d6 CoR" where v6.9d printed "10+".
         val row = Corruption.gained().single { it.action.startsWith("Advancing sequence") }
-        assertEquals(10, row.minimum)
-        assertEquals(null, row.maximum) // "10+" prints no ceiling
-        assertEquals(row.minimum, PotionConsumption.earlyAdvancementCor())
+        assertEquals("1d6", row.dice)
+        assertEquals(null, row.minimum)
+        assertEquals(DiceExpr(1), PotionConsumption.earlyAdvancementDice())
     }
 
     @Test

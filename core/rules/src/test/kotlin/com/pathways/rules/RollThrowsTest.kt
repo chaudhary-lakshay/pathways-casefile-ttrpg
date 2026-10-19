@@ -48,6 +48,12 @@ class RollThrowsTest {
     }
 
     @Test
+    fun `a PCR reports its corruption die too`() =
+        everyDieReported {
+            PotionConsumption.attempt(com.pathways.model.BeyonderState("Fool", 9, digestion = 90), cor = 0, it)
+        }
+
+    @Test
     fun `a fright check reports the effect table's dice too`() =
         everyDieReported { FrightCheck.rollAgainst(8, it) }
 

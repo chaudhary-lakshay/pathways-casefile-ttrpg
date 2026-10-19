@@ -48,7 +48,7 @@ class PathwayDrinkTest {
     fun `the caption names the potion before the roll`() {
         assertEquals(
             "next: Sequence 8 of the Fool Pathway · at 40% digested, rolls 3d6 ≤ 8 — " +
-                "on success +10 CoR minimum; the GM may charge more",
+                "on success +1d6 CoR",
             drinkCaption(BeyonderState("Fool", 8), BeyonderState("Fool", 9, 40), cor = 0, ceilingAfter = 30),
         )
     }

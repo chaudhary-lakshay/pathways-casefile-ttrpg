@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.BeyonderState
+import com.pathways.model.DiceExpr
 import com.pathways.model.Outcome
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Test
@@ -40,7 +41,7 @@ class PotionConsumptionTest {
     fun `a potion drunk at zero digestion can never be survived`() {
         // The book labels the 0% row "1 - always fails", and 3d6 cannot roll
         // below 3. The lowest possible roll must still be a loss.
-        val outcome = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 0), fixed(1))
+        val outcome = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 0), cor = 0, fixed(1))
 
         assertEquals(1, outcome.target)
         assertTrue(outcome.lost)
@@ -50,30 +51,56 @@ class PotionConsumptionTest {
     @Test
     fun `a fully digested potion can never be failed`() {
         // "19 - always succeeds", and 3d6 cannot exceed 18.
-        val outcome = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 100), fixed(6))
+        val outcome = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 100), cor = 0, fixed(6))
 
         assertEquals(19, outcome.target)
         assertTrue(outcome.integrated)
-        assertEquals(0, outcome.minimumCorGained)
+        assertEquals(0, outcome.corGained)
     }
 
     @Test
-    fun `advancing before full digestion costs at least ten corruption`() {
-        // p. 45 prices this at "10+ CoR (catastrophic)" whatever the roll
-        // does, so it is charged on the attempt, not on the failure.
-        val survived = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 90), fixed(1))
+    fun `advancing before full digestion rolls 1d6 corruption`() {
+        // v6.9i line 3188-3189: "Advancing sequence without full digestion --
+        // 1d6 CoR" (v6.9d printed "10+"). Rolled after the PCR succeeds:
+        // fixed(2) throws 6 on the 3d6 and then 2 on the d6.
+        val survived = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 90), cor = 0, fixed(2))
 
         assertTrue(survived.integrated)
-        assertEquals(10, survived.minimumCorGained)
+        assertEquals(2, survived.corGained)
+    }
+
+    @Test
+    fun `a failed or fully digested potion rolls no corruption die`() {
+        // A failure ends the character; a full digestion costs nothing. In
+        // both cases the three PCR dice are the only dice thrown.
+        for ((digestion, face) in listOf(0 to 6, 100 to 1)) {
+            var thrown = 0
+            val outcome = PotionConsumption.attempt(
+                BeyonderState("Fool", 9, digestion = digestion), cor = 0,
+                RandomSource { thrown++; face },
+            )
+            assertEquals(0, outcome.corGained, "at $digestion%")
+            assertEquals(3, thrown, "at $digestion%")
+        }
     }
 
     @Test
     fun `what advancing costs can be asked before the roll is made`() {
         // The screen prints this beside the Drink button, so it is the
         // state's answer and not something only a rolled outcome knows.
-        assertEquals(10, PotionConsumption.corCostFor(BeyonderState("Fool", 9, digestion = 0)))
-        assertEquals(10, PotionConsumption.corCostFor(BeyonderState("Fool", 9, digestion = 95)))
-        assertEquals(0, PotionConsumption.corCostFor(BeyonderState("Fool", 9, digestion = 100)))
+        assertEquals(DiceExpr(1), PotionConsumption.corDiceFor(BeyonderState("Fool", 9, digestion = 0)))
+        assertEquals(DiceExpr(1), PotionConsumption.corDiceFor(BeyonderState("Fool", 9, digestion = 95)))
+        assertEquals(null, PotionConsumption.corDiceFor(BeyonderState("Fool", 9, digestion = 100)))
+    }
+
+    @Test
+    fun `current corruption lowers the target one per point`() {
+        // Line 3203-3204: "-1 per point of CoR (a Beyonder with CoR 6 rolls
+        // against 4 + Digestion Modifier)". 50% is the +0 row.
+        assertEquals(4, PotionConsumption.targetFor(50, cor = 6))
+        assertEquals(10, PotionConsumption.targetFor(50, cor = 0))
+        assertEquals(16, PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 100), cor = 3, fixed(1)).target)
+        assertFailsWith<IllegalArgumentException> { PotionConsumption.targetFor(50, cor = -1) }
     }
 
     @Test
@@ -84,12 +111,12 @@ class PotionConsumptionTest {
         // true if a 3 loses at target 1 and an 18 survives at target 19. The
         // specific rule wins; this pins the disagreement so neither side gets
         // quietly normalised.
-        val three = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 0), fixed(1))
+        val three = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 0), cor = 0, fixed(1))
         assertEquals(3, three.roll.total)
         assertEquals(Outcome.CRITICAL_SUCCESS, three.roll.outcome)
         assertTrue(three.lost, "a natural 3 must still fail at target 1")
 
-        val eighteen = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 100), fixed(6))
+        val eighteen = PotionConsumption.attempt(BeyonderState("Fool", 9, digestion = 100), cor = 0, fixed(6))
         assertEquals(18, eighteen.roll.total)
         assertEquals(Outcome.CRITICAL_FAILURE, eighteen.roll.outcome)
         assertTrue(eighteen.integrated, "a natural 18 must still succeed at target 19")

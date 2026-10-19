@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.BeyonderState
+import com.pathways.model.DiceExpr
 import com.pathways.model.Outcome
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
@@ -15,15 +16,15 @@ import com.pathways.rules.content.PcrRow
  * therefore the end of that character as a player character, which is why it
  * is stated here rather than left for a caller to infer from a margin.
  *
- * [minimumCorGained] is the book's "10+ CoR" for advancing without full
- * digestion (p. 45). The floor is the book's; the "+" is the GM's, so only
- * the floor is computed.
+ * [corGained] is the book's "1d6 CoR" for advancing without full digestion
+ * (v6.9i line 3188-3189), rolled once the potion integrates; 0 on a failure
+ * or after full digestion, when no die is thrown.
  */
 data class PcrOutcome(
     val roll: RollResult,
     val target: Int,
     val digestion: Int,
-    val minimumCorGained: Int,
+    val corGained: Int,
 ) {
     /**
      * Whether the potion took, decided by the raw total against the target.
@@ -42,23 +43,23 @@ data class PcrOutcome(
 }
 
 /**
- * The Potion Consumption Roll: `3d6 <= 10 + Digestion Modifier`.
+ * The Potion Consumption Roll: `3d6 <= 10 + Digestion Modifier - CoR`.
  *
  * "This is a raw 3d6 roll -- no stat or skill applies. Only the drinker's
- * digestion of their current potion matters" (p. 45). Nothing about the
- * character is an input beyond that percentage, which is why this takes a
- * [BeyonderState] and not a Character.
+ * digestion of their current potion matters" (line 3200-3201) -- and then,
+ * new in v6.9i, "A Beyonder's current CoR also imposes a disadvantage on the
+ * PCR: -1 per point of CoR" (3203-3204). Those two are the only inputs,
+ * which is why this takes a [BeyonderState] and a CoR, not a Character.
  *
- * **No carried state reaches it either, and that is the same sentence.**
+ * **No other carried state reaches it, and that is the same sentence.**
  * Reeling, FP below 0, shock and the five declared trait states each print
  * "to all rolls" (6gs), and this roll takes none of them: "only ... matters"
  * is the specific rule and "all rolls" the general one, the call
- * [PcrOutcome.integrated] already makes for the critical rules. The table
- * agrees: the 100% row is annotated "always succeeds", which Laudanum's -2
- * would make false. A grep of every content file for a modifier that NAMES
- * this roll (6gt has the query) found one, the Beast Tamer's "+4 to rolls
- * involving drinking potions", and it is for a tamed animal. A row that named
- * a player's PCR would be specific too, and would be applied.
+ * [PcrOutcome.integrated] already makes for the critical rules. CoR is not
+ * an exception to that reading but its proof: the PCR's own section names
+ * it, so it is specific. A grep of every content file for a modifier that
+ * NAMES this roll (6gt has the query) found one, the Beast Tamer's "+4 to
+ * rolls involving drinking potions", and it is for a tamed animal.
  */
 object PotionConsumption {
 
@@ -77,50 +78,64 @@ object PotionConsumption {
             ?: error("no Potion Consumption Roll row at or below $digestion%")
     }
 
-    /** The effective target as the book prints it, not as it recomputes. */
-    fun targetFor(digestion: Int, rows: List<PcrRow> = ContentLoader.potionConsumption()): Int =
-        rowFor(digestion, rows).effectiveTarget
+    /**
+     * The table's effective target less [cor], one per point (line 3203).
+     *
+     * The table's "always fails" / "always succeeds" notes describe CoR 0;
+     * past 18 nothing can fail and below 3 nothing can succeed either way.
+     */
+    fun targetFor(digestion: Int, cor: Int, rows: List<PcrRow> = ContentLoader.potionConsumption()): Int {
+        require(cor >= 0) { "CoR cannot be negative; was $cor" }
+        return rowFor(digestion, rows).effectiveTarget - cor
+    }
 
     /**
      * Drink the next potion. [state] is the CURRENT Sequence -- the one being
      * digested -- because that is what the roll is made against.
+     *
+     * The 1d6 CoR is rolled only once the potion integrates: a failure ends
+     * the character as a Rampager, so a die thrown there would price nothing.
+     * Reported through [RandomSource.thrown] like every other die (6ht).
      */
     fun attempt(
         state: BeyonderState,
+        cor: Int,
         source: RandomSource,
         rows: List<PcrRow> = ContentLoader.potionConsumption(),
     ): PcrOutcome {
-        val target = targetFor(state.digestion, rows)
-        return PcrOutcome(
-            roll = SuccessRoll.against(target, source),
-            target = target,
-            digestion = state.digestion,
-            minimumCorGained = corCostFor(state),
-        )
+        val target = targetFor(state.digestion, cor, rows)
+        val roll = SuccessRoll.against(target, source)
+        val dice = corDiceFor(state)
+        val gained = if (roll.total <= target && dice != null) {
+            val faces = List(dice.count) { source.roll(dice.sides) }
+            source.thrown(faces, null)
+            faces.sum() + dice.modifier
+        } else {
+            0
+        }
+        return PcrOutcome(roll = roll, target = target, digestion = state.digestion, corGained = gained)
     }
 
     /**
-     * The CoR that advancing from [state] charges on a successful roll: the
-     * book's floor before full digestion, nothing at 100%.
+     * The CoR die advancing from [state] rolls on a successful PCR: the
+     * book's before full digestion, none at 100%.
      *
      * A function of the state and not of the roll, so the screen can print it
-     * beside the Drink button and [attempt] can charge the same number.
+     * beside the Drink button and [attempt] can roll the same die.
      */
-    fun corCostFor(state: BeyonderState): Int =
-        if (state.isFullyDigested) 0 else earlyAdvancementCor()
+    fun corDiceFor(state: BeyonderState): DiceExpr? =
+        if (state.isFullyDigested) null else earlyAdvancementDice()
 
     /**
-     * The CoR floor for advancing before full digestion, read from the row
-     * that prints it rather than restated here.
-     *
-     * p. 45: "Advancing sequence without full digestion: 10+ CoR". The floor
-     * is the row's minimum; the "+" is an open ceiling the row records as a
-     * null maximum, and the GM sets the rest.
+     * The CoR die for advancing before full digestion, read from the row
+     * that prints it rather than restated here: "Advancing sequence without
+     * full digestion -- 1d6 CoR" (line 3188-3189).
      */
-    fun earlyAdvancementCor(): Int =
-        ContentLoader.corGained().firstOrNull { it.action.startsWith(ADVANCING_EARLY) }?.minimum
-            ?: error("cor_gained.json has no priced row starting '$ADVANCING_EARLY'")
+    fun earlyAdvancementDice(): DiceExpr =
+        ContentLoader.corGained().firstOrNull { it.action.startsWith(ADVANCING_EARLY) }?.dice
+            ?.let(DiceExpr::parse)
+            ?: error("cor_gained.json has no rolled row starting '$ADVANCING_EARLY'")
 
-    /** The opening of the row [earlyAdvancementCor] reads. */
+    /** The opening of the row [earlyAdvancementDice] reads. */
     const val ADVANCING_EARLY = "Advancing sequence"
 }

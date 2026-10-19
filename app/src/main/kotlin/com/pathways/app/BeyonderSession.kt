@@ -132,13 +132,13 @@ class BeyonderSession(
         require(ScoreFloors.holdsCeiling(ceilingAfter)) {
             "$next would leave a CoR ceiling of $ceilingAfter"
         }
-        val outcome = PotionConsumption.attempt(current, dice)
+        val outcome = PotionConsumption.attempt(current, cor, dice)
         pendingPcr = null
         if (outcome.integrated) {
             // Cleared FIRST: gainCor does nothing for a lost character.
             lost = false
             state = next
-            gainCor(outcome.minimumCorGained, ceilingAfter)
+            gainCor(outcome.corGained, ceilingAfter)
         }
         persist()
         return outcome
@@ -741,7 +741,7 @@ class BeyonderSession(
             persist()
             return null
         }
-        val outcome = PotionConsumption.attempt(current, dice)
+        val outcome = PotionConsumption.attempt(current, cor, dice)
         if (outcome.integrated) {
             state = next
             // Charged only on success: a failed PCR ends the character as a
@@ -751,7 +751,7 @@ class BeyonderSession(
             // Called even when the potion costs nothing (a fully digested
             // advancement): a gain of 0 against the NEW ceiling is how a
             // Will-lowering potion latches the loss it just caused.
-            gainCor(outcome.minimumCorGained, ceilingAfter)
+            gainCor(outcome.corGained, ceilingAfter)
         } else {
             lost = true
             pendingPcr = next

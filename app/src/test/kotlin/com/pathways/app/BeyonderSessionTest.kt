@@ -90,13 +90,14 @@ class BeyonderSessionTest {
     }
 
     @Test
-    fun `advancing before full digestion charges the book's floor`() {
-        // p. 45: "Advancing sequence without full digestion: 10+ CoR".
+    fun `advancing before full digestion charges the rolled 1d6`() {
+        // v6.9i: "Advancing sequence without full digestion: 1d6 CoR".
+        // fixed(2): the 3d6 throws 6, then the d6 throws 2.
         val (s, saved) = session(SavedSession(beyonder = fool9.digested(90)))
-        val outcome = s.drink(fool8, fixed(1)) { 20 }
+        val outcome = s.drink(fool8, fixed(2)) { 20 }
         assertTrue(outcome!!.integrated)
-        assertEquals(10, s.cor)
-        assertEquals(10, saved().cor)
+        assertEquals(2, s.cor)
+        assertEquals(2, saved().cor)
     }
 
     @Test
@@ -416,7 +417,7 @@ class BeyonderSessionTest {
         assertTrue(again.integrated)
         assertFalse(back.lost)
         assertEquals(fool8, back.state)
-        assertEquals(10, back.cor, "the same floor a first success charges")
+        assertEquals(1, back.cor, "the same 1d6 a first success rolls (fixed(1) throws a 1)")
         assertNull(savedBack().pendingPcr)
         assertFalse(savedBack().lost)
         assertThrows<IllegalArgumentException> { back.rerollPcr(fixed(1)) { 20 } }

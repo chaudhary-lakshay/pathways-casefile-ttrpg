@@ -222,6 +222,7 @@ fun PathwayScreen(
                             val current = drunk.pathway == block.pathway && drunk.sequence == block.sequence
                             DigestionTracker(
                                 drunk,
+                                session.cor,
                                 traits,
                                 title = if (current) "Digesting this potion" else "Digesting ${potionName(drunk)}",
                                 onDigest = session::digest,

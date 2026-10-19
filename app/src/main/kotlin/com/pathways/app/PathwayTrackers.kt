@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
+import com.pathways.model.DiceExpr
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
@@ -55,6 +56,8 @@ import com.pathways.rules.content.RitualCorThreshold
 @Composable
 internal fun DigestionTracker(
     state: BeyonderState,
+    /** The character's CoR, which lowers the PCR one per point (v6.9i). */
+    cor: Int,
     /** Read for Knows the Acting Method, which doubles the table (6ez). */
     traits: List<Trait>,
     /** "Digesting this potion", or the potion's name while another rung is read. */
@@ -72,7 +75,7 @@ internal fun DigestionTracker(
         onPlus = { onDigest(5) },
     ) {
         Text(
-            "next potion rolls ${pcrLine(state)}",
+            "next potion rolls ${pcrLine(state, cor)}",
             style = MaterialTheme.typography.bodySmall.tabular(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             // ponytail: the tablet's two lines; at 100% it fell to one and moved the bands.
@@ -120,24 +123,28 @@ internal fun DigestionTracker(
  * The Potion Consumption Roll [state] would make, and what it charges.
  *
  * One line for two blocks: the tracker on the potion being digested, and the
- * Drink button on the next one. The cost is charged on success only, and it
- * is the book's floor ("10+ CoR"), which is what [BeyonderSession.drink]
- * charges.
+ * Drink button on the next one. The target is less one per point of [cor]
+ * (v6.9i), and the cost is the book's "1d6 CoR", rolled on success only by
+ * [BeyonderSession.drink].
  */
-internal fun pcrLine(state: BeyonderState): String {
-    val cost = PotionConsumption.corCostFor(state)
-    return "3d6 ≤ ${PotionConsumption.targetFor(state.digestion)}" +
-        if (cost == 0) "" else " — on success +$cost CoR minimum; the GM may charge more"
+internal fun pcrLine(state: BeyonderState, cor: Int): String {
+    val dice = PotionConsumption.corDiceFor(state)
+    return "3d6 ≤ ${PotionConsumption.targetFor(state.digestion, cor)}" +
+        if (dice == null) "" else " — on success +${printedDice(dice)} CoR"
 }
+
+/** "1d6" as the CoR table prints it, where [DiceExpr.render] says GURPS's "1d". */
+private fun printedDice(dice: DiceExpr): String = "${dice.count}d${dice.sides}"
 
 /**
  * What the Drink button says about its own roll.
  *
  * [ceilingAfter] is the maximum CoR of the potion being drunk INTO, the one
  * `drink` charges against. A character can survive the roll and be lost on
- * the same tap -- the floor of 10 against a Will of 10, or a potion that
- * lowers Will onto the total at no cost -- and this is the last screen that
- * can say so.
+ * the same tap -- the 1d6 landing on the ceiling, or a potion that lowers
+ * Will onto the total at no cost -- and this is the last screen that can say
+ * so. Certain when the die's lowest face reaches it; otherwise the face that
+ * would is named.
  *
  * A [ceilingAfter] below the floor is the reason Drink is greyed out, and is
  * printed rather than asked about: [Corruption] throws on it, and this runs
@@ -146,21 +153,25 @@ internal fun pcrLine(state: BeyonderState): String {
  * who makes no roll, gets a line at all.
  */
 internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int): String? {
-    val roll = state?.let { "at ${it.digestion}% digested, rolls ${pcrLine(it)}" }
+    val roll = state?.let { "at ${it.digestion}% digested, rolls ${pcrLine(it, cor)}" }
     if (!ScoreFloors.holdsCeiling(ceilingAfter)) {
         val refused = "CoR ceiling after this potion would be $ceilingAfter, and this app keeps it at " +
             "${ScoreFloors.MIN_COR_CEILING} or more — it cannot be drunk until the ceiling is raised"
         return if (roll == null) refused else "$roll. $refused"
     }
     if (state == null) return null
-    val cost = PotionConsumption.corCostFor(state)
-    return roll +
-        if (Corruption.isLostAfter(cor, cost, ceilingAfter)) {
-            ". Maximum CoR after this potion is $ceilingAfter; ${cor + cost} CoR reaches it — " +
+    val dice = PotionConsumption.corDiceFor(state)
+    val least = dice?.let { it.count + it.modifier } ?: 0
+    val most = dice?.let { it.count * it.sides + it.modifier } ?: 0
+    return roll + when {
+        Corruption.isLostAfter(cor, least, ceilingAfter) ->
+            ". Maximum CoR after this potion is $ceilingAfter; ${cor + least} CoR reaches it — " +
                 "lost to corruption even if the potion integrates"
-        } else {
-            ""
-        }
+        dice != null && Corruption.isLostAfter(cor, most, ceilingAfter) ->
+            ". Maximum CoR after this potion is $ceilingAfter; a ${ceilingAfter - cor} or more on the " +
+                "${printedDice(dice)} reaches it — lost to corruption if it does"
+        else -> ""
+    }
 }
 
 /**
@@ -308,10 +319,9 @@ internal fun PcrDialog(
                     Modifier.padding(top = 16.dp),
                     style = MaterialTheme.typography.titleMedium.tabular(),
                 )
-                if (outcome.integrated && outcome.minimumCorGained > 0) {
+                if (outcome.integrated && outcome.corGained > 0) {
                     Text(
-                        "+${outcome.minimumCorGained} CoR charged for advancing before full " +
-                            "digestion — the book's floor; the GM may charge more",
+                        "+${outcome.corGained} CoR (1d6) charged for advancing before full digestion",
                         Modifier.padding(top = 8.dp),
                     )
                 }

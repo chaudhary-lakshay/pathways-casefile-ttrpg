@@ -261,7 +261,7 @@ Three of the nine result bands give a recovery roll, and the dialog offers it. T
 Tap **Pathway**. A mortal sees **Drink a potion** and picks a pathway from the grid. A Beyonder opens on the potion they drank. The four Sequences sit in a row at the top. Tap one to read it.
 
 - **Drink this potion** gives a mortal the Sequence 9 potion of the pathway they picked.
-- **Drink and roll** drinks the next potion of your pathway and makes the Potion Consumption Roll. The line under the button shows the target, the cost of drinking before full digestion, and a warning if the potion would end the character even on a success. This roll has its own critical rules: 1 always fails and 19 always succeeds.
+- **Drink and roll** drinks the next potion of your pathway and makes the Potion Consumption Roll. The line under the button shows the target, which is 1 lower for each point of CoR you carry, and the cost of drinking before full digestion: 1d6 CoR, rolled on a success. It also warns you if the potion would end the character even on a success, or names the die roll that would. This roll has its own critical rules: 1 always fails and 19 always succeeds.
 - **[ Another pathway ]** goes back to the grid.
 - **Reroll the PCR** replaces **Drink and roll** after a failed roll, if the character has Luck, Beckoning Luck (and not Fate Debt), or the Wheel of Fortune rerolls at Sequence 7 or deeper. The app does not count how many rerolls you have left.
 
