@@ -31,7 +31,7 @@ object Rest {
 
     fun recovery(rest: RestPeriod, cogitated: Boolean, maxFp: Int): RestRecovery {
         val spi = ContentLoader.restFile().spi
-        val fp = if (rest.allFp) maxFp else rest.hours * 60 / MINUTES_PER_FP
+        val fp = if (rest.allFp) maxFp else Math.floorDiv(rest.hours * 60, MINUTES_PER_FP)
         return RestRecovery(fp, rest.hours * if (cogitated) spi.cogitationPerHour else spi.perHour)
     }
 }
