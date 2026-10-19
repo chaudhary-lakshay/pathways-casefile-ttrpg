@@ -23,8 +23,8 @@ object SecondaryCharacteristics {
 
     private const val COST_HP = 2
     private const val COST_FP = 3
-    private const val COST_WILL = 5
-    private const val COST_PER = 5
+    private const val COST_WILL = 10
+    private const val COST_PER = 10
     private const val COST_SPEED_QUARTER = 5
     private const val COST_MOVE = 5
 

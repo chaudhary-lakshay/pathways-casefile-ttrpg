@@ -57,8 +57,8 @@ class SecondaryCharacteristicsTest {
     fun `delta costs follow the book's per-level prices`() {
         assertEquals(4,  SecondaryCharacteristics.costOf(SecondaryDelta(hp = 2)))                 // 2 x 2
         assertEquals(6,  SecondaryCharacteristics.costOf(SecondaryDelta(fp = 2)))                 // 3 x 2
-        assertEquals(5,  SecondaryCharacteristics.costOf(SecondaryDelta(will = 1)))               // 5 x 1
-        assertEquals(5,  SecondaryCharacteristics.costOf(SecondaryDelta(per = 1)))                // 5 x 1
+        assertEquals(10, SecondaryCharacteristics.costOf(SecondaryDelta(will = 1)))               // v6.9i: 10 x 1
+        assertEquals(10, SecondaryCharacteristics.costOf(SecondaryDelta(per = 1)))                // v6.9i: 10 x 1
         assertEquals(10, SecondaryCharacteristics.costOf(SecondaryDelta(basicSpeedQuarters = 2))) // 5 per 0.25
         assertEquals(5,  SecondaryCharacteristics.costOf(SecondaryDelta(basicMove = 1)))          // 5 x 1
     }
