@@ -6732,7 +6732,7 @@ The owner replaced the rulebook with v6.9i (`Mr.Worms LOM TTRPG Rulebook
 v6.9i.pdf`) and asked for it to be followed literally: what the new PDF
 prints is applied everywhere, and what it dropped is removed, without
 ruling questions (sessions 1-8, 2026-10-19 to 10-20). Branch
-`rulebook-6.9i`, 33 local commits from `5c8f8f5` to `ce7caba`, NOT pushed
+`rulebook-6.9i`, 36 local commits from `5c8f8f5` to this entry, NOT pushed
 and NOT merged. `build/extract/book.txt` is v6.9i now, so every line
 number below and in the KDoc from this branch is a v6.9i line.
 
