@@ -257,42 +257,20 @@ internal object TraitRefusals {
                 "that is what another character's Spirit Vision sees, and this " +
                 "app holds one sheet",
         ),
-        // Loner's Will roll is already made -- SelfControl reads it off the
-        // cell's "roll vs. Will" -- so this is the clause beside an applied
-        // one, which is what this map is for. It says "social ROLLS", not
-        // "social SKILL rolls", and the book prints both phrases in one
-        // bracket at line 6522, so the bare one is not an abbreviation of the
-        // other and names no group this app can identify.
-        "Loner" to listOf(
-            "-1 to social rolls in crowds" to BARE_SOCIAL_ROLLS,
+        // Ruling 8 made their "social rolls" clauses declared chips; what is
+        // left of each cell names no roll.
+        "Local Legend" to listOf(
+            "people look out for you" to "the book hands this to the GM, not to a roll",
         ),
-        // Workaholic's roll became reachable in 6bu -- the book prints its
-        // target as "at Will-3", a phrasing the self-control anchor could not
-        // see -- so this is now the clause beside an applied one, exactly as
-        // Loner's is, and for the same reason.
-        "Workaholic" to listOf(
-            "-2 to social rolls in leisure settings" to BARE_SOCIAL_ROLLS,
+        "Illegitimate Birth" to listOf(
+            "inheritance and legal rights are complicated" to
+                "the book hands this to the GM, not to a roll",
+        ),
+        "Dead-Eyed" to listOf(
+            "animals are skittish around you" to "the book hands this to the GM, not to a roll",
+            "children sometimes cry" to "the book hands this to the GM, not to a roll",
         ),
     )
-
-    /**
-     * Why a cell saying "social rolls" reaches nothing, where one saying
-     * "social skill rolls" reaches [TraitEffects.SOCIAL_SKILLS].
-     *
-     * **The book distinguishes them itself.** Line 6522 prints "(-1 to all
-     * emotional reaction rolls and social skill rolls)" -- two phrases, one
-     * bracket -- so the bare form is not shorthand for the other. It is never
-     * defined and never a banner, and the rows using it read like reactions:
-     * "+2 to social rolls there; people look out for you", "-2 to
-     * **first-impression** social rolls with strangers". This book prints no
-     * reaction roll procedure or result table anywhere (6w), so the phrase may
-     * name rolls this app cannot make or skills it can, and nothing printed
-     * settles which.
-     */
-    private const val BARE_SOCIAL_ROLLS =
-        "the book prints \"social rolls\" here and \"social skill rolls\" " +
-            "elsewhere, and distinguishes the two in one sentence, so which " +
-            "rolls it names is the GM's call"
 
     /**
      * Why a cell that names what a roll is FOR reaches no roll: Healer's

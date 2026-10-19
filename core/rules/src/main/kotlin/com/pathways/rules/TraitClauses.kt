@@ -313,6 +313,23 @@ object TraitClauses {
             "-3 when addressing strangers of higher status",
             -3,
         ),
+        // Owner's ruling 8: "social rolls" is "social skill rolls". v6.9i
+        // dropped the bracket that once told them apart, so these six
+        // rows join the declared social chips.
+        null to socialClause("Loner", "-1 to social rolls in crowds", -1),
+        null to socialClause("Workaholic", "-2 to social rolls in leisure settings", -2),
+        null to socialClause(
+            "Illegitimate Birth",
+            "-1 to social rolls in formal/upper-class settings where this is known",
+            -1,
+        ),
+        null to socialClause("Dead-Eyed", "-2 to first-impression social rolls with strangers", -2),
+        null to socialClause("Local Legend", "+2 to social rolls there", 2),
+        null to socialClause(
+            "Respectable Address",
+            "+1 to social rolls with middle/upper class NPCs who would otherwise look down on you",
+            1,
+        ),
     )
 
     /** The printed rows, for the pin tests. */

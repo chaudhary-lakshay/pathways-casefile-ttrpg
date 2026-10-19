@@ -169,11 +169,13 @@ class TraitClausesTest {
     /** Every value is still the one its row prints, against the live copy. */
     @Test
     fun `every social number is still the one its row prints`() {
-        val byName = ContentLoader.disadvantages().associateBy { it.name }
+        // Advantages too since ruling 8: Local Legend and Respectable Address.
+        val byName = (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
         for (clause in TraitClauses.socialClauseRows()) {
             val notes = byName.getValue(clause.trait).notes
             assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
-            assertTrue("-${-clause.value}" in clause.printed, clause.printed)
+            val sign = if (clause.value < 0) "-" else "+"
+            assertTrue("$sign${kotlin.math.abs(clause.value)}" in clause.printed, clause.printed)
         }
         // All three rows are conditional; none may ever be counted unasked.
         assertTrue(TraitClauses.socialClauseRows().all { it.conditional })
@@ -266,8 +268,12 @@ class TraitClausesTest {
         val carriers = Premades.all()
             .filter { TraitClauses.socialClauses(it.toCharacter().traits).isNotEmpty() }
             .map { it.name }
+        // Ruling 8's rows add three carriers of Loner, Workaholic or Dead-Eyed.
         assertEquals(
-            listOf("Academic Researcher", "Barmaid Brawler", "Docks Bouncer"),
+            listOf(
+                "Academic Researcher", "Barmaid Brawler", "Docks Bouncer",
+                "Factory Foreman", "Hunter-Tracker", "Private Investigator",
+            ),
             carriers.sorted(),
         )
         // Social Anxiety is on no sheet and ships anyway: the list is every
@@ -275,14 +281,39 @@ class TraitClausesTest {
         assertTrue("Social Anxiety" in TraitClauses.socialClauseNames())
     }
 
+    /**
+     * Owner's ruling 8 (2026-10-19): "social rolls" is "social skill rolls".
+     * v6.9i dropped the bracket that told the two apart, so every row that
+     * prints the bare phrase is a declared chip on a social skill's roll.
+     */
     @Test
-    fun `a bare social rolls clause reaches no skill`() {
-        val loner = listOf(Trait("Loner", 5, TraitKind.DISADVANTAGE))
+    fun `a bare social rolls clause is a declaration on a social skill`() {
         val diplomacy = SkillKey(
             "Diplomacy", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.HARD,
         )
-        assertEquals(emptyList<Any>(), TraitEffects.modifiers(loner, diplomacy))
-        assertTrue(TraitReport.reported(loner).any { "social rolls" in it.printed })
+        val rows = mapOf(
+            "Loner" to (-1 to TraitKind.DISADVANTAGE),
+            "Workaholic" to (-2 to TraitKind.DISADVANTAGE),
+            "Illegitimate Birth" to (-1 to TraitKind.DISADVANTAGE),
+            "Dead-Eyed" to (-2 to TraitKind.DISADVANTAGE),
+            "Local Legend" to (2 to TraitKind.ADVANTAGE),
+            "Respectable Address" to (1 to TraitKind.ADVANTAGE),
+        )
+        for ((name, expected) in rows) {
+            val (value, kind) = expected
+            val held = listOf(Trait(name, 5, kind))
+            val clause = TraitClauses.skillRollClauses(held, diplomacy).single()
+            assertEquals(value, clause.value, name)
+            val cell = ContentLoader.advantages().plus(ContentLoader.disadvantages()).single { it.name == name }.notes
+            assertTrue(clause.printed in cell, name)
+            // Declared, never flat: the circumstance is the GM's.
+            assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, diplomacy), name)
+            assertEquals(ModEffect.Flat(value), TraitEffects.modifiers(held, diplomacy, setOf(clause.key)).single().effect, name)
+        }
+        // Every cell printing the bare phrase is one of these rows.
+        val bare = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .filter { "social rolls" in it.notes }.map { it.name }.toSet()
+        assertEquals(rows.keys, bare)
     }
 
     // ---- the five rows that modify a bare Will roll ------------------------
