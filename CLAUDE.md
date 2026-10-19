@@ -417,38 +417,12 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 82 JSON
-files from `core/rules/src/main/resources/content/` — **every one of them has
-a loader as of 6dh**, which closed `spirit_vision.json`, the last file no
-Kotlin named. Re-run that sweep rather than trusting this sentence; the query
-is in 6dg: `skills.json` (158),
-`advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
-`pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
-`cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
-`pool_thresholds.json` (9), `hp_recovery.json` (3), `fright_triggers.json` (5),
-`fright_effects.json` (9), `ritual_weights.json` (3),
-`ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
-`defense_modifiers.json` (5), `maneuvers.json` (14),
-`extra_effort.json` (4), `attack_options.json` (2),
-`unarmed_attacks.json` (13), `range_penalties.json` (7),
-`ranged_modifiers.json` (9), `hit_locations.json` (9),
-`wounding_multipliers.json` (8), `spirit_damage.json` (15),
-`major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
-`glossary.json` (25), `spirit_vision.json` (4 sections + 7 grants),
-`divination_difficulty.json` (5), `divination_scope.json` (3),
-`divination_methods.json` (8),
-`divination_modifiers.json` (8), `divination_clarity.json` (6),
-`divination_support.json` (4), `ritual_preparation.json` (5), `incantations.json` (3),
-`boon_granting.json` (1), `boon_modifiers.json` (8),
-`non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
-`equipment.json` (77), `secondary_costs.json` (9),
-`damage_abbreviations.json` (8), `appearance.json` (8),
-`languages.json` (12), `language_proficiency.json` (6),
-`language_notes.json` (2), `ritual_support.json` (5),
-`ritual_quick_preparation.json` (3), `ritual_target_link.json` (4),
-`entity_response.json` (6), `sealed_artifact_grades.json` (4),
-`sealed_artifacts.json` (4), `sequence_immunity.json` (5),
-`anti_divination_counters.json` (5).
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 80 JSON
+files from `core/rules/src/main/resources/content/` (6im: v6.9i deleted seven,
+added five). Every one has a Kotlin reader; the sweep is one line, run it
+rather than trusting this sentence: `for f in content/*.json; do grep -rq
+"\"$(basename $f)\"" core/rules/src/main/kotlin || echo $f; done`. The
+per-file row counts this paragraph once listed were v6.9d's and are gone.
 
 ### Public entry points
 
@@ -522,10 +496,9 @@ ContentLoader.unarmedAttacks() / .rangePenalties() / .rangedModifiers()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
-PotionConsumption.attempt(state, source): PcrOutcome
-PotionConsumption.targetFor(digestion): Int
-PotionConsumption.corCostFor(state): Int      // 0 at 100%, else the book's floor;
-                                      // what attempt charges AND the screen prints
+PotionConsumption.attempt(state, cor, source): PcrOutcome
+PotionConsumption.targetFor(digestion, cor): Int   // the table, -1 a CoR (6im)
+PotionConsumption.corDiceFor(state)             // 1d6 CoR on an early success
 Corruption.maxFor(c) / .maxFor(will, traits): Int          // Will, +3 with Spiritual Fortitude
 Corruption.clamp(cor, max) / .isLostAt(cor, max) / .isLostAfter(cor, delta, max)
 Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
@@ -597,9 +570,7 @@ TraitReport.ROLLED_ONLY              // ...and this of one that does: the
 TraitClauses.concentrationClauses(traits)   // Will clauses + Thinned Veil and
                                       // Chronic Insomnia: the Concentrate roll
                                       // ALONE (6fa, 6fb)
-TraitEffects.actingGains(traits) / .doublesActingGains(traits)
-                                      // ch.6's Acting Method table, doubled for
-                                      // Knows the Acting Method (6ez)
+TraitEffects.rollsActingMethod(traits)  // 3d6% a session, no doubling (6im)
 TraitReport.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper:
                                       // nothing halved, and why (6fd)
 TraitEffects.rerollSource(traits, state)   // Luck / Beckoning Luck (not with
@@ -648,9 +619,8 @@ BeyonderSession.canChooseDrawback(sheet, name) / .chooseDrawback(...)
 BeyonderSession.traitsInPlay(sheet)   // THE list the sheet's rolls and the
                                       // builder's "already held" read; never
                                       // the character, which the budget prices
-Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
-                                      // the bonus goes inside the pick between
-                                      // owned and default; a ritual never defaults
+Divination.divinationLevelFor(own, spi, defaultBonus) / .keyFor(chosen)
+                                      // the SPI-4 default (6im)
                                               // both via BespokeBonus, which known() reads
 Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
 Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
@@ -677,13 +647,10 @@ Wounds.cripplingRule()                // p.41, unclaimed and filter-invisible un
 Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 ContentLoader.glossary()               // p.167-168, reference only; no rule
-SpiritVision.grantedTo(pathway, sequence) / .formFor(pathway)  // the BLOCKS, never ch.7.6's table
-SpiritVision.targetFor(per, shock, hurt, alertness, vision, states, spi) / .attempt(...) / .partsFor(...)
-                                      // spi: Spiritual Attrition, an ability check (6hw)
+SpiritVision.isHeldBy(traits) / .activation()  // an advantage, 1 SPI, no roll (6im)
 TraitAttributeRolls.alertnessBonus(traits)   // "all Per rolls" for the two bare ones:
-                                      // Detection and Spirit Vision (6fe)
-SpiritVision.rowFor(margin) / .rowForOutcome(outcome) / .isMisleading(row)
-SpiritVision.astralColors() / .etherBody() / .pathwayDifferences() / .grants()
+                                      // Detection (6fe)
+SpiritVision.astralColors() / .etherBody() / .pathwayDifferences()
 ContentLoader.spiritVision()          // loadWhole: six sections, not `entries`
 ContentLoader.majorWound() / .shields() / .shieldRules()
 Shields.all() / .rules() / .named(type): Shield
@@ -691,12 +658,8 @@ Shields.withBonus(defense, shield) / .blockFor(shield, skill, isRanged)
 Shields.blockPenalty(shield, isRanged): Int
 Divination.targetFor(skill, difficulty, extras) / .attempt(...): DivinationOutcome
 Divination.clarityFor(roll) / .modifierTotal(rows, gmValue, repeats)
-Divination.supportBonus(skills) / .spiFor(method, chosen, burned)
+Divination.spiFor(method, chosen, burned)
 Divination.difficulties() / .methods() / .modifiers() / .clarities()
-Divination.scopes() / .scopeNamed(name) / .penaltyFor(scope): Int
-                                      // Sec. I's skill boundary; -4 for Complex,
-                                      // NOT the question's difficulty band
-ContentLoader.divinationScopes()
 SkillRoll.targetFor(label, base, key, mods, ctx): SkillTarget
 SkillRoll.rollAgainst(target: SkillTarget, source): SkillRollOutcome
                                       // what the three ledger dialogs call:
@@ -726,10 +689,6 @@ Detection.partsFor(...) / .rollAgainst(target, source, parts)
                                       // rollAgainst(targetFor(inputs)) and has
                                       // NO production caller: it is the
                                       // composed convenience the tests use
-RitualResolution.canPush(outcome) / .pushed(outcome, points): RitualOutcome
-                                      // p.63/66's post-roll push: the same
-                                      // dice against a higher target. Keeps or
-                                      // DROPS criticalRoll; never re-samples
 RitualResolution.targetFor(skill, weight, cor, preparation) / .criticalFor(roll)
 RitualResolution.weights() / .preparations() / .preparationNamed(quality)
 RitualResolution.spiFor(weight, chosen, burned): Int
@@ -737,15 +696,6 @@ Boons.granting() / .modifiers() / .groups() / .weight(): RitualWeight
 Boons.penaltyForSequence(sequence): Int      // doubling, 9=0 down to 0=-512
 Boons.modifierTotal(chosen, gmValue) / .spiFor(chosen, burned)
 Boons.targetFor(skill, cor, sequence, chosen, gmValue, language, answer) / .attempt(...)
-Boons.canPush(outcome) / .pushed(outcome, points)   // ch.13 line 8933 defers
-                                      // to ch.7, so ch.7's push reaches here
-Boons.ask(source) / .endsPrayer(answer)   // the patron asked first,
-                                      // unshifted; no response grants nothing
-Invocation.fuelFor(answer, cost, hp): Fuel   // owed at the asking, for a
-                                      // prayer (6hq) and an invoked ritual
-                                      // (6hr); a rejection costs nothing
-Invocation.residualFuel(hp): Fuel     // the no-response 2 SPI, HP first:
-                                      // the owner's reading, both dialogs
 NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
 NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
 NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
@@ -808,23 +758,19 @@ RitualMode.valueFor(preparation, chosen) / .valueFor(link, chosen)
                                       // a GM's pick inside a cell that prints
                                       // a span or a floor; refused outside
                                       // its own cell, near end when unpicked
-Incantations.all() / .forPowerSource(isInvoking): Incantation
+Incantations.all() / .standard(): Incantation
                                       // ch.7's pair is selected; ch.7.5's
                                       // summoning row is shown, never chosen
 ContentLoader.incantations()
 RitualMode.QUICK / .FULL                      // two tables, two link rules
 RitualMode.preparations() / .preparationNamed(quality) / .modifierTotal(prep, link)
-RitualMode.links() / .linkNamed(name) / .supportSkills() / .supportBonus(names)
-ContentLoader.ritualSupport() / .ritualQuickPreparation() / .ritualTargetLink()
-Invocation.ORTHODOX_SHIFT = -2        // on the TABLE roll, never the ritual
-Invocation.responses() / .responseFor(roll) / .ritualModifier(row)  // throws on 18
-Invocation.shiftedRoll(roll, orthodoxInGoodStanding) / .ask(source, standing)
-ContentLoader.entityResponse()
-SealedArtifacts.all() / .grades() / .named(name) / .abilityNamed(artifact, name)
-SealedArtifacts.gradeOf(a) / .powerEquivalentOf(a) / .agreesWithGrade(a)
-SealedArtifacts.costOf(artifact, ability): ArtifactCost   // spi, hp, perTurn
-                                      // deliberately NO canUse: grade is not a gate
-ContentLoader.sealedArtifactGrades() / .sealedArtifacts()
+RitualMode.links() / .linkNamed(name)
+ContentLoader.ritualQuickPreparation() / .ritualTargetLink()
+PowerSources.modifierTotal(complexity, declaration)   // assistants, sacrifice,
+                                      // invocation, suspension, revelation (6im)
+PowerSources.revelationPenalty(entity, sacrifices, blessedByDeity)
+SealedArtifacts.grades()                    // the unique artifacts are gone (6im)
+ContentLoader.sealedArtifactGrades()
 AntiDivination.rows() / .counters() / .counterNamed(name) / .rowFor(sequence)
 AntiDivination.halvedMagnitude(penalty, roundUp)   // by MAGNITUDE, floorDiv
 AntiDivination.against(targetSequence, divinerSequence?, techniquePenalty,
@@ -834,9 +780,15 @@ Divination.attempt(..., requiresCritical)  // demotes, and re-reads clarity
                                       // NO `burned`: it added to the target
                                       // BEFORE the dice, which is not the
                                       // decision the book prints (6dy)
-Divination.canPush(outcome) / .pushed(outcome, points): DivinationOutcome
-                                      // a critical SUCCESS is pushable here
-                                      // and a rolled 17-18 is not, on a ritual
+EffortBurn.whenAllowed(kind, traits) / .modifier(kind, points)
+                                      // v6.9i: burned BEFORE the roll, no cap;
+                                      // every post-roll push is deleted (6im)
+SkillDefaults.untrainedLevel(key, attr, bonus) / .unboughtLevel(key, attr, bonus, traits)
+                                      // the base a potion's +N sits on (6im)
+Encumbrance.basicLift(st, traits) / .levelFor(carried, basicLift)
+Rest.recovery(rest, cogitated, maxFp): RestRecovery
+SpiritContract.penaltyFor(sequence, held, max, source) / .targetFor(...) / .outcomeFor(roll)
+Wounds.spiritNextRoll(points): TraitClause?   // -1 a point on the next roll
 ContentLoader.sequenceImmunity() / .antiDivinationCounters()
 ```
 
@@ -846,7 +798,7 @@ real RNG in the app. Never call `Random` directly in rules code.
 **Do not enable release minification without adding `kotlinx.serialization`
 keep rules first.** `app/build.gradle.kts` sets no `minifyEnabled` and there are
 no `.pro` files, so R8 is off and every `@Serializable` content class is safe
-today. Turning it on strips the generated serializers and breaks all 82 content
+today. Turning it on strips the generated serializers and breaks all 80 content
 files at once, at runtime, on the first screen that loads one — a class of
 failure no test in this repo can reach (6cz).
 
@@ -1008,12 +960,11 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 - **Sequences are cumulative.** A Sequence 8 Fool drank the Sequence 9 potion
   first. `digestThrough` folds the chain; digesting one block alone answers a
   different question.
-- **Granted levels are frozen at digestion; purchased skills re-level.** A
-  potion that raises DX lifts every bought DX skill (level = attribute +
-  rungs) but not a level a previous potion granted, which has no points
-  behind it to recompute from. The book does not settle this — it is a
-  documented reading. **A bonus stacked on a BOUGHT skill does follow the
-  attribute** (6hq, the owner's ruling): it has those points behind it.
+- **A potion's skill grant is a +N modifier, and nothing is frozen** (v6.9i,
+  6im; this REPLACED M3's "granted levels are frozen at digestion"). The +N
+  sits on the bought level, or on the untrained default with no points
+  (owner's ruling 1); a Very Hard skill's +N waits until bought. Every
+  level re-derives from the final attributes. Do not restore the freeze.
 - **The PCR overrides the general critical rules.** `SuccessRoll` applies
   GURPS crits (3-4 always succeed, 17-18 always fail); the PCR table's own
   "1 — always fails" / "19 — always succeeds" contradict that at both ends.
