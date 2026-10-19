@@ -6732,7 +6732,7 @@ The owner replaced the rulebook with v6.9i (`Mr.Worms LOM TTRPG Rulebook
 v6.9i.pdf`) and asked for it to be followed literally: what the new PDF
 prints is applied everywhere, and what it dropped is removed, without
 ruling questions (sessions 1-8, 2026-10-19 to 10-20). Branch
-`rulebook-6.9i`, 36 local commits from `5c8f8f5` to this entry, NOT pushed
+`rulebook-6.9i`, 43 local commits from `5c8f8f5` to this entry, NOT pushed
 and NOT merged. `build/extract/book.txt` is v6.9i now, so every line
 number below and in the KDoc from this branch is a v6.9i line.
 
@@ -6779,6 +6779,18 @@ number below and in the KDoc from this branch is a v6.9i line.
 - **New rules.** Revelation penalties on a ritual, encumbrance from the
   typed weight, Short and Long Rest, the spirit world creature contract,
   a starting Beyonder's 4d20% digestion, and 1 earned CP = 1% digestion.
+- **Found by a line-by-line pass over the worklist after the first
+  "finished"** (the advisor's check; three items had been carried as done):
+  ruling 8 was recorded and never applied, so the six "social rolls" rows
+  are declared social-skill chips now (`561dd61`); the Damage dialog still
+  ran v6.9d's pick-a-pool spirit damage (`4eb3d7e`); v6.9i's new grappling
+  prose was unapplied: a Pin on a grappled, prone target +4, "Pinned" as a
+  refusal, a pinner without Dodge or Retreat and at Parry -4 (`1344350`).
+  Ch. 2's Parry & Block summary disagrees with ch. 5 in four places (the
+  unarmed operand, shield DBs, block per turn or per round, the rapier
+  step); the app follows ch. 5 and the four are pinned both ways in
+  `test_tools_book_checks.py` (`95c8184`). CLAUDE.md's "granted levels are
+  frozen" constraint and 36 deleted API names are gone (`dcbdb7c`).
 - **Fixtures.** `tools/reprice_sheets.py` runs inside `extract_sheets.py`:
   each printed figure moves by the v6.9d-to-v6.9i price difference, so the
   sheets' own arithmetic errors (Monastery Scholar, University Librarian)
@@ -6807,6 +6819,14 @@ number below and in the KDoc from this branch is a v6.9i line.
 - Earned character points, like study points, sit outside the 70-point
   budget and bill nothing.
 - Only Divination Arts' SPI-4 default is SPI-based (session 5).
+- A spirit hit costs SPI: the book ties the spirit body to SPI (2423) and
+  names no pool for the hit. It takes no multiplier; two hits before a roll
+  add up; the next throw with a target clears the penalty. A mortal loses
+  no SPI and still takes the penalty and the CoR.
+- A pin, held or suffered, is a per-round declaration: New round clears
+  it, as every value in `RoundState` is cleared, and the GM ticks it again.
+- A Pin's "±1 per point of ST difference" needs the opponent's ST, which
+  the app does not hold: the GM's Modifier stepper.
 
 ### Refused, with the reason
 
@@ -6829,7 +6849,7 @@ the Seven Lights' floor (above). Codex re-reviewed `a791c17`: SHIP.
 
 ### Counts
 
-Kotlin 1373 `core:rules` + 23 `core:model` + 507 `app` = 1903; Python 354;
+Kotlin 1376 `core:rules` + 23 `core:model` + 509 `app` = 1908; Python 355;
 all green, `ast-grep scan` clean. 6il's 2005 and 366 fell because v6.9i
 deleted rules (entity response, push, sealed artifacts, divination scope
 and support, the spiritual-sense skills) and their tests went with them.
@@ -6848,7 +6868,9 @@ the revelation note grew a line on a pick, and the contract footer grew
 one on a step, each moving the rows under a finger. Not seen on the
 device: the digestion tracker's two new rows and the Attack warm-up
 chip, which need a Beyonder below 100% and a Warrior; their logic is
-unit-tested. Owed: the merge and the push, both the owner's call.
+unit-tested. The later round (spirit damage, pins, social chips) is
+unit-tested and not yet seen on the device. Owed: the merge and the push,
+both the owner's call.
 
 ## 6il. Case File, slice 8: every frame beside its screen
 
