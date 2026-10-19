@@ -16,19 +16,14 @@ import com.pathways.rules.content.WealthLevel
  * Where both chapters price a level they agree, and `extract_wealth.py`'s
  * verify() fails if that ever stops being true.
  *
- * **The reaction ladder is not symmetric.** The paragraph under the table says
- * the modifier is "+1 to reaction rolls per Status level above Average ... and
- * -1 per level below Average". Above Average the column obeys that exactly.
- * Below it, it does not: Struggling is one level down and prints 0, and the
- * paragraph's own example puts Poor -- two levels down -- at -1. The printed
- * column is the answer (CLAUDE.md 4.1); deriving the modifier from a level's
- * position would quietly give every Struggling character a penalty the book
- * does not print.
+ * **The social weight ladder is not symmetric.** Above Average the column
+ * climbs by one per level; below it, Struggling is one level down and prints
+ * 0, and Poor -1. The printed column is the answer (CLAUDE.md 4.1).
  *
- * The modifier is offered, never applied: this book has no reaction roll to
- * apply it to. It is Status, which is a social situation the GM adjudicates,
- * and the paragraph says so itself -- "GMs may limit this modifier based on
- * context".
+ * The weight is shown, never applied. v6.9i renamed the column from a
+ * reaction modifier to "Social Weight" and calls it "a guideline for the GM to
+ * gauge the general attitude of neutral NPCs" (4294-4295); the book prints no
+ * reaction roll at all.
  */
 object Wealth {
 
@@ -71,13 +66,13 @@ object Wealth {
     }
 
     /**
-     * [level]'s row of the table (4938-4972), its reaction column worded as
-     * 4973 words it. What a held level prints where the trait list prints no
+     * [level]'s row of the table (4263-4290), its social weight named by the
+     * column's own header. What a held level prints where the trait list prints no
      * row for it: Wealthy and Very Wealthy (6fr).
      */
     fun cellFor(level: WealthLevel): String =
         "Starting money ${level.startingMoney}. " +
-            "${if (level.reactionModifier > 0) "+" else ""}${level.reactionModifier} to reaction rolls. " +
+            "Social weight ${if (level.socialWeight > 0) "+" else ""}${level.socialWeight}. " +
             level.lifestyle
 
     /**

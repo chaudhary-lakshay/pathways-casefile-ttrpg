@@ -433,7 +433,7 @@ internal fun WealthRow(level: WealthLevel?, printed: WealthLevel?, onPick: () ->
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             ChipTag(level.pointsLabel(), ink = true)
             ChipTag("${level.startingMoney} to start")
-            if (level.reactionModifier != 0) ChipTag("reaction ${level.reactionModifier.signed()}")
+            if (level.socialWeight != 0) ChipTag("social weight ${level.socialWeight.signed()}")
             if (printed != null && printed.status != level.status) ChipTag("sheet prints ${printed.status}")
         }
         Text(
@@ -448,13 +448,8 @@ internal fun WealthRow(level: WealthLevel?, printed: WealthLevel?, onPick: () ->
 /**
  * The chosen appearance level, or ordinary looks (Ch. 3, p. 13-14).
  *
- * The reaction modifier is shown here and beside wealth, and the two are NEVER
- * added together. This book prints no reaction roll procedure and no result
- * table at all, while at least five things hand out a modifier for one -- this
- * table, wealth's Status column, Charisma, Reputation and Unsettling
- * Appearance. With no printed rule for combining them, a single total would be
- * arithmetic the book never asked for; each is reported beside the thing that
- * grants it.
+ * The level's effect is prose at the GM's discretion (v6.9i), shown and never
+ * applied: the book prints no reaction roll at all.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -474,9 +469,14 @@ internal fun AppearanceRow(
             Text(level.level, style = MaterialTheme.typography.titleMedium)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 ChipTag(level.points.pointsLabel(), ink = true)
-                ChipTag("reaction ${level.reactionModifier.signed()}")
                 if (printed != null && printed.level != level.level) ChipTag("sheet prints ${printed.level}")
             }
+            Text(
+                level.effect,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
         }
         if (granted != null) {
             val played = Appearance.played(listOfNotNull(level, granted).map(Appearance::traitFor))!!

@@ -17,8 +17,8 @@ import org.junit.jupiter.api.assertThrows
  *
  * The interesting cases are all about what this table does NOT share with
  * [Wealth], which it otherwise looks exactly like: chapter 3's own trait lists
- * print none of these levels, there is no zero-cost middle row, and the
- * reaction column cannot be derived from the cost.
+ * print none of these levels, there is no zero-cost middle row, and v6.9i
+ * prints an effect in prose where v6.9d printed a reaction modifier.
  */
 class AppearanceTest {
 
@@ -62,18 +62,18 @@ class AppearanceTest {
     }
 
     @Test
-    fun `the reaction modifier is not derivable from the cost`() {
-        // If it were, the second column would be redundant and this test would
-        // be measuring arithmetic. It is not: the good half doubles its cost
-        // per step (1/4/8) while its modifier climbs by one, and the bad half
-        // skips -12 entirely, so -8 pts gives -2 and -16 gives -4.
-        fun cost(level: String) = Appearance.named(level).points
-        fun reaction(level: String) = Appearance.named(level).reactionModifier
-
-        assertEquals(1 to 1, cost("Attractive") to reaction("Attractive"))
-        assertEquals(4 to 2, cost("Handsome / Beautiful") to reaction("Handsome / Beautiful"))
-        assertEquals(-8 to -2, cost("Ugly") to reaction("Ugly"))
-        assertEquals(-16 to -4, cost("Hideous") to reaction("Hideous"))
+    fun `each level prints an effect at the GM's discretion and no reaction number`() {
+        // v6.9i (774-805) replaced v6.9d's reaction column with prose: "People
+        // are subtly warmer to you ... at the GM's discretion". Nothing here
+        // is a modifier a roll could take.
+        assertEquals(
+            "People are subtly warmer to you; first impressions lean positive at the GM's discretion",
+            Appearance.named("Attractive").effect,
+        )
+        Appearance.all().forEach {
+            assertTrue("GM" in it.effect, it.level)
+            assertFalse("reaction roll" in it.effect, it.level)
+        }
     }
 
     @Test
@@ -149,8 +149,9 @@ class AppearanceTest {
 
     /**
      * A character has one face, and the better one is played (6fn): a potion
-     * that "perfects the Witch's features" never lowers a bought face, so the
-     * comparison is the reaction column, the one thing the rows order on.
+     * that "perfects the Witch's features" never lowers a bought face. v6.9i
+     * dropped the reaction column, so the rows order on their cost: the eight
+     * are distinct, positive above negative.
      */
     @Test
     fun `the better face is the one played`() {
@@ -173,25 +174,22 @@ class AppearanceTest {
 
     /**
      * A face has no catalogue row, so the Traits tab printed its name alone
-     * (6fq). Its cell is the table's own reaction column, worded as the book
-     * words every row ("-2 to reaction rolls", 722-743), and nothing applies
-     * it, so it carries [TraitReport.UNREAD] like any row nothing reads.
+     * (6fq). Its cell is the table's own effect, copied whole (774-805), and
+     * nothing applies it, so it carries [TraitReport.UNREAD] like any row
+     * nothing reads.
      */
     @Test
-    fun `a held face prints its reaction cell and says it is not applied`() {
-        // The book's own column, copied from lines 722-743, never computed.
-        val printed = listOf(
-            "+1 to reaction rolls", "+2 to reaction rolls", "+3 to reaction rolls",
-            "-1 to reaction rolls", "-2 to reaction rolls", "-4 to reaction rolls",
-            "-5 to reaction rolls", "-6 to reaction rolls",
-        )
-        assertEquals(printed.size, Appearance.all().size)
-        for ((level, cell) in Appearance.all().zip(printed)) {
+    fun `a held face prints its effect cell and says it is not applied`() {
+        for (level in Appearance.all()) {
             val face = Appearance.traitFor(level)
             val held = TraitReport.held(listOf(face), face.kind).single()
-            assertEquals(cell, held.cell, level.level)
+            assertEquals(level.effect, held.cell, level.level)
             assertEquals(listOf(TraitReport.UNREAD), held.notes.map { it.reason }, level.level)
         }
+        assertEquals(
+            "Your presence causes instinctive fear or revulsion in nearly everyone (GM discretion)",
+            Appearance.cellFor(Appearance.named("Horrific")),
+        )
         // A catalogue row is untouched.
         val luck = TraitReport.held(listOf(Trait("Luck", 15, TraitKind.ADVANTAGE)), TraitKind.ADVANTAGE).single()
         assertTrue(luck.cell!!.isNotBlank())

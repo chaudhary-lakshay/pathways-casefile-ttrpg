@@ -21,7 +21,7 @@ import com.pathways.rules.content.ContentLoader
  * from the Kotlin side too.
  *
  * The one chapter 3 trait whose NAME says appearance is "Unsettling
- * Appearance" (4 pts, -1 to all reaction rolls), and it is not a ninth row:
+ * Appearance", and it is not a ninth row:
  * the book calls it "a common consequence of Abyss and Chained Pathway
  * potions", so it is something suffered in play, not chosen at creation.
  *
@@ -37,14 +37,10 @@ import com.pathways.rules.content.ContentLoader
  * and 4 in GURPS 4e, so a reviewer reaching for the parent system would be
  * correcting the book with its own source material.
  *
- * **The reaction modifier is shown, never applied, and never summed.** This
- * book prints no reaction roll procedure and no reaction result table
- * anywhere, while at least five separate things hand out a modifier for one --
- * this table, [Wealth]'s Status column, Charisma, Reputation, and Unsettling
- * Appearance. With no printed rule for combining them, adding them up would be
- * inventing the arithmetic; each is reported beside the thing that grants it
- * and the GM adjudicates. Same shape as a called shot's wounding multiplier,
- * quoted beside the damage rather than multiplied into it.
+ * **The effect is shown, never applied.** v6.9i replaced v6.9d's reaction
+ * column with prose at the GM's discretion ("People are subtly warmer to you
+ * ..."), and the book prints no reaction roll anywhere. Each level's effect is
+ * reported beside the face and the GM adjudicates.
  */
 object Appearance {
 
@@ -93,25 +89,21 @@ object Appearance {
     fun levelOf(traits: List<Trait>): AppearanceLevel? = played(traits)
 
     /**
-     * The face [traits] play: of the levels they name, the one with the
-     * highest reaction modifier, or null for none. Two arrive together only
-     * when a potion grants one beside a bought one (6fn), and "the potion
-     * perfects the Witch's features" (book 7597) never lowers a face, so the
-     * better is played; the eight printed modifiers are distinct, so there is
-     * never a tie. Granted-replaces-bought is refused on the same line: it
-     * would lower a bought Very Beautiful.
+     * The face [traits] play: of the levels they name, the best, or null for
+     * none. Two arrive together only when a potion grants one beside a bought
+     * one (6fn), and "the potion perfects the Witch's features" never lowers a
+     * face, so the better is played. v6.9i dropped the reaction column, so
+     * "better" is the cost: the eight are distinct and the good half is
+     * positive, so there is never a tie. Granted-replaces-bought is refused on
+     * the same line: it would lower a bought Very Beautiful.
      */
     fun played(traits: List<Trait>): AppearanceLevel? {
         val byName = all().associateBy { it.level.lowercase() }
-        return traits.mapNotNull { byName[it.name.lowercase()] }.maxByOrNull { it.reactionModifier }
+        return traits.mapNotNull { byName[it.name.lowercase()] }.maxByOrNull { it.points }
     }
 
-    /**
-     * [level]'s reaction cell as the book words every row: "+2 to reaction
-     * rolls", "-2 to reaction rolls" (722-743). What a held face prints (6fq).
-     */
-    fun cellFor(level: AppearanceLevel): String =
-        "${if (level.reactionModifier > 0) "+" else ""}${level.reactionModifier} to reaction rolls"
+    /** [level]'s effect cell, copied whole (774-805). What a held face prints (6fq). */
+    fun cellFor(level: AppearanceLevel): String = level.effect
 
     /** Whether [trait] is a face [traits] hold and do not play (6fn): a bought one a potion beat. */
     fun isSuperseded(trait: Trait, traits: List<Trait>): Boolean =

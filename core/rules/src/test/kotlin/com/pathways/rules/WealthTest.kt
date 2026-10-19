@@ -13,8 +13,8 @@ import org.junit.jupiter.api.assertThrows
 /**
  * Starting Wealth by Economic Status (Ch. 8, p. 80).
  *
- * Two things are worth pinning: that the reaction ladder is NOT symmetric
- * around Average, and that changing a character's wealth level replaces the
+ * Two things are worth pinning: that the social weight ladder is NOT
+ * symmetric around Average, and that changing a character's wealth level replaces the
  * one their sheet printed rather than adding a second -- a character has one
  * economic status, and two wealth traits would bill twice.
  */
@@ -32,7 +32,7 @@ class WealthTest {
         val broke = Wealth.named("Dead Broke")
         assertEquals(-25, broke.points)
         assertEquals("£0", broke.startingMoney)
-        assertEquals(-2, broke.reactionModifier)
+        assertEquals(-2, broke.socialWeight)
         assertEquals("No home; beg or steal for every meal", broke.lifestyle)
     }
 
@@ -53,17 +53,16 @@ class WealthTest {
     }
 
     @Test
-    fun `the reaction ladder is not symmetric around Average`() {
-        // The paragraph under the table says "+1 to reaction rolls per Status
-        // level above Average ... and -1 per level below Average". Above
-        // Average the column agrees. Below it, it does not: Struggling is one
-        // level down and prints 0, and the paragraph's own example puts Poor
-        // -- two levels down -- at -1. The printed column wins (CLAUDE.md
-        // 4.1), so this asymmetry is the answer, not a parse to straighten.
-        assertEquals(1, Wealth.named("Comfortable").reactionModifier)
-        assertEquals(2, Wealth.named("Wealthy").reactionModifier)
-        assertEquals(0, Wealth.named("Struggling").reactionModifier)
-        assertEquals(-1, Wealth.named("Poor").reactionModifier)
+    fun `the social weight ladder is not symmetric around Average`() {
+        // v6.9i renamed the column "Social Weight" and calls it "a guideline
+        // for the GM to gauge the general attitude of neutral NPCs" (4294-4295):
+        // never a roll modifier. Its values keep v6.9d's asymmetry --
+        // Struggling, one level below Average, prints 0 and Poor -1 -- and the
+        // printed column wins (CLAUDE.md 4.1).
+        assertEquals(1, Wealth.named("Comfortable").socialWeight)
+        assertEquals(2, Wealth.named("Wealthy").socialWeight)
+        assertEquals(0, Wealth.named("Struggling").socialWeight)
+        assertEquals(-1, Wealth.named("Poor").socialWeight)
     }
 
     @Test
@@ -290,15 +289,15 @@ class WealthTest {
     /**
      * A held wealth level prints a cell (6fr). The trait list prints four
      * levels as rows; Wealthy and Very Wealthy are printed only in the table
-     * (4965-4972), so their cell is its three columns, the reaction column
-     * worded as 4973 words it. Nothing applies any of it.
+     * (4283-4290), so their cell is its columns, the social weight named by
+     * its own header. Nothing applies any of it.
      */
     @Test
     fun `a held wealth level prints its cell, whatever the sheet called it`() {
         // Copied from the table, never computed.
         val printed = mapOf(
-            "Wealthy" to "Starting money £50. +2 to reaction rolls. Nice townhouse; fine clothes; a servant",
-            "Very Wealthy" to "Starting money £100. +3 to reaction rolls. Large house; multiple servants; carriage",
+            "Wealthy" to "Starting money £50. Social weight +2. Nice townhouse; fine clothes; a servant",
+            "Very Wealthy" to "Starting money £100. Social weight +3. Large house; multiple servants; carriage",
         )
         for ((status, cell) in printed) {
             val held = TraitReport.held(listOf(Wealth.traitFor(Wealth.named(status))!!), TraitKind.ADVANTAGE).single()

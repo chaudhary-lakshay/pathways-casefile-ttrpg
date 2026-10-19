@@ -52,15 +52,16 @@ data class CataloguedWeapon(
  * in its kind. [com.pathways.rules.Wealth.traitFor] is the one place the two
  * meet; applying both conventions would double the sign.
  *
- * [reactionModifier] is the printed column, which is not symmetric around
- * Average -- see [com.pathways.rules.Wealth].
+ * [socialWeight] is the printed column, which is not symmetric around
+ * Average -- see [com.pathways.rules.Wealth]. v6.9i calls it "a guideline for
+ * the GM" (4294-4295): it is never added to a roll.
  */
 @Serializable
 data class WealthLevel(
     val status: String,
     val points: Int,
     val startingMoney: String,
-    val reactionModifier: Int,
+    val socialWeight: Int,
     val lifestyle: String,
 )
 

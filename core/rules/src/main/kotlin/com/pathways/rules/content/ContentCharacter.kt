@@ -288,15 +288,14 @@ data class LanguageNote(val text: String)
  * [com.pathways.model.Trait]'s magnitude-plus-kind convention in exactly one
  * place, [com.pathways.rules.Appearance.traitFor].
  *
- * [reactionModifier] is the printed column and is NOT derivable from [points]:
- * the bad half skips -12, so -8 pts gives -2 and -16 gives -4. Both columns
- * are read for that reason.
+ * [effect] is v6.9i's prose column (774-805), at the GM's discretion. v6.9d
+ * printed a reaction modifier here; v6.9i prints no number a roll could take.
  */
 @Serializable
 data class AppearanceLevel(
     val level: String,
     val points: Int,
-    val reactionModifier: Int,
+    val effect: String,
 )
 
 /**

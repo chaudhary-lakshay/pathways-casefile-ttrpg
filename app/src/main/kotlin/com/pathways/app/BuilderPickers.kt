@@ -87,7 +87,7 @@ internal fun WealthPicker(
                         )
                         Text(
                             "${level.pointsLabel()} · ${level.startingMoney} · " +
-                                "reaction ${level.reactionModifier.signed()}",
+                                "social weight ${level.socialWeight.signed()}",
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Text(level.lifestyle, style = MaterialTheme.typography.bodySmall)
@@ -155,11 +155,8 @@ internal fun AppearancePicker(
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
-                        Text(
-                            "${level.points.pointsLabel()} · " +
-                                "reaction ${level.reactionModifier.signed()}",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                        Text(level.points.pointsLabel(), style = MaterialTheme.typography.bodySmall)
+                        Text(level.effect, style = MaterialTheme.typography.bodySmall)
                     }
                     HorizontalDivider()
                 }
