@@ -682,7 +682,7 @@ object TraitClauses {
      * two phobias never share one.
      */
     fun allRollsModifiers(clauses: List<TraitClause>, declared: Set<String>): List<Modifier> =
-        clauses.filter { it.key in declared }.map { bonus(it.trait, it.value, suffix = it.key, shown = it.shown) }
+        clauses.filter { !it.conditional || it.key in declared }.map { bonus(it.trait, it.value, suffix = it.key, shown = it.shown) }
 
     // ---- the row that puts a state on every PHYSICAL roll -------------------
 
@@ -724,8 +724,13 @@ object TraitClauses {
      * for a roll that is not physical, [DeclaredStates.physical] for one that
      * is. Composed here so a screen never sums the two lists itself.
      */
-    fun declaredStates(traits: List<Trait>, declared: Set<String>): DeclaredStates {
-        val all = allRollsClauses(traits)
+    fun declaredStates(
+        traits: List<Trait>,
+        declared: Set<String>,
+        /** States in force on every roll whatever is lit: a spirit hit's next-roll penalty. */
+        pending: List<TraitClause> = emptyList(),
+    ): DeclaredStates {
+        val all = allRollsClauses(traits) + pending
         return DeclaredStates(
             all = clauseBonus(all, declared),
             physical = clauseBonus(all + physicalRollsClauses(traits), declared),
@@ -737,9 +742,14 @@ object TraitClauses {
      * [physical] or is not. A skill roll asks [EffortBurn.isPhysical] of its
      * key; an attack is physical by line 390's own list.
      */
-    fun declaredModifiers(traits: List<Trait>, declared: Set<String>, physical: Boolean): List<Modifier> =
+    fun declaredModifiers(
+        traits: List<Trait>,
+        declared: Set<String>,
+        physical: Boolean,
+        pending: List<TraitClause> = emptyList(),
+    ): List<Modifier> =
         allRollsModifiers(
-            allRollsClauses(traits) + if (physical) physicalRollsClauses(traits) else emptyList(),
+            allRollsClauses(traits) + pending + if (physical) physicalRollsClauses(traits) else emptyList(),
             declared,
         )
 

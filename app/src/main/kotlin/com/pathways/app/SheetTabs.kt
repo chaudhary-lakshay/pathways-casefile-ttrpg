@@ -69,6 +69,9 @@ internal fun LazyListScope.vitalsTab(
     carried: Double?,
     basicLift: Double,
     onCarried: (Double?) -> Unit,
+    /** A spirit hit's next-roll penalty, 0 for none, and its manual clear. */
+    spiritPending: Int = 0,
+    onClearSpirit: () -> Unit = {},
 ) {
     item {
         PoolTrackers(
@@ -100,6 +103,19 @@ internal fun LazyListScope.vitalsTab(
         }
     }
     if (stunned) item { StunRow(stunRecoveryTarget, onClearStun) }
+    if (spiritPending > 0) {
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    "Spirit body damage — -$spiritPending on the next roll, then it clears",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.weight(1f),
+                )
+                InkAction("Clear", onClick = onClearSpirit, Modifier.padding(start = 8.dp))
+            }
+        }
+    }
     if (shocked) {
         item {
             // Only while it is in force: a control that is always

@@ -158,15 +158,25 @@ object Wounds {
     }
 
     /**
-     * The injury a hit does to [pool]: [penetrating] as entered when [type]
-     * is null, else [injuryFor]. Spirit body damage may land on any pool,
-     * and "Wounding multipliers apply normally to the chosen pool ...
-     * Damage-type multipliers (e.g. skull x4, vitals x3) stack with wounding
-     * multipliers when applied to HP" (lines 2718-2719): the type multiplies
-     * every pool, the [location] only HP.
+     * The injury a hit does to [pool]: [penetrating] as entered, multiplied
+     * by [type] and [location] ([injuryFor]) on HP alone. v6.9i's Spirit Body
+     * Damage (2815-2821) dropped the pick of a pool and the multipliers "to
+     * the chosen pool": a spirit hit lands on SPI, READ from "As SPI is
+     * depleted, the spirit body weakens" (2423), as entered, and it "pierces
+     * Damage Resistance".
      */
     fun injuryTo(pool: Pool, penetrating: Int, location: HitLocation?, type: String?): Int =
-        type?.let { injuryFor(penetrating, location.takeIf { pool == Pool.HP }, it) } ?: penetrating
+        if (pool == Pool.HP && type != null) injuryFor(penetrating, location, type) else penetrating
+
+    const val SPIRIT_DAMAGE = "Spirit body damage"
+
+    /**
+     * "-1 per point of damage" to "the next roll ... any roll the player
+     * makes ... and then clears" (2818-2819), as a clause every roll path
+     * takes ([TraitClauses.declaredStates]), lit while pending; null at 0.
+     */
+    fun spiritNextRoll(points: Int): TraitClause? =
+        points.takeIf { it > 0 }?.let { TraitClause(SPIRIT_DAMAGE, SPIRIT_DAMAGE, "-$it to the next roll", -it, conditional = false) }
 
     /** [location]'s to-hit penalty, or null for the Torso, which costs +0. */
     fun modifier(location: HitLocation): Modifier? {

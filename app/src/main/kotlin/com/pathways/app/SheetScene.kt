@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.RandomSource
 import androidx.compose.runtime.mutableStateOf
 
 /**
@@ -36,6 +37,21 @@ internal class SheetScene {
     val warmed = mutableStateOf(emptySet<String>())
     /** The weight carried, typed by the player (v6.9i encumbrance), or null for none. */
     val carried = mutableStateOf<Double?>(null)
+    /** Spirit body damage's "-1 per point" on the next roll (v6.9i 2818), 0 for none. */
+    val spiritPending = mutableStateOf(0)
+
+    /**
+     * [source], reporting as before, and clearing [spiritPending] on the next
+     * throw with a target: the penalty "applies to a single roll ... and then
+     * clears". A table or damage throw has no target and leaves it.
+     */
+    fun clearingSpiritOn(source: RandomSource): RandomSource = object : RandomSource {
+        override fun roll(sides: Int): Int = source.roll(sides)
+        override fun thrown(faces: List<Int>, target: Int?) {
+            source.thrown(faces, target)
+            if (target != null) spiritPending.value = 0
+        }
+    }
 }
 
 /** Each character's [SheetScene], kept across trips to the gallery, as [RollLog] keeps throws. */

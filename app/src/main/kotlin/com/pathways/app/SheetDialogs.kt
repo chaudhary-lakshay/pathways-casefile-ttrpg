@@ -62,6 +62,8 @@ internal fun SheetDialogs(
     warmedState: MutableState<Set<String>>,
     /** The carried load's Dodge penalty (v6.9i), 0 or less. */
     encumbranceDodge: Int,
+    /** A spirit hit's pending next-roll penalty ([SheetScene.spiritPending]). */
+    spiritPendingState: MutableState<Int>,
     sheet: PremadeSheet,
     session: BeyonderSession,
     drunk: BeyonderState?,
@@ -335,6 +337,14 @@ internal fun SheetDialogs(
                     Pool.SPI -> vitals.maxSpi
                 }
                 session.spend(pool, amount, max, maxCor)
+            },
+            // v6.9i 2815-2821: SPI lost (none for a mortal, who holds none),
+            // the next roll at -1 a point (summed until a roll clears it),
+            // and the CoR the ability states.
+            onSpiritHit = { points, cor ->
+                if (vitals.maxSpi > 0) session.spend(Pool.SPI, points, vitals.maxSpi, maxCor)
+                spiritPendingState.value += points
+                if (cor > 0) session.gainCor(cor, maxCor)
             },
             onShocked = onShocked,
             onStunned = { stunnedState.value = true },

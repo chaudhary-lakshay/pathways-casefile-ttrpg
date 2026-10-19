@@ -67,14 +67,12 @@ import com.pathways.rules.content.HitLocation
  * The trackers already let a GM move any pool by hand, so what this adds is
  * the two things a single hit decides that a stepper cannot.
  *
- * **Which pool.** Spirit body damage lets the target choose: "the target
- * chooses which of three pools it reduces: HP, FP, or SPI". Applying it here
- * is what makes "One pool per instance -- you cannot split a single hit across
- * multiple pools" a rule the app keeps rather than a line it prints: one
- * amount, one pool, and the dialog closes. [hasSpirituality] is false for a
- * mortal, who is offered HP and FP only -- "Non-Beyonders (SPI 0) ... have no
- * spirituality to sacrifice". The sheet hides the SPI tracker on the same
- * test, so the two cannot disagree.
+ * **The body or the spirit body.** v6.9i (2815-2821) prints spirit body
+ * damage with no pick of a pool: it "pierces Damage Resistance", costs the
+ * next roll -1 a point, and may add the CoR its ability states. It lands on
+ * SPI, READ from "As SPI is depleted, the spirit body weakens" (2423); a
+ * mortal ([hasSpirituality] false) holds none to lose, and still takes the
+ * penalty and the CoR ([onSpiritHit]).
  *
  * **Whether it is a Major Wound.** That threshold is a property of the single
  * hit, which is exactly what the pool steppers destroy by moving one point at
@@ -94,6 +92,8 @@ internal fun DamageDialog(
     /** Labelled per throw: the log said "Damage 7 vs 10" for the HT roll. */
     dice: CharacterDice,
     onApply: (Pool, Int) -> Unit,
+    /** A spirit hit of N points and the CoR its ability states. */
+    onSpiritHit: (points: Int, cor: Int) -> Unit,
     /**
      * Latches the Major Wound's shock, which this dialog is where it comes
      * from: the app rolled the table, so it knows -- the reasoning
@@ -169,9 +169,9 @@ internal fun DamageDialog(
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
-    val pools = remember(hasSpirituality) {
-        if (hasSpirituality) Pool.entries else Pool.entries.filter { it != Pool.SPI }
-    }
+    val pools = listOf(Pool.HP, Pool.SPI)
+    // "the ability that deals the damage states the amount" (2820).
+    var cor by remember { mutableIntStateOf(0) }
     var amount by remember { mutableIntStateOf(1) }
     var pool by remember { mutableStateOf(Pool.HP) }
     var shock by remember { mutableStateOf<RollResult?>(null) }
@@ -229,7 +229,7 @@ internal fun DamageDialog(
                     if (isMajor && shock?.let { StunRecovery.leavesStunned(Wounds.majorWoundFor(it), recovery) } == true) {
                         onStunned()
                     }
-                    onApply(pool, hit)
+                    if (pool == Pool.SPI) onSpiritHit(hit, cor) else onApply(pool, hit)
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -238,7 +238,7 @@ internal fun DamageDialog(
                 ),
             ) {
                 Caps(
-                    "Apply $injury to $pool",
+                    if (pool == Pool.SPI) "Apply $injury spirit damage" else "Apply $injury to HP",
                     style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
                     color = LocalContentColor.current,
                 )
@@ -284,21 +284,18 @@ internal fun DamageDialog(
                             // amount changes, and coming back to HP shows an
                             // effect fired for a hit nobody described.
                             onClick = { pool = option; shock = null; landed = null },
-                            label = { Text(option.name) },
+                            label = { Text(if (option == Pool.SPI) "Spirit body" else "HP") },
                             modifier = Modifier.padding(end = 8.dp),
                         )
                     }
                 }
-                if (!hasSpirituality) {
-                    Text(
-                        "No SPI: a non-Beyonder has no spirituality to sacrifice.",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
-                }
-                // Every pool: "Wounding multipliers apply normally to the
-                // chosen pool" (line 2718). The hit changed, so its roll is
-                // no longer an answer.
+                // Drawn for both, live on the spirit body alone, so a pick moves no row.
+                OptionStepper(
+                    label = "CoR the ability states",
+                    value = cor,
+                    note = if (hasSpirituality) "spirit damage only; most forms add none" else "a mortal loses no SPI; this and the penalty still apply",
+                ) { if (pool == Pool.SPI) cor = (cor + it).coerceAtLeast(0) }
+                // The hit changed, so its roll is no longer an answer.
                 DamageType(type, amount, landed, pool) { type = it; shock = null }
                 WhereItLanded(
                     landed = landed,
@@ -399,12 +396,12 @@ private fun DamageType(type: String?, amount: Int, landed: HitLocation?, pool: P
             val isHp = pool == Pool.HP
             val times = Wounds.multiplierFor(landed.takeIf { isHp }, it)
             val injury = Wounds.injuryTo(pool, amount, landed, it)
-            // Off HP the hit is spirit body damage, which "bypasses physical
-            // Damage Resistance (DR) entirely" (line 2711).
+            // Off HP the hit is spirit body damage, which "pierces Damage
+            // Resistance" and takes no multiplier (v6.9i 2817).
             if (isHp) {
                 "$amount $it past DR ${Wounds.render(times)} = $injury injury, rounded down. Subtract DR first."
             } else {
-                "$amount $it ${Wounds.render(times)} = $injury to $pool, rounded down. Physical DR does not apply."
+                "$amount spirit damage as rolled: it pierces DR and takes no multiplier."
             }
         } ?: "Injury as entered: the multipliers are already in it.",
         style = MaterialTheme.typography.bodySmall,

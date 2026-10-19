@@ -233,8 +233,8 @@ Use **Damage** when your character takes a hit.
 
 1. Under **The number above is**, pick what you will type. **Injury** (the default) is the final injury. If you pick a damage type such as **cr**, **cut**, **imp** or **pi**, you type the damage that got past DR, and the app applies the multiplier.
 2. If you know the hit location, pick it under **Where it landed**. The app applies that multiplier too and rounds down, for example *5 cut past DR ×1.5 = 7 injury*.
-3. Under **Pool**, pick HP, FP or SPI. On FP or SPI the damage type still multiplies, but the location does not, and DR never applies.
-4. Tap **Apply** to take the injury off that pool. **Cancel** closes the dialog without applying the injury.
+3. Under **Pool**, pick **HP** or **Spirit body**. A spirit hit is entered as rolled: it pierces DR and takes no multiplier. It costs that much SPI (a mortal has none to lose), the next roll takes -1 for each point, and **CoR the ability states** adds the CoR the power names, if any. The penalty shows on Vitals and clears after the next roll.
+4. Tap **Apply**. **Cancel** closes the dialog without applying the hit.
 
 The dialog tells you if the hit is a major wound (more than half your HP). It then offers the HT roll from that table, and the sheet keeps track of the shock.
 
@@ -411,6 +411,7 @@ In a few places the book does not settle a rule. The app picks a reading, and so
 - Dead Language Fluency's free language is the owner's reading. The book names no level, price or list.
 - A potion's skill bonus on a skill with no points adds to its default, Versatile's +1 included.
 - Fit and Very Fit held together each add their bonus to HT rolls, +3 in all.
+- Spirit body damage costs SPI: the book ties the spirit body to SPI but names no pool for the hit. Two hits before a roll add up.
 - Encumbrance lowers Dodge before low FP halves it.
 - A Seven Lights sacrifice reduces the penalty to 0 at most, never to a bonus.
 

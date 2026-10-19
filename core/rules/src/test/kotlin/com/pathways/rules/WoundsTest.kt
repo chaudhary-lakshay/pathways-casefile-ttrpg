@@ -262,20 +262,36 @@ class WoundsTest {
     }
 
     /**
-     * Spirit body damage: "Wounding multipliers apply normally to the chosen
-     * pool (Cut x1.5, Imp x2, etc.). Damage-type multipliers (e.g. skull x4,
-     * vitals x3) stack with wounding multipliers when applied to HP" (lines
-     * 2718-2719). Play session 3 took a cut to SPI and the dialog hid the
-     * type, on a comment that said multipliers were written against HP.
+     * v6.9i's Spirit Body Damage (book 2815-2821) dropped v6.9d's "Wounding
+     * multipliers apply normally to the chosen pool" and the target's pick
+     * of a pool. A spirit hit lands on SPI, READ from "As SPI is depleted,
+     * the spirit body weakens" (2423), as entered: it "pierces DR" and no
+     * multiplier is printed for it. Both multipliers stay on HP.
      */
     @Test
-    fun `a typed hit to FP or SPI takes its type multiplier and never its location's`() {
+    fun `a spirit hit lands as entered, and only HP takes the multipliers`() {
         val neck = Wounds.locationNamed("Neck")
-        assertEquals(7, Wounds.injuryTo(Pool.SPI, 5, neck, "cut"))
-        assertEquals(10, Wounds.injuryTo(Pool.FP, 5, neck, "imp"))
+        assertEquals(5, Wounds.injuryTo(Pool.SPI, 5, neck, "cut"))
         assertEquals(15, Wounds.injuryTo(Pool.HP, 5, neck, "cut"))
-        // No type is the injury as entered, on every pool.
-        assertEquals(5, Wounds.injuryTo(Pool.SPI, 5, neck, null))
         assertEquals(5, Wounds.injuryTo(Pool.HP, 5, neck, null))
+    }
+
+    /**
+     * "For every point of spirit body damage taken, the victim suffers a
+     * disadvantage to the next roll: -1 per point of damage. The penalty
+     * applies to a single roll (any roll ...) and then clears."
+     */
+    @Test
+    fun `spirit body damage is -1 a point on the next roll, on every roll`() {
+        assertNull(Wounds.spiritNextRoll(0))
+        val pending = Wounds.spiritNextRoll(4)!!
+        assertEquals(-4, pending.value)
+        assertFalse(pending.conditional)
+        val states = TraitClauses.declaredStates(emptyList(), emptySet(), listOf(pending))
+        assertEquals(-4, states.all.total)
+        assertEquals(-4, states.physical.total)
+        val mods = TraitClauses.declaredModifiers(emptyList(), emptySet(), physical = false, pending = listOf(pending))
+        assertEquals(ModEffect.Flat(-4), mods.single().effect)
+        assertTrue(ContentLoader.spiritDamage().any { "-1 per point of damage" in it.rule })
     }
 }

@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.Wounds
 import androidx.compose.material3.Surface
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -148,7 +149,9 @@ fun App(
             },
         ) { selected = it }
         else -> CompositionLocalProvider(
-            LocalDice provides remember(sheet) { CharacterDice { label -> rollLog.dice(sheet.name, label) } },
+            LocalDice provides remember(sheet, scene) {
+                CharacterDice { label -> scene.clearingSpiritOn(rollLog.dice(sheet.name, label)) }
+            },
             LocalFileLabel provides fileLabel(fileNumber(sheet, sheets)),
         ) {
             BackHandler {
@@ -388,7 +391,10 @@ internal fun SheetScreen(
     // A physical roll also takes the states scoped to those (6gv), so there
     // are two numbers, and the ledger asks which kind its roll is.
     val allRolls = remember(traits) { TraitClauses.declaredStateClauses(traits) }
-    val declaredNow = TraitClauses.declaredStates(traits, declaredStates)
+    // A spirit hit's next-roll penalty rides with the declared states, so
+    // every roll path takes it (v6.9i 2818).
+    val spiritPending = listOfNotNull(Wounds.spiritNextRoll(scene.spiritPending.value))
+    val declaredNow = TraitClauses.declaredStates(traits, declaredStates, spiritPending)
     val states = declaredNow.all
     val physicalStates = declaredNow.physical
     // A stun's "roll HT each turn to recover early", for the Damage dialog
@@ -400,7 +406,9 @@ internal fun SheetScreen(
         shock = shockOnAttribute,
         states = physicalStates.total,
     )
-    val stateModifiers = { physical: Boolean -> TraitClauses.declaredModifiers(traits, declaredStates, physical) }
+    val stateModifiers = { physical: Boolean ->
+        TraitClauses.declaredModifiers(traits, declaredStates, physical, spiritPending)
+    }
     // What each self-control roll stands at, for the Traits row that prints
     // it and the dialog that opens on it ([standingTargets]).
     val standing = standingTargets(
@@ -544,6 +552,8 @@ internal fun SheetScreen(
                     stunned = scene.stunned.value,
                     stunRecoveryTarget = stunRecoveryTarget,
                     onClearStun = { scene.stunned.value = false },
+                    spiritPending = scene.spiritPending.value,
+                    onClearSpirit = { scene.spiritPending.value = 0 },
                     allRolls = allRolls,
                     declaredStates = declaredStates,
                     onDeclareStates = { declaredStates = it },
@@ -607,6 +617,7 @@ internal fun SheetScreen(
         roundState = scene.round,
         stunnedState = scene.stunned,
         warmedState = scene.warmed,
+        spiritPendingState = scene.spiritPending,
         encumbranceDodge = encumbranceDodge(scene.carried.value, Encumbrance.basicLift(attributes.st, traits)),
         sheet = sheet,
         session = session,
