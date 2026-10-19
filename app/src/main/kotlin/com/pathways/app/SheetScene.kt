@@ -28,6 +28,12 @@ internal class SheetScene {
     val round = mutableStateOf(RoundState())
     /** Defend's Stunned: its own clock, not the round's (see [RoundState]). */
     val stunned = mutableStateOf(false)
+    /**
+     * The weapons declared "used repeatedly in a session" (book 5097): a
+     * Warrior's or Pugilist's ranged weapon at DX+2. Per weapon, declared in
+     * Attack and read by Defend's parry.
+     */
+    val warmed = mutableStateOf(emptySet<String>())
 }
 
 /** Each character's [SheetScene], kept across trips to the gallery, as [RollLog] keeps throws. */

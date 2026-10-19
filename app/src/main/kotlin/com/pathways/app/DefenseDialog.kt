@@ -143,6 +143,8 @@ internal fun DefenseDialog(
      */
     roundState: MutableState<RoundState>,
     stunnedState: MutableState<Boolean>,
+    /** The weapons declared used repeatedly this session, which a Warrior parries at DX+2. */
+    warmed: Set<String>,
     onDismiss: () -> Unit,
 ) {
     // Everything p. 36 scopes to a round, held together so the boundary can
@@ -180,7 +182,7 @@ internal fun DefenseDialog(
     // half a bullet is in, so the two cannot disagree.
     val modifiers = remember { ActiveDefenses.unappliedModifiers() }
     val parries = remember(skillLevels, dx) { unarmedParries(skillLevels, dx) }
-    val armed = remember(weapons, skillLevels, mastery, dx) { armedParries(weapons, skillLevels, mastery, dx) }
+    val armed = remember(weapons, skillLevels, mastery, dx, warmed) { armedParries(weapons, skillLevels, mastery, dx, warmed) }
     val unskilled = remember(weapons, skillLevels, mastery, dx) { unskilledParriers(weapons, skillLevels, mastery, dx) }
     // The weapons whose parry the mastery changed: the rows a master gets
     // that a non-master with these skills would not, or would get lower.
@@ -519,8 +521,9 @@ internal fun DefenseDialog(
                             DefenseNote(
                                 "${lifted.joinToString(", ")}: Weapon Skill no less than " +
                                     "${mastery.sourceFor(isRanged = false, warmedUp = false)} before the " +
-                                    "halving, read as the Parry (Armed) row's operand. A reading: the " +
-                                    "book's examples are attacks, and repeated use is not asked here.",
+                                    "halving, or DX+2 for a weapon declared used repeatedly in Attack, " +
+                                    "read as the Parry (Armed) row's operand. A reading: the book's " +
+                                    "examples are attacks.",
                             )
                         }
                     }

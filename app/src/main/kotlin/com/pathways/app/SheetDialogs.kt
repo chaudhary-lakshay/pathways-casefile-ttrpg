@@ -57,6 +57,8 @@ internal fun SheetDialogs(
     /** Defend's round and Stunned, held in [SheetScene] so closing Defend keeps them. */
     roundState: MutableState<RoundState>,
     stunnedState: MutableState<Boolean>,
+    /** The weapons declared used repeatedly this session ([SheetScene.warmed]). */
+    warmedState: MutableState<Set<String>>,
     sheet: PremadeSheet,
     session: BeyonderSession,
     drunk: BeyonderState?,
@@ -394,6 +396,7 @@ internal fun SheetDialogs(
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
             roundState = roundState,
             stunnedState = stunnedState,
+            warmed = warmedState.value,
         ) { onClose(SheetDialog.DEFEND) }
     }
     if (SheetDialog.ATTACK in open) {
@@ -423,6 +426,7 @@ internal fun SheetDialogs(
             // "attack rolls" lead line 390's list, whatever the skill.
             states = physicalStates,
             stateModifiers = stateModifiers(true),
+            warmedState = warmedState,
             onDismiss = { onClose(SheetDialog.ATTACK) },
         )
     }

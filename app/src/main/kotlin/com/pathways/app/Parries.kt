@@ -267,7 +267,9 @@ internal fun armedParries(
     skillLevels: Map<SkillKey, Int>,
     mastery: SkillDefaults.WeaponMastery?,
     dx: Int,
+    /** The weapons declared used repeatedly this session ([SheetScene.warmed]). */
+    warmed: Set<String> = emptySet(),
 ): List<Pair<String, Int>> = weapons.mapNotNull { weapon ->
-    val level = SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx) ?: return@mapNotNull null
+    val level = SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx, weapon.name in warmed) ?: return@mapNotNull null
     Weapons.parryFor(weapon, level)?.let { weapon.name to it }
 }

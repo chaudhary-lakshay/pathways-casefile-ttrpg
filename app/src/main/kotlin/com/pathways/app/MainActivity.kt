@@ -602,6 +602,7 @@ internal fun SheetScreen(
         onShocked = { shocked = true },
         roundState = scene.round,
         stunnedState = scene.stunned,
+        warmedState = scene.warmed,
         sheet = sheet,
         session = session,
         drunk = drunk,

@@ -156,6 +156,16 @@ class DefenseDialogTest {
             armedParries(carried, mapOf(broadswordKey to 10), mastery = warrior, dx = 12),
         )
         assertTrue(unskilledParriers(carried, emptyMap(), mastery = warrior, dx = 12).isEmpty())
+        // Declared used repeatedly this session (book 5097): DX+2, floor(14/2) + 3.
+        // Per weapon: the declaration on one weapon lifts no other.
+        assertEquals(
+            listOf("Broadsword" to 10),
+            armedParries(carried, emptyMap(), mastery = warrior, dx = 12, warmed = setOf("Broadsword")),
+        )
+        assertEquals(
+            listOf("Broadsword" to 9),
+            armedParries(carried, emptyMap(), mastery = warrior, dx = 12, warmed = setOf("Revolver (.38 cal)")),
+        )
     }
 
     /**

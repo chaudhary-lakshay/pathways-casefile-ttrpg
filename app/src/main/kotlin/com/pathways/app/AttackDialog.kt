@@ -124,6 +124,8 @@ internal fun AttackDialog(
      */
     states: ClauseBonus = ClauseBonus(0, null),
     stateModifiers: List<com.pathways.model.Modifier> = emptyList(),
+    /** The weapons declared used repeatedly this session, held in [SheetScene.warmed]. */
+    warmedState: androidx.compose.runtime.MutableState<Set<String>> = mutableStateOf(emptySet()),
     onDismiss: () -> Unit,
 ) {
     val skills = remember(skillLevels, untrained) {
@@ -194,8 +196,11 @@ internal fun AttackDialog(
     // Points declared to burn on each attack roll, before the dice (v6.9i).
     var burnPoints by remember { mutableIntStateOf(0) }
     // The player's declaration that the weapon in hand has been "used
-    // repeatedly in a session" (the Warrior's line). Kept across turns.
-    var warmedUp by remember { mutableStateOf(false) }
+    // repeatedly in a session" (book 5097): per weapon, in the scene, so
+    // Defend's parry reads it and another weapon does not inherit it.
+    var warmed by warmedState
+    val warmKey = armed?.weapon?.name ?: unarmed?.attack
+    val warmedUp = warmKey != null && warmKey in warmed
     // The damage the attack was drawn with, kept at Roll so a hit rolls what
     // was printed, and each hit's throw by index (play session 1: "2d pi"
     // printed and nothing rolled it).
@@ -397,7 +402,7 @@ internal fun AttackDialog(
                         // DX in a master's hand. Two skills can arm one knife, and
                         // the chosen one printed 8 here beside Defend's 9 (6ey's
                         // design review).
-                        wieldedAt = { SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) },
+                        wieldedAt = { SkillDefaults.wieldedAt(it, skillLevels, mastery, dx, it.name in warmed) },
                         plan = plan,
                         unarmed = unarmed,
                         damage = damage,
@@ -499,11 +504,12 @@ internal fun AttackDialog(
                         fromTrackers = standing.fromTrackers,
                         warmUp = warmedUp.takeIf { warmUpOffered },
                         warmUpLive = warmUpLive,
-                        onWarmUp = {
-                            warmedUp = !warmedUp
+                        onWarmUp = warm@{
+                            val key = warmKey ?: return@warm
+                            warmed = if (key in warmed) warmed - key else warmed + key
                             // The level moves with it, and a Deceptive Attack
                             // chosen above the new ceiling goes, as on a hand change.
-                            plan = Attacks.atLevel(plan, levelWith(inHand, armed.isFired, warmedUp))
+                            plan = Attacks.atLevel(plan, levelWith(inHand, armed.isFired, key in warmed))
                         },
                         burn = burn,
                         burnPoints = drawnBurn,
