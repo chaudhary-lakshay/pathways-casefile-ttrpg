@@ -180,8 +180,30 @@ class BeyonderSession(
      * candidate built on the screen asked about ST 8 itself, and `Attributes`
      * throws on an 8 (SM-T570).
      */
-    private fun allows(next: SavedEdits): Boolean =
-        sheet == null || (next.shortfallOn(sheet, state) == SecondaryDelta() && keepsBelowCeiling(next))
+    private fun allows(next: SavedEdits): Boolean = keepsPrerequisites(next) &&
+        (sheet == null || (next.shortfallOn(sheet, state) == SecondaryDelta() && keepsBelowCeiling(next)))
+
+    /**
+     * The traits in play after [next]: the composed character's, or the
+     * bought rows alone without a sheet, plus every potion and boon grant.
+     */
+    private fun inPlay(next: SavedEdits): List<Trait> = TraitGrants.withGrantedTraits(
+        sheet?.let { next.applyTo(it.toCharacter()).traits }
+            ?: next.traits.mapNotNull { PurchasableTraits.named(it)?.toTrait() },
+        state,
+        next.boon,
+    )
+
+    /**
+     * Whether every bought row in [next] still holds its printed
+     * prerequisite (v6.9i: Very Fit's Fit, Incisive Vision's Acute
+     * Vision), counted among the traits in play, so a potion's Fit serves.
+     */
+    private fun keepsPrerequisites(next: SavedEdits): Boolean {
+        val held = inPlay(next)
+        return next.traits.mapNotNull { PurchasableTraits.named(it) }
+            .none { PurchasableTraits.missingPrerequisite(it, held) != null }
+    }
 
     /**
      * Whether a live character stays below their maximum CoR after [next].
@@ -287,13 +309,18 @@ class BeyonderSession(
     }
 
     /**
-     * Why [buyTrait] would refuse [name], or null. God of Combat lowers the
+     * Why [buyTrait] would refuse [name], or null. A printed prerequisite
+     * not in play refuses it ([keepsPrerequisites]). God of Combat lowers the
      * ST, DX and HT a purchase may reach by its +3 (6hf), and a bought score
      * already above that is refused here rather than clamped by
      * [SavedEdits.withinCeilings] on the next edit: a purchase never lowers
      * another one silently.
      */
     fun buyRefusal(name: String): String? {
+        // Only a row with a prerequisite composes the traits in play: the picker asks every row.
+        PurchasableTraits.named(name)?.takeIf { it.name in PurchasableTraits.PREREQUISITES }
+            ?.let { PurchasableTraits.missingPrerequisite(it, inPlay(edits)) }
+            ?.let { return "needs $it" }
         val next = edits.copy(traits = edits.traits + name)
         val held = next.withinCeilings()
         val over = listOf(Attr.ST to (next.st to held.st), Attr.DX to (next.dx to held.dx), Attr.HT to (next.ht to held.ht))

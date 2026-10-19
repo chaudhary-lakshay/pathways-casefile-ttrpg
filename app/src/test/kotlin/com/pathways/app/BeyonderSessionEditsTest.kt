@@ -468,4 +468,32 @@ class BeyonderSessionEditsTest {
         BeyonderSession(SavedSession(edits = SavedEdits(secondaries = mapOf("hp" to -8))), plain()) { writes++ }
         assertEquals(0, writes)
     }
+
+    /**
+     * v6.9i's "Prerequisite: Fit." (book 882), asked once, of the traits in
+     * play: a potion's Fit counts, and a bought Fit cannot be sold from under
+     * a bought Very Fit, whatever order the save holds them in.
+     */
+    @Test
+    fun `a prerequisite is asked of the traits in play, on buying and on selling`() {
+        val (s, _) = session(sheet = plain())
+        assertTrue(s.buyRefusal("Very Fit")!!.contains("Fit"))
+        s.buyTrait("Very Fit")
+        assertFalse("Very Fit" in s.edits.traits)
+
+        s.buyTrait("Fit")
+        assertNull(s.buyRefusal("Very Fit"))
+        s.buyTrait("Very Fit")
+        assertEquals(listOf("Fit", "Very Fit"), s.edits.traits)
+        assertFalse(s.canSellTrait("Fit"))
+        s.sellTrait("Fit")
+        assertEquals(listOf("Fit", "Very Fit"), s.edits.traits)
+        assertTrue(s.characterFor(plain()).traits.any { it.name == "Very Fit" })
+
+        // Sun 9's potion grants Fit, so Very Fit is buyable with none bought.
+        val (sun, _) = session(SavedSession(beyonder = BeyonderState("Sun", 9)), sheet = plain())
+        assertNull(sun.buyRefusal("Very Fit"))
+        sun.buyTrait("Very Fit")
+        assertTrue(sun.characterFor(plain()).traits.any { it.name == "Very Fit" })
+    }
 }

@@ -149,16 +149,6 @@ class EditedCharacterTest {
         assertTrue(!SavedEdits(wealth = "Wealthy").isEmpty)
     }
 
-    /** v6.9i's "Prerequisite: Fit." (book 882): a stored Very Fit without Fit bills nothing. */
-    @Test
-    fun `a row whose prerequisite is not held is not bought`() {
-        assertEquals(emptyList<String>(), SavedEdits(traits = listOf("Very Fit")).applyTo(mortal).traits.map { it.name })
-        assertEquals(
-            listOf("Fit", "Very Fit"),
-            SavedEdits(traits = listOf("Fit", "Very Fit")).applyTo(mortal).traits.map { it.name },
-        )
-    }
-
     @Test
     fun `a chosen wealth level replaces the one the sheet printed`() {
         // A character has one economic status. Left beside each other, the

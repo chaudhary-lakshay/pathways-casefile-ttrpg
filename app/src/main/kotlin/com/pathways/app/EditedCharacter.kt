@@ -344,8 +344,6 @@ private fun SavedEdits.boughtTraits(held: List<Trait>): List<Trait> {
     for (name in traits) {
         val row = PurchasableTraits.named(name) ?: continue
         if (!PurchasableTraits.canBuy(row, held + chosen)) continue
-        // v6.9i's prerequisites: a row whose prerequisite was sold bills nothing.
-        if (PurchasableTraits.missingPrerequisite(row, held + chosen) != null) continue
         chosen += charmed(row.toTrait())
     }
     return chosen
