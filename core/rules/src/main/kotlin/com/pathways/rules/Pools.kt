@@ -17,8 +17,11 @@ enum class PenaltyScope { ALL_ROLLS, SPI_ROLLS }
  * Where a pool stands and what the book says about standing there.
  *
  * [level] and [effect] are the printed row, verbatim, so a GM can see the
- * rule rather than this object's reading of it. Everything else is that
- * reading, and each field is pinned by `PoolsTest`.
+ * rule rather than this object's reading of it -- except in the bands the
+ * book prints no row for: FP throughout, and HP and SPI above 1/3, where
+ * v6.9i dropped v6.9d's "to 1" rows. There the text is this object's own
+ * ([Pools.HEALTHY_EFFECT]). Everything else is that reading, and each field
+ * is pinned by `PoolsTest`.
  */
 data class PoolStatus(
     val pool: Pool,
@@ -62,8 +65,17 @@ object Pools {
     /** "1/3 HP remaining" and "<= 1/3 Max SPI" -- thirds, floored (CLAUDE.md 4.3). */
     private const val THIRD = 3
 
-    /** p. 40: "At -5xHP, death is automatic with no roll." */
+    /** Line 2798: "If you reach -5× HP, you die instantly with no roll." */
     private const val DEAD_MULTIPLE = 5
+
+    /** Line 2798: "At -10× HP, your body is destroyed beyond recognition". */
+    private const val DESTROYED_MULTIPLE = 10
+
+    /** Line 2809: "-2× to -4×HP": the per-multiple survival row starts here. */
+    private const val SECOND_MULTIPLE = 2
+
+    /** The healthy bands' text: this app's, because v6.9i prints no row there. */
+    const val HEALTHY_EFFECT = "Normal function; no penalties."
 
     /** p. 40: "Reeling: -1 to all rolls". */
     const val REELING_PENALTY = -1
@@ -115,30 +127,35 @@ object Pools {
         ContentLoader.poolThresholds().filter { it.pool == pool.name }
 
     /**
-     * Physical health (p. 40).
+     * Physical health (book lines 2789-2814).
      *
      * Reeling is not withdrawn as HP falls further: the book states it at 1/3
      * and never lifts it, so it still applies at -2 HP. Death at -5xHP is
      * reported with both roll flags CLEAR, because that row's own text is
-     * "Dead -- no roll required".
+     * "Automatic death -- no roll required"; -10xHP is the same death with
+     * the body destroyed.
+     *
+     * Rows are found by their printed LEVEL, never by position: v6.9i
+     * dropped the "HP to 1" row and every index moved under the old code.
      */
     fun hp(current: Int, max: Int): PoolStatus {
         requireMax(max, Pool.HP)
-        val rows = thresholds(Pool.HP)
         val dead = current <= -DEAD_MULTIPLE * max
-        val row = when {
-            dead -> rows[4]
-            current <= -max -> rows[3]
-            current <= 0 -> rows[2]
-            current <= Math.floorDiv(max, THIRD) -> rows[1]
-            else -> rows[0]
+        val level = when {
+            current <= -DESTROYED_MULTIPLE * max -> "-10×HP"
+            dead -> "-5×HP"
+            current <= -SECOND_MULTIPLE * max -> "-2× to -4×HP"
+            current <= -max -> "-1×HP"
+            current <= 0 -> "0 HP"
+            current <= Math.floorDiv(max, THIRD) -> "1/3 HP remaining"
+            else -> null
         }
         return PoolStatus(
             pool = Pool.HP,
             current = current,
             max = max,
-            level = row.level,
-            effect = row.effect,
+            level = level ?: "Above 1/3 HP",
+            effect = level?.let { row(Pool.HP, it).effect } ?: HEALTHY_EFFECT,
             penalty = if (current <= Math.floorDiv(max, THIRD)) REELING_PENALTY else 0,
             isDead = dead,
             rollsToStayConscious = !dead && current <= 0,
@@ -268,19 +285,18 @@ object Pools {
         require(max >= 1) {
             "SPI max must be at least 1; a mortal has no SPI pool to report on (p. 41)"
         }
-        val rows = thresholds(Pool.SPI)
-        val row = when {
-            current < 0 -> rows[3]
-            current == 0 -> rows[2]
-            current <= Math.floorDiv(max, THIRD) -> rows[1]
-            else -> rows[0]
+        val level = when {
+            current < 0 -> "Below 0 SPI"
+            current == 0 -> "0 SPI"
+            current <= Math.floorDiv(max, THIRD) -> "<= 1/3 Max SPI"
+            else -> null
         }
         return PoolStatus(
             pool = Pool.SPI,
             current = current,
             max = max,
-            level = row.level,
-            effect = row.effect,
+            level = level ?: "Above 1/3 Max SPI",
+            effect = level?.let { row(Pool.SPI, it).effect } ?: HEALTHY_EFFECT,
             penalty = if (current <= Math.floorDiv(max, THIRD)) ATTRITION_PENALTY else 0,
             scope = PenaltyScope.SPI_ROLLS,
             corGained = if (current < 0) -current else 0,
@@ -300,8 +316,12 @@ object Pools {
         current < 0 ->
             "-1 to all rolls per 1 FP below 0 (p. 41). Every point spent below 0 also costs 1 HP (p. 42)."
         isFatigued(current, max) -> "-1 to all rolls; Move and Dodge halved (p. 42)."
-        else -> "Normal function; no penalties."
+        else -> HEALTHY_EFFECT
     }
+
+    private fun row(pool: Pool, level: String): PoolThreshold =
+        thresholds(pool).firstOrNull { it.level == level }
+            ?: error("pool_thresholds.json prints no $pool row \"$level\"")
 
     /** The comparison itself, for the three sites that have only the numbers. */
     private fun isFatigued(current: Int, max: Int): Boolean =

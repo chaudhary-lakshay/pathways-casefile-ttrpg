@@ -48,7 +48,10 @@ class PoolTagsTest {
     @Test
     fun `exhaustion and the survival row are tagged too`() {
         assertEquals(listOf("Spiritual Exhaustion", "−3 SPI rolls"), poolTags(Pools.spi(0, 9)))
-        assertEquals(listOf("-HP", "−1 all rolls"), poolTags(Pools.hp(-9, 9)))
+        // v6.9i's -1×HP row has a colon mid-sentence ("If unconscious: one
+        // chance..."): a clause, not a name, so the level is the tag.
+        assertEquals(listOf("-1×HP", "−1 all rolls"), poolTags(Pools.hp(-9, 9)))
+        assertEquals(listOf("-2× to -4×HP", "−1 all rolls"), poolTags(Pools.hp(-18, 9)))
         assertEquals(listOf("−2 all rolls"), poolTags(Pools.fp(-2, 9)))
     }
 }

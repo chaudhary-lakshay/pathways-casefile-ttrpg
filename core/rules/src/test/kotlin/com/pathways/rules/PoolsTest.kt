@@ -10,8 +10,10 @@ class PoolsTest {
 
     @Test
     fun `a healthy pool carries no penalty`() {
+        // v6.9i prints no row above 1/3 HP (book lines 2800-2814), so the
+        // healthy band's label is this app's own, as FP's has always been.
         val hp = Pools.hp(10, 10)
-        assertEquals("HP to 1", hp.level)
+        assertEquals("Above 1/3 HP", hp.level)
         assertEquals(0, hp.penalty)
         assertFalse(hp.rollsToStayConscious)
     }
@@ -44,11 +46,34 @@ class PoolsTest {
 
     @Test
     fun `negative full HP rolls against death`() {
-        // p. 40: "Death occurs at -HP ... roll vs. HT to survive."
+        // Line 2806: "-1×HP -- Mortal wound state; roll against HT to stay alive".
         val hp = Pools.hp(-10, 10)
-        assertEquals("-HP", hp.level)
+        assertEquals("-1×HP", hp.level)
         assertTrue(hp.rollsToSurvive)
         assertFalse(hp.isDead)
+    }
+
+    @Test
+    fun `two to four times negative HP still rolls, one roll per multiple`() {
+        // Line 2809: "-2× to -4×HP -- One survival roll per additional
+        // multiple of total HP dropped below zero". One row, three multiples.
+        for (current in listOf(-20, -35, -49)) {
+            val hp = Pools.hp(current, 10)
+            assertEquals("-2× to -4×HP", hp.level, "at $current")
+            assertTrue(hp.rollsToSurvive, "at $current")
+            assertFalse(hp.isDead, "at $current")
+        }
+        assertEquals("-1×HP", Pools.hp(-19, 10).level)
+    }
+
+    @Test
+    fun `ten times negative HP is a body destroyed, and still dead`() {
+        // Line 2813: "-10×HP -- Body destroyed beyond recognition".
+        val hp = Pools.hp(-100, 10)
+        assertEquals("-10×HP", hp.level)
+        assertTrue(hp.isDead)
+        assertFalse(hp.rollsToSurvive)
+        assertEquals("-5×HP", Pools.hp(-99, 10).level)
     }
 
     @Test
@@ -96,7 +121,9 @@ class PoolsTest {
         val spi = Pools.spi(0, 9)
         assertEquals("0 SPI", spi.level)
         assertTrue(spi.abilitiesOffline)
-        assertTrue("Spirit Vision shuts off" in spi.effect)
+        // v6.9i's row is "All Beyonder abilities deactivate" and no more:
+        // the Spirit Vision and SPI-cost clauses went with v6.9d.
+        assertEquals("Spiritual Exhaustion: All Beyonder abilities deactivate", spi.effect)
     }
 
     @Test
@@ -124,9 +151,9 @@ class PoolsTest {
         // Guard against silent repair: Pools compares numbers, the content
         // carries the printed labels, and the two must not drift.
         val hp = Pools.thresholds(Pool.HP).map { it.level }
-        assertEquals(listOf("HP to 1", "1/3 HP remaining", "0 HP", "-HP", "-5×HP"), hp)
+        assertEquals(listOf("1/3 HP remaining", "0 HP", "-1×HP", "-2× to -4×HP", "-5×HP", "-10×HP"), hp)
         val spi = Pools.thresholds(Pool.SPI).map { it.level }
-        assertEquals(listOf("SPI to 1", "<= 1/3 Max SPI", "0 SPI", "Below 0 SPI"), spi)
+        assertEquals(listOf("<= 1/3 Max SPI", "0 SPI", "Below 0 SPI"), spi)
         // FP is prose in the book, so it has no rows at all.
         assertEquals(emptyList<String>(), Pools.thresholds(Pool.FP).map { it.level })
     }
@@ -135,6 +162,15 @@ class PoolsTest {
     fun `every reported status quotes the book row it came from`() {
         assertTrue("Reeling" in Pools.hp(3, 10).effect)
         assertTrue("Soul Debt" in Pools.spi(-1, 9).effect)
+        // Every status the book prints a row for carries that row verbatim.
+        // The healthy bands are excluded by name: v6.9i prints no row there.
+        val printed = (Pools.thresholds(Pool.HP) + Pools.thresholds(Pool.SPI)).map { it.level to it.effect }
+        for (status in (-100..10).map { Pools.hp(it, 10) } + (-5..9).map { Pools.spi(it, 9) }) {
+            if (status.level == "Above 1/3 HP" || status.level == "Above 1/3 Max SPI") continue
+            assertTrue((status.level to status.effect) in printed, "${status.pool} ${status.current}: ${status.level}")
+        }
+        assertEquals("Above 1/3 Max SPI", Pools.spi(4, 9).level)
+        assertEquals(0, Pools.spi(4, 9).penalty)
         // FP has no printed row; its text is Pools' own, marked as such.
         assertTrue(Pools.fp(-3, 12).effect.isNotEmpty())
     }

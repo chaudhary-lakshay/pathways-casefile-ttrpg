@@ -92,11 +92,11 @@ internal data class Vitals(
  * keep an outcome that belonged to a different number (6k, 6y).
  */
 @Composable
-private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int, shock: Int, states: ClauseBonus) {
+private fun VitalRollRow(check: VitalCheck, hp: PoolStatus, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int, shock: Int, states: ClauseBonus) {
     val dice = LocalDice.current
     var outcome by remember(check, target) { mutableStateOf<RollResult?>(null) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-        Text(VitalRolls.printed(check), style = MaterialTheme.typography.bodySmall)
+        Text(VitalRolls.printed(check, hp), style = MaterialTheme.typography.bodySmall)
         // The parts, because they have to sum to the number below them (6ag,
         // 6ai). Traits are one term rather than named individually: the two
         // rules that reach these rolls are scoped in VitalRolls, and a screen
@@ -117,7 +117,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
             InkAction(
                 // Named by the book's own row, because below -HP BOTH rolls
                 // are offered and their targets differ (6cn).
-                "Roll HT $target — ${VitalRolls.rowFor(check)}",
+                "Roll HT $target — ${VitalRolls.rowFor(check, hp)}",
                 onClick = {
                     // The re-entrancy guard every roll button in this app
                     // needs: two taps can both reach the handler before the
@@ -357,6 +357,7 @@ internal fun PoolTrackers(
         VitalRolls.due(hp).forEach { check ->
             VitalRollRow(
                 check = check,
+                hp = hp,
                 target = VitalRolls.targetFor(check, ht, traits, poolPenalty, shock, states.total),
                 fromTraits = VitalRolls.bonusFor(check, traits),
                 ht = ht,

@@ -76,7 +76,10 @@ internal fun poolTags(status: PoolStatus): List<String> {
     return buildList {
         when {
             status.isUnconscious -> add("Unconscious")
-            ':' in status.effect -> add(status.effect.substringBefore(':'))
+            // A name ends the row's first clause; a colon after a sentence
+            // break (v6.9i's "-1×HP ... If unconscious: ...") is not one.
+            ':' in status.effect && status.effect.substringBefore(':').none { it == '.' || it == ';' } ->
+                add(status.effect.substringBefore(':'))
             // FP prints no names, and its levels are thresholds ("1/3 FP or
             // below") rather than states; the penalty below says it.
             status.pool != Pool.FP -> add(status.level)

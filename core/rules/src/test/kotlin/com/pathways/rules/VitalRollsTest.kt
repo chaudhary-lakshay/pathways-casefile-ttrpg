@@ -119,18 +119,26 @@ class VitalRollsTest {
         // Below -HP both are due and a Hard to Kill carrier sees two different
         // targets; without the row's own name the player cannot tell which
         // number belongs to which rule.
-        assertEquals("0 HP", VitalRolls.rowFor(VitalCheck.CONSCIOUSNESS))
-        assertEquals("-HP", VitalRolls.rowFor(VitalCheck.SURVIVAL))
+        val dying = Pools.hp(-10, 10)
+        assertEquals("0 HP", VitalRolls.rowFor(VitalCheck.CONSCIOUSNESS, dying))
+        assertEquals("-1×HP", VitalRolls.rowFor(VitalCheck.SURVIVAL, dying))
+        // Past -2×HP the survival roll is governed by the per-multiple row.
+        assertEquals("-2× to -4×HP", VitalRolls.rowFor(VitalCheck.SURVIVAL, Pools.hp(-25, 10)))
     }
 
     @Test
     fun `each check quotes the row it comes from`() {
-        assertTrue(VitalRolls.printed(VitalCheck.CONSCIOUSNESS).contains("fall unconscious"))
-        assertTrue(VitalRolls.printed(VitalCheck.SURVIVAL).contains("die"))
+        val dying = Pools.hp(-10, 10)
+        assertTrue(VitalRolls.printed(VitalCheck.CONSCIOUSNESS, dying).contains("unconsciousness"))
+        assertTrue(VitalRolls.printed(VitalCheck.SURVIVAL, dying).contains("stay alive"))
         // The repetition is the book's and the GM's: this app holds no clock,
         // so a screen offering one roll must say the book asks for one a turn.
-        assertTrue(VitalRolls.printed(VitalCheck.CONSCIOUSNESS).contains("each turn"))
-        assertTrue(VitalRolls.printed(VitalCheck.SURVIVAL).contains("each turn"))
+        assertTrue(VitalRolls.printed(VitalCheck.CONSCIOUSNESS, dying).contains("every turn"))
+        // v6.9i dropped "each turn" from the survival row (line 2806): the
+        // repetition is now one roll per multiple of HP crossed (2794-2797),
+        // and the app, holding no memory of a hit, prints that row instead.
+        assertFalse(VitalRolls.printed(VitalCheck.SURVIVAL, dying).contains("turn"))
+        assertTrue(VitalRolls.printed(VitalCheck.SURVIVAL, Pools.hp(-25, 10)).contains("One survival roll per additional multiple"))
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.Trait
+import com.pathways.rules.content.PoolThreshold
 
 /**
  * The two HT rolls chapter 5's HP table prints, as a closed set.
@@ -9,10 +10,10 @@ import com.pathways.model.Trait
  * differently, and a single "HT roll" would have to answer for both at once.
  */
 enum class VitalCheck {
-    /** `0 HP`: "Roll 3d6 <= HT or fall unconscious". */
+    /** `0 HP`: "roll against HT every turn to stay awake". */
     CONSCIOUSNESS,
 
-    /** `-HP`: "Roll vs. HT or die". */
+    /** `-1×HP`: "roll against HT to stay alive"; one per multiple crossed. */
     SURVIVAL,
 }
 
@@ -25,11 +26,17 @@ enum class VitalCheck {
  * screen printing a rule the next screen ignores) and 6cf found in the API (a
  * function tested, documented and called by nothing).
  *
- * **The repetition is deliberately not modelled.** Both rows say "each turn",
- * and this app holds no clock (6ad, 6ah, 6an, 6dc) -- so one roll is offered
- * and the sentence saying the book asks for one a turn is printed beside it.
- * Silence there would understate the danger, which is the disclaimer class
- * 6bl found.
+ * **The repetition is deliberately not modelled.** The consciousness row
+ * says "every turn", and this app holds no clock (6ad, 6ah, 6an, 6dc) -- so
+ * one roll is offered and the sentence saying the book asks for one a turn
+ * is printed beside it. Silence there would understate the danger, which is
+ * the disclaimer class 6bl found.
+ *
+ * **The survival roll repeats by threshold, not by turn** (v6.9i, lines
+ * 2794-2797): one roll for each multiple of HP dropped below zero, each one
+ * crossed in a single hit rolled separately. The app holds no memory of a
+ * hit either, so the same shape applies: one roll offered, and past -2×HP
+ * the per-multiple row printed beside it, leaving the count to the GM.
  *
  * **No outcome is latched.** [Shock] latches because the app creates a state
  * it can then charge for; a failed consciousness roll has no consumer here, so
@@ -37,11 +44,8 @@ enum class VitalCheck {
  */
 object VitalRolls {
 
-    /** p. 40's `0 HP` row. */
+    /** Line 2804's `0 HP` row. */
     private const val CONSCIOUSNESS_ROW = "0 HP"
-
-    /** p. 40's `-HP` row. */
-    private const val SURVIVAL_ROW = "-HP"
 
     /**
      * The checks the table asks for at [hp], in the order the rows print.
@@ -112,8 +116,12 @@ object VitalRolls {
     fun targetFor(check: VitalCheck, ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int = 0, states: Int = 0): Int =
         ht + bonusFor(check, traits) + poolPenalty + shock + states
 
-    /** The threshold row's own sentence, quoted rather than paraphrased. */
-    fun printed(check: VitalCheck): String = row(check).effect
+    /**
+     * The threshold row's own sentence, quoted rather than paraphrased: for
+     * [VitalCheck.SURVIVAL], the row [hp] stands in -- `-1×HP`, or past it
+     * the per-multiple row that says how many survival rolls the book asks for.
+     */
+    fun printed(check: VitalCheck, hp: PoolStatus): String = row(check, hp).effect
 
     /**
      * The row's printed LEVEL, which is what tells two offered rolls apart.
@@ -121,13 +129,19 @@ object VitalRolls {
      * Below `-HP` both checks are due and their targets differ (`Hard to Kill`
      * lifts one of them), so two buttons reading "Roll HT n" would leave the
      * player guessing which number belonged to which rule. The book's own
-     * "0 HP" and "-HP" are the discriminator, so no label is invented here --
+     * "0 HP" and "-1×HP" are the discriminator, so no label is invented here --
      * 6cn's rule that an unnamed label gets picked by whoever writes the
      * screen, and the default is the worse one.
      */
-    fun rowFor(check: VitalCheck): String = row(check).level
+    fun rowFor(check: VitalCheck, hp: PoolStatus): String = row(check, hp).level
 
-    private fun row(check: VitalCheck) = Pools.thresholds(Pool.HP)
-        .firstOrNull { it.level == if (check == VitalCheck.CONSCIOUSNESS) CONSCIOUSNESS_ROW else SURVIVAL_ROW }
-        ?: error("the HP table prints no row for $check")
+    private fun row(check: VitalCheck, hp: PoolStatus): PoolThreshold {
+        require(hp.pool == Pool.HP) { "a vital roll reads the HP table, not ${hp.pool}" }
+        require(check == VitalCheck.CONSCIOUSNESS || hp.rollsToSurvive) {
+            "no survival roll is due at ${hp.level}"
+        }
+        val level = if (check == VitalCheck.CONSCIOUSNESS) CONSCIOUSNESS_ROW else hp.level
+        return Pools.thresholds(Pool.HP).firstOrNull { it.level == level }
+            ?: error("the HP table prints no row for $check at $level")
+    }
 }
