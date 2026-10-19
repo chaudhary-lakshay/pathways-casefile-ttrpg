@@ -102,10 +102,10 @@ class GoldenStudyPointsTest {
     @Test
     fun `the page stops at eight CP and is a prefix, not the whole ladder`() {
         // 8 CP is Attribute+3 for an Easy skill here; the fuller grid runs on
-        // to 256. Reading this page as complete would cap every skill three
-        // levels above its attribute.
+        // to 80 and the flat 16 past it. Reading this page as complete would
+        // cap every skill three levels above its attribute.
         assertEquals(13, SkillLadder.levelFor(8, Difficulty.EASY, 10))
-        assertEquals(17, SkillLadder.levelFor(128, Difficulty.EASY, 10))
+        assertEquals(18, SkillLadder.levelFor(80, Difficulty.EASY, 10))
     }
 
     @Test

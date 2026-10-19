@@ -196,12 +196,11 @@ data class SkillLadderExample(
 )
 
 /**
- * The skill cost ladder (Ch. 3, p. 25-26) -- [com.pathways.rules.SkillLadder]'s
+ * The skill cost ladder (Ch. 3 Step 4) -- [com.pathways.rules.SkillLadder]'s
  * own source table, extracted so something fails if the two ever drift.
  *
- * [cumulative] prints NINE rungs and every [rungs] row prints eight offsets:
- * the 256-point rung has a cost and no printed offset, and continuing it by
- * +1 is a reading the prose supports and the grid does not show.
+ * v6.9i prints nine rungs in both [cumulative] and every [rungs] row, to 80
+ * points; the prose continues past them at a flat 16 per level.
  */
 @Serializable
 data class SkillLadderTable(

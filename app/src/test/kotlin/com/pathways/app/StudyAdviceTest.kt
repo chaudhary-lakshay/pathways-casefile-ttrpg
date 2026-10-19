@@ -56,7 +56,6 @@ class StudyAdviceTest {
                             StudyRefusal.AT_CAP -> "at cap ${Study.capFor(attributeLevel)}"
                             StudyRefusal.NOT_POSSIBLE -> "not by self-study"
                             StudyRefusal.POTION_GRANTED -> "potion skill"
-                            StudyRefusal.PAST_GRID -> "past the grid"
                         }
                         assertEquals(expected, advice.tag, "${sheet.name} ${skill.key.display}")
                         assertEquals(refusal.reason, advice.reason)

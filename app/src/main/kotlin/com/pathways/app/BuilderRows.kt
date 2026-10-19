@@ -213,8 +213,6 @@ private val ledgerNote: TextStyle
  */
 internal data class StudyAdvice(val tag: String, val reason: String?)
 
-internal const val PAST_GRID_TAG = "past the grid"
-
 /**
  * Whether a potion grants this skill too, by p. 86's identity (name,
  * specialization, difficulty): its grant then supersedes the bought level
@@ -254,7 +252,6 @@ internal fun studyAdvice(
                 StudyRefusal.AT_CAP -> "at cap ${Study.capFor(attributeLevel)}"
                 StudyRefusal.NOT_POSSIBLE -> "not by ${method.label.lowercase()}"
                 StudyRefusal.POTION_GRANTED -> "potion skill"
-                StudyRefusal.PAST_GRID -> PAST_GRID_TAG
             }
             StudyAdvice(tag, refused.reason)
         },

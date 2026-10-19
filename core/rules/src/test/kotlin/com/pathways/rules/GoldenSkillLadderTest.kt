@@ -96,24 +96,21 @@ class GoldenSkillLadderTest {
     }
 
     /**
-     * **A reading, pinned.** The cumulative ladder prints nine costs and the
-     * difficulty grid only eight, so the 256-point rung has a cost and no
-     * printed offset. `SkillLadder` continues the row by +1, which the prose
-     * supports ("each level after the third costs twice as much as the level
-     * before it") but the grid never shows.
+     * Past the printed grid the ladder keeps climbing at the flat rate: "every
+     * level after that costs a flat 16 pts" (v6.9i line 1672-1673). The grid
+     * stops at 80 and the prose does not, so 96 is the next rung and 95 is not.
      */
     @Test
-    fun `the ninth rung is extrapolated because the grid stops at eight`() {
+    fun `past the grid every rung costs a flat sixteen`() {
         assertEquals(9, table.cumulative.size)
-        table.rungs.forEach { assertEquals(8, it.offsets.size) }
-        assertEquals(256, table.cumulative.last())
+        table.rungs.forEach { assertEquals(9, it.offsets.size) }
+        assertEquals(80, table.cumulative.last())
 
         table.rungs.forEach { row ->
-            assertEquals(
-                10 + row.offsets.last() + 1,
-                SkillLadder.levelFor(256, difficultyNamed(row.difficulty), 10),
-                "${row.difficulty} at 256 pts is off the printed grid",
-            )
+            val difficulty = difficultyNamed(row.difficulty)
+            assertEquals(10 + row.offsets.last(), SkillLadder.levelFor(95, difficulty, 10))
+            assertEquals(10 + row.offsets.last() + 1, SkillLadder.levelFor(96, difficulty, 10))
+            assertEquals(10 + row.offsets.last() + 3, SkillLadder.levelFor(128, difficulty, 10))
         }
     }
 
@@ -127,14 +124,14 @@ class GoldenSkillLadderTest {
 
     /**
      * The ladder is NOT vanilla GURPS, and this is the assertion that says so.
-     * Core 4e costs 1/2/4/8/12/16 and +4 per level past Attr+2; using those
-     * would make 14 of the 23 sheets' 232 skill levels wrong.
+     * Core 4e costs 1/2/4/8/12/16 and +4 per level past Attr+2. v6.9i doubles
+     * to 16 and then climbs by a flat 16 (v6.9d doubled all the way to 256).
      */
     @Test
-    fun `the ladder doubles rather than following GURPS core costs`() {
-        assertEquals(listOf(1, 2, 4, 8, 16, 32, 64, 128, 256), table.cumulative)
+    fun `the ladder doubles to sixteen and then climbs by a flat sixteen`() {
+        assertEquals(listOf(1, 2, 4, 8, 16, 32, 48, 64, 80), table.cumulative)
         assertTrue(12 !in table.cumulative) { "12 is a GURPS 4e rung, not this book's" }
-        table.cumulative.zipWithNext { a, b -> assertEquals(a * 2, b) }
+        assertEquals(listOf(1, 1, 2, 4, 8, 16, 16, 16, 16), table.incremental)
     }
 
     /** Untrained defaults are a different table and stay where they were. */

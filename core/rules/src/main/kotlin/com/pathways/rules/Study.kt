@@ -29,7 +29,7 @@ data class StudyPlan(
 }
 
 /** Which of the book's refusals it was, for a screen that tags the cause. */
-enum class StudyRefusal { POTION_GRANTED, NOT_POSSIBLE, AT_CAP, PAST_GRID }
+enum class StudyRefusal { POTION_GRANTED, NOT_POSSIBLE, AT_CAP }
 
 /** Carries the book's own sentence for why study offers nothing here. */
 class StudyRefusedException(val reason: String, val refusal: StudyRefusal) : IllegalStateException(reason)
@@ -146,7 +146,6 @@ object Study {
             return refuse(StudyRefusal.AT_CAP, "Study alone cannot pass $cap, and this skill is already $current.")
         }
         val nextPoints = SkillLadder.nextRungPoints(points)
-            ?: return refuse(StudyRefusal.PAST_GRID, "This skill is past the last rung the book's grid prints.")
         val toLevel = SkillLadder.levelFor(nextPoints, difficulty, attributeLevel)
         if (toLevel > cap) {
             return refuse(StudyRefusal.AT_CAP, "The next rung is $toLevel, and study alone cannot pass $cap.")

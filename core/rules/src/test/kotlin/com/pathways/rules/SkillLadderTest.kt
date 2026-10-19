@@ -100,13 +100,16 @@ class SkillLadderTest {
         assertEquals(4, SkillLadder.stepped(bought = 3, studied = 0, up = true))
         // Study points count toward the rung and are never bought.
         assertEquals(6, SkillLadder.stepped(bought = 2, studied = 2, up = true))
-        // Past the printed grid there is nothing to buy.
-        assertEquals(256, SkillLadder.stepped(bought = 256, studied = 0, up = true))
+        // Past the printed grid the flat 16 keeps going (v6.9i line 1673).
+        assertEquals(96, SkillLadder.stepped(bought = 80, studied = 0, up = true))
+        assertEquals(48, SkillLadder.stepped(bought = 32, studied = 0, up = true))
     }
 
     @Test
     fun `a step down sells back to the rung below`() {
         assertEquals(4, SkillLadder.stepped(bought = 8, studied = 0, up = false))
+        assertEquals(80, SkillLadder.stepped(bought = 96, studied = 0, up = false))
+        assertEquals(32, SkillLadder.stepped(bought = 48, studied = 0, up = false))
         assertEquals(1, SkillLadder.stepped(bought = 2, studied = 0, up = false))
         // 3 points sits on the 2-point rung, so the rung below is 1.
         assertEquals(1, SkillLadder.stepped(bought = 3, studied = 0, up = false))
