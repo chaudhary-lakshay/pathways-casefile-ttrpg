@@ -29,7 +29,7 @@ class GlossaryContentTest {
      * assertion no production change can fail on its own.
      */
     @Test
-    fun `the glossary is the twenty-five terms the book prints, in its order`() {
+    fun `the glossary is the twenty-seven terms the book prints, in its order`() {
         assertEquals(
             listOf(
                 "Acting Method",
@@ -54,6 +54,9 @@ class GlossaryContentTest {
                 "Sequence",
                 "SPI — Spirituality",
                 "Spirit Vision",
+                // v6.9i adds the two universal abilities.
+                "Spiritual Intuition",
+                "Spiritual Perception",
                 "Sea of Collective Subconscious",
                 "3d6",
                 "Will",

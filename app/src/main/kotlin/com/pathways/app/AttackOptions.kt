@@ -81,6 +81,10 @@ internal fun AttackOptions(
     onPlan: (AttackPlan) -> Unit,
     standing: SkillTarget,
     fromTrackers: Int,
+    /** The repeated-use declaration, or null where the line has no warm-up. */
+    warmUp: Boolean?,
+    warmUpLive: Boolean,
+    onWarmUp: () -> Unit,
     /** Ch. 2's burn, declared before the roll; null where none is allowed. */
     burn: BurnOffer?,
     burnPoints: Int,
@@ -116,6 +120,15 @@ internal fun AttackOptions(
                     it,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (warmUp != null) {
+                CaseChip(
+                    selected = warmUp && warmUpLive,
+                    enabled = warmUpLive,
+                    onClick = onWarmUp,
+                    label = { Text("Used repeatedly this session (DX+2)") },
+                    modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
             if (attacks.isNotEmpty()) {

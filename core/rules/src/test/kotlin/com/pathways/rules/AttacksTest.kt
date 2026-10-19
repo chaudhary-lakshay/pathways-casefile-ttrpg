@@ -580,9 +580,10 @@ class AttacksTest {
     fun `Wrestling offers the grappler's three maneuvers and rolls no damage`() {
         val rows = Damage.attacksFor("Wrestling")
         assertEquals(listOf("Grapple", "Takedown", "Pin"), rows.map { it.attack })
-        assertEquals(listOf(0, -1, -2), rows.map { it.rollModifier })
+        // v6.9i: Pin is Wrestling-4, opposed by the higher of ST or DX.
+        assertEquals(listOf(0, -1, -4), rows.map { it.rollModifier })
         assertEquals("DX or Escape", rows.first().opposedRoll)
-        assertEquals("DX or Wrestling", rows.last().opposedRoll)
+        assertEquals("Highest of ST or DX", rows.last().opposedRoll)
         rows.forEach {
             assertNull(Damage.forAttack(it, st = 10), "${it.attack} rolled damage")
         }

@@ -218,16 +218,17 @@ class SkillDefaultsTest {
     }
 
     /**
-     * **Three potion blocks print "no default penalty" for weapons, and none
-     * is applied.** Which skill a weapon uses is a property of the weapon in
-     * hand, which this list does not ask about, so the list says so to the
-     * characters it is true of. The census is the book's phrase over every
-     * block, so a fourth block reddens rather than going unsaid.
+     * **Five potion blocks print a weapon line**, by the book's two phrases
+     * ("default penalty", "effective DX"), and the Skills list applies none:
+     * which skill a weapon uses is a property of the weapon in hand, which
+     * this list does not ask about. The census reads every block, so a sixth
+     * reddens rather than going unsaid.
      */
     @Test
-    fun `the three weapon lines are named to the characters who walked them`() {
+    fun `the weapon lines are named to the characters who walked them`() {
         val printing = ContentLoader.pathways().filter {
-            "default penalty" in (it.ability + " " + it.reinforcedAbilities)
+            val text = it.ability + " " + it.reinforcedAbilities
+            "default penalty" in text || "effective DX" in text
         }
         assertEquals(
             SkillDefaults.WEAPON_LINES,
@@ -236,9 +237,10 @@ class SkillDefaultsTest {
         assertEquals(emptyList<String>(), SkillDefaults.weaponLinesFor("Fool", 9))
         assertEquals(listOf("Warrior"), SkillDefaults.weaponLinesFor("Twilight Giant", 9))
         assertEquals(
-            listOf("Warrior", "Weapon Master"),
+            listOf("Warrior", "Pugilist", "Weapon Master"),
             SkillDefaults.weaponLinesFor("Twilight Giant", 7),
         )
+        assertEquals(listOf("Unwinged Angel (Coldblooded)"), SkillDefaults.weaponLinesFor("Abyss", 8))
         assertEquals(listOf("Harvest Priest"), SkillDefaults.weaponLinesFor("Mother", 6))
         assertEquals(emptyList<String>(), SkillDefaults.weaponLinesFor("Mother", 8))
     }
@@ -314,8 +316,8 @@ class SkillDefaultsTest {
         }
         assertNull(SkillDefaults.weaponNote("Fool", 9))
         val note = SkillDefaults.weaponNote("Twilight Giant", 7)!!
-        assertTrue(note.startsWith("Not applied here: Warrior's \"no default penalty\" with any"), note)
-        assertTrue("Weapon Master's" in note, note)
+        assertTrue(note.startsWith("Not applied here: Warrior: any weapon"), note)
+        assertTrue("Weapon Master: any weapon at DX+4" in note, note)
         // The Harvest Priest's line is narrower than the other two, and a note
         // that dropped the restriction would promise the wider exemption.
         val priest = ContentLoader.pathways().single { it.name == "Harvest Priest" }
@@ -456,125 +458,98 @@ class SkillDefaultsTest {
     }
 
     /**
-     * **Warrior's and Weapon Master's lines, applied where a weapon is in
-     * hand** (6et named them and applied none, because a list of skills has
-     * no weapon). "Every weapon is treated as known at effective DX (no
-     * default penalty)": DX, and not a roll at a default, so Versatile's +1
-     * does not come along. The fist keeps the default -- the line is about a
-     * weapon -- which is why this asks whether one is held and not whether
-     * the skill has one.
+     * **The Twilight Giant's weapon lines, as v6.9i prints them**, applied
+     * where a weapon is in hand. Warrior: "every weapon is treated as known at
+     * effective DX ... from the moment it is picked up", and full proficiency
+     * "after repeated use" is effective DX+2 (5094-5099, and the Pugilist and
+     * Weapon Master blocks name it "(effective DX+2)"). Pugilist: melee "full
+     * proficiency (effective DX+2) immediately", ranged still DX until
+     * repeated use (5875-5878). Weapon Master: "effective DX+4 immediately,
+     * melee and ranged alike" (6810-6816).
      *
-     * **A FLOOR, and for a skill the character bought as well** (the diff
-     * review's MEDIUM). One point in Axe/Mace is DX-1, and the first version
-     * lifted only an untrained skill, so a Warrior who trained with the axe
-     * swung it worse than one who had never held it. "Every weapon" is the
-     * book's phrase. A level already at DX or above is left alone.
+     * **A FLOOR**: a skill already above it is left alone, and the fist keeps
+     * its own level -- the lines are about a weapon. Not a roll at a default,
+     * so Versatile's +1 does not come along.
      */
     @Test
-    fun `a weapon in a master's hand is wielded at no less than DX, and a fist is not`() {
-        val knife = offered(level = 10, bonus = 1).single { it.key.name == "Knife" }
-        assertEquals(7, knife.level)
-        for (mastery in SkillDefaults.WeaponMastery.entries) {
-            // Untrained, Versatile and all: DX and no more.
-            assertEquals(12, SkillDefaults.mastered(knife.level, weaponInHand = true, mastery = mastery, dx = 12))
-            // Bought one rung below DX.
-            assertEquals(12, SkillDefaults.mastered(11, weaponInHand = true, mastery = mastery, dx = 12))
-            // At DX or above the line changes nothing, and says so with null.
-            assertNull(SkillDefaults.mastered(12, weaponInHand = true, mastery = mastery, dx = 12))
-            assertNull(SkillDefaults.mastered(15, weaponInHand = true, mastery = mastery, dx = 12))
-            // The fist.
-            assertNull(SkillDefaults.mastered(knife.level, weaponInHand = false, mastery = mastery, dx = 12))
-            assertTrue(mastery.source.startsWith("DX, ") && "no default penalty" in mastery.source, mastery.source)
-            assertTrue(TraitEffects.VERSATILE !in mastery.source, mastery.source)
-        }
-        assertNull(SkillDefaults.mastered(knife.level, weaponInHand = true, mastery = null, dx = 12))
+    fun `a weapon in a master's hand is wielded at the line's floor, and a fist is not`() {
+        val w = SkillDefaults.WeaponMastery.WARRIOR
+        val p = SkillDefaults.WeaponMastery.PUGILIST
+        val m = SkillDefaults.WeaponMastery.WEAPON_MASTER
+        fun floor(mastery: SkillDefaults.WeaponMastery, ranged: Boolean, warm: Boolean) =
+            SkillDefaults.mastered(5, weaponInHand = true, mastery = mastery, dx = 12, isRanged = ranged, warmedUp = warm)
+        assertEquals(12, floor(w, ranged = false, warm = false))
+        assertEquals(14, floor(w, ranged = false, warm = true))
+        assertEquals(14, floor(w, ranged = true, warm = true))
+        assertEquals(14, floor(p, ranged = false, warm = false))
+        assertEquals(12, floor(p, ranged = true, warm = false))
+        assertEquals(14, floor(p, ranged = true, warm = true))
+        assertEquals(16, floor(m, ranged = false, warm = false))
+        assertEquals(16, floor(m, ranged = true, warm = false))
+        // At or above the floor the line changes nothing, and says so with null.
+        assertNull(SkillDefaults.mastered(16, weaponInHand = true, mastery = m, dx = 12))
+        assertNull(SkillDefaults.mastered(12, weaponInHand = true, mastery = w, dx = 12))
+        // The fist, and no line at all.
+        assertNull(SkillDefaults.mastered(5, weaponInHand = false, mastery = m, dx = 12))
+        assertNull(SkillDefaults.mastered(5, weaponInHand = true, mastery = null, dx = 12))
+        // Where a warm-up still moves the number, the dialog asks for it.
+        assertTrue(w.warmsUp(isRanged = false) && w.warmsUp(isRanged = true))
+        assertTrue(!p.warmsUp(isRanged = false) && p.warmsUp(isRanged = true))
+        assertTrue(!m.warmsUp(isRanged = false) && !m.warmsUp(isRanged = true))
+        // The label names the floor and the block it came from.
+        assertEquals("DX+4, Weapon Master", m.sourceFor(isRanged = false, warmedUp = false))
+        assertEquals("DX, Warrior", w.sourceFor(isRanged = false, warmedUp = false))
+        assertEquals("DX+2, Warrior after repeated use", w.sourceFor(isRanged = true, warmedUp = true))
+        assertTrue(TraitEffects.VERSATILE !in m.sourceFor(isRanged = false, warmedUp = false))
     }
 
     /**
-     * **The level a carried weapon is wielded at, for its PARRY** (6ey). Line
-     * 2468 prints "Weapon Skill ÷ 2 + 3", and a master's weapon is "treated as
-     * known at effective DX": DX is the Weapon Skill operand, so a master's
-     * broadsword parries untrained. A non-master's still needs a skill -- the
-     * armed cell prints no "or DX" -- and with two skills arming one weapon
-     * the higher wields it, on every screen that asks.
+     * **The level a carried weapon is wielded at, for its PARRY** (6ey): the
+     * highest skill that arms it, floored in a master's hand at the line's
+     * IMMEDIATE melee level. READING: the Defend dialog takes no repeated-use
+     * declaration, so a Warrior parries at DX, a Pugilist at DX+2 and a
+     * Weapon Master at DX+4.
      */
     @Test
-    fun `a carried weapon is wielded at its best skill, floored at DX in a master's hand`() {
+    fun `a carried weapon is wielded at its best skill, floored in a master's hand`() {
         val broadsword = Weapons.named("Broadsword")
         val key = SkillKey("Broadsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
-        val w = SkillDefaults.WeaponMastery.WARRIOR
         assertNull(SkillDefaults.wieldedAt(broadsword, emptyMap(), mastery = null, dx = 12))
         assertEquals(9, SkillDefaults.wieldedAt(broadsword, mapOf(key to 9), mastery = null, dx = 12))
-        for (mastery in SkillDefaults.WeaponMastery.entries) {
-            assertEquals(12, SkillDefaults.wieldedAt(broadsword, emptyMap(), mastery, dx = 12))
-            assertEquals(12, SkillDefaults.wieldedAt(broadsword, mapOf(key to 9), mastery, dx = 12))
-            assertEquals(14, SkillDefaults.wieldedAt(broadsword, mapOf(key to 14), mastery, dx = 12))
+        val floors = mapOf(
+            SkillDefaults.WeaponMastery.WARRIOR to 12,
+            SkillDefaults.WeaponMastery.PUGILIST to 14,
+            SkillDefaults.WeaponMastery.WEAPON_MASTER to 16,
+        )
+        for ((mastery, floor) in floors) {
+            assertEquals(floor, SkillDefaults.wieldedAt(broadsword, emptyMap(), mastery, dx = 12))
+            assertEquals(floor, SkillDefaults.wieldedAt(broadsword, mapOf(key to 9), mastery, dx = 12))
+            assertEquals(17, SkillDefaults.wieldedAt(broadsword, mapOf(key to 17), mastery, dx = 12))
         }
         val knife = Weapons.named("Combat Knife")
         val easy = SkillKey("Knife", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
         val average = easy.copy(difficulty = Difficulty.AVERAGE)
         assertEquals(12, SkillDefaults.wieldedAt(knife, mapOf(easy to 12, average to 11), mastery = null, dx = 10))
-        assertEquals(9, Weapons.parryFor(broadsword, SkillDefaults.wieldedAt(broadsword, emptyMap(), w, dx = 12)!!))
     }
 
-    /**
-     * The Pugilist's reinforced Combat Mastery (book lines 6595-6598): melee
-     * weapons "known at effective DX immediately (no warm-up needed)", and
-     * "Ranged weapons still need one use to reach full proficiency (as the
-     * Warrior's original ability)". Its text never says "no default
-     * penalty", which is why the keyword census behind WEAPON_LINES missed
-     * it. It changes no number -- the Warrior already wields at DX -- only
-     * where the repeated-use clause is still said to be unapplied.
-     */
+    /** Which mastery a walked chain holds: Weapon Master replaces the Warrior's. */
     @Test
-    fun `a Pugilist's melee weapon needs no warm-up and a ranged one still does`() {
-        val pugilist = ContentLoader.pathways().single { it.name == "Pugilist" }.reinforcedAbilities
-        assertTrue("limited to melee weapons only" in pugilist, pugilist)
-        assertTrue("Ranged weapons still need one use" in pugilist, pugilist)
-
-        val p = SkillDefaults.WeaponMastery.PUGILIST
-        assertEquals(p, SkillDefaults.masteryFor("Twilight Giant", 8))
-        assertNull(p.unappliedFor(isRanged = false))
-        assertTrue("default +2" in p.unappliedFor(isRanged = true)!!)
-        assertTrue("Warrior" in p.source, p.source)
-        val w = SkillDefaults.WeaponMastery.WARRIOR
-        assertEquals(w.unappliedFor(isRanged = false), w.unappliedFor(isRanged = true))
-        assertNull(SkillDefaults.WeaponMastery.WEAPON_MASTER.unappliedFor(isRanged = true))
-    }
-
-    /**
-     * Which mastery a walked chain holds. Weapon Master's block calls itself
-     * "a strict upgrade to and replacement of the Warrior's Combat Mastery",
-     * so it is one or the other and never both -- and the repeated-use clause
-     * is the Warrior's alone.
-     */
-    @Test
-    fun `Weapon Master replaces Warrior, and only Warrior counts repeated use`() {
+    fun `the printed numbers and which line a chain holds`() {
         val warrior = ContentLoader.pathways().single { it.name == "Warrior" }.ability
+        val pugilist = ContentLoader.pathways().single { it.name == "Pugilist" }.reinforcedAbilities
         val master = ContentLoader.pathways().single { it.name == "Weapon Master" }.ability
         assertTrue("treated as known at effective DX (no default penalty)" in warrior, warrior)
         assertTrue("treated as known at default +2" in warrior, warrior)
-        assertTrue("treated as known at effective DX (no default penalty)" in master, master)
+        assertTrue("full proficiency (effective DX+2) immediately" in pugilist, pugilist)
+        assertTrue("Ranged weapons remain at" in pugilist, pugilist)
+        assertTrue("effective DX+4 immediately, melee and ranged alike" in master, master)
         assertTrue("strict upgrade to and replacement of the Warrior" in master, master)
-
-        val w = SkillDefaults.WeaponMastery.WARRIOR
-        val m = SkillDefaults.WeaponMastery.WEAPON_MASTER
-        assertEquals(w, SkillDefaults.masteryFor("Twilight Giant", 9))
-        assertEquals(m, SkillDefaults.masteryFor("Twilight Giant", 7))
-        assertEquals(m, SkillDefaults.masteryFor("Twilight Giant", 6))
+        assertEquals(SkillDefaults.WeaponMastery.WARRIOR, SkillDefaults.masteryFor("Twilight Giant", 9))
+        assertEquals(SkillDefaults.WeaponMastery.PUGILIST, SkillDefaults.masteryFor("Twilight Giant", 8))
+        assertEquals(SkillDefaults.WeaponMastery.WEAPON_MASTER, SkillDefaults.masteryFor("Twilight Giant", 7))
+        assertEquals(SkillDefaults.WeaponMastery.WEAPON_MASTER, SkillDefaults.masteryFor("Twilight Giant", 6))
         assertNull(SkillDefaults.masteryFor("Fool", 9))
         assertNull(SkillDefaults.masteryFor("Mother", 7))
-        val note = w.unappliedFor(isRanged = false)!!
-        assertTrue("default +2" in note && note.startsWith("Not applied here"), note)
-        // The reason is the book's, not the app's (6fj): counting uses was
-        // never the obstacle, since a GM could declare them. The Warrior's
-        // own example puts "default +2" above the DX it starts at, and the
-        // Weapon Master, "a strict upgrade", stops at DX.
-        assertTrue("count uses" !in note, note)
-        assertTrue("above DX" in note && "strict upgrade" in note, note)
-        assertTrue("but needs several shots before reaching full proficiency" in warrior, warrior)
-        assertTrue("treated as known at effective DX (no default penalty) instantly" in master, master)
-        assertNull(m.unappliedFor(isRanged = false))
         // The Harvest Priest's line is about a tool the weapon table does not mark.
         assertNull(SkillDefaults.toolNote("Twilight Giant", 7))
         assertTrue("farming or gardening tool" in SkillDefaults.toolNote("Mother", 7)!!)

@@ -11,11 +11,13 @@ import org.junit.jupiter.api.assertThrows
 class NonStandardPathwaysTest {
 
     @Test
-    fun `ten Sequence 9 blocks and seven Sequence 8`() {
+    fun `ten Sequence 9 blocks, seven Sequence 8 and one Sequence 7`() {
         val all = NonStandardPathways.all()
-        assertEquals(17, all.size)
+        assertEquals(18, all.size)
         assertEquals(10, all.count { it.sequence == 9 })
         assertEquals(7, all.count { it.sequence == 8 })
+        // v6.9i's Sublunary Eye Sequence 7, the Painter: a third rung.
+        assertEquals(listOf("Sublunary Eye" to "Painter"), all.filter { it.sequence == 7 }.map { it.pathway to it.name })
         assertEquals(14, NonStandardPathways.pathways().size)
     }
 

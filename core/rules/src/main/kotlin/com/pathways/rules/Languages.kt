@@ -229,13 +229,13 @@ object Languages {
     fun mystical(): List<LanguageEntry> = all().filter { it.type == MYSTICAL }
 
     /**
-     * The languages a potion printed (6fo): Mother 8 and Justiciar 6, "Ancient
-     * Hermes Fluent -- can speak, read, and write" (book 6783, 8165), which is
+     * The languages a potion printed (6fo): Justiciar 6, "Ancient Hermes
+     * Fluent -- can speak, read, and write" (v6.9i book 7392-7395), which is
      * the [FLUENT] row, whose cell opens "Fluent.", in [BOTH_FORMS]. Free, as
-     * every grant is (p. 85), so never a purchase the budget bills.
+     * every grant is, so never a purchase the budget bills. v6.9i's Mother 8
+     * (6055-6083) prints no language, so its v6.9d grant is gone.
      */
     private val GRANTED: Map<Pair<String, Int>, LanguagePurchase> = mapOf(
-        ("Mother" to 8) to LanguagePurchase("Ancient Hermes", FLUENT, BOTH_FORMS),
         ("Justiciar" to 6) to LanguagePurchase("Ancient Hermes", FLUENT, BOTH_FORMS),
     )
 

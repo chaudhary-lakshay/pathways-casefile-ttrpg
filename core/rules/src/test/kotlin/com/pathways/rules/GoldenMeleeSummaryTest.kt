@@ -85,7 +85,8 @@ class GoldenMeleeSummaryTest {
         assertEquals(1, grappling.map { it.damage }.toSet().size)
         grappling.forEach {
             assertFalse(it.wounds, "${it.attack} rolls damage")
-            assertTrue(it.opposedRoll!!.startsWith("DX or "))
+            // Every opposed cell names DX: "DX or ..." or v6.9i's Pin, "Highest of ST or DX".
+            assertTrue(it.opposedRoll!!.contains("DX"), it.opposedRoll)
         }
         assertTrue(Damage.attacksFor("Brawling").isNotEmpty())
         assertTrue(Damage.attacksFor("Boxing").isNotEmpty())

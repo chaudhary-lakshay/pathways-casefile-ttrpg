@@ -109,9 +109,10 @@ class AllRollsClausesTest {
     }
 
     @Test
-    fun `the six rows are known and the refusals they carried are gone`() {
+    fun `the seven rows are known and the refusals they carried are gone`() {
         val names = TraitClauses.allRollsClauseNames()
-        assertEquals(6, names.size)
+        // v6.9i's Alcoholism is the seventh.
+        assertEquals(7, names.size)
         assertTrue(names.all { it in TraitEffects.known() }, names.toString())
         // Phobia's refusal said "no control for a second all-rolls state";
         // Soul Scar's said "nothing here to roll or to modify". Both expired.

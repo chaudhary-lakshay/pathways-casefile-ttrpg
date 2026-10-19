@@ -159,6 +159,7 @@ internal fun DefenseDialog(
     // on every defence row, and charged with each defence rolled (v6.9i).
     val burn = remember(traits) { BurnOffer.of(BurnKind.PHYSICAL, traits) }
     var burnPoints by remember { mutableIntStateOf(0) }
+    var acrobaticRolls by remember { mutableIntStateOf(0) }
     val drawnBurn = if (burn == null) 0 else burnPoints
     val everyDefence = remember(traits, stunned, shocked, poolPenalty, states) {
         ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty, states.total)
@@ -398,6 +399,8 @@ internal fun DefenseDialog(
                     // the bottom, which now shows only what this app does NOT
                     // apply -- one sentence printed in both places, with
                     // neither marked, is 6bl's defect on this same screen.
+                    // Counted, not compared: an equal re-roll is no state change (Codex).
+                    val drawnAcrobaticRolls = acrobaticRolls
                     val acrobaticStanding = acrobatics?.let { skill ->
                         val burned = listOfNotNull(EffortBurn.modifier(BurnKind.PHYSICAL, drawnBurn))
                         acrobaticTarget(skill, { conditions(it) + burned }, traits)
@@ -407,7 +410,8 @@ internal fun DefenseDialog(
                         standing = acrobaticStanding,
                         rolled = round.acrobatic,
                         onRoll = {
-                            acrobaticStanding?.let { printed ->
+                            acrobaticStanding?.takeIf { acrobaticRolls == drawnAcrobaticRolls }?.let { printed ->
+                                acrobaticRolls = drawnAcrobaticRolls + 1
                                 round = round.copy(acrobatic = SkillRoll.rollAgainst(printed, dice.dice("Acrobatic Dodge")))
                                 chargeBurn()
                             }
@@ -511,12 +515,12 @@ internal fun DefenseDialog(
                     // the book's own examples are attacks and this is the
                     // reading that carries the line to a parry (6ey).
                     if (mastery != null && lifted.isNotEmpty()) {
-                        RuleNote("Why a master's weapon parries at DX") {
+                        RuleNote("Why a master's weapon parries higher") {
                             DefenseNote(
-                                "${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
-                                    "before the halving, from ${mastery.quoted}'s \"treated as " +
-                                    "known at effective DX\", read as the Parry (Armed) " +
-                                    "row's operand. A reading: the book's examples are attacks.",
+                                "${lifted.joinToString(", ")}: Weapon Skill no less than " +
+                                    "${mastery.sourceFor(isRanged = false, warmedUp = false)} before the " +
+                                    "halving, read as the Parry (Armed) row's operand. A reading: the " +
+                                    "book's examples are attacks, and repeated use is not asked here.",
                             )
                         }
                     }

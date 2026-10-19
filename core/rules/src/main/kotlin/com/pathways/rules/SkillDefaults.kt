@@ -62,20 +62,23 @@ object SkillDefaults {
      * WEAPON -- "every weapon is treated as known at effective DX" -- and
      * which skill a weapon uses is a property of the weapon in hand, which a
      * list of skills does not ask about. The Attack dialog does have one in
-     * hand, and [mastered] applies the two Twilight Giant lines there (6eu).
+     * hand, and [mastered] applies the three Twilight Giant lines there (6eu).
      */
     val WEAPON_LINES: Set<Pair<String, String>> get() = WEAPON_SCOPES.keys
 
     /**
      * What each line covers, in the block's own words. They are not one
-     * rule: two say "any weapon" and the third only "any farming or gardening
-     * tool as a weapon", and a note that flattened them would promise the
-     * Harvest Priest the Warrior's exemption (the diff review's MEDIUM).
+     * rule, and a note that flattened them would promise the Harvest Priest
+     * the Warrior's exemption (the diff review's MEDIUM).
      */
     private val WEAPON_SCOPES = mapOf(
-        ("Twilight Giant" to "Warrior") to "any weapon",
-        ("Twilight Giant" to "Weapon Master") to "any weapon",
-        ("Mother" to "Harvest Priest") to "a farming or gardening tool used as a weapon",
+        ("Twilight Giant" to "Warrior") to "any weapon at effective DX, DX+2 after repeated use",
+        ("Twilight Giant" to "Pugilist") to "a melee weapon at DX+2",
+        ("Twilight Giant" to "Weapon Master") to "any weapon at DX+4",
+        ("Mother" to "Harvest Priest") to "a farming or gardening tool used as a weapon at no default penalty",
+        // Printed in v6.9d too and never applied: chapter 8's table marks no
+        // improvised weapon, and the firearm clause is the Abyss chain's own.
+        ("Abyss" to "Unwinged Angel (Coldblooded)") to "any firearm at effective DX+1",
     )
 
     /**
@@ -104,7 +107,7 @@ object SkillDefaults {
     fun weaponNote(pathway: String, sequence: Int): String? =
         weaponLinesFor(pathway, sequence).takeIf { it.isNotEmpty() }?.let { names ->
             val lines = names.joinToString("; ") { name ->
-                "$name's \"no default penalty\" with ${WEAPON_SCOPES.getValue(pathway to name)}"
+                "$name: ${WEAPON_SCOPES.getValue(pathway to name)}"
             }
             "Not applied here: $lines. This list does not know what is in hand."
         }
@@ -181,63 +184,48 @@ object SkillDefaults {
 
     /**
      * The Twilight Giant's weapon line, which a walked chain holds one stage
-     * of: the Pugilist "upgrades" the Warrior's, and Weapon Master's block
-     * calls itself "a strict upgrade to and replacement of the Warrior's
-     * Combat Mastery". The Weapon Master "requires no warm-up".
+     * of, as v6.9i prints it. The Pugilist "upgrades" the Warrior's, and
+     * Weapon Master's block calls itself "a strict upgrade to and replacement
+     * of the Warrior's Combat Mastery".
+     *
+     * Each is a floor over DX for the weapon in hand: [immediateMelee] and
+     * [immediateRanged] from the moment it is picked up, and [FULL_PROFICIENCY]
+     * once a weapon has been "used repeatedly in a session", where [warmsUp].
+     * Warrior: DX, "default +2" after repeated use (5094-5099), which the
+     * later blocks name "full proficiency (effective DX+2)". Pugilist: melee
+     * "(effective DX+2) immediately", ranged DX until repeated use
+     * (5875-5878). Weapon Master: "effective DX+4 immediately, melee and
+     * ranged alike, with no warm-up" (6810-6816).
      */
     enum class WeaponMastery(
         val block: String,
-        /** The block whose "no default penalty" the DX floor quotes. */
-        val quoted: String,
-        private val meleeWarmUp: Boolean,
-        private val rangedWarmUp: Boolean,
+        private val immediateMelee: Int,
+        private val immediateRanged: Int,
     ) {
-        WARRIOR("Warrior", "Warrior", meleeWarmUp = true, rangedWarmUp = true),
-
-        /**
-         * Seq 8's reinforced Combat Mastery: "treats any weapon as known at
-         * effective DX immediately (no warm-up needed) ... limited to melee
-         * weapons only. Ranged weapons still need one use to reach full
-         * proficiency (as the Warrior's original ability)". It changes no
-         * number -- the Warrior's line already wields at DX -- so the floor
-         * still quotes the Warrior, and only the melee warm-up goes. Its text
-         * never says "no default penalty", which is how the keyword census
-         * behind [WEAPON_LINES] missed it (6ey).
-         */
-        PUGILIST("Pugilist", "Warrior", meleeWarmUp = false, rangedWarmUp = true),
-        WEAPON_MASTER("Weapon Master", "Weapon Master", meleeWarmUp = false, rangedWarmUp = false),
+        WARRIOR("Warrior", immediateMelee = 0, immediateRanged = 0),
+        PUGILIST("Pugilist", immediateMelee = FULL_PROFICIENCY, immediateRanged = 0),
+        WEAPON_MASTER("Weapon Master", immediateMelee = 4, immediateRanged = 4),
         ;
 
-        /** Where a level [mastered] lifted came from, for the roll's label. */
-        val source: String get() = "DX, $quoted's \"no default penalty\""
+        private fun immediate(isRanged: Boolean) = if (isRanged) immediateRanged else immediateMelee
 
-        /**
-         * The clause of the line this app does not apply to the weapon in
-         * hand, as the sentence a screen prints, or null. Only the Warrior's
-         * "Weapons used repeatedly in a session are treated as known at
-         * default +2" is left, and the Pugilist keeps it for a ranged weapon.
-         *
-         * **Refused for a reason in the book, not in this app** (6fj). The
-         * old reason, "this app does not count uses", was false as a
-         * reason: a GM could declare repeated use, as other circumstances
-         * are declared. What no declaration fixes is the number. The
-         * Warrior's example fires "at DX level immediately, but needs
-         * several shots before reaching full proficiency (default +2 after
-         * repeated use)", which puts it ABOVE DX (5800-5801). The Weapon
-         * Master, "a strict upgrade to and replacement of the Warrior's
-         * Combat Mastery" (7569-7570), stops at "effective DX (no default
-         * penalty)" (7564). A warmed-up Warrior at DX+2 would outdo the line
-         * that replaces his. The DX floor stays: the Warrior's block says DX
-         * at first use twice, and the later blocks print no lower number.
-         */
-        fun unappliedFor(isRanged: Boolean): String? =
-            WARM_UP.takeIf { if (isRanged) rangedWarmUp else meleeWarmUp }
+        /** Whether repeated use still raises this hand's level: the dialog asks only then. */
+        fun warmsUp(isRanged: Boolean): Boolean = immediate(isRanged) < FULL_PROFICIENCY
+
+        /** The floor over DX for this hand. */
+        fun bonusOverDx(isRanged: Boolean, warmedUp: Boolean): Int =
+            if (warmedUp && warmsUp(isRanged)) FULL_PROFICIENCY else immediate(isRanged)
+
+        /** Where a level [mastered] lifted came from, for the roll's label. */
+        fun sourceFor(isRanged: Boolean, warmedUp: Boolean): String {
+            val bonus = bonusOverDx(isRanged, warmedUp)
+            val dx = if (bonus == 0) "DX" else "DX+$bonus"
+            return "$dx, $block" + if (warmedUp && warmsUp(isRanged)) " after repeated use" else ""
+        }
     }
 
-    private const val WARM_UP =
-        "Not applied here: Warrior's \"default +2\" after repeated use. " +
-            "Its own example puts that above DX; the Weapon Master, " +
-            "\"a strict upgrade\", stops at DX."
+    /** "full proficiency (effective DX+2)", the Warrior's warmed-up level. */
+    private const val FULL_PROFICIENCY = 2
 
     /** The mastery a character at [sequence] of [pathway] holds, or null. */
     fun masteryFor(pathway: String, sequence: Int): WeaponMastery? {
@@ -250,43 +238,47 @@ object SkillDefaults {
     /**
      * The level [weapon] is wielded at for its PARRY, or null where nothing
      * wields it: the highest skill of [skillLevels] that arms it
-     * ([Weapons.levelFor]), floored at [dx] in a master's hand.
+     * ([Weapons.levelFor]), floored in a master's hand at the line's
+     * immediate melee level.
      *
      * Line 2468 prints "Weapon Skill ÷ 2 + 3", and a master's weapon is
-     * "treated as known at effective DX", so DX is that operand and a
-     * master's weapon parries untrained (6ey; the design review: SHIP). A
-     * non-master's still needs a skill: the armed cell prints no "or DX",
-     * and the unarmed cell, the one place an untrained parry operand is
-     * printed (2473), prints DX and not Brawling's DX-2 default, so no line
-     * halves a default (6gz). The highest skill, not the one an attack picked, so the
-     * Attack and Defend dialogs print one parry for one weapon.
+     * "treated as known at effective DX" or better, so that floor is the
+     * operand and a master's weapon parries untrained (6ey). READING: the
+     * Defend dialog takes no repeated-use declaration, so the floor is the
+     * immediate one. A non-master's weapon still needs a skill (6gz).
      */
     fun wieldedAt(weapon: CataloguedWeapon, skillLevels: Map<SkillKey, Int>, mastery: WeaponMastery?, dx: Int): Int? {
         val own = Weapons.levelFor(weapon, skillLevels)
         if (mastery == null) return own
-        return maxOf(own ?: dx, dx)
+        val floor = dx + mastery.bonusOverDx(isRanged = false, warmedUp = false)
+        return maxOf(own ?: floor, floor)
     }
 
     /**
      * The level a weapon in a master's hand lifts [level] to, or null where
-     * the line changes nothing.
+     * the line changes nothing: DX plus [WeaponMastery.bonusOverDx], as a
+     * FLOOR. "Every weapon" is the book's phrase, so a skill bought below
+     * the floor is lifted too, and one above it is left alone.
      *
-     * "Every weapon is treated as known at effective DX (no default
-     * penalty)": [dx], as a FLOOR. An untrained skill is always below it, and
-     * so is one bought a rung under DX -- one point in an Average weapon
-     * skill -- which the first version of this left there, so a Warrior who
-     * trained with the axe swung it worse than one who never had (the diff
-     * review's MEDIUM). "Every weapon" is the book's phrase.
-     *
-     * Not a roll at a default any more, so Versatile's +1 -- "any time you
-     * use a skill at default" -- does not come along: the answer is [dx].
+     * Not a roll at a default, so Versatile's +1 does not come along.
      *
      * **[weaponInHand], not "this skill has a weapon".** Brawling arms a
      * truncheon and opens on a fist, and the line is about the truncheon (a
-     * design review's HIGH).
+     * design review's HIGH). [warmedUp] is the player's declaration that the
+     * weapon has been "used repeatedly in a session".
      */
-    fun mastered(level: Int, weaponInHand: Boolean, mastery: WeaponMastery?, dx: Int): Int? =
-        dx.takeIf { weaponInHand && mastery != null && level < dx }
+    fun mastered(
+        level: Int,
+        weaponInHand: Boolean,
+        mastery: WeaponMastery?,
+        dx: Int,
+        isRanged: Boolean = false,
+        warmedUp: Boolean = false,
+    ): Int? {
+        if (!weaponInHand || mastery == null) return null
+        val floor = dx + mastery.bonusOverDx(isRanged, warmedUp)
+        return floor.takeIf { level < it }
+    }
 
     /**
      * The Harvest Priest's line, for a screen with a weapon on it: "any

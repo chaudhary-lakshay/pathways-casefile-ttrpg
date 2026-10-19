@@ -193,6 +193,9 @@ internal fun AttackDialog(
     var outcomes by remember { mutableStateOf<List<SkillRollOutcome>>(emptyList()) }
     // Points declared to burn on each attack roll, before the dice (v6.9i).
     var burnPoints by remember { mutableIntStateOf(0) }
+    // The player's declaration that the weapon in hand has been "used
+    // repeatedly in a session" (the Warrior's line). Kept across turns.
+    var warmedUp by remember { mutableStateOf(false) }
     // The damage the attack was drawn with, kept at Roll so a hit rolls what
     // was printed, and each hit's throw by index (play session 1: "2d pi"
     // printed and nothing rolled it).
@@ -201,16 +204,21 @@ internal fun AttackDialog(
 
     val chosen = picked
     // What the chosen skill is rolled at NOW. Its own level, owned or
-    // default -- unless a weapon is in a Warrior's or Weapon Master's hand,
-    // which is wielded at no less than DX. So the level depends on the hand,
-    // and it is derived here, once, so the header, the stepper's ceiling, the
-    // damage and the roll cannot read four different numbers.
-    fun levelWith(weaponInHand: Boolean): Int {
+    // default -- unless a weapon is in a Twilight Giant's hand, which is
+    // wielded at no less than the line's floor over DX. So the level depends
+    // on the hand, and it is derived here, once, so the header, the stepper's
+    // ceiling, the damage and the roll cannot read four different numbers.
+    fun levelWith(weaponInHand: Boolean, isRanged: Boolean, warm: Boolean = warmedUp): Int {
         val own = chosen?.level ?: 0
-        return SkillDefaults.mastered(own, weaponInHand, mastery, dx) ?: own
+        return SkillDefaults.mastered(own, weaponInHand, mastery, dx, isRanged, warm) ?: own
     }
     // A bash on Shield is a weapon too, "an improvised weapon" (6ib).
-    val level = levelWith(armed != null || Shields.isWeaponInHand(unarmed))
+    val inHand = armed != null || Shields.isWeaponInHand(unarmed)
+    val level = levelWith(inHand, armed.isFired)
+    // "Weapons used repeatedly in a session": offered from the start to a
+    // line that warms up, live only where it would move this hand's level.
+    val warmUpOffered = mastery?.let { it.warmsUp(false) || it.warmsUp(true) } == true
+    val warmUpLive = inHand && mastery?.warmsUp(armed.isFired) == true
     // What the traits add, composed ONCE: printed above Roll and rolled by
     // the handler drawn beside it, so the two cannot disagree (6eg).
     val charm = chosen?.let { charmFor(traits, it.key) }
@@ -220,7 +228,7 @@ internal fun AttackDialog(
     val isMastered = chosen != null && level != chosen.level
     val label = chosen?.let {
         it.key.label() + when {
-            isMastered -> " (${mastery?.source})"
+            isMastered -> " (${mastery?.sourceFor(armed.isFired, warmedUp)})"
             it.untrained != null -> " (untrained, ${it.untrained.source})"
             else -> ""
         }
@@ -381,7 +389,6 @@ internal fun AttackDialog(
                         // about a skill they lack.
                         notes = armed?.let { held ->
                             listOfNotNull(
-                                mastery?.unappliedFor(Weapons.isRanged(held.weapon)),
                                 toolNote.takeIf { chosen.untrained != null },
                             )
                         }.orEmpty(),
@@ -424,7 +431,7 @@ internal fun AttackDialog(
                             // A fist puts the weapon down, so a master's level
                             // drops to the default and the plan goes with it;
                             // a bash on Shield picks one up.
-                            plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(Shields.isWeaponInHand(it)))
+                            plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(Shields.isWeaponInHand(it), isRanged = false))
                             circumstances = circumstances - AIM_ROWS
                         },
                         onArmed = { held ->
@@ -444,7 +451,7 @@ internal fun AttackDialog(
                             // for an untrained master differs with and without.
                             plan = Attacks.atLevel(
                                 Attacks.atRange(plan, held.isFired),
-                                levelWith(held != null || Shields.isWeaponInHand(unarmed)),
+                                levelWith(held != null || Shields.isWeaponInHand(unarmed), held.isFired),
                             )
                             // Aim is worth the WEAPON's Acc, and distance belongs
                             // to a shot. Carrying either into reach asks
@@ -490,6 +497,14 @@ internal fun AttackDialog(
                         },
                         standing = standing.target,
                         fromTrackers = standing.fromTrackers,
+                        warmUp = warmedUp.takeIf { warmUpOffered },
+                        warmUpLive = warmUpLive,
+                        onWarmUp = {
+                            warmedUp = !warmedUp
+                            // The level moves with it, and a Deceptive Attack
+                            // chosen above the new ceiling goes, as on a hand change.
+                            plan = Attacks.atLevel(plan, levelWith(inHand, armed.isFired, warmedUp))
+                        },
                         burn = burn,
                         burnPoints = drawnBurn,
                         onBurnPoints = { burnPoints = it },

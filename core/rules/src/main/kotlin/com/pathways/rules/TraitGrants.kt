@@ -10,6 +10,7 @@ import com.pathways.rules.TraitEffects.ACUTE_VISION
 import com.pathways.rules.TraitEffects.CHARISMA
 import com.pathways.rules.TraitEffects.COMBAT_REFLEXES
 import com.pathways.rules.TraitEffects.FIT
+import com.pathways.rules.TraitEffects.VERY_FIT
 import com.pathways.rules.TraitEffects.GREATER_ACUTE_VISION
 import com.pathways.rules.TraitEffects.HIGH_PAIN_THRESHOLD
 import com.pathways.rules.TraitEffects.INCISIVE_VISION
@@ -52,7 +53,8 @@ object TraitGrants {
         ("Visionary" to 8) to advantages(INCISIVE_VISION),
         ("Visionary" to 7) to advantages(ACUTE_SMELL),
         ("Sun" to 9) to advantages(FIT),
-        ("Sun" to 7) to advantages(FIT),
+        // v6.9i prints Very Fit here (its own row now, "Prerequisite: Fit").
+        ("Sun" to 7) to advantages(VERY_FIT),
         ("Tyrant" to 9) to advantages(PERFECT_BALANCE),
         ("Tyrant" to 7) to advantages("Absolute Direction", EIDETIC_MEMORY),
         ("White Tower" to 9) to advantages(EIDETIC_MEMORY),
@@ -93,7 +95,6 @@ object TraitGrants {
             "\"continuously grows as the potion digests\" prints no number, not the catalogue's +5",
         (("Red Priest" to 9) to "Danger Sense") to "\"Danger Sense (partial)\" is a variant the catalogue does not print",
         (("Red Priest" to 8) to "Fast Healer") to "\"Fast Healer (Limited)\": 1 HP per 2 days, not the catalogue's per day",
-        (("Moon" to 8) to "Empathy") to "\"Empathy (animals)\" is a variant the catalogue does not print",
         (("Tyrant" to 7) to PERFECT_BALANCE) to
             "\"Perfect Balance (Enhanced)\" is a variant; Tyrant 9's own Perfect Balance is granted",
     )

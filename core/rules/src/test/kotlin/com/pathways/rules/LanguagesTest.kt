@@ -360,17 +360,15 @@ class LanguagesTest {
     }
 
     /**
-     * Mother 8 and Justiciar 6 print "Ancient Hermes Fluent -- can speak,
-     * read, and write" (6fo): the mystical Native row, whose cell opens
+     * Justiciar 6 prints "Ancient Hermes Fluent -- can speak, read, and
+     * write" (6fo; v6.9i dropped Mother 8's): the mystical Native row, whose cell opens
      * "Fluent.", in both forms. Held down the chain from that rung.
      */
     @Test
     fun `a potion's language is held down the chain`() {
         fun at(pathway: String, seq: Int) = Languages.grantedBy(com.pathways.model.BeyonderState(pathway, seq))
         val hermes = LanguagePurchase("Ancient Hermes", Languages.FLUENT, Languages.BOTH_FORMS)
-        assertEquals(emptyList<LanguagePurchase>(), at("Mother", 9))
-        assertEquals(listOf(hermes), at("Mother", 8))
-        assertEquals(listOf(hermes), at("Mother", 6))
+        assertEquals(emptyList<LanguagePurchase>(), at("Mother", 8))
         assertEquals(emptyList<LanguagePurchase>(), at("Justiciar", 7))
         assertEquals(listOf(hermes), at("Justiciar", 6))
         assertEquals(emptyList<LanguagePurchase>(), Languages.grantedBy(null))
@@ -400,6 +398,6 @@ class LanguagesTest {
                 .map { it.language }.toSet()
         }
         assertEquals(printed, table)
-        assertEquals(setOf("Mother" to 8, "Justiciar" to 6), printed.keys)
+        assertEquals(setOf("Justiciar" to 6), printed.keys)
     }
 }

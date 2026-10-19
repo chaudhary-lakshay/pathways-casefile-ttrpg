@@ -621,6 +621,11 @@ object TraitClauses {
             -1,
         ),
         allRollsClause("Addiction: Laudanum", "Must use daily or suffer -2 to all rolls from withdrawal", -2),
+        allRollsClause(
+            "Alcoholism",
+            "Deprived of alcohol long enough, withdrawal applies -2 to all rolls until you can drink",
+            -2,
+        ),
         allRollsClause("Superstitious (mundane)", "If warding routine is disrupted, -1 to all rolls for the day", -1),
         // Quoted from its trigger, or the GM would read the -1 without WHEN.
         allRollsClause(
