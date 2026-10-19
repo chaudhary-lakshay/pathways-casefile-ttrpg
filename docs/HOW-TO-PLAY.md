@@ -64,7 +64,7 @@ From top to bottom, the sheet has these parts.
 
 The top bar shows the file number and whether the character is a Beyonder. The **⋮** menu holds three items:
 
-- **Roll log** lists each roll this character made since you opened the app, newest first. It shows the dice and the target, for example *"Fright Check 2 + 5 + 2 = 9 vs 5"*. It does not show success or failure, because a push or a table can change that after the dice. Closing the app clears the log.
+- **Roll log** lists each roll this character made since you opened the app, newest first. It shows the dice and the target, for example *"Fright Check 2 + 5 + 2 = 9 vs 5"*. It does not show success or failure, because a table can change that after the dice. Closing the app clears the log.
 - **Delete character** appears only on a character you made. It asks first. You cannot delete a published character.
 - **Reset to sheet** asks first and cannot be undone. On a published character it removes everything: potions, purchases, wounds, corruption and the roll log. On your own character it keeps the build and removes only what play added: potions, wounds, corruption, study points, a boon, and traits gained in play. Use it to start over, not during play.
 
@@ -151,16 +151,16 @@ The target already includes your level, the penalties from HP, FP, SPI and Corru
 
 The book's critical rules apply: 3 or 4 always succeeds, and 17 or 18 always fails. A few tables have their own rules, and those win.
 
-### Push the roll
+### Burn before the roll
 
-After you see the dice, you can buy a better result:
+Before you roll, you can burn points for +1 each, with no limit:
 
-- On a roll based on ST, DX or HT, 1 FP buys +1, up to +5.
-- On a spiritual roll, 1 SPI buys +1, with no limit, but you cannot spend SPI you do not have.
+- **Burn FP** on a roll based on ST, DX or HT, dodging included. Fit allows it in combat, so the row reads *Burn FP (in combat)*. Very Fit allows it at any time.
+- **Burn SPI (in combat)** on an SPI-based or supernatural roll: Ritualistic Magic, Divination Arts and the two senses.
 
-The push raises the target. It does not change the dice. If you spend nothing, the roll stands. A roll based on IQ, Will or Per gets no push, so the row is not there. FP can go below 0, because the book charges 1 HP for each FP below 0.
+Declare the burn with the row's stepper, then tap **Roll**. The points are spent with the roll. Attack spends the burn on each attack roll, and Defend on each defence roll. A roll based on IQ, Will or Per has no burn row. FP can go below 0, because the book charges 1 HP for each FP below 0.
 
-**Ritual**, **Boon** and **Divine** offer the same push. There, the app charges it when you close the dialog. A divination that is already *Crystal clear* offers no push.
+**Ritual**, **Boon**, **Divine** and **Contract** have their own **Burn SPI** stepper, which works out of combat too. It is spent with the fuel when you tap the button.
 
 ### Gear
 
@@ -271,7 +271,7 @@ You drink one potion at a time, in order. A mortal can drink only Sequence 9, an
 
 After the first potion, the screen has two tabs.
 
-**Potion** shows what the Sequence grants: attribute gains, skills with their levels, advantages, disadvantages and abilities. Each ability is a row with a tag such as **1 SPI** or **Passive**. Tap a row to read it, or tap **Open all**. On a potion you drank, an ability with a fixed SPI cost has a **Spend N SPI** button. It is grey when you do not have enough SPI. An ability whose cost the GM sets has no button.
+**Potion** shows what the Sequence grants: attribute gains, skills with their levels, advantages, disadvantages and abilities. Each ability is a row with a tag such as **1 SPI** or **Passive**. Tap a row to read it, or tap **Open all**. On a potion you drank, an ability with a fixed SPI cost has a **Spend N SPI** button. At 0 SPI or below it reads *+1 CoR, drained*: the book lets you use the power, and charges 1 CoR on top of the Soul Debt. An ability whose cost the GM sets has no button.
 
 **Digestion & corruption** holds the two trackers. Log a session of acting with one tap. For example, **Good +10-15%** adds 10%, and **+5%** adds more if the GM rules it. **None** leaves it for the GM to lower. A character with Knows the Acting Method also has **Knows the Acting Method: roll 3d6%**: tap it at the end of a session to add 3d6% on top. Under the CoR stepper, **From ritual work** lists the four steps of ritual corruption (3, 5, 8 and 10 CoR), and the ones you reached turn red. **What raises corruption** lists what costs CoR.
 
@@ -286,7 +286,7 @@ A Hanged Man picks one of three drawbacks at Sequence 9. On the **Potion** tab, 
 1. Pick the ritual's weight (Light, Moderate, Heavy or Major), its fuel, your preparation, the language and the link to the target.
 2. Add the power sources: HP paid as fuel, assistants (+1 each, up to +3), the GM's sacrifice value (-40 to +40), and an invocation.
 3. Read the target and the SPI cost at the bottom. The Corruption penalty is already in the target.
-4. Tap **Cast**. If you do not have enough SPI, or the book forbids the language, **Cast** is grey and the reason shows in red.
+4. Tap **Cast**. If the book forbids the language, **Cast** is grey and the reason shows in red. SPI can go below 0: the book charges Soul Debt for it.
 
 Quick and Full preparation use different tables. The dialog lists the mystical languages the character bought, then any from a potion. It does not pick one for you.
 
@@ -300,8 +300,7 @@ Pick *Invocation* to borrow an entity's power. The GM sets the bonus from +1 to 
 
 A ritual that asks an entity for revelations takes that entity's penalty. Tap *Seven Lights of the Divine Throne -20* or *Deities (Orthodox or Hidden) -40*. For the Seven Lights, step **Sacrifices to appease**: each one reduces the penalty by 5, down to 0. A deity's penalty stays at -40, because the book's *Blessed by Deity* advantage is in no advantage table.
 
-A failure rolls on the failure table and a critical on its own table. You can push both. A roll of 17 or 18 cannot be pushed, because that result comes from the dice and not the margin.
-
+A failure rolls on the failure table and a critical on its own table.
 
 ### Spirit contract
 
@@ -315,7 +314,7 @@ A Beyonder with Ritualistic Magic has **Contract** on the sheet. It binds a spir
 
 *"Previous divination about the same subject"* is -2 for each repeat, so you pick x1 to x4.
 
-Divining a Beyonder stronger than you is harder. At the top of the ladder, only a critical success works, and then no push is offered, because a push cannot change the dice.
+Divining a Beyonder stronger than you is harder. At the top of the ladder, only a critical success works.
 
 Anyone can divine: Divination Arts defaults to SPI-4. The app uses the default when it is better than your own Divination Arts, and says *"Defaulted from"* under the title. Ritualistic Magic does not help a divination.
 
