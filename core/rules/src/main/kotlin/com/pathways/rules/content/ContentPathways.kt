@@ -37,11 +37,9 @@ data class StatGain(
 /**
  * One row of a potion's "Skill" table (Ch. 9-12).
  *
- * [bonus] is read as "attribute + N", NOT as rungs up the skill ladder from
- * default (p. 85: "Acrobatics/DX [Hard] +2" is DX+2, costing 16 points, not
- * the 2 points two rungs would suggest). Where the character already has the
- * same skill at the same difficulty, the book instead reads it as "current
- * level + N" -- that branch belongs to the engine, not to this row.
+ * [bonus] is a +N modifier on the purchased level (v6.9i 4771: "It does
+ * NOT mean the skill is at Attribute + N"), or on the untrained default when
+ * nothing is bought; [com.pathways.rules.PotionDigestion] applies it.
  *
  * [note] carries the qualifier the book prints in the bonus cell ("(Nature,
  * Life, and Weather domains)"), which is GM-facing text, not a modifier.

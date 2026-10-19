@@ -25,17 +25,39 @@ class PotionDigestionTest {
     private val seer = ContentLoader.pathways().single { it.sequence == 9 && it.pathway == "Fool" }
 
     @Test
-    fun `a granted skill lands at the controlling attribute plus its bonus`() {
+    fun `a granted skill with no points stands at its default plus its bonus`() {
         val digested = PotionDigestion.digest(mortal, seer)
 
-        // Occultism/IQ [Average] +2 with IQ 11 -> 13. Read as "attribute + N",
-        // not as two rungs up the ladder from default (p. 85).
-        val occultism = digested.skillLevels.entries.single { it.key.name == "Occultism" }
-        assertEquals(13, occultism.value)
-        // Divination Arts/SPI [Hard] +3 resolves against the SPI the potion
-        // just granted (0 + 9), not the SPI the character walked in with.
+        // v6.9i 4771-4774: "+N is a modifier applied on top of your purchased
+        // skill level. It does NOT mean the skill is at Attribute + N." With
+        // nothing bought the base is the untrained default (owner's ruling 1):
+        // Occultism/IQ [Average] +2 at IQ 11 is IQ-5 + 2 = 8.
+        assertEquals(8, digested.skillLevels.entries.single { it.key.name == "Occultism" }.value)
+        // Divination Arts defaults to SPI-4 against the SPI the potion granted
+        // (0 + 9): 5 + 3 = 8.
         assertEquals(9, digested.effectiveSpi)
-        assertEquals(12, digested.skillLevels.entries.single { it.key.name == "Divination Arts" }.value)
+        assertEquals(8, digested.skillLevels.entries.single { it.key.name == "Divination Arts" }.value)
+        // Ritualistic Magic is Very Hard, with no default: no level until
+        // bought, and its +3 waits on the grant.
+        assertTrue(digested.skillLevels.keys.none { it.name == "Ritualistic Magic" })
+        assertEquals(3, digested.grants.skillBonuses.entries.single { it.key.name == "Ritualistic Magic" }.value)
+    }
+
+    @Test
+    fun `a potion's bonus on a default takes Versatile's +1, as every default does`() {
+        val versatile = mortal.copy(
+            traits = listOf(com.pathways.model.Trait(TraitEffects.VERSATILE, 5, com.pathways.model.TraitKind.ADVANTAGE)),
+        )
+        val digested = PotionDigestion.digest(versatile, seer)
+        assertEquals(9, digested.skillLevels.entries.single { it.key.name == "Occultism" }.value)
+    }
+
+    @Test
+    fun `a no-default skill takes its waiting bonus once bought`() {
+        val key = SkillKey("Ritualistic Magic", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.VERY_HARD)
+        val trained = mortal.copy(skills = listOf(PurchasedSkill(key, points = 4)))
+        val bought = Derive.of(trained).skillLevels.getValue(key)
+        assertEquals(bought + 3, PotionDigestion.digest(trained, seer).skillLevels.getValue(key))
     }
 
     @Test
@@ -150,17 +172,25 @@ class PotionDigestionTest {
     }
 
     @Test
-    fun `a second potion granting a known skill stacks on the level the first one gave`() {
-        // Spiritual Intuition/SPI [Hard] +3 from Seer, then +3 again from
-        // Clown. The second grant reads as "current level + 3" (p. 86), and
-        // current includes what the first potion granted.
-        val blocks = ContentLoader.pathways()
-        val seer = PotionDigestion.digestThrough(mortal, "Fool", sequence = 9, blocks = blocks)
-        val clown = PotionDigestion.digestThrough(mortal, "Fool", sequence = 8, blocks = blocks)
-
-        val at9 = seer.grants.skillLevels.entries.single { it.key.name == "Spiritual Intuition" }.value
-        val at8 = clown.grants.skillLevels.entries.single { it.key.name == "Spiritual Intuition" }.value
-        assertEquals(at9 + 3, at8)
+    fun `a second potion's modifier stacks on the first's`() {
+        // v6.9i 4781-4783: "the stat and skill modifiers from all potions stack."
+        val key = SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        val blocks = listOf(
+            SequenceBlock(
+                sequence = 9, name = "First", pathway = "Test",
+                skills = listOf(SkillGrant("Stealth", key.attr, Difficulty.AVERAGE, bonus = 2)),
+                ability = "test",
+            ),
+            SequenceBlock(
+                sequence = 8, name = "Second", pathway = "Test",
+                skills = listOf(SkillGrant("Stealth", key.attr, Difficulty.AVERAGE, bonus = 1)),
+                ability = "test",
+            ),
+        )
+        val walked = PotionDigestion.digestThrough(mortal, "Test", sequence = 8, blocks = blocks)
+        // DX 9 - 5 = 4, then +2 +1.
+        assertEquals(7, walked.skillLevels.getValue(key))
+        assertEquals(3, walked.grants.skillBonuses.getValue(key))
     }
 
     @Test
@@ -189,14 +219,15 @@ class PotionDigestionTest {
         val walked = PotionDigestion.digestThrough(trained, "Test", sequence = 8, blocks = blocks)
 
         assertEquals(bought + 1 + 2, walked.skillLevels.getValue(key))
-        // A grant with no points behind it stays where its potion put it.
+        // v6.9i: a grant with no points behind it is a modifier on the
+        // default, which follows the attribute too -- nothing is frozen.
         val unbought = SequenceBlock(
             sequence = 9, name = "First", pathway = "Test",
             skills = listOf(SkillGrant("Stealth", key.attr, Difficulty.AVERAGE, bonus = 2)),
             ability = "test",
         )
-        val frozen = PotionDigestion.digestThrough(mortal, "Test", sequence = 8, blocks = listOf(unbought, blocks[1]))
-        assertEquals(mortal.attributes.dx + 2, frozen.skillLevels.entries.single { it.key.name == "Stealth" }.value)
+        val walkedUnbought = PotionDigestion.digestThrough(mortal, "Test", sequence = 8, blocks = listOf(unbought, blocks[1]))
+        assertEquals(mortal.attributes.dx + 1 - 5 + 2, walkedUnbought.skillLevels.entries.single { it.key.name == "Stealth" }.value)
     }
 
     @Test
@@ -275,10 +306,11 @@ class PotionDigestionTest {
             blocks = ContentLoader.pathways(),
         )
 
-        val ritual = witch.skillLevels.entries.single { it.key.name == Conditions.RITUAL_SKILL }
+        val ritual = witch.grants.skillBonuses.entries.single { it.key.name == Conditions.RITUAL_SKILL }
         assertEquals("Mirror, Dowsing", ritual.key.specialization)
-        // IQ+4 on the mortal's IQ 11 (no Demoness block raises IQ).
-        assertEquals(15, ritual.value)
+        assertEquals(4, ritual.value)
+        // Very Hard, with no default: the +4 waits until it is bought.
+        assertTrue(witch.skillLevels.keys.none { it.name == Conditions.RITUAL_SKILL })
     }
 
     @Test

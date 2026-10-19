@@ -323,7 +323,8 @@ class EditedCharacterTest {
         val granted = grantedSkills(researcher, SavedEdits(), fool).map { it.first.name }
 
         assertTrue("Divination Arts" in granted, "granted: $granted")
-        assertTrue("Ritualistic Magic" in granted, "granted: $granted")
+        // v6.9i: Very Hard with no default, so its +3 waits until bought.
+        assertTrue("Ritualistic Magic" !in granted, "granted: $granted")
         // Occultism is on the sheet already, so the potion raises the
         // published row rather than adding a second one beside it.
         assertTrue("Occultism" !in granted)
@@ -336,10 +337,10 @@ class EditedCharacterTest {
         val fool = PotionDigestion
             .digestThrough(researcher.toCharacter(), "Fool", 9, ContentLoader.pathways())
             .skillLevels
-        val edits = SavedEdits(skills = listOf(SavedSkill("Ritualistic Magic", points = 1)))
+        val edits = SavedEdits(skills = listOf(SavedSkill("Divination Arts", points = 1)))
 
-        assertTrue("Ritualistic Magic" !in grantedSkills(researcher, edits, fool).map { it.first.name })
-        assertTrue("Ritualistic Magic" in grantedSkills(researcher, SavedEdits(), fool).map { it.first.name })
+        assertTrue("Divination Arts" !in grantedSkills(researcher, edits, fool).map { it.first.name })
+        assertTrue("Divination Arts" in grantedSkills(researcher, SavedEdits(), fool).map { it.first.name })
     }
 
     @Test

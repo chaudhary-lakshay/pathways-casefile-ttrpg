@@ -22,7 +22,14 @@ data class PotionGrants(
     val attributes: Map<Attr, Int> = emptyMap(),
     val spi: Int = 0,
     val secondary: SecondaryDelta = SecondaryDelta(),
+    /** Each granted skill's level: its purchased level, or its default, plus [skillBonuses]. */
     val skillLevels: Map<SkillKey, Int> = emptyMap(),
+    /**
+     * Every potion's +N per skill, summed down the chain (v6.9i 4781). A
+     * skill with no default and no points is here and not in [skillLevels]:
+     * its +N waits until it is bought (owner's ruling 1).
+     */
+    val skillBonuses: Map<SkillKey, Int> = emptyMap(),
 )
 
 /**
@@ -50,16 +57,13 @@ data class DigestedCharacter(
 /**
  * Applies a Sequence potion (Ch. 9-12) to a character.
  *
- * Two rules from the book drive everything here:
- *  - p. 85, the +N on a granted skill means "attribute + N", not N rungs up
- *    the ladder from default.
- *  - p. 86, if the character already has that skill -- same name AND same
- *    difficulty -- the bonus reads "current level + N" instead, stacking on
- *    the proficiency they already paid for.
- *
- * Attribute gains are folded in before skill levels resolve: the potion's
- * changes are simultaneous, and "your IQ + 3" means the IQ you have once the
- * potion is digested.
+ * v6.9i (book 4743-4785): every grant is a MODIFIER on what was bought.
+ * "+N is a modifier applied on top of your purchased skill level. It does
+ * NOT mean the skill is at Attribute + N." Modifiers from every potion stack,
+ * and a skill matches by name and difficulty. With nothing bought the base
+ * is the untrained default (owner's ruling 1), so a no-default skill has no
+ * level until bought. Nothing is frozen: every level is read off the final
+ * attributes, as a purchased one always was.
  */
 object PotionDigestion {
 
@@ -166,9 +170,8 @@ object PotionDigestion {
      * for potion-granted skills and attributes", so it is folded by the
      * same loop.
      *
-     * READING: after the potions. A granted level is frozen at the
-     * attributes of its moment and the save stores no order of acquisition,
-     * so one is fixed here.
+     * Folded after the potions; since v6.9i nothing is frozen, so the
+     * order changes no level.
      */
     private fun boonChain(character: Character): List<SequenceBlock> =
         character.boon?.let(NonStandardPathways::chainFor).orEmpty()
@@ -210,68 +213,42 @@ object PotionDigestion {
     ): DigestedCharacter {
         val derived = Derive.of(character)
         var grants = PotionGrants()
-        val superseded = mutableSetOf<SkillKey>()
-        val stacked = mutableMapOf<SkillKey, Stacked>()
-        // A blessing's attributes, then the potions on top (6hf): one base,
-        // read before the loop and inside it, which rebuilds every block.
+        // A blessing's attributes, then the potions on top (6hf).
         val base = Blessings.played(character.attributes, character.traits)
-        var effectiveAttributes = base
-        var effectiveSpi = character.spi
-        var secondaries = SecondaryCharacteristics.of(effectiveAttributes, character.secondaryDelta)
-
         for (block in chain) {
-            val stats = statGrants(block.stats)
-            grants = grants.mergeStats(stats)
-
-            effectiveAttributes = Attributes(
-                st = base.st + (grants.attributes[Attr.ST] ?: 0),
-                dx = base.dx + (grants.attributes[Attr.DX] ?: 0),
-                iq = base.iq + (grants.attributes[Attr.IQ] ?: 0),
-                ht = base.ht + (grants.attributes[Attr.HT] ?: 0),
-            )
-            effectiveSpi = character.spi + grants.spi
-            secondaries = SecondaryCharacteristics.of(
-                effectiveAttributes,
-                character.secondaryDelta + grants.secondary,
-            )
-
-            // Purchased skills are re-levelled against the attributes the
-            // potions raised: a skill level is "controlling attribute +
-            // rungs", so a DX+1 potion lifts every DX skill the character
-            // already bought, not only the ones a potion also grants. A
-            // level a potion GRANTED is not re-levelled -- the book fixes it
-            // at digestion ("your IQ + 3"), with no points behind it to
-            // recompute from.
-            val purchased = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
-            // The exception, on the owner's ruling (6hq): a bonus stacked on
-            // a BOUGHT skill has those points behind it, so it follows them.
-            grants = grants.copy(
-                skillLevels = grants.skillLevels + stacked.mapValues { (_, on) -> purchased.getValue(on.bought) + on.bonus },
-            )
-
+            grants = grants.mergeStats(statGrants(block.stats))
             for (grant in block.skills) {
                 val key = skillKey(grant.name, grant.attr, grant.difficulty)
-                // p. 86: an exact name-and-difficulty match stacks on what the
-                // character already has -- bought earlier, or granted by an
-                // earlier potion on this same pathway. The controlling
-                // attribute is deliberately not part of the match; the book
-                // keys the rule on name and difficulty.
-                val alreadyGranted = grants.skillLevels.entries.firstOrNull { it.key.matches(key) }
-                val bought = purchased.entries.firstOrNull { it.key.matches(key) }
-                bought?.let { superseded += it.key }
-                val grantedKey = alreadyGranted?.key ?: key
-                val on = stacked[grantedKey] ?: bought?.takeIf { alreadyGranted == null }?.let { Stacked(it.key, 0) }
-                on?.let { stacked -= grantedKey; stacked[key] = it.copy(bonus = it.bonus + grant.bonus) }
-
-                val from = alreadyGranted?.value
-                    ?: bought?.value
-                    ?: Derive.controllingLevel(grant.attr, effectiveAttributes, secondaries, effectiveSpi)
-                grants = grants.copy(
-                    skillLevels = grants.skillLevels
-                        .filterKeys { !it.matches(key) } + (key to from + grant.bonus),
-                )
+                val held = grants.skillBonuses.keys.firstOrNull { it.matches(key) } ?: key
+                grants = grants.copy(skillBonuses = grants.skillBonuses + (held to (grants.skillBonuses[held] ?: 0) + grant.bonus))
             }
         }
+        val effectiveAttributes = Attributes(
+            st = base.st + (grants.attributes[Attr.ST] ?: 0),
+            dx = base.dx + (grants.attributes[Attr.DX] ?: 0),
+            iq = base.iq + (grants.attributes[Attr.IQ] ?: 0),
+            ht = base.ht + (grants.attributes[Attr.HT] ?: 0),
+        )
+        val effectiveSpi = character.spi + grants.spi
+        val secondaries = SecondaryCharacteristics.of(effectiveAttributes, character.secondaryDelta + grants.secondary)
+        val attributeLevel = { ca: ControllingAttribute ->
+            Derive.controllingLevel(ca, effectiveAttributes, secondaries, effectiveSpi)
+        }
+        // Purchased skills re-level against the attributes the potions raised.
+        val purchased = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
+        val defaultBonus = TraitEffects.defaultBonus(character.traits)
+        // A modifier supersedes the purchased entry it stands on, dropped by
+        // identity: the match ignores the controlling attribute.
+        val superseded = mutableSetOf<SkillKey>()
+        val levels = buildMap {
+            for ((key, bonus) in grants.skillBonuses) {
+                val bought = purchased.entries.firstOrNull { it.key.matches(key) }
+                bought?.let { superseded += it.key }
+                val from = bought?.value ?: SkillDefaults.untrainedLevel(key, attributeLevel, defaultBonus) ?: continue
+                put(key, from + bonus)
+            }
+        }
+        grants = grants.copy(skillLevels = levels)
 
         return DigestedCharacter(
             base = character,
@@ -281,13 +258,7 @@ object PotionDigestion {
             effectiveAttributes = effectiveAttributes,
             effectiveSpi = effectiveSpi,
             secondaries = secondaries,
-            // A granted level supersedes the purchased one it stacked on:
-            // the grant was computed FROM that level, so keeping both would
-            // list the same skill twice at two different levels. The two keys
-            // can differ (the match ignores the controlling attribute), so
-            // the superseded entry is dropped by identity, not by map key.
-            skillLevels = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
-                .filterKeys { it !in superseded } + grants.skillLevels,
+            skillLevels = purchased.filterKeys { it !in superseded } + levels,
             budget = derived.budget,
         )
     }
@@ -304,9 +275,6 @@ object PotionDigestion {
             Derive.controllingLevel(s.key.attr, attributes, secondaries, spi),
         )
     }
-
-    /** A granted level that stands on a [bought] skill, and the bonuses on it. */
-    private data class Stacked(val bought: SkillKey, val bonus: Int)
 
     /** The p. 86 identity: same name, same specialization, same difficulty. */
     private fun SkillKey.matches(other: SkillKey) = isSameSkill(this, other)

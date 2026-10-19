@@ -33,8 +33,8 @@ class BoonGrantsTest {
         val walked = PotionDigestion.of(c, potions)!!
         assertEquals(10, walked.effectiveAttributes.iq)
         assertEquals(5, walked.effectiveSpi)
-        // "your IQ + 4", on the IQ the boon itself raised.
-        assertEquals(14, level(walked.skillLevels, "Diplomacy"))
+        // v6.9i: a +4 modifier on the default, IQ-6 on the IQ the boon raised.
+        assertEquals(10 - 6 + 4, level(walked.skillLevels, "Diplomacy"))
         assertEquals(Derive.of(c).budget, walked.budget)
     }
 
@@ -42,8 +42,8 @@ class BoonGrantsTest {
     fun `a boon's sequences are cumulative, as a potion's are`() {
         val walked = PotionDigestion.of(mortal(BoonState("Chaos Mist", 8)), potions)!!
         assertEquals(11, walked.effectiveSpi)
-        // p. 86: the Sequence 8 +3 stacks on the level Sequence 9 granted.
-        assertEquals(17, level(walked.skillLevels, "Diplomacy"))
+        // v6.9i: the Sequence 8 +3 stacks on Sequence 9's +4, both on the default.
+        assertEquals(walked.effectiveAttributes.iq - 6 + 4 + 3, level(walked.skillLevels, "Diplomacy"))
     }
 
     @Test
@@ -52,7 +52,7 @@ class BoonGrantsTest {
         // and no Sequence 9, and the 8 is grantable alone.
         val walked = PotionDigestion.of(mortal(BoonState("Second Law", 8)), potions)!!
         assertEquals(1, walked.effectiveSpi)
-        assertEquals(13, level(walked.skillLevels, "Law"))
+        assertEquals(7, level(walked.skillLevels, "Law"))
     }
 
     @Test
@@ -82,10 +82,9 @@ class BoonGrantsTest {
     }
 
     @Test
-    fun `potions are digested before the boon - a reading, pinned`() {
-        // A granted level is frozen at the attributes of its moment, and the
-        // save stores no order. Potions first: the Dancer's "DX + 3" reads
-        // the DX the potion already raised. Boon first would give 14.
+    fun `a boon's modifier reads the final attributes, whatever the order`() {
+        // v6.9i: nothing is frozen. The Dancer's +3 sits on the Acrobatics
+        // default at the DX the potion raised: DX 13 - 6 + 3.
         val potion = listOf(SequenceBlock(9, "Up", "Synthetic", stats = listOf(StatGain("DX", 2.0))))
         val c = Character(
             name = "ordered",
@@ -94,7 +93,7 @@ class BoonGrantsTest {
         )
         val walked = PotionDigestion.of(c, potion)!!
         assertEquals(13, walked.effectiveAttributes.dx)
-        assertEquals(16, level(walked.skillLevels, "Acrobatics"))
+        assertEquals(10, level(walked.skillLevels, "Acrobatics"))
     }
 
     @Test

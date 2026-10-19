@@ -28,8 +28,8 @@ class BoonSessionTest {
         assertEquals(broker, saved().edits.boon)
         val character = s.characterFor(plain())
         assertEquals(5, character.digestedWith(null)!!.effectiveSpi)
-        // "your IQ + 4" on the IQ 10 the boon made of the sheet's 9.
-        assertEquals(14, liveSkillLevels(character).entries.single { it.key.name == "Diplomacy" }.value)
+        // v6.9i: +4 on the IQ-6 default, at the IQ 10 the boon made of the sheet's 9.
+        assertEquals(8, liveSkillLevels(character).entries.single { it.key.name == "Diplomacy" }.value)
         // Free: the bill is the unedited character's.
         assertEquals(plain().toCharacter().let { com.pathways.rules.Derive.of(it).budget }, character.digestedWith(null)!!.budget)
     }

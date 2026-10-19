@@ -407,6 +407,7 @@ object SkillDefaults {
 
     /**
      * The row rolled at [key]'s default, or null where none is offered here.
+     * Divination Arts is withheld: its dialog rolls the SPI-4 default itself.
      */
     private fun defaultOf(
         skill: SkillDefinition,
@@ -414,20 +415,30 @@ object SkillDefaults {
         attributeLevel: (ControllingAttribute) -> Int,
         defaultBonus: Int,
     ): Untrained? {
-        val attribute = attributeLevel(skill.attr)
-        return when (skill.name) {
-            BRAWLING -> Untrained(
-                key,
-                attribute + BRAWLING_PENALTY + defaultBonus,
-                "${skill.attr.code}$BRAWLING_PENALTY, the book's own line for $BRAWLING",
-            )
-            WRESTLING, Divination.SKILL -> null
-            else -> {
-                val level = SkillLadder.defaultFor(skill.difficulty, attribute) ?: return null
-                Untrained(key, level + defaultBonus, "${skill.attr.code}${skill.difficulty.defaultPenalty}")
-            }
+        if (skill.name == Divination.SKILL) return null
+        val level = untrainedLevel(key, attributeLevel, defaultBonus) ?: return null
+        val source = if (skill.name == BRAWLING) {
+            "${skill.attr.code}$BRAWLING_PENALTY, the book's own line for $BRAWLING"
+        } else {
+            "${skill.attr.code}${skill.difficulty.defaultPenalty}"
         }
+        return Untrained(key, level, source)
     }
+
+    /**
+     * The level [key] is used at untrained, Versatile's [defaultBonus]
+     * inside, or null where it has no default: Brawling's own DX-2,
+     * Wrestling's none, Divination Arts' SPI-4, else ch. 2's table (Very
+     * Hard has none). The one default the untrained list and a potion's +N
+     * on an unbought skill both read (v6.9i 4771; owner's ruling 1).
+     */
+    fun untrainedLevel(key: SkillKey, attributeLevel: (ControllingAttribute) -> Int, defaultBonus: Int): Int? =
+        when (key.name) {
+            BRAWLING -> attributeLevel(key.attr) + BRAWLING_PENALTY
+            WRESTLING -> null
+            Divination.SKILL -> attributeLevel(ControllingAttribute.Spi) + Divination.DEFAULT_PENALTY
+            else -> SkillLadder.defaultFor(key.difficulty, attributeLevel(key.attr))
+        }?.plus(defaultBonus)
 
     /**
      * The [WEAPON_LINES] blocks a character at [sequence] of [pathway] has

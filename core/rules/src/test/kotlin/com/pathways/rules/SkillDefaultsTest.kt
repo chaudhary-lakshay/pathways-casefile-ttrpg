@@ -263,9 +263,11 @@ class SkillDefaultsTest {
         val after = SkillDefaults.offeredTo(seer).associateBy { it.key.name to it.key.specialization }
         // The potion's own grants are owned now, so they are not on offer.
         for (granted in listOf(Divination.SKILL, Conditions.RITUAL_SKILL)) {
-            assertTrue(walked.skillLevels.keys.any { it.name == granted }, granted)
+            assertTrue(walked.grants.skillBonuses.keys.any { it.name == granted }, granted)
             assertNull(after[granted to null], granted)
         }
+        // v6.9i: Ritualistic Magic has no default, so its +3 waits unbought.
+        assertTrue(walked.skillLevels.keys.none { it.name == Conditions.RITUAL_SKILL })
         // And nothing the sheet prints is offered to either.
         for (owned in Derive.of(mortal).skillLevels.keys) {
             assertNull(before[owned.name to owned.specialization], owned.display)

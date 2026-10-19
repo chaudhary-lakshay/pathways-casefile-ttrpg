@@ -271,9 +271,11 @@ After the first potion, the screen has two tabs.
 
 **Potion** shows what the Sequence grants: attribute gains, skills with their levels, advantages, disadvantages and abilities. Each ability is a row with a tag such as **1 SPI** or **Passive**. Tap a row to read it, or tap **Open all**. On a potion you drank, an ability with a fixed SPI cost has a **Spend N SPI** button. It is grey when you do not have enough SPI. An ability whose cost the GM sets has no button.
 
-**Digestion & corruption** holds the two trackers. Log a session of acting with one tap. For example, **Good +10-15%** adds 10%, and **+5%** adds more if the GM rules it. **None** leaves it for the GM to lower. Under the CoR stepper, **From ritual work** lists the four steps of ritual corruption (3, 5, 8 and 10 CoR), and the ones you reached turn red. **What raises corruption** lists what costs CoR.
+**Digestion & corruption** holds the two trackers. Log a session of acting with one tap. For example, **Good +10-15%** adds 10%, and **+5%** adds more if the GM rules it. **None** leaves it for the GM to lower. A character with Knows the Acting Method also has **Knows the Acting Method: roll 3d6%**: tap it at the end of a session to add 3d6% on top. Under the CoR stepper, **From ritual work** lists the four steps of ritual corruption (3, 5, 8 and 10 CoR), and the ones you reached turn red. **What raises corruption** lists what costs CoR.
 
 What a potion gives you costs no points. The app saves only your pathway, Sequence and digestion, and works out the gains from them. A potion that raises DX also raises each DX skill you bought.
+
+A potion's skill bonus is a modifier on what you buy. With no points in the skill, the bonus adds to the skill's untrained default. A Very Hard skill has no default, so its bonus waits until you buy the skill. The **Potion** tab then shows the bonus, such as *+3*, in place of a level. You cannot study a skill that a potion modifies.
 
 A Hanged Man picks one of three drawbacks at Sequence 9. On the **Potion** tab, tap its chip in the Drawbacks card. You can change it later. A drawback you bought in the builder shows *bought*, and you must sell it first.
 
@@ -393,7 +395,8 @@ In a few places the book does not settle a rule. The app picks a reading, and so
 - Each assistant gives +1, the caster counting as the first participant.
 - An orthodox deity's +2 is the invocation bonus, not +2 on top of it.
 - Dead Language Fluency's free language is the owner's reading. The book names no level, price or list.
-- A potion's granted skill levels stay fixed when a later potion raises the attribute. A skill you bought rises with it.
+- A potion's skill bonus on a skill with no points adds to its default, Versatile's +1 included.
+- Fit and Very Fit held together each add their bonus to HT rolls, +3 in all.
 
 The GM can rule differently. Use the **Modifier** stepper for the difference.
 

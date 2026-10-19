@@ -214,14 +214,13 @@ private val ledgerNote: TextStyle
 internal data class StudyAdvice(val tag: String, val reason: String?)
 
 /**
- * Whether a potion grants this skill too, by p. 86's identity (name,
- * specialization, difficulty): its grant then supersedes the bought level
- * (`PotionDigestion`). Not "the key is missing from the played map": a
- * grant with the same key lands back under it. "Beyonder potion-granted
- * skills cannot be studied" (ch. 3 p. 32).
+ * Whether a potion modifies this skill, by the book's identity (name,
+ * specialization, difficulty). "Beyonder potion-modified skills (Chapters
+ * 11-14) cannot be studied" (v6.9i 2330). Read off the bonuses, so a
+ * no-default skill whose +N waits is gated too.
  */
 internal fun isSupersededByPotion(key: SkillKey, played: DigestedCharacter?): Boolean =
-    played != null && played.grants.skillLevels.keys.any { PotionDigestion.isSameSkill(it, key) }
+    played != null && played.grants.skillBonuses.keys.any { PotionDigestion.isSameSkill(it, key) }
 
 internal fun studyAdvice(
     purchased: PurchasedSkill,
