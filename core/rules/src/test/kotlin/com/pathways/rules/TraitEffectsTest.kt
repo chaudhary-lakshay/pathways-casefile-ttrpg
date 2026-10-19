@@ -694,8 +694,8 @@ class TraitEffectsTest {
     /**
      * **This was an UNAPPLIED entry reading "every skill on a sheet is bought,
      * so no default is rolled here".** `Divination.divinationLevelFor` rolls
-     * Divination Arts at Ritualistic Magic-2 and the dialog prints "Defaulted
-     * from", so that was a claim about the app and a false one.
+     * Divination Arts at SPI-4 and the dialog prints "Defaulted from", so that
+     * was a claim about the app and a false one.
      */
     @Test
     fun `Versatile lifts a roll made at a default`() {
@@ -706,11 +706,11 @@ class TraitEffectsTest {
         assertTrue(printed.startsWith("+1 to defaults skill rolls"), printed)
         assertEquals(1, TraitEffects.defaultBonus(versatile))
         assertEquals(0, TraitEffects.defaultBonus(emptyList()))
-        // Through to the roll: own 10 ties a plain default and loses to this one.
+        // Through to the roll: own 8 ties a plain SPI 12 default and loses to this one.
         val lifted = Divination.divinationLevelFor(
-            own = 10, sibling = 12, defaultBonus = TraitEffects.defaultBonus(versatile),
-        )!!
-        assertEquals(11, lifted.level)
+            own = 8, spi = 12, defaultBonus = TraitEffects.defaultBonus(versatile),
+        )
+        assertEquals(9, lifted.level)
         assertTrue(TraitEffects.VERSATILE !in TraitEffects.unappliedNames())
         assertTrue(TraitEffects.VERSATILE in TraitEffects.known())
         // Applied on every roll this app makes at a default, so there is

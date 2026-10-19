@@ -64,20 +64,19 @@ class SkillDefaultsTest {
     }
 
     /**
-     * 158 printed, less the 7 Very Hard rows ("No default -- cannot attempt
-     * untrained"), Wrestling ("No default") and Divination Arts, whose one
-     * default needs a skill this character does not hold.
+     * Every printed row, less the Very Hard ones ("No default -- cannot
+     * attempt untrained") and Wrestling ("No default").
      */
     @Test
-    fun `a character who owns nothing is offered 149 skills`() {
+    fun `a character who owns nothing is offered 148 skills`() {
         val all = ContentLoader.skills()
-        assertEquals(158, all.size)
+        assertEquals(156, all.size)
         assertEquals(7, all.count { it.difficulty == Difficulty.VERY_HARD })
         val rows = offered()
-        assertEquals(149, rows.size)
+        assertEquals(148, rows.size)
         assertTrue(rows.none { it.key.difficulty == Difficulty.VERY_HARD })
         assertTrue(rows.none { it.key.name == SkillDefaults.WRESTLING })
-        assertTrue(rows.none { it.key.name == Divination.SKILL })
+        assertTrue(rows.any { it.key.name == Divination.SKILL })
     }
 
     /**
@@ -169,29 +168,19 @@ class SkillDefaultsTest {
     private val medicalTraining = Trait(SkillDefaults.MEDICAL_TRAINING, 5, TraitKind.ADVANTAGE)
 
     /**
-     * **Divination Arts has one default, and it is the Divine tile's.** Line
-     * 3559 prints "Divination Arts defaults to Ritualistic Magic-2 ... A
-     * character with one skill at 12+ can attempt the other at -2", read here
-     * as Brawling's line is: the skill's own line replaces the table's, so
-     * SPI-6 is not offered beside it. One resolver, so the two screens cannot
-     * print two numbers for one roll.
+     * **Divination Arts has one default, and it is the Divine tile's.** v6.9i
+     * prints "Default: Divination Arts defaults to SPI-4 (unskilled)", read
+     * as Brawling's line is: the skill's own line replaces the IQ/Hard
+     * table's IQ-6. One resolver, so the two screens cannot print two numbers
+     * for one roll.
      */
     @Test
-    fun `Divination Arts defaults from Ritualistic Magic at 12 and from nothing else`() {
-        fun ritual(level: Int) = mapOf(
-            SkillKey(
-                Divination.SIBLING_SKILL, null,
-                ControllingAttribute.Buyable(Attr.IQ), Difficulty.VERY_HARD,
-            ) to level,
-        )
-        assertNull(offered(ritual(11)).singleOrNull { it.key.name == Divination.SKILL })
-        val row = offered(ritual(13), bonus = 1).single { it.key.name == Divination.SKILL }
-        assertEquals(12, row.level)
-        assertEquals(Divination.divinationLevelFor(null, 13, 1)!!.level, row.level)
-        assertEquals(
-            "${Divination.SIBLING_SKILL} 13 -2, +1 ${TraitEffects.VERSATILE}",
-            row.source,
-        )
+    fun `Divination Arts defaults to SPI-4 and from nothing else`() {
+        val spi12: (ControllingAttribute) -> Int = { if (it == ControllingAttribute.Spi) 12 else 10 }
+        val row = SkillDefaults.offered(emptyMap(), spi12, 1, emptyList()).single { it.key.name == Divination.SKILL }
+        assertEquals(9, row.level)
+        assertEquals(Divination.divinationLevelFor(null, 12, 1).level, row.level)
+        assertEquals("SPI-4, the book's own line for ${Divination.SKILL}, +1 ${TraitEffects.VERSATILE}", row.source)
     }
 
     /**
@@ -211,7 +200,7 @@ class SkillDefaultsTest {
         val other = Difficulty.entries.first { it != knife.difficulty }
         val owned = mapOf(SkillKey("Knife", null, knife.attr, other) to 12)
         assertTrue(offered(owned).none { it.key.name == "Knife" })
-        assertEquals(148, offered(owned).size)
+        assertEquals(147, offered(owned).size)
     }
 
     /**
@@ -278,7 +267,7 @@ class SkillDefaultsTest {
         assertEquals(mortal.spi - 5, before.getValue(perception).level)
         assertEquals(walked.effectiveSpi - 5, after.getValue(perception).level)
         // The potion's own grants are owned now, so they are not on offer.
-        for (granted in listOf("Spiritual Intuition", Divination.SKILL, Divination.SIBLING_SKILL)) {
+        for (granted in listOf("Spiritual Intuition", Divination.SKILL, Conditions.RITUAL_SKILL)) {
             assertTrue(walked.skillLevels.keys.any { it.name == granted }, granted)
             assertNull(after[granted to null], granted)
         }
@@ -321,15 +310,14 @@ class SkillDefaultsTest {
 
     /**
      * What the list leaves out is said on the list, by name: a skill missing
-     * from 149 rows reads as an oversight unless the screen says it was
+     * from 148 rows reads as an oversight unless the screen says it was
      * withheld. The three names are the three ways a row is absent.
      */
     @Test
     fun `the list says what it leaves out and what it does not carry`() {
-        for (absent in listOf("Very Hard", SkillDefaults.WRESTLING, Divination.SKILL)) {
+        for (absent in listOf("Very Hard", SkillDefaults.WRESTLING)) {
             assertTrue(absent in SkillDefaults.NOT_LISTED, absent)
         }
-        assertTrue("12" in SkillDefaults.NOT_LISTED, SkillDefaults.NOT_LISTED)
         assertNull(SkillDefaults.weaponNote("Fool", 9))
         val note = SkillDefaults.weaponNote("Twilight Giant", 7)!!
         assertTrue(note.startsWith("Not applied here: Warrior's \"no default penalty\" with any"), note)
@@ -357,10 +345,11 @@ class SkillDefaultsTest {
     @Test
     fun `an untrained row rolls through the shared path, negative or modified`() {
         val mortal = Premades.byName("Beat Cop").toCharacter()
-        val perception = SkillDefaults.offeredTo(mortal).single { it.key.name == "Spiritual Perception" }
-        assertEquals(-5, perception.level)
+        // A mortal plays SPI 0, so Divination Arts' SPI-4 is below zero.
+        val perception = SkillDefaults.offeredTo(mortal).single { it.key.name == Divination.SKILL }
+        assertEquals(-4, perception.level)
         val three = SkillRoll.at("x", perception.level, perception.key, RandomSource { 1 })
-        assertEquals(-5, three.target)
+        assertEquals(-4, three.target)
         assertEquals(Outcome.CRITICAL_SUCCESS, three.roll!!.outcome)
         val ten = SkillRoll.at("x", perception.level, perception.key, RandomSource { 3 })
         assertTrue(!ten.roll!!.outcome.isSuccess)

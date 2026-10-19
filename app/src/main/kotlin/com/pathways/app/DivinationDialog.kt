@@ -63,11 +63,8 @@ import com.pathways.rules.content.DivinationMethod
 fun DivinationDialog(
     skillLevel: Int,
     // Where [skillLevel] came from, when it is not simply this character's
-    // own Divination Arts -- p. 54's default, lent by their Ritualistic
-    // Magic. Authored by Divination.sourceLine rather than assembled here:
-    // the flag alone cannot tell "has no divination skill" apart from "has
-    // one, and the sibling lends a better number", and a screen writing its
-    // own version printed the first at a character in the second (Codex).
+    // own Divination Arts -- ch. 8 I's SPI-4 default. Authored by
+    // Divination.sourceLine rather than assembled here.
     sourceLine: String? = null,
     // What the trackers cost this roll, GIVEN the SPI this divination is
     // about to spend. A function rather than a number because the book pays
@@ -101,7 +98,6 @@ fun DivinationDialog(
     onDismiss: () -> Unit,
 ) {
     val difficulties = remember { Divination.difficulties() }
-    val scopes = remember { Divination.scopes() }
     val methods = remember { Divination.methods() }
     // The cross-reference row is not a modifier; Divination refuses it.
     val rows = remember { Divination.modifiers().filterNot { it.crossReference } }
@@ -112,7 +108,6 @@ fun DivinationDialog(
     // Sec. I's boundary table: which skill the question needs. Defaults to the
     // first row like the band above it, which is also the row the book prices
     // nothing on -- a default that charges is a rule nobody declared.
-    var scope by remember { mutableStateOf(scopes.first()) }
     var method by remember { mutableStateOf(methods.first()) }
     var chosen by remember { mutableStateOf<Set<String>>(emptySet()) }
     var outcome by remember { mutableStateOf<DivinationOutcome?>(null) }
@@ -199,13 +194,7 @@ fun DivinationDialog(
     val overrides = overridesFor(picks, picked)
     val circumstances = Divination.modifierTotal(picks, overrides, repeats) +
         conditionPenaltyAfterSpending(cost)
-    // What reaching for Divination Arts at this scope costs. Named on its own
-    // rather than folded into `circumstances`: the signed numbers on the
-    // breakdown line have to sum to the target printed above them. It is NOT the question's band -- that prices
-    // how hard the question is and this prices which skill is asking.
-    val scopePenalty = Divination.penaltyFor(scope)
-    val extras =
-        circumstances + protection.penalty + shock + states.total + spiTrait + scopePenalty
+    val extras = circumstances + protection.penalty + shock + states.total + spiTrait
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
     // Charged by zeroing what it accumulated, so paying is idempotent and
@@ -303,29 +292,6 @@ fun DivinationDialog(
                             )
                         }
                     }
-
-                    SectionLabel("Scope")
-                    FlowRow {
-                        scopes.forEach { option ->
-                            CaseChip(
-                                selected = option == scope,
-                                onClick = { scope = option },
-                                label = {
-                                    // The two free rows carry no number to show,
-                                    // and showing "+0" would print a modifier the
-                                    // book does not.
-                                    Text(
-                                        listOfNotNull(option.scope, option.printedModifier)
-                                            .joinToString(" "),
-                                    )
-                                },
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
-                        }
-                    }
-                    // Which skill a scope needs stays open: a boundary, not
-                    // a description. Its examples are in the note below.
-                    Text(scope.guidance, style = MaterialTheme.typography.bodySmall)
 
                     SectionLabel("Method")
                     FlowRow {
@@ -551,7 +517,6 @@ fun DivinationDialog(
                     RuleNote("What these picks mean") {
                         listOf(
                             "${difficulty.band}: ${difficulty.example}",
-                            "${scope.scope}: ${scope.examples}",
                             "${method.method}: ${method.time}, ${spiLabel(method)} SPI — ${method.bestFor}",
                         ).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) }
                     }
@@ -565,7 +530,6 @@ fun DivinationDialog(
                     terms = listOfNotNull(
                         "Skill $skillLevel",
                         "question ${signed(difficulty.modifier)}",
-                        if (scopePenalty != 0) "${scope.scope.lowercase()} scope ${signed(scopePenalty)}" else null,
                         if (shock != 0) "shock ${signed(shock)}" else null,
                         states.line,
                         if (spiTrait != 0) "${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}" else null,

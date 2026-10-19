@@ -29,17 +29,13 @@ import com.pathways.rules.content.SkillDefinition
  * |---|---|---|
  * | Brawling (DX/E) | DX-4 | "Default: DX-2 if untrained" (p. 38) |
  * | Wrestling (DX/A) | DX-5 | "No default" (p. 39) |
- * | Divination Arts (SPI/H) | SPI-6 | "defaults to Ritualistic Magic-2 ... at 12+" (p. 54) |
+ * | Divination Arts (IQ/H) | IQ-6 | "Default: Divination Arts defaults to SPI-4 (unskilled)" (ch. 8 I) |
  *
  * Boxing's "Default DX-5" agrees with the table and needs no row.
  *
- * **Divination Arts is a reading, and it is the one the Divine tile already
- * made.** Line 3559 does not say "only", so SPI-6 beside it is not excluded
- * by any sentence; it is withheld here because [Divination.crossDefaultFor]
- * has refused it since 6az -- "what the book declines to say is whether they
- * may attempt it at all" -- and a plain roll offering what the tile refuses
- * would be two answers to one question. Asked of that resolver, never
- * recomputed.
+ * Divination Arts is asked of [Divination.divinationLevelFor], the Divine
+ * tile's resolver, never recomputed, so the two screens cannot print two
+ * numbers for one roll.
  *
  * **Not enforced: "any skill the GM rules requires specialist knowledge"**
  * (p. 10). That is a ruling per table, and this app records none, so the
@@ -88,9 +84,7 @@ object SkillDefaults {
      */
     const val NOT_LISTED =
         "Not listed: Very Hard skills and $WRESTLING, which the book gives no " +
-            "default, and ${Divination.SKILL} unless ${Divination.SIBLING_SKILL} " +
-            "is 12 or more, where its own line stands in for the table's, as on " +
-            "the Divine tile. The GM may rule that a skill needs specialist " +
+            "default. The GM may rule that a skill needs specialist " +
             "knowledge before it can be attempted at all; this app records no " +
             "such ruling."
 
@@ -344,7 +338,7 @@ object SkillDefaults {
                 grantedBy(skill, traits, attributeLevel)?.let { (level, source) ->
                     return@mapNotNull Untrained(key, level, source)
                 }
-                val (level, source) = defaultOf(skill, owned, attributeLevel, defaultBonus)
+                val (level, source) = defaultOf(skill, attributeLevel, defaultBonus)
                     ?: return@mapNotNull null
                 Untrained(key, level, source + suffix)
             }
@@ -424,7 +418,6 @@ object SkillDefaults {
     /** The level and where it came from, or null where the book gives no default. */
     private fun defaultOf(
         skill: SkillDefinition,
-        owned: Map<SkillKey, Int>,
         attributeLevel: (ControllingAttribute) -> Int,
         defaultBonus: Int,
     ): Pair<Int, String>? {
@@ -433,15 +426,9 @@ object SkillDefaults {
             WRESTLING -> null
             BRAWLING -> attribute + BRAWLING_PENALTY + defaultBonus to
                 "${skill.attr.code}$BRAWLING_PENALTY, the book's own line for $BRAWLING"
-            Divination.SKILL -> {
-                val sibling = owned.entries
-                    .firstOrNull { it.key.name.equals(Divination.SIBLING_SKILL, ignoreCase = true) }
-                    ?.value
-                val level = Divination.divinationLevelFor(null, sibling, defaultBonus)
-                    ?: return null
-                level.level to
-                    "${Divination.SIBLING_SKILL} $sibling ${Divination.CROSS_DEFAULT_PENALTY}"
-            }
+            Divination.SKILL ->
+                Divination.divinationLevelFor(null, attributeLevel(ControllingAttribute.Spi), defaultBonus).level to
+                    "SPI${Divination.DEFAULT_PENALTY}, the book's own line for ${Divination.SKILL}"
             else -> {
                 val level = SkillLadder.defaultFor(skill.difficulty, attribute) ?: return null
                 level + defaultBonus to "${skill.attr.code}${skill.difficulty.defaultPenalty}"

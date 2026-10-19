@@ -37,7 +37,6 @@ internal fun rollDialogFor(kind: AttributeRoll.Kind): SheetDialog = when (kind) 
 internal fun SheetActions(
     drunk: BeyonderState?,
     ritualLevel: Int?,
-    divinationLevel: Int?,
     spiritVisionForm: String?,
     onPathways: () -> Unit,
     onBuild: () -> Unit,
@@ -74,10 +73,9 @@ internal fun SheetActions(
                     onOpen(SheetDialog.RITUAL)
                 }
             }
-            if (divinationLevel != null) {
-                ActionChip("Divine", mystical = true) {
-                    onOpen(SheetDialog.DIVINE)
-                }
+            // Ungated: Divination Arts defaults to SPI-4 (ch. 8 I).
+            ActionChip("Divine", mystical = true) {
+                onOpen(SheetDialog.DIVINE)
             }
             if (spiritVisionForm != null) {
                 // The pathway's OWN name for it: a Hermit's block writes

@@ -68,7 +68,7 @@ internal fun SheetDialogs(
     standing: Map<String, Int>,
     attributes: Attributes,
     skillLevels: Map<SkillKey, Int>,
-    divination: Divination.SkillOrDefault?,
+    divination: Divination.SkillOrDefault,
     ritualLevel: Int?,
     spiritVisionForm: String?,
     hpNow: PoolStatus,
@@ -90,7 +90,7 @@ internal fun SheetDialogs(
 ) {
     // Every throw is logged under the dialog that rolled it (RollLog).
     val dice = LocalDice.current
-    val divinationLevel = divination?.level
+    val divinationLevel = divination.level
     // Derived once for both bare Will rolls. Two `remember`s over one input
     // is two chances to key them differently, which is the drift this file
     // records against every re-derived value (6ai).
@@ -438,15 +438,13 @@ internal fun SheetDialogs(
             onDismiss = { onClose(SheetDialog.ATTACK) },
         )
     }
-    if (SheetDialog.DIVINE in open && divinationLevel != null) {
+    if (SheetDialog.DIVINE in open) {
         DivinationDialog(
             skillLevel = divinationLevel,
             // Divination Arts is SPI/Hard, and this dialog builds its target
             // through Divination.targetFor rather than the ledger.
             spiTrait = spiTrait,
-            sourceLine = divination?.let {
-                Divination.sourceLine(it, Divination.SKILL, RITUAL_SKILL)
-            },
+            sourceLine = Divination.sourceLine(divination),
             // Null for a mortal, who has no Sequence for Sec. 6 to compare.
             divinerSequence = drunk?.sequence,
             // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.

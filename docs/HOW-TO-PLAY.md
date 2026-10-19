@@ -176,7 +176,7 @@ Most skills can be tried untrained, at a default.
 
 The default is your attribute -4 for an Easy skill, -5 for Average and -6 for Hard. Brawling is DX-2. Versatile adds +1 to each default. With Medical Training (Informal), Physician is IQ-2, and Versatile does not add to that.
 
-Very Hard skills and Wrestling have no default and are not listed. Divination Arts is listed only with Ritualistic Magic at 12 or more. The GM can rule that a skill cannot be tried untrained, so ask first.
+Very Hard skills and Wrestling have no default and are not listed. Divination Arts is listed at SPI-4, its own default. The GM can rule that a skill cannot be tried untrained, so ask first.
 
 For an untrained punch or weapon, use **Attack**. For an Acrobatic Dodge, use **Defend**.
 
@@ -304,7 +304,7 @@ A failure rolls on the failure table and a critical on its own table. You can pu
 
 Divining a Beyonder stronger than you is harder. At the top of the ladder, only a critical success works, and then no push is offered, because a push cannot change the dice.
 
-With Ritualistic Magic at 12 or more, you can divine at that skill -2. The app uses it when it is better than your Divination Arts, and says *"Defaulted from"* under the title.
+Anyone can divine: Divination Arts defaults to SPI-4. The app uses the default when it is better than your own Divination Arts, and says *"Defaulted from"* under the title. Ritualistic Magic does not help a divination.
 
 ### Boon
 

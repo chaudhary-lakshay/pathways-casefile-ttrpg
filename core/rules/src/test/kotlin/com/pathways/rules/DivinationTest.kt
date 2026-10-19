@@ -14,8 +14,8 @@ import org.junit.jupiter.api.assertThrows
  * Asking the world a question (Ch. 6.5).
  *
  * The cases worth pinning are the ones a positional or margin-first reading
- * gets wrong: the cross-reference row that is not a modifier, the capped
- * support bonus, and the clarity table's two doors.
+ * gets wrong: the cross-reference row that is not a modifier, and the
+ * clarity table's two doors.
  */
 class DivinationTest {
 
@@ -28,212 +28,41 @@ class DivinationTest {
     private fun fixed(face: Int) = RandomSource { face }
 
     /**
-     * "Divination Arts defaults to Ritualistic Magic-2 and vice versa. A
-     * character with one skill at 12+ can attempt the other at -2." (p. 54)
-     *
-     * The point of the whole slice: 25 potion blocks grant Ritualistic Magic
-     * and 5 grant Divination Arts, so most casters this app can produce hold
-     * the sibling and not the skill.
+     * v6.9i ch. 8 I: "Divination Arts (IQ/Hard)" and "Default: Divination
+     * Arts defaults to SPI-4 (unskilled)." The skill's own line beats the
+     * IQ/Hard table's IQ-6, and Ritualistic Magic lends it nothing: "a
+     * Beyonder cannot substitute one for the other".
      */
     @Test
-    fun `the sibling skill grants a default of its level minus two`() {
-        assertEquals(-2, Divination.CROSS_DEFAULT_PENALTY)
-        assertEquals(10, Divination.crossDefaultFor(12))
-        assertEquals(12, Divination.crossDefaultFor(14))
+    fun `Divination Arts defaults to SPI minus four`() {
+        val unskilled = Divination.divinationLevelFor(own = null, spi = 12, defaultBonus = 0)
+        assertEquals(8, unskilled.level)
+        assertTrue(unskilled.isDefault)
+        // A mortal plays SPI 0 and may still ask, at -4.
+        assertEquals(-4, Divination.divinationLevelFor(own = null, spi = 0, defaultBonus = 0).level)
+        assertEquals(-4, Divination.DEFAULT_PENALTY)
     }
 
     @Test
-    fun `the twelve is a gate, and below it the book grants nothing`() {
-        assertEquals(12, Divination.CROSS_DEFAULT_THRESHOLD)
-        assertNull(Divination.crossDefaultFor(11))
-        assertNull(Divination.crossDefaultFor(0))
-        // The boundary is >=, not >: the sentence says "at 12+".
-        assertEquals(10, Divination.crossDefaultFor(12))
-    }
-
-    /**
-     * Null is a refusal, not a fallback. A caster with the sibling at 11 is
-     * not a caster with no skill at all, and answering the general SPI/Hard
-     * default for them would settle a question the book left open.
-     */
-    @Test
-    fun `the printed default beats the general one, and is not it`() {
-        val general = SkillLadder.defaultFor(Difficulty.HARD, attributeLevel = 12)
-        assertEquals(6, general, "SPI/Hard defaults at -6 for someone with neither skill")
-        assertEquals(
-            10,
-            Divination.crossDefaultFor(12),
-            "and the sibling skill prints -2, which is four better",
-        )
-        // Specific beats general only where the specific rule speaks -- so
-        // below the gate it does NOT fall back to the general answer.
-        assertNull(Divination.crossDefaultFor(11))
-    }
-
-    @Test
-    fun `the default runs one way, because ch 7 forbids the other`() {
-        assertEquals(Conditions.RITUAL_SKILL, Divination.SIBLING_SKILL)
-        assertEquals(11, Divination.crossDefaultFor(13))
-    }
-
-    /**
-     * **Ch. 6.5's "and vice versa" loses to ch. 7 II p. 61**: "Ritualistic
-     * Magic (IQ/Very Hard) -- your core skill. It has no default and cannot
-     * be substituted."
-     *
-     * The warrant is not that ch. 7 defines the skill. "cannot be
-     * substituted" appears nowhere else in this book, so it is emphasis about
-     * this skill rather than boilerplate under every Very Hard blurb; and
-     * ch. 2 p. 10 agrees independently, "Very Hard skills ... have no default
-     * at all", which is why [Difficulty.VERY_HARD] has carried a null default
-     * since M0. Two places against one trailing clause -- the clause loses
-     * (4.1), the way ch. 3's own "+9" ceiling lost to chapter 9's data (6ao).
-     *
-     * Nor is the asymmetry arbitrary. The direction that survives is exactly
-     * the one whose difficulty permits a default at all: Divination Arts is
-     * SPI/Hard and defaults at -6 generally, which p. 54 improves to -2.
-     *
-     * The case below is reachable from the app: Ritualistic Magic bought at
-     * one point is level 7 on IQ 10 (Very Hard), and a Fool Sequence 9 potion
-     * grants Divination Arts at SPI+3 = 12. Before this was read, that caster
-     * rolled their rituals at 10.
-     */
-    @Test
-    fun `a ritual is never rolled at the diviner's default`() {
-        val caster = Divination.levelsFor(ownDivination = 12, ownRitual = 7, defaultBonus = 0)
-        assertEquals(
-            7, caster.ritual!!.level,
-            "their own Ritualistic Magic, not Divination Arts 12 lending 10",
-        )
-        assertFalse(caster.ritual!!.isDefault)
-        // And the same caster's DIVINATION does default, from the same pair
-        // of numbers. One call, two chapters, and they disagree.
-        assertEquals(12, caster.divination!!.level)
-    }
-
-    /**
-     * The gate half of the same rule: Divination Arts at any level opens no
-     * Ritual button. A refusal, not a fallback to the general Very Hard
-     * "no default at all" -- both answer null, and only one of them is a
-     * number this app could have printed.
-     */
-    @Test
-    fun `Divination Arts lends a ritual nothing, at any level`() {
-        assertNull(Divination.levelsFor(ownDivination = 20, ownRitual = null, defaultBonus = 0).ritual)
-        // The arithmetic still exists and still answers, which is what shows
-        // the refusal is a scoping decision rather than a missing feature.
-        assertEquals(18, Divination.crossDefaultFor(20))
-    }
-
-    /**
-     * The general form, because three spot checks pass for a great many wrong
-     * implementations. Across the whole grid a ritual level is a function of
-     * the caster's own Ritualistic Magic ALONE -- the sibling cannot reach
-     * it -- while the divination level demonstrably moves with the sibling.
-     *
-     * The second half is what stops this passing vacuously: an engine that
-     * refused both directions would satisfy the first assertion perfectly.
-     */
-    @Test
-    fun `the sibling reaches divination and never a ritual`() {
-        var siblingMoved = 0
-        for (own in 1..20) {
-            for (sibling in 1..20) {
-                val caster = Divination.levelsFor(ownDivination = own, ownRitual = sibling, defaultBonus = 0)
-                assertEquals(
-                    sibling, caster.ritual!!.level,
-                    "Divination Arts $own must not reach a ritual rolled at $sibling",
-                )
-                if (caster.divination!!.level != own) siblingMoved++
-            }
-        }
-        assertTrue(siblingMoved > 0, "the divination half must still take the default")
-    }
-
-    /**
-     * **Owning the skill is not enough to settle which number to roll**
-     * (Codex). The sentence conditions on the SOURCE skill's level and says
-     * nothing about lacking the target, so a caster who has both may still
-     * default from the better one.
-     *
-     * The example is reachable from the book's own data: a Sequence 9 Hermit
-     * is granted Ritualistic Magic at IQ+4 and Divination Arts at SPI+2, so
-     * at IQ 10 / SPI 9 they own Divination Arts 11 while their Ritualistic
-     * Magic 14 lends 12.
-     */
-    @Test
-    fun `the better of the owned skill and the sibling's default wins`() {
-        val hermit = Divination.divinationLevelFor(own = 11, sibling = 14, defaultBonus = 0)
-        assertEquals(12, hermit!!.level, "Ritualistic Magic 14 lends 12, beating Divination 11")
-        assertTrue(hermit.isDefault, "and the screen must say the number is not their own")
-        // The other way round, the owned skill is simply better.
-        val owned = Divination.divinationLevelFor(own = 15, sibling = 14, defaultBonus = 0)
-        assertEquals(15, owned!!.level)
+    fun `the better of the owned skill and the default wins, a tie keeping the skill`() {
+        val owned = Divination.divinationLevelFor(own = 11, spi = 12, defaultBonus = 0)
+        assertEquals(11, owned.level)
         assertFalse(owned.isDefault)
-    }
-
-    @Test
-    fun `a tie keeps the owned skill, because the default adds nothing there`() {
-        val tied = Divination.divinationLevelFor(own = 12, sibling = 14, defaultBonus = 0)
-        assertEquals(12, tied!!.level)
-        assertFalse(tied.isDefault, "same number; a caster who has the skill is shown as having it")
-    }
-
-    @Test
-    fun `divinationLevelFor covers the three ways a caster can be short of a skill`() {
-        // Neither skill: no roll at all.
-        assertNull(Divination.divinationLevelFor(own = null, sibling = null, defaultBonus = 0))
-        // Sibling below the gate, and nothing owned: still no roll. The
-        // general SPI/Hard default is NOT substituted here.
-        assertNull(Divination.divinationLevelFor(own = null, sibling = 11, defaultBonus = 0))
-        // Sibling at the gate, nothing owned: the default is the whole point.
-        val lent = Divination.divinationLevelFor(own = null, sibling = 12, defaultBonus = 0)
-        assertEquals(10, lent!!.level)
+        val lent = Divination.divinationLevelFor(own = 7, spi = 14, defaultBonus = 0)
+        assertEquals(10, lent.level)
         assertTrue(lent.isDefault)
-        // Owned but no sibling at all.
-        val alone = Divination.divinationLevelFor(own = 9, sibling = null, defaultBonus = 0)
-        assertEquals(9, alone!!.level)
-        assertFalse(alone.isDefault)
+        assertEquals(7, lent.own)
+        val tied = Divination.divinationLevelFor(own = 8, spi = 12, defaultBonus = 0)
+        assertFalse(tied.isDefault)
     }
 
-    /**
-     * **A better default is not the same as having no skill** (Codex). Both
-     * defaulting cases set `isDefault`, and a screen given only that boolean
-     * told a Hermit -- who has Divination Arts 11 -- that they had none.
-     *
-     * The sentence is authored here rather than in the dialog, the call
-     * [Detection] already had to make for its attribute line (6ai).
-     */
     @Test
     fun `the two defaulting cases say different things`() {
-        val hasNone = Divination.sourceLine(
-            Divination.divinationLevelFor(own = null, sibling = 14, defaultBonus = 0)!!,
-            Divination.SKILL,
-            Divination.SIBLING_SKILL,
-        )!!
-        assertTrue(hasNone.contains("has no ${Divination.SKILL}"), hasNone)
-
-        val hasWorse = Divination.sourceLine(
-            Divination.divinationLevelFor(own = 11, sibling = 14, defaultBonus = 0)!!,
-            Divination.SKILL,
-            Divination.SIBLING_SKILL,
-        )!!
-        assertFalse(
-            hasWorse.contains("has no"),
-            "a Hermit HAS Divination Arts 11; saying otherwise is false: $hasWorse",
-        )
-        assertTrue(hasWorse.contains("11"), "and their own level is named: $hasWorse")
-        // Both name where the number came from, which is the whole point.
-        assertTrue(hasNone.contains("14") && hasWorse.contains("14"))
-    }
-
-    @Test
-    fun `a caster rolling their own skill is told nothing extra`() {
-        val owned = Divination.divinationLevelFor(own = 15, sibling = 14, defaultBonus = 0)!!
-        assertNull(
-            Divination.sourceLine(owned, Divination.SKILL, Divination.SIBLING_SKILL),
-            "no sentence at all, rather than one saying the number is their own",
-        )
+        val hasNone = Divination.sourceLine(Divination.divinationLevelFor(null, spi = 14, defaultBonus = 0))!!
+        assertTrue("SPI 14" in hasNone && "no ${Divination.SKILL} of their own" in hasNone, hasNone)
+        val hasWorse = Divination.sourceLine(Divination.divinationLevelFor(7, spi = 14, defaultBonus = 0))!!
+        assertTrue("${Divination.SKILL} 7" in hasWorse, hasWorse)
+        assertNull(Divination.sourceLine(Divination.divinationLevelFor(12, spi = 10, defaultBonus = 0)))
     }
 
     @Test
@@ -533,46 +362,6 @@ class DivinationTest {
     }
 
     /**
-     * "Complex divination ... Requires Ritualistic Magic or a very high
-     * Divination Arts roll (-4 penalty)." (Sec. I, p. 54)
-     *
-     * One of three scopes and the only one that prices anything: the other
-     * two say which skill suffices and charge nothing for saying it. A row
-     * that priced all three would be a table this book does not print.
-     */
-    @Test
-    fun `only the complex scope charges for the skill it substitutes`() {
-        assertEquals(
-            listOf("Simple", "Moderate", "Complex"),
-            Divination.scopes().map { it.scope },
-        )
-        assertEquals(0, Divination.penaltyFor(Divination.scopeNamed("Simple")))
-        assertEquals(0, Divination.penaltyFor(Divination.scopeNamed("Moderate")))
-        assertEquals(-4, Divination.penaltyFor(Divination.scopeNamed("Complex")))
-    }
-
-    /**
-     * The composition the book does not print, pinned at the boundary that
-     * would hide a reversal.
-     *
-     * The scope penalty prices the SKILL SUBSTITUTION and the band prices the
-     * QUESTION, so they add -- the reading that expired the old refusal. They
-     * arrive through different parameters, so a later reader who made them
-     * exclusive would still satisfy every assertion that checks one alone;
-     * what fails is this total.
-     */
-    @Test
-    fun `a complex question asked of a hard subject is charged both times`() {
-        val hard = difficulty("Hard")
-        val scope = Divination.penaltyFor(Divination.scopeNamed("Complex"))
-        // The input this test composes, pinned here. The band's own -4 is
-        // pinned by the difficulty test above; asserting it again would be a
-        // second copy of that guard rather than a guard on this one.
-        assertEquals(-4, scope)
-        assertEquals(6, Divination.targetFor(14, hard, scope))
-    }
-
-    /**
      * A screen that prints "3d6 <= N" and then rolls must roll against N.
      * Composing N a second time inside the roll is two call sites answering
      * one question (6eg, 6eh), so the roll takes the composed target and
@@ -598,52 +387,20 @@ class DivinationTest {
 
     /**
      * "+1 to defaults skill rolls -- any time you use a skill at default, you
-     * are effectively one level better" (Versatile, p. 13), and p. 54 calls
-     * the Ritualistic Magic-2 number a default in its own word.
-     *
-     * The bonus is INSIDE the pick. Own 10 against a sibling of 12 lends 10,
-     * a tie the owned skill keeps; with Versatile the default is 11 and wins.
-     * Choosing first and adding afterwards rolls 10 for that caster.
+     * are effectively one level better" (Versatile). SPI-4 is a default in
+     * the book's own word, so the bonus is counted INSIDE the pick: own 8
+     * against SPI 12 is a tie the skill keeps, and with Versatile the
+     * default is 9 and wins.
      */
     @Test
     fun `a bonus to defaults is counted before the better number is picked`() {
-        val plain = Divination.divinationLevelFor(own = 10, sibling = 12, defaultBonus = 0)!!
-        assertEquals(10, plain.level)
-        assertFalse(plain.isDefault)
-        val versatile = Divination.divinationLevelFor(own = 10, sibling = 12, defaultBonus = 1)!!
-        assertEquals(11, versatile.level)
+        assertFalse(Divination.divinationLevelFor(own = 8, spi = 12, defaultBonus = 0).isDefault)
+        val versatile = Divination.divinationLevelFor(own = 8, spi = 12, defaultBonus = 1)
+        assertEquals(9, versatile.level)
         assertTrue(versatile.isDefault)
-        // A tie still keeps the owned skill, with the bonus counted.
-        val tied = Divination.divinationLevelFor(own = 13, sibling = 14, defaultBonus = 1)!!
-        assertEquals(13, tied.level)
-        assertFalse(tied.isDefault)
-        // And it reaches the caster through the one entry point the app calls.
-        val caster = Divination.levelsFor(ownDivination = null, ownRitual = 14, defaultBonus = 1)
-        assertEquals(13, caster.divination!!.level)
-        assertEquals(14, caster.ritual!!.level, "a ritual is never rolled at a default")
-    }
-
-    /** "A character with one skill at 12+": the gate reads the SIBLING's level. */
-    @Test
-    fun `a bonus to defaults does not open the gate at eleven`() {
-        assertNull(Divination.divinationLevelFor(own = null, sibling = 11, defaultBonus = 1))
-    }
-
-    /**
-     * The line reconciles: the sibling's true level, the bonus, and its name.
-     * It used to recover the sibling's level from the chosen number, which a
-     * bonus would have printed one too high.
-     */
-    @Test
-    fun `the source line names the sibling's own level and the bonus`() {
-        val lent = Divination.divinationLevelFor(own = null, sibling = 14, defaultBonus = 1)!!
-        val line = Divination.sourceLine(lent, Divination.SKILL, Divination.SIBLING_SKILL)!!
-        assertTrue(line.contains("${Divination.SIBLING_SKILL} 14"), line)
-        assertFalse(line.contains("15"), line)
-        assertTrue(line.contains("+1") && line.contains(TraitEffects.VERSATILE), line)
-        // Without the bonus the trait is not named at all.
-        val plain = Divination.divinationLevelFor(own = null, sibling = 14, defaultBonus = 0)!!
-        val bare = Divination.sourceLine(plain, Divination.SKILL, Divination.SIBLING_SKILL)!!
+        val line = Divination.sourceLine(versatile)!!
+        assertTrue(line.contains("SPI 12") && line.contains("+1") && line.contains(TraitEffects.VERSATILE), line)
+        val bare = Divination.sourceLine(Divination.divinationLevelFor(null, spi = 12, defaultBonus = 0))!!
         assertFalse(bare.contains(TraitEffects.VERSATILE), bare)
     }
 }

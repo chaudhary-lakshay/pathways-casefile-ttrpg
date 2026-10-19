@@ -339,32 +339,19 @@ internal fun SheetScreen(
     // Arts with points, so a potion is its only route (6aq).
     val ownedRitual = skillLevelOf(RITUAL_SKILL, skillLevels)
     val ownedDivination = skillLevelOf(Divination.SKILL, skillLevels)
-    // p. 54: "Divination Arts defaults to Ritualistic Magic-2 and vice versa.
-    // A character with one skill at 12+ can attempt the other at -2."
-    //
-    // This matters because the two are granted very unevenly -- 25 potion
-    // blocks grant Ritualistic Magic against 5 that grant Divination Arts --
-    // so a gate on ownership alone hid the Divine button from most casters
-    // the book lets ask a question. Below 12 the default is null and the
-    // button stays hidden, which is the book withholding it, not this app.
-    //
-    // Which of the two numbers wins lives in Divination.divinationLevelFor,
-    // NOT here: a screen picking for itself is the two-copies-of-one-decision
-    // failure 6ag and 6ai each produced once, and the answer is not simply
-    // "the one you own" (Codex).
-    //
-    // It runs ONE WAY. The "vice versa" clause loses to ch. 7 II p. 61 --
-    // "Ritualistic Magic ... has no default and cannot be substituted" -- so
-    // a ritual is rolled at the caster's own skill or not at all.
-    val levels = Divination.levelsFor(
-        ownDivination = ownedDivination,
-        ownRitual = ownedRitual,
+    // Ch. 8 I: "Divination Arts defaults to SPI-4 (unskilled)", so anyone
+    // may divine and the Divine tile is never hidden. Which of the owned
+    // skill and the default wins lives in Divination.divinationLevelFor, NOT
+    // here: a screen picking for itself is the two-copies-of-one-decision
+    // failure 6ag and 6ai each produced once. A ritual is rolled at the
+    // caster's own Ritualistic Magic or not at all: "a Beyonder cannot
+    // substitute one for the other".
+    val divination = Divination.divinationLevelFor(
+        own = ownedDivination,
+        spi = vitals.maxSpi,
         defaultBonus = TraitEffects.defaultBonus(traits),
     )
-    val divination = levels.divination
-    val ritual = levels.ritual
-    val divinationLevel = divination?.level
-    val ritualLevel = ritual?.level
+    val ritualLevel = ownedRitual
 
     // Ch. 7.6. Gated on the character's OWN potion block, via the grants the
     // extractor derives -- never on 7.6's own section C summary, which lists
@@ -520,7 +507,6 @@ internal fun SheetScreen(
                     SheetActions(
                         drunk = drunk,
                         ritualLevel = ritualLevel,
-                        divinationLevel = divinationLevel,
                         spiritVisionForm = spiritVisionForm,
                         onPathways = onPathways,
                         onBuild = onBuild,

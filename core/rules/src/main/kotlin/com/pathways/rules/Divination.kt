@@ -7,7 +7,6 @@ import com.pathways.rules.content.DivinationClarity
 import com.pathways.rules.content.DivinationDifficulty
 import com.pathways.rules.content.DivinationMethod
 import com.pathways.rules.content.DivinationModifier
-import com.pathways.rules.content.DivinationScope
 
 /**
  * Asking the world a question (Ch. 6.5, Sections I-III).
@@ -28,7 +27,7 @@ import com.pathways.rules.content.DivinationScope
  */
 object Divination {
 
-    /** The skill this resolves (SPI/Hard, p. 53). */
+    /** The skill this resolves (IQ/Hard, ch. 8 I). */
     const val SKILL = "Divination Arts"
 
 
@@ -73,71 +72,18 @@ object Divination {
     /** "1 SPI = +1, no cap", spent after seeing the roll (p. 55). */
     const val BURN_PER_SPI = 1
 
-    /** The skill this one defaults from and to (p. 54). */
-    const val SIBLING_SKILL = Conditions.RITUAL_SKILL
-
     /**
-     * "Divination Arts defaults to Ritualistic Magic-2 and vice versa"
-     * (p. 54).
+     * "Default: Divination Arts defaults to SPI-4 (unskilled)." (ch. 8 I)
      *
-     * A SPECIFIC default, and it beats the general one:
-     * [Difficulty.defaultPenalty] answers -6 for an SPI/Hard skill, and this
-     * is what one who has the sibling rolls at, which the book prices at -2.
-     *
-     * The table's -6 is offered by NO screen, for a caster with the sibling
-     * below 12 or with neither skill: see [crossDefaultFor], and
-     * [SkillDefaults], which asks this object rather than the table so the
-     * Skills tab cannot offer what the Divine tile refuses.
+     * A SPECIFIC default, and it replaces the IQ/Hard table's IQ-6 the way
+     * Brawling's own line replaces the table's. Ritualistic Magic lends it
+     * nothing: "The two skills do not overlap -- a Beyonder cannot substitute
+     * one for the other."
      */
-    const val CROSS_DEFAULT_PENALTY = -2
+    const val DEFAULT_PENALTY = -4
 
     /**
-     * "A character with one skill at 12+ can attempt the other at -2."
-     *
-     * A GATE on the source skill, not a rounding: at 11 there is no default
-     * at all, and reading the clause as advisory would hand every apprentice
-     * the cheap default the sentence conditions.
-     */
-    const val CROSS_DEFAULT_THRESHOLD = 12
-
-    /**
-     * What a caster holding only [siblingLevel] in the other skill rolls this
-     * one at -- or null where the book grants no default.
-     *
-     * Null is a REFUSAL, not a fallback to the general SPI/Hard -6. A caster
-     * with Ritualistic Magic at 11 is not a caster with no skill: what the
-     * book declines to say is whether they may attempt it at all, and
-     * answering -6 would settle a question it left open. The same distinction
-     * [Wounds.multiplierFor] draws between a silent cell and a key that is
-     * not a damage type.
-     *
-     * ONE-DIRECTIONAL, despite the sentence's own "and vice versa": this
-     * answers what a caster holding Ritualistic Magic attempts DIVINATION at,
-     * and nothing else. Ch. 7 II p. 61 says of Ritualistic Magic, "It has no
-     * default and cannot be substituted" -- and "cannot be substituted"
-     * appears nowhere else in this book, so it is emphasis about this skill
-     * rather than boilerplate under every Very Hard blurb. Ch. 2 p. 10 agrees
-     * independently: "Very Hard skills ... have no default at all", which is
-     * why [Difficulty.VERY_HARD] has carried a null default since M0.
-     *
-     * Two places say Ritualistic Magic has no default against one trailing
-     * clause that says it has; the clause loses (4.1). The asymmetry is not
-     * arbitrary either -- it falls out of the difficulty grid, because the
-     * direction that survives is exactly the one whose difficulty permits a
-     * default at all: Divination Arts is SPI/Hard, where the table prints -6,
-     * and p. 54 prints -2 in its place.
-     *
-     * [levelsFor] is where the other direction is refused.
-     */
-    fun crossDefaultFor(siblingLevel: Int): Int? =
-        if (siblingLevel >= CROSS_DEFAULT_THRESHOLD) {
-            siblingLevel + CROSS_DEFAULT_PENALTY
-        } else {
-            null
-        }
-
-    /**
-     * A level to roll one of the pair at, and whether it is the sibling's.
+     * A level to roll Divination Arts at, and whether it is the default.
      *
      * [isDefault] is what the screen says out loud, so a caster is never
      * shown a number they do not own without being told where it came from.
@@ -149,17 +95,14 @@ object Divination {
          * What the caster's OWN skill stands at, or null if they have none.
          *
          * Carried because [isDefault] alone cannot tell the two defaulting
-         * cases apart, and they read very differently to a GM: a caster with
-         * no divination skill at all, and a Hermit who has one and whose
-         * ritual skill simply lends a better number (Codex). A screen given
-         * only the flag printed "this character has no Divination Arts of
-         * their own" at a character who has it.
+         * cases apart: a caster with no Divination Arts at all, and one whose
+         * skill is worse than their SPI-4.
          */
         val own: Int? = null,
         /**
          * What a trait added to the DEFAULT, already inside [level]; zero
          * when [isDefault] is false. Carried so [sourceLine] can print the
-         * sibling's true level rather than recover it from [level].
+         * SPI behind the number.
          */
         val defaultBonus: Int = 0,
     )
@@ -170,135 +113,54 @@ object Divination {
      *
      * Authored HERE rather than in the dialog, the call [Detection] already
      * had to make for its attribute line (6ai): a screen writing its own
-     * version is a second copy of a decision, and this repo's numbers have
-     * twice stopped reconciling that way.
+     * version is a second copy of a decision.
      */
-    fun sourceLine(chosen: SkillOrDefault, skill: String, sibling: String): String? {
+    fun sourceLine(chosen: SkillOrDefault): String? {
         if (!chosen.isDefault) return null
-        val from = chosen.level - CROSS_DEFAULT_PENALTY - chosen.defaultBonus
+        val spi = chosen.level - DEFAULT_PENALTY - chosen.defaultBonus
         val lift = if (chosen.defaultBonus == 0) {
             ""
         } else {
             ", +${chosen.defaultBonus} for ${TraitEffects.VERSATILE}"
         }
-        val quote = "\"Divination Arts defaults to $SIBLING_SKILL" +
-            "$CROSS_DEFAULT_PENALTY and vice versa.\""
+        val base = "Defaulted from SPI $spi$DEFAULT_PENALTY$lift. " +
+            "\"Divination Arts defaults to SPI-4 (unskilled).\""
         return if (chosen.own == null) {
-            "Defaulted from $sibling $from$lift. $quote This character has no $skill of their own."
+            "$base This character has no $SKILL of their own."
         } else {
-            "Defaulted from $sibling $from$lift. $quote Better than their own " +
-                "$skill ${chosen.own}, and the book conditions the default on " +
-                "the other skill's level, not on lacking this one."
+            "$base Better than their own $SKILL ${chosen.own}."
         }
     }
 
     /**
      * The level a caster rolls DIVINATION at, given what they [own] of
-     * Divination Arts and what they own of Ritualistic Magic ([sibling]) --
-     * or null if they have neither.
+     * Divination Arts and their [spi].
      *
-     * There is deliberately no general "either direction" form of this: see
-     * [crossDefaultFor] for why [levelsFor] refuses the other one, and note
-     * that a single symmetric function is exactly what let ch. 6.5's trailing
-     * clause override ch. 7's prohibition without anyone reading ch. 7.
+     * Never null: SPI-4 is open to anyone, and a mortal at SPI 0 asks at -4.
      *
-     * **The better of the two wins, and owning the skill is not enough to
-     * settle it** (Codex). The sentence conditions on the SOURCE skill's
-     * level and says nothing about lacking the target: "A character with one
-     * skill at 12+ can attempt the other at -2." A Sequence 9 Hermit is
-     * granted Ritualistic Magic at IQ+4 and Divination Arts at SPI+2, so on
-     * IQ 10 / SPI 9 they own Divination Arts 11 while their Ritualistic Magic
-     * 14 lends 12. Preferring what they own rolls the worse of two numbers
-     * the book allows.
-     *
-     * This is NOT GURPS's "always use the best of skill or default" imported
-     * as a convention -- those are GURPS's and this book's own rules win
-     * (4.1). It is the printed permission read literally: the caster may
-     * attempt it that way, and which of two permitted numbers to use is not
-     * a question the book leaves open.
-     *
-     * A tie keeps the owned skill, because the default adds nothing there and
-     * a caster who has the skill should be shown as having it.
+     * The better of the owned skill and the default wins -- GURPS's best of
+     * skill or default -- and a tie keeps the owned skill, because the
+     * default adds nothing there and a caster who has the skill should be
+     * shown as having it.
      *
      * [defaultBonus] is [TraitEffects.defaultBonus]: Versatile's "any time you
      * use a skill at default, you are effectively one level better". It is
-     * added BEFORE the comparison, because own 10 against a sibling of 12 is
-     * a tie without it and a default of 11 with it. The 12+ gate is the
-     * sibling's own level and the bonus does not open it.
+     * added BEFORE the comparison, because own 8 against SPI 12 is a tie
+     * without it and a default of 9 with it.
      */
-    fun divinationLevelFor(own: Int?, sibling: Int?, defaultBonus: Int): SkillOrDefault? {
-        val defaulted = sibling?.let(::crossDefaultFor)?.plus(defaultBonus)
-        return when {
-            own != null && (defaulted == null || defaulted <= own) ->
-                SkillOrDefault(own, isDefault = false, own = own)
-            defaulted != null ->
-                SkillOrDefault(defaulted, isDefault = true, own = own, defaultBonus = defaultBonus)
-            else -> null
+    fun divinationLevelFor(own: Int?, spi: Int, defaultBonus: Int): SkillOrDefault {
+        val defaulted = spi + DEFAULT_PENALTY + defaultBonus
+        return if (own != null && defaulted <= own) {
+            SkillOrDefault(own, isDefault = false, own = own)
+        } else {
+            SkillOrDefault(defaulted, isDefault = true, own = own, defaultBonus = defaultBonus)
         }
     }
 
-    /** What a caster may roll each of the pair at; null where they may not. */
-    data class CasterLevels(
-        val divination: SkillOrDefault?,
-        val ritual: SkillOrDefault?,
-    )
-
-    /**
-     * Both of a caster's rolls, from the two skills they own.
-     *
-     * ONE function rather than two calls, because the asymmetry IS the rule
-     * and a screen making the second call itself can only be checked by
-     * reading it. Here a symmetric implementation fails a test.
-     *
-     * The ritual half never defaults, from anything. Ch. 7 II p. 61:
-     * "Ritualistic Magic (IQ/Very Hard) -- your core skill. It has no default
-     * and cannot be substituted. ... Supporting skills provide complementary
-     * bonuses but never replace this skill." And ch. 7 is not speaking past
-     * Divination Arts when it forbids this -- its own category table sends
-     * divination away to the other chapter, "Divination (1-2 SPI via
-     * Divination Arts, see Ch 6.5)" (p. 67).
-     */
-    fun levelsFor(ownDivination: Int?, ownRitual: Int?, defaultBonus: Int) = CasterLevels(
-        divination = divinationLevelFor(ownDivination, ownRitual, defaultBonus),
-        ritual = ownRitual?.let { SkillOrDefault(it, isDefault = false, own = it) },
-    )
-
     fun difficulties(): List<DivinationDifficulty> = ContentLoader.divinationDifficulty()
-    fun scopes(): List<DivinationScope> = ContentLoader.divinationScopes()
     fun methods(): List<DivinationMethod> = ContentLoader.divinationMethods()
     fun modifiers(): List<DivinationModifier> = ContentLoader.divinationModifiers()
     fun clarities(): List<DivinationClarity> = ContentLoader.divinationClarity()
-
-    /** The scope named [name]; refused rather than defaulted to the free one. */
-    fun scopeNamed(name: String): DivinationScope =
-        scopes().firstOrNull { it.scope.equals(name, ignoreCase = true) }
-            ?: throw IllegalArgumentException(
-                "no divination scope named '$name'; the book prints " +
-                    scopes().joinToString { it.scope },
-            )
-
-    /**
-     * What reaching for Divination Arts at this [scope] costs the roll.
-     *
-     * Zero for the two rows the book prices nothing on, and that zero is a
-     * VALUE rather than an absence: "Divination Arts is sufficient" and
-     * "Either skill works" are the book saying the substitution is free, not
-     * declining to say what it costs. The null this reads is therefore
-     * answered here, once, instead of at every call site.
-     *
-     * NOT composed with the question's difficulty band, which arrives through
-     * [targetFor]'s own parameter: the band prices the QUESTION and this
-     * prices the SKILL, so a complex question about a hard subject is charged
-     * both times. That composition is a reading the book does not print --
-     * see this object's UNAPPLIED neighbours and the extractor's verify_scope,
-     * which pins the descriptors of the two tables staying disjoint.
-     *
-     * "Requires Ritualistic Magic or a very high Divination Arts roll" prints
-     * no threshold for "very high", so none is enforced: the cross-skill
-     * default one line below prints its own ("at 12+"), and inventing one
-     * here would be app-authored.
-     */
-    fun penaltyFor(scope: DivinationScope): Int = scope.modifier ?: 0
 
     /** The method named [name]; refused rather than defaulted to the cheapest. */
     fun methodNamed(name: String): DivinationMethod =
