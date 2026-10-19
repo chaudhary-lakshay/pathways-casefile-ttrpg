@@ -490,4 +490,15 @@ class BeyonderSessionTest {
         assertEquals(fool8, saved().pendingPcr)
         assertTrue(s.rerollPcr(fixed(1)) { 20 }.integrated)
     }
+
+    /** Ch. 7's rest refills FP and SPI, never below 0 spent, once per picture (6ei). */
+    @Test
+    fun `a rest gives back what it recovers once per picture`() {
+        val (s, saved) = session(SavedSession(fpLost = 10, spiSpent = 2))
+        assertTrue(s.rest(com.pathways.rules.RestRecovery(fp = 18, spi = 3), drawn = 10 to 2))
+        assertEquals(0, s.fpLost)
+        assertEquals(0, s.spiSpent)
+        assertFalse(s.rest(com.pathways.rules.RestRecovery(fp = 18, spi = 3), drawn = 10 to 2))
+        assertEquals(0, saved().fpLost)
+    }
 }

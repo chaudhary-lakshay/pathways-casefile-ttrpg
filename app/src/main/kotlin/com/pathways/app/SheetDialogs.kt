@@ -286,6 +286,13 @@ internal fun SheetDialogs(
             onQuirk = session::addQuirk,
         ) { onClose(SheetDialog.FRIGHT) }
     }
+    if (SheetDialog.REST in open) {
+        RestDialog(
+            maxFp = vitals.maxFp,
+            drawn = session.fpLost to session.spiSpent,
+            onRest = { recovery, drawn -> session.rest(recovery, drawn) },
+        ) { onClose(SheetDialog.REST) }
+    }
     if (SheetDialog.CONCENTRATE in open) {
         ConcentrateDialog(vitals.will, concentrationClauses, shockOnAttribute, hurtOnAttribute, states) {
             onClose(SheetDialog.CONCENTRATE)

@@ -637,6 +637,20 @@ class BeyonderSession(
     }
 
     /**
+     * Give back what a rest recovers (ch. 7, [com.pathways.rules.Rest]): FP
+     * and SPI, never past full. A rest is a one-shot: a tap drawn at another
+     * [drawn] (FP lost, SPI spent) is a stale second and does nothing (6ei).
+     * Soul Debt's CoR is not refunded, as [spend] says.
+     */
+    fun rest(recovery: com.pathways.rules.RestRecovery, drawn: Pair<Int, Int>): Boolean {
+        if (isLost || drawn != (fpLost to spiSpent)) return false
+        fpLost = (fpLost - recovery.fp).coerceAtLeast(0)
+        spiSpent = (spiSpent - recovery.spi).coerceAtLeast(0)
+        persist()
+        return true
+    }
+
+    /**
      * Move CoR by [delta], held inside 0..[max], and latch the loss if this
      * reaches the maximum.
      *

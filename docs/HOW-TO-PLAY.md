@@ -384,6 +384,10 @@ While a character is hurt, **Vitals** has **Natural recovery**.
 3. Add the HP yourself with **+** on the HP pool. The GM decides which row applies.
 4. Tap **Another day** to get ready for the next roll.
 
+### Rest
+
+Tap **Rest** on the sheet. Pick *Short Rest · 3 h* or *Long Rest · 9 h*. A short rest gives back 1 FP for every 10 minutes and 1 SPI an hour. A long rest gives back all FP and 1 SPI an hour. If your Cogitation roll succeeded, tap *Cogitation roll succeeded*: SPI comes back at 2 an hour. Tap **Rest** to add both to the pools, up to full. HP still heals by the daily roll above. The book allows one rest a day, and the GM keeps count.
+
 **The book's rows** shows the table. Use the **−1 / +1** stepper for anything else that changes the roll. A Fast Healer gets one more HP on a success.
 
 The app does not heal with First Aid or Physician. Roll them as skills, then add the HP with **+**. The Healing advantage and Regeneration are not offered.

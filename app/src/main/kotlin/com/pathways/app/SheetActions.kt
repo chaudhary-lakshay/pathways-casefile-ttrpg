@@ -23,6 +23,8 @@ enum class SheetDialog {
     WILL_ROLL, PER_ROLL,
     /** Ch. 4's universal senses, rolled against current SPI. */
     INTUITION_ROLL, PERCEPTION_ROLL,
+    /** Ch. 7's Short or Long Rest (v6.9i). */
+    REST,
 }
 
 /** The dialog a Vitals row opens. */
@@ -110,6 +112,10 @@ internal fun SheetActions(
             }
             ActionChip("Detect") {
                 onOpen(SheetDialog.DETECT)
+            }
+            // Ungated: whether a rest is possible is the GM's (ch. 7).
+            ActionChip("Rest") {
+                onOpen(SheetDialog.REST)
             }
             // Underlined, as frames 02 and 04 draw these two.
             ActionChip("Spend points", underlined = true, onClick = onBuild)

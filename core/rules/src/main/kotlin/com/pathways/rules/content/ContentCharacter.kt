@@ -380,6 +380,38 @@ data class CoreBand(
  * list means none is needed; [outOfCombatTraits] absent means never out of
  * combat. Read through [com.pathways.rules.EffortBurn].
  */
+/** Ch. 7's Rest (v6.9i), whole: its tables, the SPI rates and the two rests. */
+@Serializable
+data class RestFile(
+    val fpRecovery: List<RestRow>,
+    val fpThresholds: List<RestRow>,
+    val spi: RestSpi,
+    val rests: List<RestPeriod>,
+    val restrictions: List<RestBullet>,
+)
+
+@Serializable
+data class RestRow(val name: String, val effect: String, val time: String)
+
+/** "1 SPI per hour", doubled to 2 by a successful [cogitationSkill] roll. */
+@Serializable
+data class RestSpi(val perHour: Int, val cogitationPerHour: Int, val cogitationSkill: String)
+
+@Serializable
+data class RestBullet(val label: String, val text: String)
+
+/** A Short or Long Rest: its hours, whether it restores all FP, and its printed bullets. */
+@Serializable
+data class RestPeriod(
+    val name: String,
+    val hours: Int,
+    val text: String,
+    val focusedTaskRolls: Int,
+    val allFp: Boolean,
+    val bullets: List<RestBullet>,
+    val countsAsActingSession: Boolean = false,
+)
+
 /** One row of ch. 2's Encumbrance Levels (v6.9i 404-422): the load limit in multiples of BL. */
 @Serializable
 data class EncumbranceLevel(

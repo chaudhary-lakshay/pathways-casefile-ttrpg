@@ -71,6 +71,7 @@ object ContentLoader {
     private val effortBurnLazy: List<BurnablePool> by lazy { load("effort_burn.json") }
     private val attributeCostsLazy: List<AttributeCost> by lazy { load("attribute_costs.json") }
     private val encumbranceLazy: List<EncumbranceLevel> by lazy { load("encumbrance.json") }
+    private val restLazy: RestFile by lazy { loadWhole("rest.json") }
     private val quickContestsLazy: List<QuickContest> by lazy {
         load("quick_contests.json")
     }
@@ -486,6 +487,9 @@ object ContentLoader {
 
     /** Ch. 2's Encumbrance Levels. Read through [com.pathways.rules.Encumbrance]. */
     fun encumbrance(): List<EncumbranceLevel> = encumbranceLazy
+
+    /** Ch. 7's Rest, whole (`loadWhole`: sibling sections). Read through [com.pathways.rules.Rest]. */
+    fun restFile(): RestFile = restLazy
 
     /**
      * The six worked Quick Contests (Ch. 2, p. 9), in printed order. Shown to
