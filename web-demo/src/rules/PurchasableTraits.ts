@@ -1,4 +1,4 @@
-import { eqIc, isBlank, lazy, removeSuffix, sortedBy } from './kt'
+import { eqIc, isBlank, lazy, removeSuffix, sortedBy, trim } from './kt'
 import * as ContentLoader from './content/ContentLoader'
 import type { TraitDefinition } from './content/schema.gen'
 import { blessingAsTrait } from './content/members'
@@ -42,7 +42,7 @@ export const InstancedPurchase = (p: Pick<InstancedPurchase, 'row' | 'cost'> & P
   variant: null, instance: null, ...p,
 })
 
-export const purchaseKey = (p: InstancedPurchase) => `${p.row.trim().toLowerCase()}/${p.instance?.trim().toLowerCase() ?? ''}`
+export const purchaseKey = (p: InstancedPurchase) => `${trim(p.row).toLowerCase()}/${p.instance == null ? '' : trim(p.instance).toLowerCase()}`
 
 const WEALTH_PREFIX = 'Wealth: ' // Wealth.TRAIT_PREFIX
 const LANGUAGE_ROW = 'Language (specify)' // Languages.ROW
@@ -129,7 +129,7 @@ export function instanced(purchase: InstancedPurchase): Trait | null {
   if (purchase.cost < row.costMin || purchase.cost > row.costMax) return null
   const head = removeSuffix(row.name, TraitNames.PLACEHOLDER)
   const name = needsInstance(row)
-    ? `${head} (${purchase.instance!.trim()})`
+    ? `${head} (${trim(purchase.instance!)})`
     : variant !== null ? `${row.name} (${variant[0]})` : row.name
   return Trait(name, purchase.cost, row.advantage ? 'ADVANTAGE' : 'DISADVANTAGE')
 }

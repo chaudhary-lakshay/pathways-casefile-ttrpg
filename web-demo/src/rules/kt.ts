@@ -155,9 +155,27 @@ export const substringAfter = (s: string, d: string, missing = s) => {
 export const removePrefix = (s: string, p: string) => (s.startsWith(p) ? s.slice(p.length) : s)
 export const removeSuffix = (s: string, p: string) => (s.endsWith(p) ? s.slice(0, s.length - p.length) : s)
 
-/** `equals(other, ignoreCase = true)`. */
-export const eqIc = (a: string | null | undefined, b: string | null | undefined) =>
-  a != null && b != null && a.length === b.length && a.toLowerCase() === b.toLowerCase()
+/** `Char.uppercaseChar()`: one char in, one out; a multi-char mapping (ß) leaves it. */
+const upperChar = (c: string) => {
+  const u = c.toUpperCase()
+  return u.length === 1 ? u : c
+}
+const lowerChar = (c: string) => {
+  const l = c.toLowerCase()
+  return l.length === 1 ? l : c
+}
+
+/** `equals(other, ignoreCase = true)`: per char, upper case first, then lower (Kotlin's regionMatches). */
+export function eqIc(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (a == null || b == null || a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) continue
+    const ua = upperChar(a[i])
+    const ub = upperChar(b[i])
+    if (ua !== ub && lowerChar(ua) !== lowerChar(ub)) return false
+  }
+  return true
+}
 
 export const startsWithIc = (s: string, p: string) => s.length >= p.length && eqIc(s.slice(0, p.length), p)
 export const endsWithIc = (s: string, p: string) => s.length >= p.length && eqIc(s.slice(s.length - p.length), p)
@@ -166,7 +184,20 @@ export const containsIc = (s: string, p: string) => s.toLowerCase().includes(p.t
 /** Java's `\s`: ASCII whitespace only, where a JS `\s` is Unicode's. */
 export const WS = '[ \\t\\n\\x0B\\f\\r]'
 
-export const isBlank = (s: string) => s.trim() === ''
+/** `Char.isWhitespace()`: Java's whitespace plus space separators; no BOM, unlike JS. */
+const KT_WS = /[\t\n\u000B\f\r\u001C-\u001F\p{Zs}\p{Zl}\p{Zp}]/u
+const isWhitespace = (c: string) => KT_WS.test(c)
+
+export const isBlank = (s: string) => [...s].every(isWhitespace)
+
+/** Kotlin's `trim()`, which typed text goes through. */
+export function trim(s: string): string {
+  let start = 0
+  let end = s.length
+  while (start < end && isWhitespace(s[start])) start++
+  while (end > start && isWhitespace(s[end - 1])) end--
+  return s.slice(start, end)
+}
 
 /** `trimEnd(c)` for the characters given. */
 export function trimEndChars(s: string, chars: string): string {

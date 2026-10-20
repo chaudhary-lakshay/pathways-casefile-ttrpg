@@ -26,7 +26,9 @@ describe('saves in the browser', () => {
 
   test('what is saved loads back after a reload', () => {
     const m = new Memory()
-    new BrowserStore(m).save(new Map([['Beat Cop', SavedSession({ cor: 3 })]]))
+    const store = new BrowserStore(m)
+    store.load()
+    store.save(new Map([['Beat Cop', SavedSession({ cor: 3 })]]))
     const again = new BrowserStore(m).load()
     expect(again.sessions.get('Beat Cop')?.cor).toBe(3)
     expect(again.unreadable).toBe(false)
@@ -53,9 +55,93 @@ describe('saves in the browser', () => {
     expect(m.getItem(BACKUP_KEY)).toBe('first')
   })
 
+  test('an unreadable save that cannot be kept aside is never overwritten', () => {
+    const m = new Memory()
+    m.setItem(BACKUP_KEY, 'first')
+    m.setItem(KEY, 'second')
+    const store = new BrowserStore(m)
+    expect(store.load().unreadable).toBe(true)
+    expect(store.save(new Map([['A', SavedSession()]]))).toBe('blocked')
+    expect(m.getItem(KEY)).toBe('second')
+  })
+
+  test('discarding the backup moves the waiting unreadable save into it, and saving resumes', () => {
+    const m = new Memory()
+    m.setItem(BACKUP_KEY, 'first')
+    m.setItem(KEY, 'second')
+    const store = new BrowserStore(m)
+    store.load()
+    store.discardUnreadable()
+    expect(store.unreadableText()).toBe('second')
+    expect(store.save(new Map([['A', SavedSession()]]))).toBe('saved')
+  })
+
+  test('a backup the browser refuses to write blocks the save', () => {
+    const m = new Memory()
+    m.setItem(KEY, 'bad')
+    const refusesBackup: StorageLike = {
+      getItem: (k) => m.getItem(k),
+      setItem: (k, v) => {
+        if (k === BACKUP_KEY) throw new Error('QuotaExceededError')
+        m.setItem(k, v)
+      },
+      removeItem: (k) => m.removeItem(k),
+    }
+    const store = new BrowserStore(refusesBackup)
+    store.load()
+    expect(store.save(new Map([['A', SavedSession()]]))).toBe('blocked')
+    expect(m.getItem(KEY)).toBe('bad')
+  })
+
+  test('a read that throws is not taken for an empty store', () => {
+    const m = new Memory()
+    m.setItem(KEY, '{"Old":{}}')
+    let readable = false
+    const flaky: StorageLike = {
+      getItem: (k) => {
+        if (!readable) throw new Error('SecurityError')
+        return m.getItem(k)
+      },
+      setItem: (k, v) => m.setItem(k, v),
+      removeItem: (k) => m.removeItem(k),
+    }
+    const store = new BrowserStore(flaky)
+    store.load()
+    readable = true
+    expect(store.save(new Map([['A', SavedSession()]]))).toBe('blocked')
+    expect(m.getItem(KEY)).toBe('{"Old":{}}')
+  })
+
+  test("a tab holding an older snapshot does not overwrite another tab's save", () => {
+    const m = new Memory()
+    const first = new BrowserStore(m)
+    const second = new BrowserStore(m)
+    first.load()
+    second.load()
+    expect(second.save(new Map([['Newer', SavedSession({ cor: 2 })]]))).toBe('saved')
+    expect(first.save(new Map([['Older', SavedSession()]]))).toBe('stale')
+    expect(new BrowserStore(m).load().sessions.has('Newer')).toBe(true)
+    expect(first.load().sessions.has('Newer')).toBe(true)
+    expect(first.save(new Map([['Older', SavedSession()]]))).toBe('saved')
+  })
+
+  test('an import the browser refuses to write throws', () => {
+    const m = new Memory()
+    const store = new BrowserStore({
+      getItem: (k) => m.getItem(k),
+      setItem: () => {
+        throw new Error('QuotaExceededError')
+      },
+      removeItem: () => {},
+    })
+    store.load()
+    expect(() => store.importText(ANDROID_FILE())).toThrow()
+  })
+
   test("importing Android's sessions.json replaces the saves", () => {
     const m = new Memory()
     const store = new BrowserStore(m)
+    store.load()
     store.save(new Map([['Old', SavedSession()]]))
     const imported = store.importText(ANDROID_FILE())
     expect(imported.has('Old')).toBe(false)
@@ -66,6 +152,7 @@ describe('saves in the browser', () => {
   test('a failed import touches nothing', () => {
     const m = new Memory()
     const store = new BrowserStore(m)
+    store.load()
     store.save(new Map([['Old', SavedSession({ cor: 1 })]]))
     const before = m.getItem(KEY)
     expect(() => store.importText('{"A":{"cor":null}}')).toThrow()
@@ -91,6 +178,6 @@ describe('saves in the browser', () => {
     }
     const store = new BrowserStore(broken)
     expect(store.load().sessions.size).toBe(0)
-    expect(store.save(new Map([['A', SavedSession()]]))).toBe(false)
+    expect(store.save(new Map([['A', SavedSession()]]))).not.toBe('saved')
   })
 })

@@ -1,5 +1,5 @@
 // app/.../Characters.kt: the player's own characters, each a save naming its premade.
-import { eqIc, isBlank } from '../../rules/kt'
+import { eqIc, isBlank, trim } from '../../rules/kt'
 import type { PremadeSheet } from '../../rules/Premades'
 import * as PurchasableTraits from '../../rules/PurchasableTraits'
 import { InstancedPurchase } from '../../rules/PurchasableTraits'
@@ -22,7 +22,7 @@ export const takenNames = (sheets: PremadeSheet[], saved: Map<string, SavedSessi
 
 export function newCharacterRefusal(name: string, taken: Set<string>): string | null {
   if (isBlank(name)) return 'Name the character.'
-  if ([...taken].some((it) => eqIc(it, name.trim()))) return 'That name is taken.'
+  if ([...taken].some((it) => eqIc(it, trim(name)))) return 'That name is taken.'
   return null
 }
 

@@ -1,7 +1,7 @@
 // app/.../BeyonderSession.kt, one to one: a mutable session whose every
 // change is saved through onChange. React reads it with useSyncExternalStore
 // (subscribe + version), where Compose read its mutableStateOf fields.
-import { canonical, require } from '../../rules/kt'
+import { canonical, require, trim } from '../../rules/kt'
 import type { ActingQuality } from '../../rules/content/schema.gen'
 import { Beyonder, SecondaryDelta, type Attr, type BeyonderState, type BoonState, type Character, type Pool, type SkillKey, type Trait } from '../../rules/model'
 import * as Corruption from '../../rules/Corruption'
@@ -198,7 +198,7 @@ export class BeyonderSession {
   }
 
   addQuirk(name: string) {
-    const quirk = name.trim()
+    const quirk = trim(name)
     if (quirk === '' || this.edits.quirks.includes(quirk)) return
     this.edits = { ...this.edits, quirks: [...this.edits.quirks, quirk] }
     this.persist()

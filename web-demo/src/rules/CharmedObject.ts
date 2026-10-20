@@ -1,5 +1,5 @@
 import type { SkillKey, Trait } from './model'
-import { eqIc, startsWithIc } from './kt'
+import { eqIc, isBlank, startsWithIc } from './kt'
 import type { TraitClause } from './TraitEffects'
 import type { TraitNote } from './TraitReport'
 
@@ -24,7 +24,7 @@ export const heldAs = (skill: string, specialization: string | null) => `${HEAD}
 export function skillOf(printed: string): string | null {
   if (!startsWithIc(printed, HEAD) || !printed.endsWith(')')) return null
   const s = printed.substring(HEAD.length, printed.length - 1)
-  return s.trim() !== '' ? s : null
+  return !isBlank(s) ? s : null
 }
 
 export const rowOf = (printed: string): string | null => (skillOf(printed) !== null ? ROW : null)

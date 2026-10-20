@@ -15,14 +15,29 @@ export interface Loaded {
   unreadable: boolean
 }
 
+/**
+ * `saved`; `stale` when another tab wrote since this one last read, so its
+ * snapshot would delete that tab's work (load again); `blocked` while the
+ * stored text is an unreadable save not yet safe in the backup slot, or could
+ * not be read at all; `failed` when the browser refused the write.
+ */
+export type SaveResult = 'saved' | 'stale' | 'blocked' | 'failed'
+
+const UNREAD = Symbol('unread')
+
 export class BrowserStore {
+  /** The text this store last read or wrote under [KEY]; UNREAD if it never could. */
+  private seen: string | null | typeof UNREAD = UNREAD
+  /** An unreadable text waiting for the backup slot to be free. */
+  private waiting: string | null = null
+
   constructor(private readonly storage: StorageLike) {}
 
-  private read(key: string): string | null {
+  private read(key: string): string | null | typeof UNREAD {
     try {
       return this.storage.getItem(key)
     } catch {
-      return null
+      return UNREAD
     }
   }
 
@@ -35,47 +50,67 @@ export class BrowserStore {
     }
   }
 
+  /** Keeps [raw] in the backup slot unless the slot holds another text. */
+  private keepAside(raw: string): boolean {
+    const slot = this.read(BACKUP_KEY)
+    if (slot === raw) return true
+    return slot === null && this.write(BACKUP_KEY, raw)
+  }
+
   load(): Loaded {
     const raw = this.read(KEY)
-    if (raw === null) return { sessions: new Map(), unreadable: false }
+    this.seen = raw
+    this.waiting = null
+    if (raw === UNREAD || raw === null) return { sessions: new Map(), unreadable: false }
     try {
       return { sessions: decodeSessions(raw), unreadable: false }
     } catch {
-      // ponytail: one backup slot; the first unreadable text wins, since a
-      // later one is most likely the same corruption read again.
-      if (this.read(BACKUP_KEY) === null) this.write(BACKUP_KEY, raw)
+      if (!this.keepAside(raw)) this.waiting = raw
       return { sessions: new Map(), unreadable: true }
     }
   }
 
-  /** False when the browser refused the write: private mode, or full. */
-  save(sessions: Map<string, SavedSession>): boolean {
-    return this.write(KEY, encodeSessions(sessions))
+  save(sessions: Map<string, SavedSession>): SaveResult {
+    if (this.waiting !== null || this.seen === UNREAD) return 'blocked'
+    const now = this.read(KEY)
+    if (now === UNREAD) return 'blocked'
+    if (now !== this.seen) return 'stale'
+    const text = encodeSessions(sessions)
+    if (!this.write(KEY, text)) return 'failed'
+    this.seen = text
+    return 'saved'
   }
 
   exportText(): string {
-    return this.read(KEY) ?? '{}'
+    const raw = this.read(KEY)
+    return raw === UNREAD || raw === null ? '{}' : raw
   }
 
   /**
    * Replaces every save with the file's, as copying sessions.json onto a
-   * phone would. Throws, writing nothing, when the text is not a save.
+   * phone would. Throws, writing nothing, when the text is not a save or the
+   * browser refuses it.
    */
   importText(text: string): Map<string, SavedSession> {
     const sessions = decodeSessions(text)
-    this.save(sessions)
+    if (!this.write(KEY, encodeSessions(sessions))) throw new Error('The browser refused to store the save.')
+    this.seen = this.read(KEY)
+    this.waiting = null
     return sessions
   }
 
   unreadableText(): string | null {
-    return this.read(BACKUP_KEY)
+    const slot = this.read(BACKUP_KEY)
+    return slot === UNREAD ? null : slot
   }
 
+  /** Empties the backup slot; an unreadable save waiting for it moves in. */
   discardUnreadable() {
     try {
       this.storage.removeItem(BACKUP_KEY)
     } catch {
-      // nothing to keep tidy if storage is gone
+      return
     }
+    if (this.waiting !== null && this.keepAside(this.waiting)) this.waiting = null
   }
 }
