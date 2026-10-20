@@ -6732,7 +6732,7 @@ The owner replaced the rulebook with v6.9i (`Mr.Worms LOM TTRPG Rulebook
 v6.9i.pdf`) and asked for it to be followed literally: what the new PDF
 prints is applied everywhere, and what it dropped is removed, without
 ruling questions (sessions 1-8, 2026-10-19 to 10-20). Branch
-`rulebook-6.9i`, 43 local commits from `5c8f8f5` to this entry, NOT pushed
+`rulebook-6.9i`, 45 local commits from `5c8f8f5` to this entry, NOT pushed
 and NOT merged. `build/extract/book.txt` is v6.9i now, so every line
 number below and in the KDoc from this branch is a v6.9i line.
 
@@ -6846,10 +6846,16 @@ Codex then reviewed `35647c9..d6a58d2` (the fixes and the four new
 rules): NO SHIP, three MEDIUM. Taken in `a791c17`: a long rest from below
 0 FP now ends full, and Blessed by Deity is declared. Refused: dropping
 the Seven Lights' floor (above). Codex re-reviewed `a791c17`: SHIP.
+After the worklist pass, Codex reviewed `81e3336..1344350`: NO SHIP, two
+HIGH (a Double or Rapid Strike gave the one-roll spirit penalty to every
+attack; the PCR, "any roll", skipped it) and three MEDIUM (clearing the
+penalty wiped a Vitals verdict; a pinned character could attack; a pinner
+could buy a Dodge boost). All five fixed in `e08dc98`. **Its re-review is
+owed**: Claude Code stopped the run because the machine was low on memory.
 
 ### Counts
 
-Kotlin 1376 `core:rules` + 23 `core:model` + 509 `app` = 1908; Python 355;
+Kotlin 1377 `core:rules` + 23 `core:model` + 510 `app` = 1910; Python 355;
 all green, `ast-grep scan` clean. 6il's 2005 and 366 fell because v6.9i
 deleted rules (entity response, push, sealed artifacts, divination scope
 and support, the spiritual-sense skills) and their tests went with them.
@@ -6868,8 +6874,11 @@ the revelation note grew a line on a pick, and the contract footer grew
 one on a step, each moving the rows under a finger. Not seen on the
 device: the digestion tracker's two new rows and the Attack warm-up
 chip, which need a Beyonder below 100% and a Warrior; their logic is
-unit-tested. The later round (spirit damage, pins, social chips) is
-unit-tested and not yet seen on the device. Owed: the merge and the push,
+unit-tested. The later round on the device: a 3-point spirit hit with
+1 stated CoR took SPI 15 to 12 and CoR 0 to 1, the Vitals row read "-3 on
+the next roll", Concentrate and Intuition printed the -3, and the row
+cleared after the Intuition roll; save restored byte-identical again. The
+pin controls and the social chips are unit-tested, not seen on the device. Owed: the merge and the push,
 both the owner's call.
 
 ## 6il. Case File, slice 8: every frame beside its screen
