@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -41,6 +43,17 @@ internal fun chipInsets(selected: Boolean): ChipInsets =
     else ChipInsets(start = 19.dp, check = 0.dp, end = 19.dp)
 
 /**
+ * The label and check colour of a chip, on its own fill. A picked chip keeps
+ * the colour of its ink fill even when it cannot change (a fixed value): the
+ * disabled ink on that fill was the fill itself, a blank box (issue #2).
+ */
+internal fun chipContent(selected: Boolean, enabled: Boolean, colors: ColorScheme): Color = when {
+    selected -> colors.onSecondaryContainer.copy(alpha = if (enabled) 1f else 0.6f)
+    !enabled -> colors.onSurface.copy(alpha = 0.38f)
+    else -> colors.onSurface
+}
+
+/**
  * A choice as the Case File frames draw it (13-22): a ruled box with a mono
  * label, filled ink with a check when picked. FilterChip's own check widens
  * the chip, which can re-wrap a row of them; this one keeps its width.
@@ -55,11 +68,7 @@ internal fun CaseChip(
     enabled: Boolean = true,
 ) {
     val colors = MaterialTheme.colorScheme
-    val content = when {
-        !enabled -> colors.onSurface.copy(alpha = 0.38f)
-        selected -> colors.onSecondaryContainer
-        else -> colors.onSurface
-    }
+    val content = chipContent(selected, enabled, colors)
     Surface(
         selected = selected,
         onClick = onClick,
