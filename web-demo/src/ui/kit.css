@@ -41,7 +41,8 @@
 /* steadyBody: heightIn(max = 560).fillMaxHeight(): the body takes 560 (or what the screen leaves) before and after the roll. */
 .dialog-body:has(> .steady-body) { display: flex; flex-direction: column; overflow: hidden; }
 .steady-body { flex: 1 1 560px; max-height: 560px; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
-.steady-body > .scroll { overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+/* A short landscape window: the controls keep 120 px and the whole body scrolls, footer included. */
+.steady-body > .scroll { overflow-y: auto; flex: 1 1 auto; min-height: min(120px, 100%); }
 
 .rule-note { margin: 6px 0; border: 1px dashed color-mix(in srgb, var(--outline) 50%, transparent); }
 .rule-note-head { display: flex; align-items: center; width: 100%; min-height: 48px; padding: 8px 12px; text-align: left; color: var(--on-surface); }
