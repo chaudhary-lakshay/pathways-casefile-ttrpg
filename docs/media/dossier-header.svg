@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="445" viewBox="0 0 1200 445" role="img" aria-labelledby="title desc">
+  <title id="title">Pathways — Classified Beyonder Dossier</title>
+  <desc id="desc">An archival-style cover for the Pathways fan-made offline Android tabletop RPG companion.</desc>
+  <defs>
+    <pattern id="paper" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 6.5H7" stroke="#a8957b" stroke-width=".35" opacity=".28"/></pattern>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#635746" stroke-width=".5" opacity=".15"/></pattern>
+    <clipPath id="page"><rect width="1200" height="445" rx="2"/></clipPath>
+  </defs>
+  <g clip-path="url(#page)">
+    <rect width="1200" height="445" fill="#e9dfcc"/>
+    <rect width="1200" height="445" fill="url(#paper)"/>
+    <rect width="1200" height="445" fill="url(#grid)" opacity=".4"/>
+    <rect x="16" y="16" width="1168" height="413" fill="none" stroke="#67584a" stroke-width="1.4"/>
+    <rect x="25" y="25" width="1150" height="395" fill="none" stroke="#b4a48b" stroke-width="1"/>
+    <rect x="0" y="0" width="1200" height="77" fill="#272b2a"/>
+    <rect x="0" y="73" width="1200" height="4" fill="#803c37"/>
+    <text x="56" y="35" font-family="Georgia, 'Times New Roman', serif" letter-spacing="2.1" font-size="14" fill="#e9dfcc">THE BEYONDER ARCHIVE</text>
+    <text x="56" y="56" font-family="monospace" letter-spacing="1.7" font-size="11" fill="#d4bb9d">PERSONAL REFERENCE FILE / UNOFFICIAL FAN PROJECT</text>
+    <text x="1144" y="35" text-anchor="end" font-family="monospace" letter-spacing="2.2" font-size="13" fill="#e9dfcc">FILE NO. 022 / 023</text>
+    <text x="1144" y="55" text-anchor="end" font-family="monospace" letter-spacing="1.5" font-size="10" fill="#c3a99c">OFFLINE • ANDROID</text>
+    <path d="M61 117H711" stroke="#998771" stroke-width="1"/>
+    <text x="63" y="108" font-family="monospace" font-size="12" letter-spacing="3.5" fill="#81433c">SUBJECT: TABLETOP ROLEPLAYING ASSISTANCE</text>
+    <text x="53" y="237" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="112" fill="#242927">PATHWAYS</text>
+    <text x="63" y="275" font-family="monospace" letter-spacing="3.4" font-size="21" fill="#463f34">AN OFFLINE GAME COMPANION</text>
+    <rect x="63" y="299" width="645" height="3" fill="#803c37"/>
+    <text x="64" y="329" font-family="monospace" letter-spacing="1.5" font-size="14" fill="#4f493e">22 PATHWAYS</text>
+    <text x="282" y="329" font-family="monospace" letter-spacing="1.5" font-size="14" fill="#4f493e">23 CHARACTER FILES</text>
+    <text x="556" y="329" font-family="monospace" letter-spacing="1.5" font-size="14" fill="#4f493e">3D6</text>
+    <path d="M260 313v23M534 313v23" stroke="#9c8a72" stroke-width="1"/>
+    <text x="63" y="380" font-family="Georgia, serif" font-size="18" font-style="italic" fill="#625445">For the keeper of the sheet, not the keeper of the rules.</text>
+    <g transform="translate(969 238)">
+      <circle r="145" fill="#e3d8c2" stroke="#9b876c" stroke-width="1.5"/>
+      <circle r="131" fill="none" stroke="#746451" stroke-width="1.8" stroke-dasharray="2 9"/>
+      <circle r="113" fill="none" stroke="#8e7c62" stroke-width="1"/>
+      <circle r="88" fill="none" stroke="#8e7c62" stroke-width="1"/>
+      <path d="M-101 0H101 M0 -101V101 M-71 -71L71 71 M71 -71L-71 71" stroke="#a39278" stroke-width=".8"/>
+      <path d="M0 -71L64 39H-64Z" fill="none" stroke="#745344" stroke-width="3"/>
+      <circle r="37" fill="#e3d8c2" stroke="#745344" stroke-width="3"/>
+      <path d="M-21 0Q0 -22 21 0Q0 22 -21 0Z" fill="none" stroke="#745344" stroke-width="3"/>
+      <circle r="8" fill="#803c37"/>
+      <text x="0" y="-119" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="3" fill="#796047">OBSERVATION</text>
+      <text x="0" y="133" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="2.5" fill="#796047">RECORD COPY</text>
+    </g>
+    <g transform="translate(993 338) rotate(-14)">
+      <rect x="-139" y="-31" width="278" height="62" rx="2" fill="#e9dfcc" fill-opacity=".84" stroke="#88463d" stroke-width="4"/>
+      <rect x="-132" y="-24" width="264" height="48" fill="none" stroke="#88463d" stroke-width="1"/>
+      <text text-anchor="middle" y="12" font-family="Georgia, serif" font-size="32" letter-spacing="2.8" font-weight="bold" fill="#88463d">CLASSIFIED*</text>
+    </g>
+    <rect x="39" y="404" width="1122" height="1" fill="#a9977e"/>
+    <text x="61" y="417" font-family="monospace" font-size="10" letter-spacing="1.5" fill="#655948">*FICTIONAL ARCHIVE STYLING — NOT AN OFFICIAL LORD OF THE MYSTERIES PRODUCT</text>
+  </g>
+</svg>

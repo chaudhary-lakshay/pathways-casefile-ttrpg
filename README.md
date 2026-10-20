@@ -1,112 +1,191 @@
-# Pathways
-
-Pathways is an offline Android app for the *Lord of the Mysteries* tabletop RPG. It holds a character sheet, rolls the dice and does the rule arithmetic, so the table can keep playing instead of looking things up.
-
 <p align="center">
-  <img src="docs/media/gallery.png" width="250" alt="The character list">
-  <img src="docs/media/sheet-skills.png" width="250" alt="A character sheet on the Skills tab">
-  <img src="docs/media/pathway-grid.png" width="250" alt="The 22 pathways to pick from">
+  <img src="docs/media/dossier-header.svg" alt="Pathways — a classified-style dossier for an offline Lord of the Mysteries tabletop RPG companion" width="100%">
 </p>
 
-The game is not mine. It is the fan rulebook *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9i), designed and written by Earvin Salonoy, with the Mr.Worm's LOM TTRPG Discord Server as its scribes. It builds on GURPS 4th Edition. This app is only a way to play their game at the table. See [Credits](#credits).
+<p align="center">
+  <strong>OFFLINE ANDROID COMPANION</strong> &nbsp;·&nbsp; 22 PATHWAYS &nbsp;·&nbsp; 23 CHARACTER FILES &nbsp;·&nbsp; NO ANDROID PERMISSIONS
+</p>
 
-The app adds no rules of its own. Each modifier is listed beside the roll that uses it. If the book leaves a decision open, the app asks you or the GM to make it. The guide lists the few places where the book is unclear and the app had to pick a reading.
+<p align="center">
+  <a href="#case-brief">Case brief</a> &nbsp;·&nbsp;
+  <a href="#evidence-board">Evidence board</a> &nbsp;·&nbsp;
+  <a href="#field-reports">Field reports</a> &nbsp;·&nbsp;
+  <a href="#deployment-notes">Build &amp; run</a> &nbsp;·&nbsp;
+  <a href="#provenance--credits">Credits</a>
+</p>
 
-## What it does
+---
 
-- Opens any of the 23 published characters, or a new one that you build.
-- Rolls 3d6 for skills, attacks, defenses, Fright Checks, rituals, divination and prayers. Each dialog shows the target number before you roll and the full calculation after.
-- Tracks HP, FP, Spirituality (SPI) and Corruption, and applies their penalties to the rolls that the book says they affect.
-- Lets a character drink a potion and walk a pathway one Sequence at a time, with digestion and the Potion Consumption Roll.
-- Has a point-buy builder for attributes, skills, advantages, disadvantages, languages and weapons, with a live budget.
-- Works with no network connection. The app asks for no Android permissions.
+<sub>FILE 01 &nbsp; / &nbsp; SUBJECT PROFILE</sub>
 
-## A turn at the table
+## Case brief
 
-These recordings come from a Samsung Galaxy Tab Active3. The character is the Church Healer, a Sequence 6 Beyonder on the Abyss pathway.
+**Pathways** is an offline Android companion for the *Lord of the Mysteries* tabletop RPG. It keeps the character sheet, the dice, and the rule arithmetic together, so players can stay at the table instead of stopping to look up numbers.
 
-### Roll a skill
+The game itself is **not** part of this project. Pathways is a personal, non-commercial companion to *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9i), designed and written by **Earvin Salonoy**, with the **Mr.Worm's LOM TTRPG Discord Server** as scribes. The rules build on **GURPS 4th Edition**.
 
-The GM says the healer is rushed. You tap **Diagnosis**, pick *Distracted or hurried -2*, and the target drops from 13 to 11 before you roll. The result shows the dice, the margin and each modifier that counted.
+> **Governing principle:** The app adds no rules of its own. Every roll shows its target and modifiers. Decisions left to the GM remain with the GM.
 
-<p align="center"><img src="docs/media/skill-roll.gif" width="300" alt="Rolling Diagnosis with a -2 penalty"></p>
+| RECORD | CONTENTS |
+|:--|:--|
+| **Character registry** | Open any of 23 published characters, or create your own. |
+| **Dice office** | Resolve skills, attacks, defenses, Fright Checks, rituals, divination and prayers with 3d6. |
+| **Condition ledger** | Track HP, FP, Spirituality (SPI) and Corruption, including their relevant penalties. |
+| **Potion archive** | Follow a pathway one Sequence at a time; track digestion and resolve the Potion Consumption Roll. |
+| **Acquisition desk** | Build attributes, skills, advantages, disadvantages, languages and weapons against a live point budget. |
+| **Operating conditions** | No network required. No Android permissions requested. |
 
-### Shoot
+---
 
-**Attack** asks which skill to use. You pick *Guns (Revolver)*. The dialog fills in the weapon, the maneuver and the range, and prints the target. After a hit, **Roll damage** throws the revolver's 2d.
+<sub>FILE 02 &nbsp; / &nbsp; VISUAL EVIDENCE</sub>
 
-<p align="center"><img src="docs/media/attack.gif" width="300" alt="An attack with a revolver, then the damage roll"></p>
+## Evidence board
 
-### Read your powers
+Three views from the application: the character registry, the skills ledger, and the pathway index.
 
-**Pathway** opens what each potion gave the character: attribute gains, skills, advantages and abilities. Each ability is one line with its cost tag. Tap a line to read the book's text for it.
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/media/gallery.png" alt="Character registry" width="100%"></td>
+    <td align="center" width="33%"><img src="docs/media/sheet-skills.png" alt="Character sheet: Skills" width="100%"></td>
+    <td align="center" width="33%"><img src="docs/media/pathway-grid.png" alt="Index of 22 pathways" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>EXHIBIT A · CHARACTER REGISTRY</sub></td>
+    <td align="center"><sub>EXHIBIT B · SKILLS LEDGER</sub></td>
+    <td align="center"><sub>EXHIBIT C · PATHWAY INDEX</sub></td>
+  </tr>
+</table>
 
-<p align="center"><img src="docs/media/pathway.gif" width="300" alt="The Devil potion's abilities on the pathway screen"></p>
+---
 
-## More screens
+<sub>FILE 03 &nbsp; / &nbsp; RECORDED FIELD ACTIVITY</sub>
 
-| | | |
-|:-:|:-:|:-:|
-| <img src="docs/media/sheet-vitals.png" width="240" alt="Vitals tab"> | <img src="docs/media/sheet-traits.png" width="240" alt="Traits tab"> | <img src="docs/media/defend.png" width="240" alt="Defend dialog"> |
-| Vitals: HP, FP and SPI, and the actions | Traits: each advantage with a tag for how much of it the app applies | Defend: say what the attack is, then roll Dodge, Parry or Block |
-| <img src="docs/media/pathway.png" width="240" alt="Pathway screen"> | <img src="docs/media/builder.png" width="240" alt="Builder"> | <img src="docs/media/glossary.png" width="240" alt="Glossary"> |
-| Pathway: the four Sequences and digestion | Spend points: the builder and its budget | Glossary: the book's terms |
+## Field reports
 
-## How to play
+The following recordings were captured on a **Samsung Galaxy Tab Active3**, using the **Church Healer**, a **Sequence 6 Beyonder on the Abyss pathway**.
 
-[docs/HOW-TO-PLAY.md](docs/HOW-TO-PLAY.md) is the player guide. It explains each screen and each roll, and it lists what the app leaves to the GM.
+### Incident 01 — Diagnosis under pressure
 
-## Build and run
+The GM rules that the healer is distracted. You select **Diagnosis**, apply *Distracted or hurried −2*, and the target changes from **13 to 11** before the roll. The result displays all three dice, the margin, and the modifiers used.
 
-You need Android Studio (or the Android SDK) and JDK 17. The app runs on Android 8.0 (API 26) and later.
+<p align="center"><img src="docs/media/skill-roll.gif" width="320" alt="Diagnosis skill roll with a minus-two modifier"></p>
 
-1. Clone the repository.
-2. Connect a device with USB or wireless debugging turned on, or start an emulator.
-3. Install the debug build:
+### Incident 02 — Revolver fire
+
+Select **Attack**, then *Guns (Revolver)*. The app assembles the weapon, maneuver, range and target. On a hit, **Roll damage** throws the revolver's **2d**.
+
+<p align="center"><img src="docs/media/attack.gif" width="320" alt="Revolver attack followed by a damage roll"></p>
+
+### Incident 03 — Potion-derived abilities
+
+Open **Pathway** to see each potion's grants: attributes, skills, advantages and abilities. Abilities appear as compact entries with cost tags; select one to read its rulebook text.
+
+<p align="center"><img src="docs/media/pathway.gif" width="320" alt="Browsing abilities granted by the Devil potion"></p>
+
+---
+
+<sub>FILE 04 &nbsp; / &nbsp; SUPPLEMENTARY EVIDENCE</sub>
+
+## Further exhibits
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="docs/media/sheet-vitals.png" width="100%" alt="Vitals sheet"></td>
+    <td width="33%" align="center"><img src="docs/media/sheet-traits.png" width="100%" alt="Traits sheet"></td>
+    <td width="33%" align="center"><img src="docs/media/defend.png" width="100%" alt="Defense dialog"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>VITALS</strong><br><sub>HP, FP, SPI and available actions</sub></td>
+    <td align="center"><strong>TRAITS</strong><br><sub>Advantages and applied-rule tags</sub></td>
+    <td align="center"><strong>DEFENSE</strong><br><sub>Dodge, Parry and Block</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/media/pathway.png" width="100%" alt="Pathway progression"></td>
+    <td align="center"><img src="docs/media/builder.png" width="100%" alt="Point-buy character builder"></td>
+    <td align="center"><img src="docs/media/glossary.png" width="100%" alt="Rules glossary"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>PATHWAY</strong><br><sub>Four Sequences and digestion</sub></td>
+    <td align="center"><strong>BUILDER</strong><br><sub>Point allocation and live budget</sub></td>
+    <td align="center"><strong>GLOSSARY</strong><br><sub>Rulebook terminology</sub></td>
+  </tr>
+</table>
+
+---
+
+<sub>FILE 05 &nbsp; / &nbsp; FIELD INSTRUCTIONS</sub>
+
+## Operating procedure
+
+The [player guide](docs/HOW-TO-PLAY.md) explains every screen and roll, including decisions that **only the player or GM** can make. It also documents the few ambiguous rulebook passages for which the app must choose an interpretation.
+
+<sub>FILE 06 &nbsp; / &nbsp; TECHNICAL ANNEX</sub>
+
+## Deployment notes
+
+**Requirements:** Android **8.0 (API 26)** or later, **JDK 17**, and Android Studio or the Android SDK for building.
+
+1. Clone this repository.
+2. Connect an Android device with USB/wireless debugging, or start an emulator.
+3. Install the debug application:
 
 ```bash
 ./gradlew :app:installDebug
 ```
 
-To run the tests:
+To run the checks:
 
 ```bash
 ./gradlew test              # Kotlin tests, all modules
 py -m pytest tools -q       # Python extractor tests (use `python` outside Windows)
 ```
 
-The Python tests need only `pytest`. Tests that read the rulebook PDF or the source spreadsheets skip when those files are not there. To run the extractors themselves, install `pypdf` and `openpyxl`.
+Python tests need only `pytest`. Tests that use the rulebook PDF or source spreadsheets skip when those files are absent. To run the extraction tools themselves, install `pypdf` and `openpyxl`.
 
-## How the project is laid out
+<details>
+<summary><strong>Repository inventory</strong> — modules and data sources</summary>
 
-| Folder | What it holds |
-|---|---|
-| `core/model` | Plain data types: attributes, skills, traits, a character |
-| `core/rules` | All rule logic, and the book's tables as JSON in `src/main/resources/content/` |
-| `app` | The Jetpack Compose user interface |
-| `fixtures` | The 23 published character sheets as JSON. The tests check the rules against them. |
-| `tools` | Python scripts that pulled the tables out of the rulebook PDF |
-| `docs` | The player guide, the design spec and the development log |
+| LOCATION | PURPOSE |
+|:--|:--|
+| `core/model` | Plain data types: attributes, skills, traits and characters. |
+| `core/rules` | Rules engine and the book's tables, stored as JSON under `src/main/resources/content/`. |
+| `app` | Jetpack Compose Android interface. |
+| `fixtures` | The 23 published character sheets as JSON, used to check rule behavior. |
+| `tools` | Python extractors for tables from the rulebook PDF. |
+| `docs` | Player guide, design specification and development log. |
 
-The rule tables are already in the repository, so you do not need the rulebook to build the app. You need the PDF only to run the extractors in `tools/` again.
+The rule tables are included in the repository: **the PDF is not required to build the app**. It is only required to run the extractors again.
 
-## When the book and a sheet disagree
+</details>
 
-Some published sheets have arithmetic errors. For example, one sheet prints a disadvantage total of 30 points, but its four items add up to 25. In these cases the app follows the book and shows the sheet's figure next to its own. It does not quietly correct the sheet, and the tests fail if anyone tries.
+---
 
-## Credits
+<sub>FILE 07 &nbsp; / &nbsp; AUDIT NOTES</sub>
 
-The rules, tables, pathways, potions and the 23 published characters all come from the rulebook and its character sheets. The credits page of the rulebook lists:
+## Discrepancy protocol
 
-| Role | Credit |
-|---|---|
-| Supplement designer and author | Earvin Salonoy |
-| Rulebook scribes | Mr.Worm's LOM TTRPG Discord Server |
-| Source material | *Lord of the Mysteries* by Cuttlefish That Loves Diving |
-| Game system | GURPS 4th Edition by Steve Jackson Games |
+Some published character sheets contain arithmetic errors. One sheet, for example, reports **30 disadvantage points**, but its four entries total **25**.
 
-Thank you to all of them. If you like the app, the credit for the game belongs to them. The app code is by chaudhary-lakshay.
+Pathways follows the rulebook while showing the printed sheet's figure beside its calculated figure. It does **not** silently rewrite the source. Tests are designed to catch an accidental change to this behavior.
 
-## Legal
+---
 
-GURPS is a trademark of Steve Jackson Games. *Lord of the Mysteries* belongs to Cuttlefish That Loves Diving. This is a personal fan project with no connection to either. It is not for commercial use or redistribution.
+<sub>FILE 08 &nbsp; / &nbsp; SOURCE ATTRIBUTION</sub>
+
+## Provenance & credits
+
+This project is a tool for playing an existing fan-created game. The rules, tables, pathways, potions, and 23 published characters belong to their respective creators and sources.
+
+| CONTRIBUTION | CREDIT |
+|:--|:--|
+| Supplement design and authorship | **Earvin Salonoy** |
+| Rulebook scribes | **Mr.Worm's LOM TTRPG Discord Server** |
+| Original *Lord of the Mysteries* | **Cuttlefish That Loves Diving** |
+| GURPS 4th Edition | **Steve Jackson Games** |
+| Pathways application code | **chaudhary-lakshay** |
+
+### Legal notice
+
+*GURPS* is a trademark of Steve Jackson Games. *Lord of the Mysteries* belongs to Cuttlefish That Loves Diving. This is a **personal, non-commercial, unofficial fan project** and is not affiliated with or endorsed by either rights holder. It is not intended for commercial use or redistribution.
+
+<p align="center"><sub>END OF FILE &nbsp; · &nbsp; PATHWAYS / ARCHIVE COPY &nbsp; · &nbsp; KEEP THE STORY MOVING</sub></p>
