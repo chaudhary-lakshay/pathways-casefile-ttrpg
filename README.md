@@ -3,43 +3,34 @@
 </p>
 
 <p align="center">
-  <strong>OFFLINE ANDROID COMPANION</strong> &nbsp;·&nbsp; 22 PATHWAYS &nbsp;·&nbsp; 23 CHARACTER FILES &nbsp;·&nbsp; NO ANDROID PERMISSIONS
+  <a href="#case-brief"><kbd>01 · CASE BRIEF</kbd></a>&nbsp;
+  <a href="#evidence-board"><kbd>02 · EVIDENCE</kbd></a>&nbsp;
+  <a href="#field-reports"><kbd>03 · FIELD REPORTS</kbd></a>&nbsp;
+  <a href="#deployment-notes"><kbd>06 · BUILD &amp; RUN</kbd></a>&nbsp;
+  <a href="#provenance"><kbd>08 · CREDITS</kbd></a>
 </p>
 
-<p align="center">
-  <a href="#case-brief">Case brief</a> &nbsp;·&nbsp;
-  <a href="#evidence-board">Evidence board</a> &nbsp;·&nbsp;
-  <a href="#field-reports">Field reports</a> &nbsp;·&nbsp;
-  <a href="#deployment-notes">Build &amp; run</a> &nbsp;·&nbsp;
-  <a href="#provenance--credits">Credits</a>
-</p>
-
----
-
-<sub>FILE 01 &nbsp; / &nbsp; SUBJECT PROFILE</sub>
-
-## Case brief
+<a name="case-brief"></a>
+<img src="docs/media/dossier/01-case-brief.svg" alt="File 01 — Case brief" width="100%">
 
 **Pathways** is an offline Android companion for the *Lord of the Mysteries* tabletop RPG. It keeps the character sheet, the dice, and the rule arithmetic together, so players can stay at the table instead of stopping to look up numbers.
 
 The game itself is **not** part of this project. Pathways is a personal, non-commercial companion to *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9i), designed and written by **Earvin Salonoy**, with the **Mr.Worm's LOM TTRPG Discord Server** as scribes. The rules build on **GURPS 4th Edition**.
 
-> **Governing principle:** The app adds no rules of its own. Every roll shows its target and modifiers. Decisions left to the GM remain with the GM.
+> [!IMPORTANT]
+> **Governing principle.** The app adds no rules of its own. Every roll shows its target and modifiers. Decisions left to the GM remain with the GM.
 
 | RECORD | CONTENTS |
 |:--|:--|
-| **Character registry** | Open any of 23 published characters, or create your own. |
-| **Dice office** | Resolve skills, attacks, defenses, Fright Checks, rituals, divination and prayers with 3d6. |
-| **Condition ledger** | Track HP, FP, Spirituality (SPI) and Corruption, including their relevant penalties. |
-| **Potion archive** | Follow a pathway one Sequence at a time; track digestion and resolve the Potion Consumption Roll. |
-| **Acquisition desk** | Build attributes, skills, advantages, disadvantages, languages and weapons against a live point budget. |
-| **Operating conditions** | No network required. No Android permissions requested. |
+| <kbd>CHARACTER REGISTRY</kbd> | Open any of 23 published characters, or create your own. |
+| <kbd>DICE OFFICE</kbd> | Resolve skills, attacks, defenses, Fright Checks, rituals, divination and prayers with 3d6. |
+| <kbd>CONDITION LEDGER</kbd> | Track HP, FP, Spirituality (SPI) and Corruption, including their relevant penalties. |
+| <kbd>POTION ARCHIVE</kbd> | Follow a pathway one Sequence at a time; track digestion and resolve the Potion Consumption Roll. |
+| <kbd>ACQUISITION DESK</kbd> | Build attributes, skills, advantages, disadvantages, languages and weapons against a live point budget. |
+| <kbd>OPERATING CONDITIONS</kbd> | No network required. No Android permissions requested. |
 
----
-
-<sub>FILE 02 &nbsp; / &nbsp; VISUAL EVIDENCE</sub>
-
-## Evidence board
+<a name="evidence-board"></a>
+<img src="docs/media/dossier/02-evidence-board.svg" alt="File 02 — Evidence board" width="100%">
 
 Three views from the application: the character registry, the skills ledger, and the pathway index.
 
@@ -50,43 +41,37 @@ Three views from the application: the character registry, the skills ledger, and
     <td align="center" width="33%"><img src="docs/media/pathway-grid.png" alt="Index of 22 pathways" width="100%"></td>
   </tr>
   <tr>
-    <td align="center"><sub>EXHIBIT A · CHARACTER REGISTRY</sub></td>
-    <td align="center"><sub>EXHIBIT B · SKILLS LEDGER</sub></td>
-    <td align="center"><sub>EXHIBIT C · PATHWAY INDEX</sub></td>
+    <td align="center"><kbd>EXHIBIT A</kbd><br><sub>CHARACTER REGISTRY</sub></td>
+    <td align="center"><kbd>EXHIBIT B</kbd><br><sub>SKILLS LEDGER</sub></td>
+    <td align="center"><kbd>EXHIBIT C</kbd><br><sub>PATHWAY INDEX</sub></td>
   </tr>
 </table>
 
----
-
-<sub>FILE 03 &nbsp; / &nbsp; RECORDED FIELD ACTIVITY</sub>
-
-## Field reports
+<a name="field-reports"></a>
+<img src="docs/media/dossier/03-field-reports.svg" alt="File 03 — Field reports" width="100%">
 
 The following recordings were captured on a **Samsung Galaxy Tab Active3**, using the **Church Healer**, a **Sequence 6 Beyonder on the Abyss pathway**.
 
-### Incident 01 — Diagnosis under pressure
+### <kbd>INCIDENT 01</kbd> Diagnosis under pressure
 
 The GM rules that the healer is distracted. You select **Diagnosis**, apply *Distracted or hurried −2*, and the target changes from **13 to 11** before the roll. The result displays all three dice, the margin, and the modifiers used.
 
 <p align="center"><img src="docs/media/skill-roll.gif" width="320" alt="Diagnosis skill roll with a minus-two modifier"></p>
 
-### Incident 02 — Revolver fire
+### <kbd>INCIDENT 02</kbd> Revolver fire
 
 Select **Attack**, then *Guns (Revolver)*. The app assembles the weapon, maneuver, range and target. On a hit, **Roll damage** throws the revolver's **2d**.
 
 <p align="center"><img src="docs/media/attack.gif" width="320" alt="Revolver attack followed by a damage roll"></p>
 
-### Incident 03 — Potion-derived abilities
+### <kbd>INCIDENT 03</kbd> Potion-derived abilities
 
 Open **Pathway** to see each potion's grants: attributes, skills, advantages and abilities. Abilities appear as compact entries with cost tags; select one to read its rulebook text.
 
 <p align="center"><img src="docs/media/pathway.gif" width="320" alt="Browsing abilities granted by the Devil potion"></p>
 
----
-
-<sub>FILE 04 &nbsp; / &nbsp; SUPPLEMENTARY EVIDENCE</sub>
-
-## Further exhibits
+<a name="further-exhibits"></a>
+<img src="docs/media/dossier/04-further-exhibits.svg" alt="File 04 — Further exhibits" width="100%">
 
 <table>
   <tr>
@@ -95,9 +80,9 @@ Open **Pathway** to see each potion's grants: attributes, skills, advantages and
     <td width="33%" align="center"><img src="docs/media/defend.png" width="100%" alt="Defense dialog"></td>
   </tr>
   <tr>
-    <td align="center"><strong>VITALS</strong><br><sub>HP, FP, SPI and available actions</sub></td>
-    <td align="center"><strong>TRAITS</strong><br><sub>Advantages and applied-rule tags</sub></td>
-    <td align="center"><strong>DEFENSE</strong><br><sub>Dodge, Parry and Block</sub></td>
+    <td align="center"><kbd>EXHIBIT D</kbd> <strong>VITALS</strong><br><sub>HP, FP, SPI and available actions</sub></td>
+    <td align="center"><kbd>EXHIBIT E</kbd> <strong>TRAITS</strong><br><sub>Advantages and applied-rule tags</sub></td>
+    <td align="center"><kbd>EXHIBIT F</kbd> <strong>DEFENSE</strong><br><sub>Dodge, Parry and Block</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="docs/media/pathway.png" width="100%" alt="Pathway progression"></td>
@@ -105,23 +90,19 @@ Open **Pathway** to see each potion's grants: attributes, skills, advantages and
     <td align="center"><img src="docs/media/glossary.png" width="100%" alt="Rules glossary"></td>
   </tr>
   <tr>
-    <td align="center"><strong>PATHWAY</strong><br><sub>Four Sequences and digestion</sub></td>
-    <td align="center"><strong>BUILDER</strong><br><sub>Point allocation and live budget</sub></td>
-    <td align="center"><strong>GLOSSARY</strong><br><sub>Rulebook terminology</sub></td>
+    <td align="center"><kbd>EXHIBIT G</kbd> <strong>PATHWAY</strong><br><sub>Four Sequences and digestion</sub></td>
+    <td align="center"><kbd>EXHIBIT H</kbd> <strong>BUILDER</strong><br><sub>Point allocation and live budget</sub></td>
+    <td align="center"><kbd>EXHIBIT I</kbd> <strong>GLOSSARY</strong><br><sub>Rulebook terminology</sub></td>
   </tr>
 </table>
 
----
-
-<sub>FILE 05 &nbsp; / &nbsp; FIELD INSTRUCTIONS</sub>
-
-## Operating procedure
+<a name="operating-procedure"></a>
+<img src="docs/media/dossier/05-operating-procedure.svg" alt="File 05 — Operating procedure" width="100%">
 
 The [player guide](docs/HOW-TO-PLAY.md) explains every screen and roll, including decisions that **only the player or GM** can make. It also documents the few ambiguous rulebook passages for which the app must choose an interpretation.
 
-<sub>FILE 06 &nbsp; / &nbsp; TECHNICAL ANNEX</sub>
-
-## Deployment notes
+<a name="deployment-notes"></a>
+<img src="docs/media/dossier/06-deployment-notes.svg" alt="File 06 — Deployment notes" width="100%">
 
 **Requirements:** Android **8.0 (API 26)** or later, **JDK 17**, and Android Studio or the Android SDK for building.
 
@@ -143,7 +124,7 @@ py -m pytest tools -q       # Python extractor tests (use `python` outside Windo
 Python tests need only `pytest`. Tests that use the rulebook PDF or source spreadsheets skip when those files are absent. To run the extraction tools themselves, install `pypdf` and `openpyxl`.
 
 <details>
-<summary><strong>Repository inventory</strong> — modules and data sources</summary>
+<summary><kbd>REPOSITORY INVENTORY</kbd> modules and data sources</summary>
 
 | LOCATION | PURPOSE |
 |:--|:--|
@@ -158,21 +139,16 @@ The rule tables are included in the repository: **the PDF is not required to bui
 
 </details>
 
----
-
-<sub>FILE 07 &nbsp; / &nbsp; AUDIT NOTES</sub>
-
-## Discrepancy protocol
+<a name="discrepancy-protocol"></a>
+<img src="docs/media/dossier/07-discrepancy-protocol.svg" alt="File 07 — Discrepancy protocol" width="100%">
 
 Some published character sheets contain arithmetic errors. One sheet, for example, reports **30 disadvantage points**, but its four entries total **25**.
 
-Pathways follows the rulebook while showing the printed sheet's figure beside its calculated figure. It does **not** silently rewrite the source. Tests are designed to catch an accidental change to this behavior.
+> [!NOTE]
+> Pathways follows the rulebook while showing the printed sheet's figure beside its calculated figure. It does **not** silently rewrite the source. Tests are designed to catch an accidental change to this behavior.
 
----
-
-<sub>FILE 08 &nbsp; / &nbsp; SOURCE ATTRIBUTION</sub>
-
-## Provenance & credits
+<a name="provenance"></a>
+<img src="docs/media/dossier/08-provenance.svg" alt="File 08 — Provenance and credits" width="100%">
 
 This project is a tool for playing an existing fan-created game. The rules, tables, pathways, potions, and 23 published characters belong to their respective creators and sources.
 
@@ -184,8 +160,7 @@ This project is a tool for playing an existing fan-created game. The rules, tabl
 | GURPS 4th Edition | **Steve Jackson Games** |
 | Pathways application code | **chaudhary-lakshay** |
 
-### Legal notice
+> [!CAUTION]
+> **Legal notice.** *GURPS* is a trademark of Steve Jackson Games. *Lord of the Mysteries* belongs to Cuttlefish That Loves Diving. This is a **personal, non-commercial, unofficial fan project** and is not affiliated with or endorsed by either rights holder. It is not intended for commercial use or redistribution.
 
-*GURPS* is a trademark of Steve Jackson Games. *Lord of the Mysteries* belongs to Cuttlefish That Loves Diving. This is a **personal, non-commercial, unofficial fan project** and is not affiliated with or endorsed by either rights holder. It is not intended for commercial use or redistribution.
-
-<p align="center"><sub>END OF FILE &nbsp; · &nbsp; PATHWAYS / ARCHIVE COPY &nbsp; · &nbsp; KEEP THE STORY MOVING</sub></p>
+<img src="docs/media/dossier/end-of-file.svg" alt="End of file — Pathways archive copy" width="100%">

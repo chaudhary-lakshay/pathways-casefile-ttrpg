@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="130" viewBox="0 0 1200 130" role="img" aria-labelledby="t">
+  <title id="t">File 08: Provenance & Credits</title>
+  <defs>
+    <pattern id="paper" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 6.5H7" stroke="#a8957b" stroke-width=".35" opacity=".28"/></pattern>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#635746" stroke-width=".5" opacity=".15"/></pattern>
+  </defs>
+  <rect width="1200" height="130" fill="#e9dfcc"/>
+  <rect width="1200" height="130" fill="url(#paper)"/>
+  <rect width="1200" height="130" fill="url(#grid)" opacity=".4"/>
+  <rect x="6" y="6" width="1188" height="118" fill="none" stroke="#67584a" stroke-width="1.4"/>
+  <rect x="13" y="13" width="1174" height="104" fill="none" stroke="#b4a48b" stroke-width="1"/>
+  <rect x="13" y="13" width="150" height="104" fill="#272b2a"/>
+  <rect x="163" y="13" width="5" height="104" fill="#803c37"/>
+  <text x="88" y="46" text-anchor="middle" font-family="monospace" font-size="16" letter-spacing="4" fill="#d4bb9d">FILE</text>
+  <text x="88" y="100" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52" fill="#e9dfcc">08</text>
+  <text x="200" y="50" font-family="monospace" font-size="20" letter-spacing="4" fill="#81433c">SOURCE ATTRIBUTION</text>
+  <text x="198" y="100" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="46" fill="#242927">Provenance &amp; Credits</text>
+  <path d="M200 64H700" stroke="#998771" stroke-width="1"/>
+  <g transform="translate(1100 65)">
+    <circle r="40" fill="none" stroke="#9b876c" stroke-width="1.5"/>
+    <circle r="33" fill="none" stroke="#746451" stroke-width="1.4" stroke-dasharray="2 7"/>
+    <path d="M0 -20L18 11H-18Z" fill="none" stroke="#745344" stroke-width="2.2"/>
+    <circle r="4" fill="#803c37"/>
+  </g>
+  <text x="1040" y="70" text-anchor="end" font-family="monospace" font-size="15" letter-spacing="2" fill="#655948">PW-08 / RECORD COPY</text>
+</svg>
