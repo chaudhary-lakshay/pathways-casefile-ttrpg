@@ -1,0 +1,13 @@
+/* GlossaryScreen.kt */
+.glossary { padding: 0 20px; }
+.search-line { display: flex; align-items: center; gap: 8px; min-height: 48px; border-bottom: 2px solid var(--outline); color: var(--on-surface); }
+.search-line input { flex: 1 1 auto; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--on-surface); }
+.search-line input::placeholder { color: var(--on-surface-variant); }
+.letters { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; flex: none; }
+.letter { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+.letter span { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: var(--surface-container); border: 1px solid var(--outline-variant); color: var(--on-surface); }
+.letter.current span { background: var(--primary); border-color: var(--outline); color: var(--on-primary); }
+.group-letter { width: 44px; flex: none; }
+.term-row { display: flex; align-items: center; width: 100%; min-height: 44px; text-align: left; color: var(--on-surface); }
+.term-row .dots { flex: 1 1 auto; margin: 12px 8px 0; border-bottom: 1px dashed var(--outline-variant); }
+.open-term { margin: 4px 0; padding-left: 12px; border-left: 2px solid var(--secondary); }

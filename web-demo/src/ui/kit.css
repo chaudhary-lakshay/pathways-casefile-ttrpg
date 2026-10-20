@@ -38,7 +38,9 @@
 .dialog-title { padding-bottom: 16px; flex: none; }
 .dialog-body { color: var(--on-surface-variant); overflow-y: auto; min-height: 0; flex: 1 1 auto; }
 .dialog-buttons { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 24px; flex: none; flex-wrap: wrap; }
-.steady-body { max-height: 560px; height: 100%; display: flex; flex-direction: column; min-height: 0; }
+/* steadyBody: heightIn(max = 560).fillMaxHeight(): the body takes 560 (or what the screen leaves) before and after the roll. */
+.dialog-body:has(> .steady-body) { display: flex; flex-direction: column; overflow: hidden; }
+.steady-body { flex: 1 1 560px; max-height: 560px; display: flex; flex-direction: column; min-height: 0; }
 .steady-body > .scroll { overflow-y: auto; flex: 1 1 auto; min-height: 0; }
 
 .rule-note { margin: 6px 0; border: 1px dashed color-mix(in srgb, var(--outline) 50%, transparent); }

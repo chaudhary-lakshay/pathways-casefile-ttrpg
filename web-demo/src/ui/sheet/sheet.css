@@ -1,6 +1,7 @@
 /* The sheet's Compose modifiers as CSS, dp = px. Shapes (Theme.kt): extraSmall 2, small 4, medium 6, large 8. */
 .sheet { background: var(--surface); overflow: hidden; }
-.sheet > .top-bar, .sheet > .sheet-body, .sheet > .sheet-tab-bar { position: relative; z-index: 1; }
+.sheet > .sheet-body, .sheet > .sheet-tab-bar { position: relative; z-index: 1; }
+.sheet > .top-bar { z-index: 3; }
 .sheet-body { flex: 1 1 auto; min-height: 0; position: relative; display: flex; flex-direction: column; }
 .sheet-body > .scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 16px; }
 .pinned-pools { position: absolute; top: 0; left: 0; right: 0; background: var(--background); z-index: 2; }
