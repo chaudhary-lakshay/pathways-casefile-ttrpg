@@ -1,0 +1,7 @@
+node_modules/
+dist/
+parity/build/
+parity/.gradle/
+parity/.kotlin/
+test-results/
+playwright-report/
