@@ -109,7 +109,3 @@ export function formatDelta(delta: number): string {
   const sign = delta < 0 ? '' : '+'
   return `${sign}${delta}`
 }
-
-/** PathwayScreen.kt `potionOn`: the block's potion, keeping a walked chain's drawback. */
-export const potionOn = (pathway: string, sequence: number, drunk: BeyonderState | null) =>
-  BeyonderState({ pathway, sequence, drawback: drunk?.pathway === pathway ? drunk.drawback : null })

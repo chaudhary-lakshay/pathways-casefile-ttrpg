@@ -34,7 +34,26 @@ test.describe('on a phone, 390 px', () => {
     await page.getByText('Beat Cop').first().click()
     await expect(page.getByRole('heading', { name: 'Beat Cop' })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+    for (const route of ['#/c/Beat%20Cop/pathway', '#/glossary', '#/credits']) {
+      await page.goto(`./${route}`)
+      await expect(page.locator('h1, .pathway-tile').first()).toBeVisible()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+    }
     expect(foreign).toEqual([])
+  })
+
+  test('a double tap on Drink drinks one potion and rolls one PCR', async ({ page }) => {
+    await page.goto('./#/c/Beat%20Cop/pathway')
+    await page.getByText('Fool').first().click()
+    await doubleTap(page.locator('.drink-button'))
+    await expect(page.locator('.drink-button')).toContainText('Drink and roll')
+    await expect(page.locator('.sequence-tile.selected')).toContainText('Seer')
+    await doubleTap(page.locator('.drink-button'))
+    await page.locator('.dialog').getByRole('button', { name: 'OK' }).click()
+    await page.getByRole('button', { name: 'Back to sheet' }).click()
+    await page.getByRole('button', { name: 'More' }).click()
+    await page.getByRole('menuitem', { name: 'Roll log' }).click()
+    await expect(page.locator('.dialog').getByText('Potion Consumption Roll')).toHaveCount(1)
   })
 
   test('a lost point survives a reload', async ({ page }) => {
