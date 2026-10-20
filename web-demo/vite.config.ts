@@ -43,5 +43,7 @@ export default defineConfig({
     },
   },
   server: { fs: { allow: [here('..')] } },
+  // ponytail: one chunk; the rule content is most of it and every screen needs it.
+  build: { chunkSizeWarningLimit: 1024 },
   test: { include: ['src/**/*.test.ts'] },
 })

@@ -1,6 +1,5 @@
 /* Theme.kt: the Case File scheme, Fraunces and IBM Plex, the paper grain and
    the 600 dp column. The colours come from ThemeSchemes.kt (vite.config.ts). */
-@import 'virtual:case-file.css';
 
 @font-face { font-family: 'Fraunces'; font-weight: 600; font-display: swap; src: url('@res/font/fraunces_semibold.ttf') format('truetype'); }
 @font-face { font-family: 'Plex Sans'; font-weight: 400; font-display: swap; src: url('@res/font/plex_sans_regular.ttf') format('truetype'); }

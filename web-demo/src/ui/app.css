@@ -1,0 +1,11 @@
+/* Scaffold: a top bar, content that scrolls, a bottom bar; the column itself never scrolls. */
+.screen-host { position: relative; height: 100%; }
+.scaffold { display: flex; flex-direction: column; height: 100%; min-height: 0; position: relative; }
+.scaffold > .scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.top-bar { display: flex; align-items: center; min-height: 64px; padding: 0 4px; flex: none; position: relative; z-index: 2; }
+.top-bar .title { flex: 1 1 auto; min-width: 0; padding: 0 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notices { flex: none; background: var(--surface-container-highest); border-bottom: 2px solid var(--outline); position: relative; z-index: 30; }
+.notice { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 4px 4px 4px 16px; color: var(--on-surface); }
+.column > .notices + * { min-height: 0; }
+.column { min-height: 0; }
+.column > :last-child { flex: 1 1 auto; min-height: 0; }
