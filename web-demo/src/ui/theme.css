@@ -1,0 +1,97 @@
+/* Theme.kt: the Case File scheme, Fraunces and IBM Plex, the paper grain and
+   the 600 dp column. The colours come from ThemeSchemes.kt (vite.config.ts). */
+@import 'virtual:case-file.css';
+
+@font-face { font-family: 'Fraunces'; font-weight: 600; font-display: swap; src: url('@res/font/fraunces_semibold.ttf') format('truetype'); }
+@font-face { font-family: 'Plex Sans'; font-weight: 400; font-display: swap; src: url('@res/font/plex_sans_regular.ttf') format('truetype'); }
+@font-face { font-family: 'Plex Sans'; font-weight: 500; font-display: swap; src: url('@res/font/plex_sans_medium.ttf') format('truetype'); }
+@font-face { font-family: 'Plex Sans'; font-weight: 600 700; font-display: swap; src: url('@res/font/plex_sans_semibold.ttf') format('truetype'); }
+@font-face { font-family: 'Plex Mono'; font-weight: 400; font-display: swap; src: url('@res/font/plex_mono_regular.ttf') format('truetype'); }
+@font-face { font-family: 'Plex Mono'; font-weight: 500; font-display: swap; src: url('@res/font/plex_mono_medium.ttf') format('truetype'); }
+@font-face { font-family: 'Plex Mono'; font-weight: 600 700; font-display: swap; src: url('@res/font/plex_mono_semibold.ttf') format('truetype'); }
+
+:root {
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Plex Sans', system-ui, sans-serif;
+  --mono: 'Plex Mono', ui-monospace, monospace;
+  --column: 600px; /* Theme.kt MAX_COLUMN_DP */
+  --scrim: rgb(0 0 0 / 0.32);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  background: var(--background);
+  color: var(--on-surface);
+  font-family: var(--sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:disabled { cursor: default; }
+:focus-visible { outline: 2px solid var(--secondary); outline-offset: 2px; }
+p { margin: 0; }
+h1, h2, h3 { margin: 0; font-weight: inherit; font-size: inherit; }
+
+/* Theme.kt PathwaysType, on Material 3's defaults (sizes in sp = CSS px). */
+.displaySmall { font: 600 36px/44px var(--serif); }
+.headlineLarge { font: 600 32px/40px var(--serif); }
+.headlineMedium { font: 600 28px/36px var(--serif); }
+.headlineSmall { font: 600 25px/32px var(--serif); }
+.titleLarge { font: 600 21px/28px var(--sans); }
+.titleMedium { font: 600 17px/24px var(--sans); }
+.titleSmall { font: 600 15px/20px var(--sans); }
+.bodyLarge { font: 400 16px/24px var(--sans); letter-spacing: 0.5px; }
+.bodyMedium { font: 400 15px/21px var(--sans); letter-spacing: 0.15px; }
+.bodySmall { font: 400 14px/20px var(--sans); letter-spacing: 0.15px; }
+.labelLarge { font: 500 15px/20px var(--sans); letter-spacing: 0.1px; }
+.labelMedium { font: 500 13px/17px var(--mono); letter-spacing: 0.5px; }
+.labelSmall { font: 500 11px/16px var(--mono); letter-spacing: 0.5px; }
+.mono { font-family: var(--mono); }
+.tabular { font-family: var(--mono); }
+.semibold { font-weight: 600; }
+.caps { text-transform: uppercase; letter-spacing: 0.1em; }
+.muted { color: var(--on-surface-variant); }
+.red { color: var(--secondary); }
+.err { color: var(--error); }
+.serif { font-family: var(--serif); }
+
+/* The app column: the paper, its grain, and at most 600 dp of content. */
+.paper {
+  position: relative;
+  height: 100%;
+  background: var(--background);
+  overflow: hidden;
+}
+.paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: url('@res/drawable-nodpi/paper_grain.webp');
+  opacity: 0.07; /* GRAIN_ALPHA */
+  z-index: 50;
+}
+.column {
+  position: relative;
+  height: 100%;
+  max-width: var(--column);
+  margin: 0 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rule { border: 0; border-top: 1px solid var(--outline-variant); margin: 0; }
+.rule.ink { border-top-color: var(--outline); }
+.rule.thick { border-top-width: 2px; border-top-color: var(--outline); }
+.dashed { border: 2px dashed var(--outline); }
+.icon { display: inline-block; width: 24px; height: 24px; flex: none; fill: currentColor; }
+.icon > svg { width: 100%; height: 100%; display: block; fill: currentColor; }
+.grow { flex: 1 1 0; min-width: 0; }
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.wrap { flex-wrap: wrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

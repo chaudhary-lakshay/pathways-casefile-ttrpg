@@ -1,0 +1,70 @@
+/* Touch screens and small windows: the app fills the viewport, inside the
+   safe areas, with no decorative phone around it. */
+.stage { height: 100dvh; background: var(--background); }
+.phone { height: 100%; display: flex; flex-direction: column; }
+.status-bar, .gesture-bar { display: none; }
+.screen {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  container-type: inline-size;
+  container-name: screen;
+}
+
+/* A desktop pointer: the app inside a Pixel-sized phone (412 x 892 dp). */
+@media (hover: hover) and (pointer: fine) and (min-width: 520px) and (min-height: 640px) {
+  .stage {
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background:
+      radial-gradient(circle at 30% 20%, #3a352d 0, transparent 60%),
+      #1d1b18;
+  }
+  .phone {
+    width: 412px;
+    height: min(892px, calc(100dvh - 48px));
+    border-radius: 46px;
+    border: 11px solid #0e0e0e;
+    box-shadow: 0 0 0 2px #3b3b3b, 0 30px 80px rgb(0 0 0 / 0.55);
+    background: var(--background);
+    overflow: hidden;
+    position: relative;
+  }
+  .screen { padding: 0; }
+  .status-bar {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 22px;
+    font: 500 14px var(--sans);
+    color: var(--on-surface);
+    background: var(--background);
+    position: relative;
+    z-index: 60;
+  }
+  .status-bar .clock { flex: 1; }
+  .status-bar .camera {
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    width: 14px;
+    height: 14px;
+    margin-left: -7px;
+    border-radius: 50%;
+    background: #0e0e0e;
+  }
+  .status-bar .glyphs { display: flex; gap: 4px; }
+  .status-bar svg { width: 15px; height: 15px; fill: currentColor; }
+  .gesture-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 22px;
+    background: var(--background);
+    position: relative;
+    z-index: 60;
+  }
+  .gesture-bar span { width: 108px; height: 4px; border-radius: 2px; background: var(--on-surface); opacity: 0.85; }
+}
