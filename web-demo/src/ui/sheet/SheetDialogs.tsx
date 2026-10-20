@@ -1,7 +1,7 @@
 // SheetDialogs.kt: which dialog a sheet has open, and what each is handed.
 import type { CharacterDice, SheetScene } from '../../app/RollLog'
 import type { BeyonderSession } from '../../app/session/BeyonderSession'
-import { ritualConditionPenalty, shockOnSkill, skillRollTarget, spiNow, type RollableSkill, type SheetModel } from '../../app/SheetModel'
+import { conditionsFor, ritualConditionPenalty, shockOnSkill, skillRollTarget, spiNow, type RollableSkill, type SheetModel } from '../../app/SheetModel'
 import { skillKeyLabel } from '../../app/SheetText'
 import * as AttributeRoll from '../../rules/AttributeRoll'
 import * as EffortBurn from '../../rules/EffortBurn'
@@ -16,6 +16,10 @@ import { ConcentrateDialog, RestDialog, SpiritVisionDialog } from '../dialogs/Ca
 import { ContractDialog } from '../dialogs/ContractDialog'
 import { FrightDialog } from '../dialogs/FrightDialog'
 import { DetectionDialog } from '../dialogs/DetectionDialog'
+import { DamageDialog } from '../dialogs/DamageDialog'
+import { DivinationDialog } from '../dialogs/DivinationDialog'
+import * as Divination from '../../rules/Divination'
+import * as Conditions from '../../rules/Conditions'
 import * as TraitAttributeRolls from '../../rules/TraitAttributeRolls'
 import * as FrightCheck from '../../rules/FrightCheck'
 import { useCell } from '../hooks'
@@ -99,6 +103,46 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
           onQuirk={(name) => session.addQuirk(name)}
           dice={dice}
           onDismiss={() => onClose('FRIGHT')}
+        />
+      )}
+      {open.has('DAMAGE') && (
+        <DamageDialog
+          hasSpirituality={vitals.maxSpi > 0}
+          maxHp={vitals.maxHp}
+          ht={m.attributes.ht}
+          dice={dice}
+          onApply={(pool, n) => session.spend(pool, n, maxOf(pool), m.maxCor)}
+          onSpiritHit={(points, cor) => {
+            if (vitals.maxSpi > 0) session.spend('SPI', points, vitals.maxSpi, m.maxCor)
+            scene.spiritPending.set(scene.spiritPending.value + points)
+            if (cor > 0) session.gainCor(cor, m.maxCor)
+          }}
+          onShocked={() => scene.shocked.set(true)}
+          onStunned={() => setStunned(true)}
+          majorWoundHt={TraitAttributeRolls.majorWoundHt(traits)}
+          stunRecoveryHt={TraitAttributeRolls.stunRecoveryHt(traits)}
+          hurt={Conditions.penaltyFor('MAJOR_WOUND_HT', m.hpNow, m.fpNow)}
+          recoveryTarget={m.stunRecoveryTarget}
+          states={m.physicalStates}
+          onDismiss={() => onClose('DAMAGE')}
+        />
+      )}
+      {open.has('DIVINE') && (
+        <DivinationDialog
+          skillLevel={m.divination.level}
+          spiTrait={Divination.keyFor(m.divination).attr.type === 'Spi' ? TraitAttributeRolls.spiRollBonus(traits) : 0}
+          sourceLine={Divination.sourceLine(m.divination)}
+          divinerSequence={drunk?.sequence ?? null}
+          conditionPenaltyAfterSpending={(cost) =>
+            conditionsFor(m, session, Divination.keyFor(m.divination), { cor: 0, spiAboutToSpend: cost, withStates: false })
+              .reduce((sum, it) => sum + (it.effect.type === 'Flat' ? it.effect.n : 0), 0)
+          }
+          shock={shockOnSkill(m)}
+          states={m.states}
+          dice={dice('Divination')}
+          onSpendSpi={(n) => session.spend('SPI', n, vitals.maxSpi, m.maxCor)}
+          onSpendHp={(n) => session.spend('HP', n, vitals.maxHp, m.maxCor)}
+          onDismiss={() => onClose('DIVINE')}
         />
       )}
       {open.has('DETECT') && (

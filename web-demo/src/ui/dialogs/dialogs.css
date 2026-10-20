@@ -4,3 +4,7 @@
 .radio.on { border-color: var(--on-surface); }
 .radio.on::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--on-surface); }
 .fright-card { margin-top: 8px; padding: 16px; background: var(--surface-container-low); border: 1.5px solid; border-radius: 12px; color: var(--on-surface); }
+.amount-stepper { display: flex; align-items: stretch; margin-top: 8px; border: 2px solid var(--outline); }
+.amount-stepper button { flex: 1 1 0; min-height: 48px; color: var(--on-surface); border-right: 1px solid var(--outline); }
+.amount-stepper span { flex: 1 1 0; display: flex; align-items: center; justify-content: center; padding: 8px 0; background: var(--surface-container-low); border-right: 1px solid var(--outline); color: var(--on-surface); }
+.amount-stepper button:last-child { border-right: 0; }
