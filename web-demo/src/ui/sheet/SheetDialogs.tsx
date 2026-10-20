@@ -14,6 +14,12 @@ import * as SkillRoll from '../../rules/SkillRoll'
 import * as TraitClauses from '../../rules/TraitClauses'
 import { ConcentrateDialog, RestDialog, SpiritVisionDialog } from '../dialogs/CalmDialogs'
 import { ContractDialog } from '../dialogs/ContractDialog'
+import { FrightDialog } from '../dialogs/FrightDialog'
+import { DetectionDialog } from '../dialogs/DetectionDialog'
+import * as TraitAttributeRolls from '../../rules/TraitAttributeRolls'
+import * as FrightCheck from '../../rules/FrightCheck'
+import { useCell } from '../hooks'
+import '../dialogs/dialogs.css'
 import * as SpiritContract from '../../rules/SpiritContract'
 import { burnOffer, RollDialog } from '../dialogs/RollDialog'
 import { AttributeRollDialog, SelfControlDialog, UntrainedDialog } from '../dialogs/SmallRolls'
@@ -39,7 +45,7 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
   pickingUntrained: boolean
   onPickingUntrained: (v: boolean) => void
 }) {
-  void scene
+  const [stunned, setStunned] = useCell(scene.stunned)
   const { vitals, traits, drunk } = m
   const maxOf = (pool: Pool) => (pool === 'HP' ? vitals.maxHp : pool === 'FP' ? vitals.maxFp : vitals.maxSpi)
   const burn = (kind: EffortBurn.BurnKind, points: number) => {
@@ -76,6 +82,39 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
       )}
       {controlling !== null && standingTarget !== undefined && (
         <SelfControlDialog check={controlling} standing={standingTarget} clauses={willClauses} states={m.states} dice={dice} onDismiss={() => onControlling(null)} />
+      )}
+      {open.has('FRIGHT') && (
+        <FrightDialog
+          will={vitals.will}
+          iq={m.attributes.iq}
+          ht={m.attributes.ht}
+          clauses={[...TraitClauses.frightClauses(traits), ...willClauses]}
+          willOnlyClauses={willClauses}
+          recoveryBonus={(r) => FrightCheck.recoveryBonus(r, traits)}
+          shock={m.shockOnAttribute}
+          hurt={m.hurtOnAttribute}
+          states={m.states}
+          onStunned={setStunned}
+          stunned={stunned}
+          onQuirk={(name) => session.addQuirk(name)}
+          dice={dice}
+          onDismiss={() => onClose('FRIGHT')}
+        />
+      )}
+      {open.has('DETECT') && (
+        <DetectionDialog
+          shock={m.shockOnAttribute}
+          hurt={m.hurtOnAttribute}
+          states={m.states}
+          perClauses={TraitClauses.perRollClauses(traits)}
+          spiTrait={TraitAttributeRolls.spiRollBonus(traits)}
+          alertness={TraitAttributeRolls.alertnessBonus(traits)}
+          spi={vitals.maxSpi}
+          per={vitals.per}
+          spiPool={spiNow(m, session)}
+          dice={dice('Detect')}
+          onDismiss={() => onClose('DETECT')}
+        />
       )}
       {open.has('REST') && (
         <RestDialog maxFp={vitals.maxFp} drawn={[session.fpLost, session.spiSpent]} onRest={(r, drawn) => session.rest(r, drawn)} onDismiss={() => onClose('REST')} />

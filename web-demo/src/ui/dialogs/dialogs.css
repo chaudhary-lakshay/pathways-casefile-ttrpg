@@ -1,0 +1,6 @@
+/* The roll dialogs' own pieces, dp = px. */
+.trigger-row { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 10px 0; border-bottom: 1px dashed var(--outline-variant); text-align: left; color: var(--on-surface); }
+.radio { flex: none; width: 20px; height: 20px; margin-top: 2px; border: 2px solid var(--on-surface-variant); border-radius: 50%; position: relative; }
+.radio.on { border-color: var(--on-surface); }
+.radio.on::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--on-surface); }
+.fright-card { margin-top: 8px; padding: 16px; background: var(--surface-container-low); border: 1.5px solid; border-radius: 12px; color: var(--on-surface); }
