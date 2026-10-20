@@ -6886,6 +6886,41 @@ cleared after the Intuition roll; save restored byte-identical again. The
 pin controls and the social chips are unit-tested, not seen on the device. Owed: the merge and the push,
 both the owner's call.
 
+### Device pass 2 (SM-T570, 2026-10-20 06:20-06:45, `d8f1e73`)
+
+The controls pass 1 did not see, over wireless adb, save backed up and
+`cmp`-identical after each run. Seen working: Wrestling > Pin at -4 (10
+to 6) and the grappled-and-prone chip +4 (back to 10), drawn disabled
+until Pin is picked; Defend's "Holding a pin" took Dodge off the rows and
+both buy lists and -4 off each parry (Brawling 9 to 5, Wrestling 6 to 2);
+"Pinned" refuses every defence with the book's line; Workaholic's chip on
+Leadership (11 to 9); Docks Bouncer's Broadsword warm-up (DX 11 to 13,
+parry 8 to 9); the 4d20% start at 0% (48%, a second tap ignored) and the
+1% stepper (48, 49, 47). Four faults, fixed in `d8f1e73`, each re-seen:
+
+- Pin's strike note wraps to two lines, so picking it moved the +4 chip
+  and the maneuvers 30 dp under the finger. The slot now lays out every
+  offered note unseen beneath the live one and holds the tallest: the
+  chip sits at one y for Grapple, Takedown and Pin.
+- With a pin held and no prior parry, the parry stepper's note read
+  "Parry rows above include −4", the pin's -4 blamed on repeated
+  parries. It takes the repeat term alone; the rows keep the sum.
+- Defend was the one roll dialog 6ia's `steadyBody` never reached: a
+  refusal hides every row and the dialog re-centred, so Pinned jumped
+  from y 432 to 964 (Surprised the same, since before v6.9i). Wrapped;
+  both now stay put.
+- "Earned CP 48%" printed digestion as a count of points; nothing stores
+  the points. Labelled "Digestion", the rule in its note, and the guide's
+  sentence with it.
+
+Seen, not changed: the acting row's **None** is a tag, not a button,
+because the loss is the GM's to set. Codex (`codex exec`, high): SHIP,
+the parry split confirmed. Counts unchanged: 1377 + 23 + 511, Python 355.
+The Gradle 9.5.0 daemon earlier handoffs called an orphan is this repo's
+own (the wrapper has said 9.5.0 since `b7c8a21`); the lock that fails a
+test run is a Kotlin compile daemon left behind when a Gradle daemon is
+killed. `./gradlew --stop`, stop that java process, delete the locked dir.
+
 ## 6il. Case File, slice 8: every frame beside its screen
 
 The last item of the plan's slice 8: each of the 24 frames photographed
