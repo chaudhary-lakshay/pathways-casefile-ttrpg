@@ -6732,7 +6732,7 @@ The owner replaced the rulebook with v6.9i (`Mr.Worms LOM TTRPG Rulebook
 v6.9i.pdf`) and asked for it to be followed literally: what the new PDF
 prints is applied everywhere, and what it dropped is removed, without
 ruling questions (sessions 1-8, 2026-10-19 to 10-20). Branch
-`rulebook-6.9i`, 45 local commits from `5c8f8f5` to this entry, NOT pushed
+`rulebook-6.9i`, 48 local commits from `5c8f8f5` to this entry, NOT pushed
 and NOT merged. `build/extract/book.txt` is v6.9i now, so every line
 number below and in the KDoc from this branch is a v6.9i line.
 
@@ -6850,12 +6850,17 @@ After the worklist pass, Codex reviewed `81e3336..1344350`: NO SHIP, two
 HIGH (a Double or Rapid Strike gave the one-roll spirit penalty to every
 attack; the PCR, "any roll", skipped it) and three MEDIUM (clearing the
 penalty wiped a Vitals verdict; a pinned character could attack; a pinner
-could buy a Dodge boost). All five fixed in `e08dc98`. **Its re-review is
-owed**: Claude Code stopped the run because the machine was low on memory.
+could buy a Dodge boost). All five fixed in `e08dc98`. Its re-review (run
+in the foreground after the first was stopped for low memory) found two
+display gaps: a kept Vitals verdict printed the target after the penalty
+cleared, and the multi-attack footer said "each" over two targets; both
+fixed in `ade7c28`. Codex then hit its usage limit and the pi-qa gateway
+was down, so one review sub-agent read `ade7c28`: SHIP, with two LOW
+wording points on the caption, both taken.
 
 ### Counts
 
-Kotlin 1377 `core:rules` + 23 `core:model` + 510 `app` = 1910; Python 355;
+Kotlin 1377 `core:rules` + 23 `core:model` + 511 `app` = 1911; Python 355;
 all green, `ast-grep scan` clean. 6il's 2005 and 366 fell because v6.9i
 deleted rules (entity response, push, sealed artifacts, divination scope
 and support, the spiritual-sense skills) and their tests went with them.
