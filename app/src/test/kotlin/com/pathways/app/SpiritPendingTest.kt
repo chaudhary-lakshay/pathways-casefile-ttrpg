@@ -30,4 +30,12 @@ class SpiritPendingTest {
         assertEquals(listOf(7, 10, 10), attackTargets(7, attacks = 3, spiritPending = 3))
         assertEquals(listOf(7, 7), attackTargets(7, attacks = 2, spiritPending = 0))
     }
+
+    /** The footer names both targets when the spirit penalty takes only the first. */
+    @Test
+    fun `a multi-attack caption names the first target and the rest`() {
+        assertEquals("3d6 ≤ 7 first, 3d6 ≤ 10 after", attackCaption(7, attacks = 3, spiritPending = 3))
+        assertEquals("3d6 ≤ 7, each", attackCaption(7, attacks = 2, spiritPending = 0))
+        assertEquals("3d6 ≤ 7", attackCaption(7, attacks = 1, spiritPending = 3))
+    }
 }

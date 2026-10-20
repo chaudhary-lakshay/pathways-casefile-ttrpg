@@ -132,7 +132,8 @@ private fun VitalRollRow(check: VitalCheck, hp: PoolStatus, target: Int, fromTra
             )
         } else {
             Text(
-                "3d6: ${result.total} vs $target - ${label(result.outcome).lowercase()}",
+                // The target it was rolled against: a cleared spirit penalty moves [target].
+                "3d6: ${result.total} vs ${result.target} - ${label(result.outcome).lowercase()}",
                 style = MaterialTheme.typography.titleSmall,
             )
             // The book asks for one of these A TURN and this app holds no
@@ -328,7 +329,7 @@ internal fun StunRow(target: Int, onClear: () -> Unit, resetKey: Int = target) {
         // the button the next turn's tap is aimed at.
         outcome?.let {
             Text(
-                "3d6: ${it.total} vs $target - ${label(it.outcome).lowercase()}, still stunned",
+                "3d6: ${it.total} vs ${it.target} - ${label(it.outcome).lowercase()}, still stunned",
                 style = MaterialTheme.typography.titleSmall,
             )
         }

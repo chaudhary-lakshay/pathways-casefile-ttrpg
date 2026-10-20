@@ -73,6 +73,8 @@ internal fun AttackFooter(
     attacks: Int,
     /** Why no attack may be rolled at all ("Pinned"), or null. */
     refusal: String? = null,
+    /** A spirit hit's pending points, which only the first attack takes. */
+    spiritPending: Int = 0,
     onRoll: () -> Unit,
 ) {
     FooterBand {
@@ -92,7 +94,7 @@ internal fun AttackFooter(
                     Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
                 } else {
                     Text(
-                        SuccessRoll.printed(standing.target) + if (attacks > 1) ", each" else "",
+                        attackCaption(standing.target, attacks, spiritPending),
                         style = MaterialTheme.typography.labelLarge.tabular(),
                     )
                 }
@@ -107,3 +109,11 @@ internal fun AttackFooter(
         }
     }
 }
+
+/** The footer's roll line: one target, "each" for several, or the first and the rest. */
+internal fun attackCaption(target: Int, attacks: Int, spiritPending: Int): String = when {
+    attacks <= 1 -> SuccessRoll.printed(target)
+    spiritPending == 0 -> SuccessRoll.printed(target) + ", each"
+    else -> SuccessRoll.printed(target) + " first, " + SuccessRoll.printed(target + spiritPending) + " after"
+}
+

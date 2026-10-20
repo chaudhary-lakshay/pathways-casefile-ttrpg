@@ -519,6 +519,7 @@ internal fun AttackDialog(
                         burnPoints = drawnBurn,
                         onBurnPoints = { burnPoints = it },
                         refusal = if (pinned) PINNED_REFUSAL else null,
+                        spiritPending = spiritPending,
                         onRoll = onRoll@{
                             // The guard every roll button here carries (6p), and
                             // this one did not: a second tap of the same picture
