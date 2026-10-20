@@ -34,7 +34,9 @@ class SpiritPendingTest {
     /** The footer names both targets when the spirit penalty takes only the first. */
     @Test
     fun `a multi-attack caption names the first target and the rest`() {
-        assertEquals("3d6 ≤ 7 first, 3d6 ≤ 10 after", attackCaption(7, attacks = 3, spiritPending = 3))
+        assertEquals("first: 3d6 ≤ 7; after: 3d6 ≤ 10", attackCaption(7, attacks = 3, spiritPending = 3))
+        // Two targets that print alike read as one.
+        assertEquals("3d6 ≤ 16, 17–18 fail, each", attackCaption(18, attacks = 2, spiritPending = 1))
         assertEquals("3d6 ≤ 7, each", attackCaption(7, attacks = 2, spiritPending = 0))
         assertEquals("3d6 ≤ 7", attackCaption(7, attacks = 1, spiritPending = 3))
     }

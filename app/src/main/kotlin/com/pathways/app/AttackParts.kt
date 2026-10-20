@@ -111,9 +111,14 @@ internal fun AttackFooter(
 }
 
 /** The footer's roll line: one target, "each" for several, or the first and the rest. */
-internal fun attackCaption(target: Int, attacks: Int, spiritPending: Int): String = when {
-    attacks <= 1 -> SuccessRoll.printed(target)
-    spiritPending == 0 -> SuccessRoll.printed(target) + ", each"
-    else -> SuccessRoll.printed(target) + " first, " + SuccessRoll.printed(target + spiritPending) + " after"
+internal fun attackCaption(target: Int, attacks: Int, spiritPending: Int): String {
+    val first = SuccessRoll.printed(target)
+    val later = SuccessRoll.printed(target + spiritPending)
+    return when {
+        attacks <= 1 -> first
+        // Equal printings (a 3 then a 4, or both past 16) are one caption.
+        first == later -> "$first, each"
+        else -> "first: $first; after: $later"
+    }
 }
 
