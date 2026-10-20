@@ -16,6 +16,13 @@ export const IllegalArgumentException = exception('IllegalArgumentException')
 export const IllegalStateException = exception('IllegalStateException')
 export const NoSuchElementException = exception('NoSuchElementException')
 export const ArithmeticException = exception('ArithmeticException')
+export const NullPointerException = exception('NullPointerException')
+
+/** Kotlin's `!!`. */
+export function nn<T>(v: T | null | undefined): T {
+  if (v === null || v === undefined) throw new NullPointerException()
+  return v
+}
 
 /** Kotlin's `require`: a bad argument. */
 export function require(ok: boolean, message: () => string = () => 'Failed requirement.'): asserts ok {
@@ -107,6 +114,124 @@ export function format2(x: number): string {
  */
 export function doubleString(x: number): string {
   return Number.isInteger(x) ? `${x}.0` : String(x)
+}
+
+/** A memoised value: a table that reads another module is built on first use, never at import. */
+export function lazy<T>(make: () => T): () => T {
+  let made = false
+  let value: T
+  return () => {
+    if (!made) {
+      value = make()
+      made = true
+    }
+    return value
+  }
+}
+
+/** Kotlin's `String.toIntOrNull()`: an optional sign and digits, within Int. */
+export function toIntOrNull(s: string): number | null {
+  if (!/^[+-]?[0-9]+$/.test(s)) return null
+  const n = Number(s)
+  return n < INT_MIN || n > INT_MAX ? null : n
+}
+
+export const substringAfterLast = (s: string, d: string, missing = s) => {
+  const i = s.lastIndexOf(d)
+  return i < 0 ? missing : s.slice(i + d.length)
+}
+export const substringBeforeLast = (s: string, d: string, missing = s) => {
+  const i = s.lastIndexOf(d)
+  return i < 0 ? missing : s.slice(0, i)
+}
+export const substringBefore = (s: string, d: string, missing = s) => {
+  const i = s.indexOf(d)
+  return i < 0 ? missing : s.slice(0, i)
+}
+export const substringAfter = (s: string, d: string, missing = s) => {
+  const i = s.indexOf(d)
+  return i < 0 ? missing : s.slice(i + d.length)
+}
+export const removePrefix = (s: string, p: string) => (s.startsWith(p) ? s.slice(p.length) : s)
+export const removeSuffix = (s: string, p: string) => (s.endsWith(p) ? s.slice(0, s.length - p.length) : s)
+
+/** `equals(other, ignoreCase = true)`. */
+export const eqIc = (a: string | null | undefined, b: string | null | undefined) =>
+  a != null && b != null && a.length === b.length && a.toLowerCase() === b.toLowerCase()
+
+export const startsWithIc = (s: string, p: string) => s.length >= p.length && eqIc(s.slice(0, p.length), p)
+export const endsWithIc = (s: string, p: string) => s.length >= p.length && eqIc(s.slice(s.length - p.length), p)
+export const containsIc = (s: string, p: string) => s.toLowerCase().includes(p.toLowerCase())
+
+/** Java's `\s`: ASCII whitespace only, where a JS `\s` is Unicode's. */
+export const WS = '[ \\t\\n\\x0B\\f\\r]'
+
+export const isBlank = (s: string) => s.trim() === ''
+
+/** `trimEnd(c)` for the characters given. */
+export function trimEndChars(s: string, chars: string): string {
+  let end = s.length
+  while (end > 0 && chars.includes(s[end - 1])) end--
+  return s.slice(0, end)
+}
+
+/** `distinctBy`: the first of each key, in order. */
+export function distinctBy<T>(xs: readonly T[], key: (x: T) => unknown): T[] {
+  const seen = new Set<string>()
+  const out: T[] = []
+  for (const x of xs) {
+    const k = canonical(key(x))
+    if (!seen.has(k)) {
+      seen.add(k)
+      out.push(x)
+    }
+  }
+  return out
+}
+
+/** `maxByOrNull`: the FIRST of the greatest, as Kotlin returns it. */
+export function maxByOrNull<T>(xs: readonly T[], f: (x: T) => number): T | null {
+  let best: T | null = null
+  let bestV = -Infinity
+  for (const x of xs) {
+    const v = f(x)
+    if (best === null || v > bestV) {
+      best = x
+      bestV = v
+    }
+  }
+  return best
+}
+
+/** `minByOrNull`: the FIRST of the least. */
+export function minByOrNull<T>(xs: readonly T[], f: (x: T) => number): T | null {
+  let best: T | null = null
+  let bestV = Infinity
+  for (const x of xs) {
+    const v = f(x)
+    if (best === null || v < bestV) {
+      best = x
+      bestV = v
+    }
+  }
+  return best
+}
+
+/** `associateBy`: the LAST of each key wins, at the first one's position. */
+export function associateBy<T, K>(xs: readonly T[], key: (x: T) => K): Map<K, T> {
+  const m = new Map<K, T>()
+  for (const x of xs) m.set(key(x), x)
+  return m
+}
+
+/** Kotlin's `sortedBy`/`sortedByDescending`: stable, by a number or string key. */
+export function sortedBy<T>(xs: readonly T[], key: (x: T) => number | string, descending = false): T[] {
+  return [...xs].sort((a, b) => {
+    const ka = key(a)
+    const kb = key(b)
+    const c = ka < kb ? -1 : ka > kb ? 1 : 0
+    return descending ? -c : c
+  })
 }
 
 /** Compact JSON with sorted keys: the same string `parity/Dump.kt` writes. */
