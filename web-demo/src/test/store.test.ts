@@ -108,7 +108,7 @@ describe('saves in the browser', () => {
     const store = new BrowserStore(flaky)
     store.load()
     readable = true
-    expect(store.save(new Map([['A', SavedSession()]]))).toBe('blocked')
+    expect(store.save(new Map([['A', SavedSession()]]))).toBe('unavailable')
     expect(m.getItem(KEY)).toBe('{"Old":{}}')
   })
 

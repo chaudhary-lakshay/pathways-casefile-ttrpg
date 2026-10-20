@@ -30,14 +30,18 @@ export class Saves {
     this.listeners.forEach((l) => l())
   }
 
-  private persist() {
+  private persist(quiet: boolean) {
     const result = this.store.save(this.saved)
     if (result === 'saved') return
     if (result === 'stale') {
-      this.reload()
       this.notice = 'Another tab changed your saves, so they were reloaded here. Your last change was not saved.'
+      // A quiet write happens mid-render: rebuilding sessions then would notify inside it.
+      if (quiet) queueMicrotask(() => this.reload())
+      else this.reload()
     } else if (result === 'blocked') {
       this.notice = 'Changes are not saved while an unreadable save is waiting: export it or discard it first.'
+    } else if (result === 'unavailable') {
+      this.notice = 'This browser cannot read its storage here, so nothing is saved. Export to keep your progress.'
     } else {
       this.notice = 'This browser refused to store your progress (private mode or full storage). Export to keep it.'
     }
@@ -46,13 +50,13 @@ export class Saves {
   /** `quiet`: stored without notifying, for a repair made while a screen renders. */
   put(name: string, s: SavedSession, quiet = false) {
     this.saved.set(name, s)
-    this.persist()
+    this.persist(quiet)
     if (!quiet) this.changed()
   }
 
   remove(name: string) {
     this.saved.delete(name)
-    this.persist()
+    this.persist(false)
     this.changed()
   }
 

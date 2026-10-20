@@ -31,6 +31,29 @@ describe('the saves the app holds', () => {
     expect(m.items.get(KEY)).toContain('Theirs')
   })
 
+  test('a quiet write that meets a stale store reloads after the render, not during it', async () => {
+    const m = memory()
+    const mine = new Saves(new BrowserStore(m))
+    new Saves(new BrowserStore(m)).put('Theirs', SavedSession())
+    let heard = 0
+    mine.subscribe(() => heard++)
+    const generation = mine.generation
+    mine.put('Mine', SavedSession(), true)
+    expect(heard).toBe(0)
+    expect(mine.generation).toBe(generation)
+    await Promise.resolve()
+    expect(mine.generation).toBeGreaterThan(generation)
+    expect(mine.saved.has('Theirs')).toBe(true)
+    expect(mine.notice).toMatch(/another tab/i)
+  })
+
+  test('storage that cannot be read says so, not that a save is waiting', () => {
+    const m = memory()
+    const saves = new Saves(new BrowserStore({ ...m, getItem: () => { throw new Error('SecurityError') } }))
+    saves.put('A', SavedSession())
+    expect(saves.notice).toMatch(/cannot read/i)
+  })
+
   test('an unreadable save is reported and kept aside; saving goes on', () => {
     const m = memory()
     m.setItem(KEY, 'not json')

@@ -176,7 +176,7 @@ function Screens() {
           session={session}
           dice={scene.clearingSpiritOn(rollLog.dice(sheet.name, 'Potion Consumption Roll'))}
           file={file}
-          pcrModifier={-scene.spiritPending.value}
+          spiritPending={scene.spiritPending}
           onBack={toSheet}
         />
       )}

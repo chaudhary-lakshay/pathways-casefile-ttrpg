@@ -18,10 +18,11 @@ export interface Loaded {
 /**
  * `saved`; `stale` when another tab wrote since this one last read, so its
  * snapshot would delete that tab's work (load again); `blocked` while the
- * stored text is an unreadable save not yet safe in the backup slot, or could
- * not be read at all; `failed` when the browser refused the write.
+ * stored text is an unreadable save not yet safe in the backup slot;
+ * `unavailable` when storage could not be read at all; `failed` when the
+ * browser refused the write.
  */
-export type SaveResult = 'saved' | 'stale' | 'blocked' | 'failed'
+export type SaveResult = 'saved' | 'stale' | 'blocked' | 'unavailable' | 'failed'
 
 const UNREAD = Symbol('unread')
 
@@ -71,9 +72,10 @@ export class BrowserStore {
   }
 
   save(sessions: Map<string, SavedSession>): SaveResult {
-    if (this.waiting !== null || this.seen === UNREAD) return 'blocked'
+    if (this.seen === UNREAD) return 'unavailable'
+    if (this.waiting !== null) return 'blocked'
     const now = this.read(KEY)
-    if (now === UNREAD) return 'blocked'
+    if (now === UNREAD) return 'unavailable'
     if (now !== this.seen) return 'stale'
     const text = encodeSessions(sessions)
     if (!this.write(KEY, text)) return 'failed'
