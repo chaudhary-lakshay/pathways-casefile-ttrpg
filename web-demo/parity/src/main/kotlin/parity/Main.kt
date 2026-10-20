@@ -50,6 +50,8 @@ private val FILES: Map<String, Vectors.() -> Unit> = linkedMapOf(
     "rolls" to { rollVectors2() },
     "mystical" to { mysticalVectors() },
     "gaps" to { gapVectors() },
+    "session" to { sessionVectors() },
+    "apptext" to { appTextVectors() },
 )
 
 fun main(args: Array<String>) {
