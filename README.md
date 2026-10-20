@@ -51,23 +51,23 @@ Three views from the application: the character registry, the skills ledger, and
 
 The following recordings were captured on a **Samsung Galaxy Tab Active3**, using the **Church Healer**, a **Sequence 6 Beyonder on the Abyss pathway**.
 
-### <kbd>INCIDENT 01</kbd> Diagnosis under pressure
-
-The GM rules that the healer is distracted. You select **Diagnosis**, apply *Distracted or hurried −2*, and the target changes from **13 to 11** before the roll. The result displays all three dice, the margin, and the modifiers used.
-
-<p align="center"><img src="docs/media/skill-roll.gif" width="320" alt="Diagnosis skill roll with a minus-two modifier"></p>
-
-### <kbd>INCIDENT 02</kbd> Revolver fire
-
-Select **Attack**, then *Guns (Revolver)*. The app assembles the weapon, maneuver, range and target. On a hit, **Roll damage** throws the revolver's **2d**.
-
-<p align="center"><img src="docs/media/attack.gif" width="320" alt="Revolver attack followed by a damage roll"></p>
-
-### <kbd>INCIDENT 03</kbd> Potion-derived abilities
-
-Open **Pathway** to see each potion's grants: attributes, skills, advantages and abilities. Abilities appear as compact entries with cost tags; select one to read its rulebook text.
-
-<p align="center"><img src="docs/media/pathway.gif" width="320" alt="Browsing abilities granted by the Devil potion"></p>
+<table>
+  <tr>
+    <td width="33%" align="center"><kbd>INCIDENT 01</kbd><br><strong>Diagnosis under pressure</strong></td>
+    <td width="33%" align="center"><kbd>INCIDENT 02</kbd><br><strong>Revolver fire</strong></td>
+    <td width="33%" align="center"><kbd>INCIDENT 03</kbd><br><strong>Potion-derived abilities</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/media/skill-roll.gif" width="100%" alt="Diagnosis skill roll with a minus-two modifier"></td>
+    <td align="center"><img src="docs/media/attack.gif" width="100%" alt="Revolver attack followed by a damage roll"></td>
+    <td align="center"><img src="docs/media/pathway.gif" width="100%" alt="Browsing abilities granted by the Devil potion"></td>
+  </tr>
+  <tr>
+    <td valign="top"><sub>The GM rules the healer is distracted. Select <b>Diagnosis</b>, apply <i>Distracted or hurried −2</i>, and the target drops from <b>13 to 11</b> before the roll. The result shows all three dice, the margin and the modifiers used.</sub></td>
+    <td valign="top"><sub>Select <b>Attack</b>, then <i>Guns (Revolver)</i>. The app assembles weapon, maneuver, range and target. On a hit, <b>Roll damage</b> throws the revolver's <b>2d</b>.</sub></td>
+    <td valign="top"><sub>Open <b>Pathway</b> to see each potion's grants: attributes, skills, advantages and abilities. Each ability is a compact entry with a cost tag; select one to read its rulebook text.</sub></td>
+  </tr>
+</table>
 
 <a name="further-exhibits"></a>
 <img src="docs/media/dossier/04-further-exhibits.svg" alt="File 04 — Further exhibits" width="100%">
