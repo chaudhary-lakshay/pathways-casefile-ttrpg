@@ -20,7 +20,7 @@ Steve Jackson Games, Cuttlefish That Loves Diving, or their publishers.
 | Icons | Material Icons, by Google, Apache License 2.0 |
 
 Personal, non-commercial use only, as the rulebook asks. The code is under the
-[PolyForm Noncommercial License 1.0.0](../LICENSE); [NOTICE.md](../NOTICE.md) lists what it does not cover.
+[PolyForm Noncommercial License 1.0.0](../LICENSE.md); [NOTICE.md](../NOTICE.md) lists what it does not cover.
 
 ## What it does not do
 

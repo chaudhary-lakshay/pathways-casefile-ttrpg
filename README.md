@@ -153,6 +153,6 @@ This project is a tool for playing an existing fan-created game. The rules, tabl
 
 > **Legal notice.** *GURPS* is a trademark of Steve Jackson Games. *Lord of the Mysteries* belongs to Cuttlefish That Loves Diving. This is a **personal, non-commercial, unofficial fan project** and is not affiliated with or endorsed by either rights holder. It is not intended for commercial use.
 >
-> **License.** The application code is under the [PolyForm Noncommercial License 1.0.0](LICENSE). The rulebook content, the character sheets and the GURPS and *Lord of the Mysteries* material are not covered; [NOTICE.md](NOTICE.md) lists them.
+> **License.** The application code is under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). The rulebook content, the character sheets and the GURPS and *Lord of the Mysteries* material are not covered; [NOTICE.md](NOTICE.md) lists them.
 
 <img src="docs/media/dossier/end-of-file.svg" alt="End of file — Pathways archive copy" width="100%">

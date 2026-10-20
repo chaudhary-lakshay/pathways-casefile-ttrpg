@@ -1,4 +1,5 @@
 Required Notice: Copyright 2026 chaudhary-lakshay (https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg)
+
 Required Notice: This license covers the Pathways application code only. The rulebook content, the character sheets and the GURPS and Lord of the Mysteries material are not licensed here; see NOTICE.md.
 
 # PolyForm Noncommercial License 1.0.0

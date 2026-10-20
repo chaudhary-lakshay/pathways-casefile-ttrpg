@@ -2,7 +2,7 @@
 
 ## What the license covers
 
-The [LICENSE](LICENSE) (PolyForm Noncommercial 1.0.0) covers the Pathways application code: the Kotlin modules, the
+The [LICENSE.md](LICENSE.md) (PolyForm Noncommercial 1.0.0) covers the Pathways application code: the Kotlin modules, the
 web demo's TypeScript, the Python tools and their tests. You may use, change and share that code for any
 noncommercial purpose under those terms.
 
