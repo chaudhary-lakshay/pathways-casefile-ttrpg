@@ -32,7 +32,7 @@ function caseFile(): Plugin {
 // the app ships them, never copied, so the two cannot drift.
 export default defineConfig({
   // A GitHub Pages project site lives under /<repo>/.
-  base: process.env.PAGES_BASE ?? '/lotm-ttrpg/',
+  base: process.env.PAGES_BASE ?? '/pathways-casefile-ttrpg/',
   plugins: [react(), caseFile()],
   resolve: {
     alias: {

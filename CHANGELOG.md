@@ -4,15 +4,15 @@
 
 - **Spirit contract:** the list under the target now shows every term in it:
   the Corruption penalty, and any hurt, shock or declared states. Before, at
-  CoR 4 the list read 16 - 6 while the target said 9. ([#1](https://github.com/chaudhary-lakshay/lotm-ttrpg/issues/1))
+  CoR 4 the list read 16 - 6 while the target said 9. ([#1](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/issues/1))
 - **Boon petition:** a fixed choice such as "+0" was a blank black box. It now
-  shows its value and check mark. ([#2](https://github.com/chaudhary-lakshay/lotm-ttrpg/issues/2))
+  shows its value and check mark. ([#2](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/issues/2))
 - **Roll log:** the header no longer mentions pushing a roll, which v6.9i
-  removed. ([#3](https://github.com/chaudhary-lakshay/lotm-ttrpg/issues/3))
+  removed. ([#3](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/issues/3))
 - **Powers:** the Spend button now states all the Corruption it costs. Below
   0 SPI it names both the Soul Debt and the drained use, for example
   "Spend 1 SPI · +2 CoR (Soul Debt, drained)". Before, it said +1 and charged
-  2. ([#4](https://github.com/chaudhary-lakshay/lotm-ttrpg/issues/4))
+  2. ([#4](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/issues/4))
 
 ## 0.3 (2026-10-20): rulebook v6.9i
 
