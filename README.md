@@ -8,7 +8,7 @@ Pathways is an offline Android app for the *Lord of the Mysteries* tabletop RPG.
   <img src="docs/media/pathway-grid.png" width="250" alt="The 22 pathways to pick from">
 </p>
 
-The game is not mine. It is the fan rulebook *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9d), designed and written by Earvin Salonoy, with the Mr.Worm's LOM TTRPG Discord Server as its scribes. It builds on GURPS 4th Edition. This app is only a way to play their game at the table. See [Credits](#credits).
+The game is not mine. It is the fan rulebook *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9i), designed and written by Earvin Salonoy, with the Mr.Worm's LOM TTRPG Discord Server as its scribes. It builds on GURPS 4th Edition. This app is only a way to play their game at the table. See [Credits](#credits).
 
 The app adds no rules of its own. Each modifier is listed beside the roll that uses it. If the book leaves a decision open, the app asks you or the GM to make it. The guide lists the few places where the book is unclear and the app had to pick a reading.
 
