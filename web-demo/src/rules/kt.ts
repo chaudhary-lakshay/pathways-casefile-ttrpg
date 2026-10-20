@@ -269,6 +269,9 @@ export function sortedBy<T>(xs: readonly T[], key: (x: T) => number | string, de
 export function canonical(v: unknown): string {
   if (v === null || typeof v !== 'object') return JSON.stringify(v)
   if (Array.isArray(v)) return `[${v.map(canonical).join(',')}]`
+  // Kotlin's Set and Map equality ignore order.
+  if (v instanceof Set) return `Set[${[...v].map(canonical).sort().join(',')}]`
+  if (v instanceof Map) return `Map[${[...v].map(canonical).sort().join(',')}]`
   const keys = Object.keys(v).sort()
   return `{${keys.map((k) => `${JSON.stringify(k)}:${canonical((v as Record<string, unknown>)[k])}`).join(',')}}`
 }
