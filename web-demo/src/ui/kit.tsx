@@ -3,7 +3,25 @@
 // RollCards.kt (TargetCard, ResultCard, VerdictCard, Stamp, Tag),
 // RollFooter.kt, StepperParts.kt, AttackParts.kt's OptionStepper and
 // SheetHeader.kt's BoxedIconButton. Each renders; none computes a rule.
-import { createContext, useContext, useEffect, useId, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+
+/**
+ * State whose live value a click handler can read. A Compose handler reads
+ * its mutableStateOf when it runs; a React closure holds the render's copy, so
+ * two taps a frame apart would both see "not rolled yet" (6ei, 6gb).
+ */
+export function useLatch<T>(initial: T): [T, (v: T) => void, () => T] {
+  const ref = useRef(initial)
+  const [value, setValue] = useState(initial)
+  return [
+    value,
+    (v: T) => {
+      ref.current = v
+      setValue(v)
+    },
+    () => ref.current,
+  ]
+}
 import { createPortal } from 'react-dom'
 import type { Outcome, RollResult } from '../rules/model'
 import type { SuccessDegree } from '../rules/DegreeOfSuccess'
