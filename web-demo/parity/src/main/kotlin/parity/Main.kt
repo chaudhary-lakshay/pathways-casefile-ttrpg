@@ -49,6 +49,7 @@ private val FILES: Map<String, Vectors.() -> Unit> = linkedMapOf(
     "digestion" to { digestionVectors() },
     "rolls" to { rollVectors2() },
     "mystical" to { mysticalVectors() },
+    "gaps" to { gapVectors() },
 )
 
 fun main(args: Array<String>) {
