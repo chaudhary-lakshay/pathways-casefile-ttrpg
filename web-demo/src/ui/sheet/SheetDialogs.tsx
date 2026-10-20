@@ -18,6 +18,11 @@ import { FrightDialog } from '../dialogs/FrightDialog'
 import { DetectionDialog } from '../dialogs/DetectionDialog'
 import { DamageDialog } from '../dialogs/DamageDialog'
 import { DivinationDialog } from '../dialogs/DivinationDialog'
+import { RitualDialog } from '../dialogs/RitualDialog'
+import { BoonDialog } from '../dialogs/BoonDialog'
+import { ownedLanguages } from '../../app/session/EditedCharacter'
+import * as Languages from '../../rules/Languages'
+import * as Premades from '../../rules/Premades'
 import * as Divination from '../../rules/Divination'
 import * as Conditions from '../../rules/Conditions'
 import * as TraitAttributeRolls from '../../rules/TraitAttributeRolls'
@@ -51,6 +56,8 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
 }) {
   const [stunned, setStunned] = useCell(scene.stunned)
   const { vitals, traits, drunk } = m
+  const boughtMystical = () =>
+    ownedLanguages(session.edits, Premades.toCharacter(sheet).traits).filter((it) => it.type === Languages.MYSTICAL).map(Languages.ownedLabel)
   const maxOf = (pool: Pool) => (pool === 'HP' ? vitals.maxHp : pool === 'FP' ? vitals.maxFp : vitals.maxSpi)
   const burn = (kind: EffortBurn.BurnKind, points: number) => {
     const pool: Pool = kind === 'PHYSICAL' ? 'FP' : 'SPI'
@@ -125,6 +132,45 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
           recoveryTarget={m.stunRecoveryTarget}
           states={m.physicalStates}
           onDismiss={() => onClose('DAMAGE')}
+        />
+      )}
+      {open.has('RITUAL') && m.ritualLevel !== null && (
+        <RitualDialog
+          skillLevel={m.ritualLevel}
+          boughtLanguages={boughtMystical()}
+          grantedLanguages={Languages.grantedBy(drunk).map(Languages.purchaseLabel)}
+          conditionPenalty={ritualConditionPenalty(m, session)}
+          shock={shockOnSkill(m)}
+          states={m.states}
+          cor={session.cor}
+          dice={dice('Ritual')}
+          onCorGained={(n) => session.gainCor(n, m.maxCor)}
+          onSpendSpi={(n) => session.spend('SPI', n, vitals.maxSpi, m.maxCor)}
+          onSpendHp={(n) => session.spend('HP', n, vitals.maxHp, m.maxCor)}
+          onDismiss={() => onClose('RITUAL')}
+        />
+      )}
+      {open.has('BOON') && (
+        <BoonDialog
+          skillLevel={m.ritualLevel}
+          boughtLanguages={boughtMystical()}
+          grantedLanguages={Languages.grantedBy(drunk).map(Languages.purchaseLabel)}
+          conditionPenalty={ritualConditionPenalty(m, session)}
+          shock={shockOnSkill(m)}
+          states={m.states}
+          cor={session.cor}
+          dice={dice('Boon')}
+          onCorGained={(n) => session.gainCor(n, m.maxCor)}
+          held={session.boon}
+          nextBoon={(patron) => session.nextBoon(patron)}
+          lost={session.isLost}
+          onSpendSpi={(n) => session.spend('SPI', n, vitals.maxSpi, m.maxCor)}
+          onSpendHp={(n) => session.spend('HP', n, vitals.maxHp, m.maxCor)}
+          onGranted={(b) => {
+            const next = session.nextBoon(b.pathway)
+            if (next !== null && next.pathway === b.pathway && next.sequence === b.sequence) session.grantBoon(b)
+          }}
+          onDismiss={() => onClose('BOON')}
         />
       )}
       {open.has('DIVINE') && (

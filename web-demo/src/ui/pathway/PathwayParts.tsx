@@ -240,7 +240,7 @@ function SkillLine({ name, note, attr, value }: { name: string; note: string; at
 
 const OPEN_AT_MOST = 2
 
-function Abilities({ title, text, spend }: { title: string; text: string; spend: AbilitySpend | null }) {
+export function Abilities({ title, text, spend = null }: { title: string; text: string; spend?: AbilitySpend | null }) {
   const all = abilities(text)
   const namedOnes = all.flatMap((it, i) => (it.head.heading !== null ? [i] : []))
   const [open, setOpen] = useState<number[]>(() => (namedOnes.length <= OPEN_AT_MOST ? namedOnes : []))
