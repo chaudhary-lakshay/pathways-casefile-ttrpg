@@ -81,7 +81,7 @@ private fun RollLogDialog(throws: List<LoggedThrow>, onDismiss: () -> Unit) {
                 LazyColumn(Modifier.heightIn(max = 480.dp)) {
                     item {
                         Text(
-                            "Dice as thrown. A push or a table's own rule can change the verdict after.",
+                            "Dice as thrown. A table's own rule can change the verdict after.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
