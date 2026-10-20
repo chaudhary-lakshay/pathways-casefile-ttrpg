@@ -17,7 +17,6 @@
 
 The game itself is **not** part of this project. Pathways is a personal, non-commercial companion to *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9i), designed and written by **Earvin Salonoy**, with the **Mr.Worm's LOM TTRPG Discord Server** as scribes. The rules build on **GURPS 4th Edition**.
 
-> [!IMPORTANT]
 > **Governing principle.** The app adds no rules of its own. Every roll shows its target and modifiers. Decisions left to the GM remain with the GM.
 
 | RECORD | CONTENTS |
@@ -144,7 +143,6 @@ The rule tables are included in the repository: **the PDF is not required to bui
 
 Some published character sheets contain arithmetic errors. One sheet, for example, reports **30 disadvantage points**, but its four entries total **25**.
 
-> [!NOTE]
 > Pathways follows the rulebook while showing the printed sheet's figure beside its calculated figure. It does **not** silently rewrite the source. Tests are designed to catch an accidental change to this behavior.
 
 <a name="provenance"></a>
@@ -160,7 +158,6 @@ This project is a tool for playing an existing fan-created game. The rules, tabl
 | GURPS 4th Edition | **Steve Jackson Games** |
 | Pathways application code | **chaudhary-lakshay** |
 
-> [!CAUTION]
 > **Legal notice.** *GURPS* is a trademark of Steve Jackson Games. *Lord of the Mysteries* belongs to Cuttlefish That Loves Diving. This is a **personal, non-commercial, unofficial fan project** and is not affiliated with or endorsed by either rights holder. It is not intended for commercial use or redistribution.
 
 <img src="docs/media/dossier/end-of-file.svg" alt="End of file — Pathways archive copy" width="100%">
