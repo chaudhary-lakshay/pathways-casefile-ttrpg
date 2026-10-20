@@ -46,7 +46,7 @@ private fun keyOf(k: Any?): String = when (k) {
     is String -> k
     is Enum<*> -> k.name
     is Number, is Boolean -> k.toString()
-    else -> canonical(dump(k))
+    else -> dump(k).let { if (it is JsonPrimitive && it.isString) it.content else canonical(it) }
 }
 
 /** Compact JSON with sorted keys: what TS `JSON.stringify(sortDeep(x))` prints. */

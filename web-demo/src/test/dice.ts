@@ -1,3 +1,4 @@
+import { check } from '../rules/kt'
 import type { RandomSource } from '../rules/RandomSource'
 
 /** `parity/Main.kt`'s ScriptedDice: faces from a list, each throw logged. */
@@ -8,9 +9,9 @@ export class ScriptedDice {
   constructor(private readonly faces: number[]) {}
 
   roll(sides: number): number {
-    if (this.next >= this.faces.length) throw new Error(`script ran out after ${this.faces.length} faces`)
+    check(this.next < this.faces.length, () => `script ran out after ${this.faces.length} faces`)
     const face = this.faces[this.next++]
-    if (face < 1 || face > sides) throw new Error(`face ${face} is not on a d${sides}`)
+    check(face >= 1 && face <= sides, () => `face ${face} is not on a d${sides}`)
     return face
   }
 
