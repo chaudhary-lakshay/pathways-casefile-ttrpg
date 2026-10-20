@@ -16,11 +16,38 @@ import androidx.compose.ui.Modifier
 import com.pathways.model.RollResult
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.ContractPenalty
+import com.pathways.rules.Corruption
 import com.pathways.rules.RandomSource
 import com.pathways.rules.SpiritContract
 import com.pathways.rules.SuccessRoll
 
 internal const val FORM_CONTRACT = "FORM 9-K · CONTRACT"
+
+/**
+ * The footer's terms: every one the target is made of, so the breakdown
+ * reconciles (issue #1). The steppers' two are drawn even at zero, so a step
+ * moves no button; the rest are fixed while the dialog is open.
+ */
+internal fun contractLines(
+    skillLevel: Int,
+    conditionPenalty: Int,
+    shock: Int,
+    states: ClauseBonus,
+    cor: Int,
+    sequence: Int,
+    held: Int,
+    burned: Int,
+): List<String> = listOfNotNull(
+    "Ritualistic Magic $skillLevel",
+    if (conditionPenalty != 0) "$conditionPenalty hurt or tired" else null,
+    if (shock != 0) "$shock shock" else null,
+    states.line,
+    Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
+    "Sequence -$sequence",
+    "-${held}d6, rolled at Cast",
+    "Burn +$burned",
+    "${SpiritContract.spi() + burned} SPI",
+)
 
 /**
  * Ch. 9 VI's Spirit World Creature Contract (v6.9i): Ritualistic Magic less
@@ -92,13 +119,7 @@ internal fun ContractDialog(
                 }
                 RollFooter(
                     // Every line drawn from the start, so a step moves no button.
-                    lines = listOf(
-                        "Ritualistic Magic $skillLevel",
-                        "Sequence -$sequence",
-                        "-${held}d6, rolled at Cast",
-                        "Burn +$burned",
-                        "${SpiritContract.spi() + burned} SPI",
-                    ),
+                    lines = contractLines(skillLevel, conditionPenalty, shock, states, cor, sequence, held, burned),
                     caption = if (full) "$maxContracts contracts held: no other can be made" else SuccessRoll.printed(before),
                     target = before.takeIf { held == 0 },
                     enabled = !full,
