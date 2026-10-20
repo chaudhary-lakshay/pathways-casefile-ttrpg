@@ -2,7 +2,10 @@
 import type { CharacterDice, SheetScene } from '../../app/RollLog'
 import type { BeyonderSession } from '../../app/session/BeyonderSession'
 import { conditionsFor, ritualConditionPenalty, shockOnSkill, skillRollTarget, spiNow, stateModifiers, type RollableSkill, type SheetModel } from '../../app/SheetModel'
-import { skillKeyLabel } from '../../app/SheetText'
+import { encumbranceDodge, skillKeyLabel } from '../../app/SheetText'
+import * as Encumbrance from '../../rules/Encumbrance'
+import * as Pools from '../../rules/Pools'
+import { DefenseDialog } from '../dialogs/DefenseDialog'
 import * as AttributeRoll from '../../rules/AttributeRoll'
 import * as EffortBurn from '../../rules/EffortBurn'
 import * as Equipment from '../../rules/Equipment'
@@ -155,6 +158,28 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
           onSpendSpi={(n) => session.spend('SPI', n, vitals.maxSpi, m.maxCor)}
           onSpendHp={(n) => session.spend('HP', n, vitals.maxHp, m.maxCor)}
           onDismiss={() => onClose('RITUAL')}
+        />
+      )}
+      {open.has('DEFEND') && (
+        <DefenseDialog
+          dodge={Pools.halvedForFatigue(vitals.dodge + encumbranceDodge(scene.carried.value, Encumbrance.basicLift(m.attributes.st, traits)), m.fpNow)}
+          fatigued={Pools.isFatigued(m.fpNow)}
+          poolPenalty={Conditions.penaltyFor('ACTIVE_DEFENSE', m.hpNow, m.fpNow)}
+          skillLevels={m.skillLevels}
+          dx={m.attributes.dx}
+          untrained={untrainedRows()}
+          weapons={carriedWeapons(session.edits)}
+          mastery={mastery}
+          dice={dice}
+          conditions={(k) => conditionsFor(m, session, k)}
+          traits={traits}
+          shocked={m.shocked}
+          states={m.physicalStates}
+          onSpendFp={(n) => session.spend('FP', n, vitals.maxFp, m.maxCor)}
+          round={scene.round}
+          stunned={scene.stunned}
+          warmed={warmed}
+          onDismiss={() => onClose('DEFEND')}
         />
       )}
       {open.has('ATTACK') && (() => {

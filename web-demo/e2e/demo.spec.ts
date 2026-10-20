@@ -87,6 +87,32 @@ test.describe('on a phone, 390 px', () => {
     await page.getByRole('menuitem', { name: 'Roll log' }).click()
     await expect(page.locator('.dialog').getByText('Guns (Pistol)')).toHaveCount(1)
   })
+
+  test('a double tap on a defence rolls it once and burns once', async ({ page }) => {
+    await page.goto('./#/c/Beat%20Cop')
+    await page.getByRole('button', { name: 'Defend' }).click()
+    await page.getByRole('button', { name: /One more Burn FP/ }).click()
+    const dodge = page.locator('.defense-row').first()
+    await doubleTap(dodge.locator('.boxed-roll').first())
+    await expect(dodge.locator('.defense-result')).toContainText('3d6:')
+    await page.getByRole('button', { name: 'Close' }).click()
+    await expect(fp(page)).toHaveAttribute('aria-label', '8 of 9')
+    await page.getByRole('button', { name: 'More' }).click()
+    await page.getByRole('menuitem', { name: 'Roll log' }).click()
+    await expect(page.locator('.dialog .scroll > .row')).toHaveCount(1)
+  })
+
+  test('a double tap on Attack throws once', async ({ page }) => {
+    await page.goto('./#/c/Beat%20Cop')
+    await page.getByRole('button', { name: 'Attack' }).click()
+    await page.getByRole('button', { name: 'Guns (Pistol) 11' }).click()
+    await doubleTap(page.locator('.dialog .ink-button').last())
+    await expect(page.locator('.dialog .stamp').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Close' }).click()
+    await page.getByRole('button', { name: 'More' }).click()
+    await page.getByRole('menuitem', { name: 'Roll log' }).click()
+    await expect(page.locator('.dialog .scroll > .row')).toHaveCount(1)
+  })
 })
 
 test.describe('on a desktop', () => {
