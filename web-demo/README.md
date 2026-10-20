@@ -19,7 +19,8 @@ Steve Jackson Games, Cuttlefish That Loves Diving, or their publishers.
 | Fonts | Fraunces and IBM Plex Sans / Mono, SIL Open Font License 1.1 |
 | Icons | Material Icons, by Google, Apache License 2.0 |
 
-Personal, non-commercial use only, as the rulebook asks.
+Personal, non-commercial use only, as the rulebook asks. The code is under the
+[PolyForm Noncommercial License 1.0.0](../LICENSE); [NOTICE.md](../NOTICE.md) lists what it does not cover.
 
 ## What it does not do
 
@@ -58,7 +59,7 @@ npm test            # vitest: parity vectors and unit tests
 npm run parity      # regenerate the vectors from Kotlin (JDK 17; about a minute)
 npm run e2e         # Playwright, against the production build
 npm run dev         # local server
-npm run build       # dist/, for the base /lotm-ttrpg/ (PAGES_BASE overrides)
+npm run build       # dist/, for the base /pathways-casefile-ttrpg/ (PAGES_BASE overrides)
 ```
 
 The e2e suite checks the owner's list: the layout at 390 px, the frame on a
