@@ -37,6 +37,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Corruption
 import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.content.SequenceBlock
@@ -275,12 +276,23 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
             // v6.9i prints no floor: past 0 the pool buys Soul Debt, and a
             // use while drained costs 1 CoR more (line 3180).
             InkAction(
-                if (spend.left > 0) "Spend $price SPI" else "Spend $price SPI · +1 CoR, drained",
+                spendLabel(price, spend.left),
                 onClick = { spend.onSpend(price, spend.left) },
                 modifier = Modifier.padding(bottom = 12.dp),
             )
         }
     }
+}
+
+/**
+ * A power's Spend button, from [left] SPI: every CoR the tap charges, the
+ * Soul Debt and the drained use, read from the rules that charge them.
+ */
+internal fun spendLabel(price: Int, left: Int): String {
+    val debt = Corruption.soulDebt(left, price)
+    val drained = Corruption.drainedUse(left)
+    val why = listOfNotNull("Soul Debt".takeIf { debt > 0 }, "drained".takeIf { drained > 0 })
+    return if (why.isEmpty()) "Spend $price SPI" else "Spend $price SPI · +${debt + drained} CoR (${why.joinToString()})"
 }
 
 /** The heading's bracket, in the book's words: a cost, "Passive", a resistance. */

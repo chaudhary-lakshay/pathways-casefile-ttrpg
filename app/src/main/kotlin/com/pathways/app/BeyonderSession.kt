@@ -623,13 +623,12 @@ class BeyonderSession(
                 hpLost = (hpLost + chargedAfter - chargedBefore).coerceAtLeast(0)
             }
             Pool.SPI -> {
-                val debtBefore = (spiSpent - max).coerceAtLeast(0)
+                val debt = Corruption.soulDebt(max - spiSpent, delta)
                 spiSpent = (spiSpent + delta).coerceAtLeast(0)
-                val debtAfter = (spiSpent - max).coerceAtLeast(0)
                 // Only a DEEPER debt charges; recovery gives nothing back.
                 // Also keeps gainCor(0) meaning what it means elsewhere --
                 // how a Will-lowering potion latches its loss.
-                if (debtAfter > debtBefore) gainCor(debtAfter - debtBefore, maxCor)
+                if (debt > 0) gainCor(debt, maxCor)
             }
         }
         persist()

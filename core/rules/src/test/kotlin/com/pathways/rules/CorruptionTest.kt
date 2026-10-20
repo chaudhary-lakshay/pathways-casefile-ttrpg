@@ -134,6 +134,18 @@ class CorruptionTest {
         assertEquals(0, Corruption.drainedUse(currentSpi = 1))
     }
 
+    /** "+1 CoR per 1 point below 0": only the depth a spend ADDS is charged (issue #4). */
+    @Test
+    fun `soul debt charges the points a spend takes below zero`() {
+        assertEquals(0, Corruption.soulDebt(currentSpi = 5, price = 3))
+        assertEquals(1, Corruption.soulDebt(currentSpi = 1, price = 2))
+        assertEquals(2, Corruption.soulDebt(currentSpi = 0, price = 2))
+        assertEquals(1, Corruption.soulDebt(currentSpi = -3, price = 1))
+        assertEquals(0, Corruption.soulDebt(currentSpi = -3, price = -1))
+        // A restoration never charges, however large (Codex: it overflowed).
+        assertEquals(0, Corruption.soulDebt(currentSpi = 10, price = Int.MIN_VALUE))
+    }
+
     @Test
     fun `a maximum below one is a bad call, not a lost character`() {
         assertThrows<IllegalArgumentException> { Corruption.clamp(0, max = 0) }

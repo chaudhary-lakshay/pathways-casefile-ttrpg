@@ -64,6 +64,15 @@ object Corruption {
         else gained().firstOrNull { it.action.startsWith(DRAINED_USE) }?.minimum
             ?: error("cor_gained.json has no priced row starting '$DRAINED_USE'")
 
+    /**
+     * The CoR a spend of [price] SPI from [currentSpi] charges as Soul Debt,
+     * "+1 CoR per 1 point below 0": the points it goes DEEPER. A restoration
+     * (a negative price) charges nothing and refunds nothing; the debt is
+     * one-way. The one copy: the charge and the Spend button both read it.
+     */
+    fun soulDebt(currentSpi: Int, price: Int): Int =
+        if (price <= 0) 0 else (maxOf(0, price - currentSpi) - maxOf(0, -currentSpi)).coerceAtLeast(0)
+
     /** The opening of the row [drainedUse] reads. */
     const val DRAINED_USE = "Using powers while drained"
 
