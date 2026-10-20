@@ -1,7 +1,7 @@
 // SheetDialogs.kt: which dialog a sheet has open, and what each is handed.
 import type { CharacterDice, SheetScene } from '../../app/RollLog'
 import type { BeyonderSession } from '../../app/session/BeyonderSession'
-import { conditionsFor, ritualConditionPenalty, shockOnSkill, skillRollTarget, spiNow, type RollableSkill, type SheetModel } from '../../app/SheetModel'
+import { conditionsFor, ritualConditionPenalty, shockOnSkill, skillRollTarget, spiNow, stateModifiers, type RollableSkill, type SheetModel } from '../../app/SheetModel'
 import { skillKeyLabel } from '../../app/SheetText'
 import * as AttributeRoll from '../../rules/AttributeRoll'
 import * as EffortBurn from '../../rules/EffortBurn'
@@ -20,6 +20,9 @@ import { DamageDialog } from '../dialogs/DamageDialog'
 import { DivinationDialog } from '../dialogs/DivinationDialog'
 import { RitualDialog } from '../dialogs/RitualDialog'
 import { BoonDialog } from '../dialogs/BoonDialog'
+import { AttackDialog } from '../dialogs/AttackDialog'
+import { carriedWeapons } from '../../app/session/EditedCharacter'
+import * as TraitEffects from '../../rules/TraitEffects'
 import { ownedLanguages } from '../../app/session/EditedCharacter'
 import * as Languages from '../../rules/Languages'
 import * as Premades from '../../rules/Premades'
@@ -55,7 +58,11 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
   onPickingUntrained: (v: boolean) => void
 }) {
   const [stunned, setStunned] = useCell(scene.stunned)
+  const [warmed, setWarmed] = useCell(scene.warmed)
+  const [round] = useCell(scene.round)
   const { vitals, traits, drunk } = m
+  const untrainedRows = () => SkillDefaults.offeredTo({ ...session.characterFor(sheet), beyonder: drunk })
+  const mastery = drunk !== null ? SkillDefaults.masteryFor(drunk.pathway, drunk.sequence) : null
   const boughtMystical = () =>
     ownedLanguages(session.edits, Premades.toCharacter(sheet).traits).filter((it) => it.type === Languages.MYSTICAL).map(Languages.ownedLabel)
   const maxOf = (pool: Pool) => (pool === 'HP' ? vitals.maxHp : pool === 'FP' ? vitals.maxFp : vitals.maxSpi)
@@ -69,7 +76,7 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
     <>
       {pickingUntrained && (
         <UntrainedDialog
-          rows={SkillDefaults.offeredTo({ ...session.characterFor(sheet), beyonder: drunk })}
+          rows={untrainedRows()}
           weaponNote={drunk !== null ? SkillDefaults.weaponNote(drunk.pathway, drunk.sequence) : null}
           onPick={(row) => {
             onPickingUntrained(false)
@@ -150,6 +157,33 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
           onDismiss={() => onClose('RITUAL')}
         />
       )}
+      {open.has('ATTACK') && (() => {
+        const carried = carriedWeapons(session.edits)
+        return (
+          <AttackDialog
+            skillLevels={m.skillLevels}
+            conditions={(k) => conditionsFor(m, session, k, { withDeclared: false })}
+            st={m.attributes.st}
+            dx={m.attributes.dx}
+            dice={dice}
+            onSpendFp={(n) => session.spend('FP', n, vitals.maxFp, m.maxCor)}
+            onBurn={burn}
+            darknessReduction={TraitEffects.darknessReduction(traits)}
+            traits={traits}
+            untrained={SkillDefaults.attacks(untrainedRows(), carried, m.skillLevels)}
+            carried={carried}
+            mastery={mastery}
+            toolNote={drunk !== null ? SkillDefaults.toolNote(drunk.pathway, drunk.sequence) : null}
+            states={m.physicalStates}
+            stateModifiers={stateModifiers(m, true)}
+            warmed={warmed}
+            onWarmed={setWarmed}
+            spiritPending={scene.spiritPending.value}
+            pinned={round.declared.has('PINNED')}
+            onDismiss={() => onClose('ATTACK')}
+          />
+        )
+      })()}
       {open.has('BOON') && (
         <BoonDialog
           skillLevel={m.ritualLevel}
