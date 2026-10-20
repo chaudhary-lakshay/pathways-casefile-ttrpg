@@ -1,12 +1,25 @@
 // The sheet's printed text, from PoolStrip.kt, EncumbranceCard.kt,
 // VitalsTable.kt, SheetTabs.kt and SheetRows.kt.
 import * as Encumbrance from '../rules/Encumbrance'
-import { canonical, substringBefore } from '../rules/kt'
+import { canonical, containsIc, substringBefore, trim } from '../rules/kt'
 import { attrCode, DIFFICULTY, type SkillKey, type Trait } from '../rules/model'
 
 /** AttackDialog.kt `SkillKey.label()`. */
 export const skillKeyLabel = (k: SkillKey) => (k.specialization === null ? k.name : `${k.name} (${k.specialization})`)
 import type { PoolStatus } from '../rules/Pools'
+import type { SelfControlRoll } from '../rules/content/schema.gen'
+import type { Untrained } from '../rules/SkillDefaults'
+
+/** UntrainedDialog.kt: the rows whose label holds the trimmed query. */
+export const untrainedShown = (rows: Untrained[], query: string) =>
+  rows.filter((it) => containsIc(skillKeyLabel(it.key), trim(query)))
+
+/** SelfControlDialog.kt: the line under the trait's name. */
+export function controlKeyLine(spec: SelfControlRoll): string {
+  if (spec.attribute === null) return 'a flat number the book prints — no attribute moves it'
+  const offset = spec.offset === 0 ? '' : `${spec.offset > 0 ? '+' : ''}${spec.offset}`
+  return `keyed on ${spec.attribute}${offset}, after any potion`
+}
 
 export function poolTags(status: PoolStatus): string[] {
   if (status.isDead) return ['Dead']

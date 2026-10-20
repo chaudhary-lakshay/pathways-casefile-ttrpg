@@ -1,0 +1,128 @@
+/* The sheet's Compose modifiers as CSS, dp = px. Shapes (Theme.kt): extraSmall 2, small 4, medium 6, large 8. */
+.sheet { background: var(--surface); overflow: hidden; }
+.sheet > .top-bar, .sheet > .sheet-body, .sheet > .sheet-tab-bar { position: relative; z-index: 1; }
+.sheet-body { flex: 1 1 auto; min-height: 0; position: relative; display: flex; flex-direction: column; }
+.sheet-body > .scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 16px; }
+.pinned-pools { position: absolute; top: 0; left: 0; right: 0; background: var(--background); z-index: 2; }
+.pad16 { padding-left: 16px; padding-right: 16px; }
+
+/* SheetBackdrop.kt: the pathway's art, washed, top-end, fading out by 75%. */
+.sheet-backdrop {
+  position: absolute; top: -32px; right: -48px; width: 260px; height: 260px; z-index: 0;
+  opacity: 0.22; filter: saturate(0.2); pointer-events: none; object-fit: contain;
+  -webkit-mask-image: linear-gradient(to bottom, #000 20%, transparent 75%);
+  mask-image: linear-gradient(to bottom, #000 20%, transparent 75%);
+}
+
+/* SheetHeader.kt */
+.sheet-title { padding: 0 16px 8px; }
+.pills { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding-top: 8px; }
+.pill { display: inline-block; padding: 4px 8px; }
+.pill.lost { background: var(--error); border-radius: 2px; padding: 4px 10px; }
+.pill.ink { border: 1.5px solid var(--outline); }
+.pill.mute { border: 1.5px solid var(--outline-variant); }
+
+/* SheetMenu.kt: a DropdownMenu under the "More" button. */
+.menu-anchor { position: relative; }
+.menu {
+  position: absolute; right: 6px; top: 46px; z-index: 20; min-width: 200px; padding: 8px 0;
+  background: var(--surface-container); border-radius: 4px; box-shadow: 0 3px 12px rgb(0 0 0 / 0.2);
+}
+.menu-item { display: block; width: 100%; min-height: 48px; padding: 0 16px; text-align: left; color: var(--on-surface); }
+.menu-item:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+.danger-button { min-height: 40px; padding: 0 24px; border-radius: 2px; background: var(--error); }
+
+/* PoolStrip.kt */
+.pool-strip { background: var(--surface-container-low); border: 1px solid var(--outline); border-radius: 8px; overflow: hidden; }
+.pool-row { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.pool-row .pool-stepper { margin-left: 12px; }
+.pool-cells { display: flex; align-items: stretch; }
+.pool-cell { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; }
+.pool-cell + .pool-cell { border-left: 1px solid var(--outline); }
+.pool-cell .pool-stepper { margin-top: 4px; width: 100%; }
+.tags-tap { text-align: left; width: 100%; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.pool-count { white-space: nowrap; }
+.pool-max { color: var(--on-surface-variant); font-weight: 400; }
+.pool-stepper { display: inline-flex; flex: none; border: 1px solid var(--outline); border-radius: 4px; overflow: hidden; }
+.pool-stepper button { flex: 1 1 0; min-width: 48px; min-height: 48px; display: flex; align-items: center; justify-content: center; color: var(--on-surface); }
+.pool-stepper button + button { border-left: 1px solid var(--outline); }
+.pool-stepper button.filled { background: var(--primary); color: var(--on-primary); }
+.pool-stepper button:disabled { color: var(--outline-variant); }
+.pool-bar { display: flex; width: 100%; align-items: center; overflow: hidden; }
+.pool-bar.segments span { flex: 1 1 0; min-width: 2px; height: 100%; box-sizing: border-box; }
+.pool-bar.pips span { flex: 0 1 var(--pip); height: var(--pip); min-width: 0; aspect-ratio: 1; box-sizing: border-box; position: relative; }
+.pool-bar.pips span.round { border-radius: 50%; }
+.pool-bar.pips span.spent:not(.round)::before, .pool-bar.pips span.spent:not(.round)::after {
+  content: ''; position: absolute; left: 30%; right: 30%; top: 50%; border-top: 1px solid var(--error);
+}
+.pool-bar.pips span.spent:not(.round)::before { transform: rotate(45deg); }
+.pool-bar.pips span.spent:not(.round)::after { transform: rotate(-45deg); }
+.pool-line { display: flex; gap: 16px; }
+
+/* ActionGroup.kt and SheetActions.kt */
+.sheet-actions { display: flex; flex-direction: column; gap: 8px; }
+.action-grid { display: flex; gap: 1px; background: var(--outline); border: 1px solid var(--outline); border-radius: 4px; overflow: hidden; }
+.primary-action {
+  flex: 1 1 0; min-width: 0; min-height: 64px; padding: 10px 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: var(--surface-container-low); text-align: center; color: var(--on-surface);
+}
+.primary-action:hover { background: var(--surface-container); }
+.action-chips { display: flex; flex-wrap: wrap; column-gap: 4px; }
+
+/* SheetTabBar.kt */
+.sheet-tab-bar { background: var(--background); flex: none; padding-bottom: env(safe-area-inset-bottom); }
+.sheet-tab-bar .tabs { display: flex; gap: 8px; padding: 0 12px 6px; }
+.sheet-tab {
+  flex: 1 1 0; min-width: 0; min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--on-surface-variant); border-radius: 0 0 6px 6px;
+}
+.sheet-tab.open { background: var(--surface-container-low); border: 2px solid var(--outline); border-top: 0; color: var(--on-surface); }
+
+/* TraitRows.kt SheetSection, VitalsTable.kt TableHead */
+.sheet-section { padding: 20px 16px 4px; }
+.sheet-section h2 { padding-bottom: 8px; }
+.table-head-row { padding: 0 16px; }
+.rule.inset { margin: 0 16px; }
+
+/* SheetRows.kt */
+.roll-glyph { display: inline-flex; align-items: center; justify-content: center; flex: none; border: 1px solid var(--outline); border-radius: 2px; color: var(--on-surface); }
+.level-box { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 44px; height: 34px; border: 2px solid var(--outline); border-radius: 2px; color: var(--on-surface); }
+.dashed-button {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 8px 16px; width: calc(100% - 32px); min-height: 56px; padding: 0 12px;
+  border: 2px dashed var(--outline); color: var(--on-surface);
+}
+.skill-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; padding: 6px 16px; text-align: left; color: var(--on-surface); }
+.skill-row:hover, button.vital-row:hover, .trait-head:hover { background: color-mix(in srgb, var(--on-surface) 5%, transparent); }
+.underline { text-decoration: underline; }
+
+/* VitalsTable.kt */
+.diff-card { background: var(--surface-container); border: 1.5px solid var(--outline); border-radius: 8px; padding: 16px; color: var(--on-surface); }
+.diff-card.amended { background: color-mix(in srgb, var(--error-container) 50%, transparent); border-color: var(--error); }
+.amend-toggle { display: block; margin-top: 4px; min-height: 48px; }
+.amended-stamp { position: absolute; top: 14px; right: 20px; }
+.differs { background: color-mix(in srgb, var(--error-container) 50%, transparent); }
+.vital-row { display: flex; align-items: center; width: 100%; min-height: 52px; padding: 6px 16px; text-align: left; color: var(--on-surface); }
+
+/* SheetRows.kt PoolTrackers, StunRow, RecoveryRollRow; EncumbranceCard.kt */
+.outlined-field { display: flex; flex-direction: column; border: 1px solid var(--outline); border-radius: 2px; padding: 6px 12px; margin-bottom: 6px; }
+.outlined-field:focus-within { border: 2px solid var(--primary); padding: 5px 11px; }
+.outlined-field input { border: 0; outline: 0; background: transparent; color: var(--on-surface); padding: 2px 0; }
+.recovery-head { display: flex; align-items: center; width: 100%; min-height: 56px; text-align: left; color: var(--on-surface); }
+.entered-stepper { display: inline-flex; align-items: stretch; border: 1.5px solid var(--outline); border-radius: 4px; overflow: hidden; }
+.entered-stepper > * { min-width: 52px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.entered-stepper > span { background: var(--primary); color: var(--on-primary); }
+.wide-roll { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; background: var(--primary); color: var(--on-primary); border-radius: 2px; }
+
+/* TraitRows.kt */
+.legend-toggle { min-height: 40px; padding: 0 12px; color: var(--primary); }
+.status-pill { flex: none; border-radius: 2px; padding: 3px 8px; white-space: nowrap; }
+.trait-row { padding: 10px 16px; }
+.trait-head { width: 100%; gap: 4px; text-align: left; color: var(--on-surface); }
+.assist-chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; min-height: 32px; padding: 0 16px 0 8px; border: 1px solid var(--outline); border-radius: 4px; color: var(--on-surface); }
+.trait-cell { border-left: 2px solid var(--secondary); padding-left: 12px; color: var(--on-surface); }
+
+/* UntrainedDialog.kt */
+.untrained-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 0; text-align: left; color: var(--on-surface); }
