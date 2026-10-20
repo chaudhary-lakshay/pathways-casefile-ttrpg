@@ -44,6 +44,9 @@ class ScriptedDice(private val faces: List<Int>) : RandomSource {
 private val FILES: Map<String, Vectors.() -> Unit> = linkedMapOf(
     "character" to { characterVectors() },
     "content" to { contentVectors() },
+    "traits" to { traitVectors() },
+    "combat" to { combatVectors() },
+    "digestion" to { digestionVectors() },
 )
 
 fun main(args: Array<String>) {

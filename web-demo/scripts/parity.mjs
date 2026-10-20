@@ -5,7 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const gradlew = process.platform === 'win32' ? 'gradlew.bat' : './gradlew'
+const gradlew = process.platform === 'win32' ? `"${path.join(repo, 'gradlew.bat')}"` : './gradlew'
 const r = spawnSync(gradlew, ['-p', 'web-demo/parity', 'run', '--console=plain', '-q'], {
   cwd: repo,
   stdio: 'inherit',

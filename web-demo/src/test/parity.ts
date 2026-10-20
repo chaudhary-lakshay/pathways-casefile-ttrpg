@@ -20,10 +20,12 @@ export function cases(file: string): Case[] {
 /** A TS value in the shape `parity/Dump.kt` writes a Kotlin one. */
 export function canon(v: unknown): unknown {
   if (v === undefined) throw new Error('undefined has no Kotlin counterpart; use null')
+  if (Object.is(v, -0)) return 0 // a Kotlin Int has no negative zero
   if (v === null || typeof v !== 'object') return v
   if (v instanceof ValueMap) return Object.fromEntries([...v.entries()].map(([k, x]) => [keyOf(k), canon(x)]))
   if (v instanceof Map) return Object.fromEntries([...v.entries()].map(([k, x]) => [keyOf(k), canon(x)]))
   if (Array.isArray(v)) return v.map(canon)
+  if (v instanceof Set) return [...v].map(canon)
   return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, canon(x)]))
 }
 
