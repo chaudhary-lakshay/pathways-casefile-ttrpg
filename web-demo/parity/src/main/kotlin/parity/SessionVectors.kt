@@ -46,7 +46,7 @@ private typealias Op = List<Any?>
  */
 fun Vectors.sessionVectors() {
     val sheets = Premades.all()
-    for ((i, sheet) in sheets.withIndex()) for (variant in 0..2) {
+    for ((i, sheet) in sheets.withIndex()) for (variant in 0..3) {
         val seed = i * 10 + variant
         case("session.script", sheet.name, seed, startOf(variant, seed)) {
             script(sheet, startOf(variant, seed), Random(seed))
@@ -69,6 +69,7 @@ private fun startOf(variant: Int, seed: Int): SavedSession {
                 traits = PurchasableTraits.offered().shuffled(r).take(3).map { it.name },
             ),
         )
+        3 -> SavedSession(basedOn = Premades.all()[0].name, hpLost = 2, edits = SavedEdits(quirks = listOf("Hums")))
         else -> {
             val pathway = ContentLoader.pathways().map { it.pathway }.distinct().random(r)
             SavedSession(beyonder = BeyonderState(pathway, r.nextInt(7, 10), r.nextInt(0, 101)), cor = r.nextInt(0, 6))
