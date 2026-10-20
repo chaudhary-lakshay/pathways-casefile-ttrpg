@@ -7,7 +7,7 @@
   <a href="#evidence-board"><kbd>02 · EVIDENCE</kbd></a>&nbsp;
   <a href="#field-reports"><kbd>03 · FIELD REPORTS</kbd></a>&nbsp;
   <a href="#deployment-notes"><kbd>06 · BUILD &amp; RUN</kbd></a>&nbsp;
-  <a href="#provenance"><kbd>08 · CREDITS</kbd></a>
+  <a href="#provenance"><kbd>07 · CREDITS</kbd></a>
 </p>
 
 <a name="case-brief"></a>
@@ -138,15 +138,8 @@ The rule tables are included in the repository: **the PDF is not required to bui
 
 </details>
 
-<a name="discrepancy-protocol"></a>
-<img src="docs/media/dossier/07-discrepancy-protocol.svg" alt="File 07 — Discrepancy protocol" width="100%">
-
-Some published character sheets contain arithmetic errors. One sheet, for example, reports **30 disadvantage points**, but its four entries total **25**.
-
-> Pathways follows the rulebook while showing the printed sheet's figure beside its calculated figure. It does **not** silently rewrite the source. Tests are designed to catch an accidental change to this behavior.
-
 <a name="provenance"></a>
-<img src="docs/media/dossier/08-provenance.svg" alt="File 08 — Provenance and credits" width="100%">
+<img src="docs/media/dossier/07-provenance.svg" alt="File 07 — Provenance and credits" width="100%">
 
 This project is a tool for playing an existing fan-created game. The rules, tables, pathways, potions, and 23 published characters belong to their respective creators and sources.
 
