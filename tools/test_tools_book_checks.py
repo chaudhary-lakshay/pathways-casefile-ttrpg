@@ -100,6 +100,7 @@ def test_the_hit_location_table_now_claims_the_rule_that_governs_it():
         assert not (claimed & set(range(lo, hi + 1))), (lo, hi)
 
 
+@needs_pdf
 def test_spirit_vision_is_universal_and_section_c_grants_nothing():
     """v6.9i made Spirit Vision a universal ability: "It is not tied to any
     single pathway, sequence, or potion." v6.9d's Section C was a swap (it
@@ -279,6 +280,7 @@ def _gurps_deferrals():
     return byn, sites
 
 
+@needs_pdf
 def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
     """Where the class sits, which is what settles 6dw's question.
 
@@ -327,6 +329,7 @@ def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
         assert any(a <= n <= b for a, b in spans), f"{f} no longer claims line {n}"
 
 
+@needs_pdf
 def test_shaken_is_one_of_two_deferred_terms_the_book_prints_once():
     """The claim thirteen slices made about `Shaken`, run as a query.
 

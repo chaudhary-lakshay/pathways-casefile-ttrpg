@@ -3,7 +3,7 @@ import json, subprocess, sys, pathlib
 
 import pytest
 
-from testsupport import CONTENT, OUT, ROOT
+from testsupport import CONTENT, OUT, ROOT, needs_pdf
 
 
 # --- 6ed: does a generated file still reproduce from its writer? -------------
@@ -67,6 +67,7 @@ def regenerated():
     return writers, failures
 
 
+@needs_pdf
 def test_every_extractor_finishes_on_a_redirected_stdout(regenerated):
     """An extractor that writes its file and THEN dies reports a failure it
     did not have: `py a.py && py b.py` stops, and a reader who knows that a
@@ -76,6 +77,7 @@ def test_every_extractor_finishes_on_a_redirected_stdout(regenerated):
     assert failures == []
 
 
+@needs_pdf
 def test_every_content_file_is_what_exactly_one_extractor_writes_today(regenerated):
     """One comparison, four ways to fail it: a file no extractor writes (a
     hand-authored one), a file two extractors write, a file whose extractor
@@ -92,6 +94,7 @@ def test_every_content_file_is_what_exactly_one_extractor_writes_today(regenerat
     assert {name: [tool for tool, _ in writers.get(name, [])] for name in differing} == {}
 
 
+@needs_pdf
 def test_the_citation_anchor_is_what_coverage_writes_today():
     """`book.txt` is the file every `sourceLines` number is read against, and
     `lines.json` is the same numbering as data. Both must come from ONE walk

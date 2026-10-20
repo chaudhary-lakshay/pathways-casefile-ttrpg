@@ -424,6 +424,7 @@ def test_a_block_stops_at_the_next_chapter_heading():
     assert spans == {"9": [[1, 3]], "10": [[6, 8]]}
 
 
+@needs_pdf
 def test_every_committed_span_agrees_with_the_heading_partition():
     """b1c8c4e taught `coverage.py` that a chapter starts at its HEADING and
     hand-refiled three content files. Nothing then checked that the
@@ -608,6 +609,7 @@ def test_the_social_banner_holds_its_sixteen_printed_members():
     assert "Streetwise" in by_category["KNOWLEDGE SKILLS"]
 
 
+@needs_pdf
 def test_social_skill_rolls_are_the_banner_and_social_rolls_name_nothing():
     """The warrant for applying "social skill rolls" to the SOCIAL banner, and
     for refusing the bare phrase "social rolls".

@@ -8,6 +8,7 @@ import extract_glossary
 from testsupport import OUT, ROOT, needs_pdf
 
 
+@needs_pdf
 def test_chapter_boundaries_fall_on_the_heading_not_the_page():
     """A chapter partition by PAGE puts 57 mechanical lines in the wrong chapter.
 
@@ -82,6 +83,7 @@ def test_coverage_credits_a_claim_that_spans_a_mid_page_boundary():
     )
 
 
+@needs_pdf
 def test_no_claim_crosses_a_chapter_heading():
     """Every extracted span sits inside the chapter it declares.
 
@@ -127,6 +129,7 @@ def test_no_claim_crosses_a_chapter_heading():
     assert not offenders, "claims crossing a chapter heading:\n  " + "\n  ".join(offenders)
 
 
+@needs_pdf
 def test_the_glossary_is_the_one_heading_the_book_does_not_number():
     """Why `heading_lines` names "G" explicitly instead of falling back.
 
@@ -152,6 +155,7 @@ def _glossary_lines():
             json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
 
 
+@needs_pdf
 def test_the_examples_exclusion_rests_on_typography_this_pdf_destroyed():
     """Why one line is excluded BY NAME rather than by a rule.
 
@@ -175,6 +179,7 @@ def test_the_examples_exclusion_rests_on_typography_this_pdf_destroyed():
     )
 
 
+@needs_pdf
 def test_the_full_stop_is_what_keeps_prose_out_of_the_glossary_terms():
     """The load-bearing character in TERM, measured rather than asserted.
 
@@ -207,6 +212,7 @@ def test_the_full_stop_is_what_keeps_prose_out_of_the_glossary_terms():
     assert max(len(t) for t in extract_glossary.TERMS) < 58
 
 
+@needs_pdf
 def test_chapter_G_reads_100_percent_off_a_denominator_of_seven_lines():
     """What "G 100.0%" does and does not say.
 
@@ -232,6 +238,7 @@ def test_chapter_G_reads_100_percent_off_a_denominator_of_seven_lines():
     assert extract_glossary.GLOSSARY_RANGE[1] < back[0]
 
 
+@needs_pdf
 def test_the_glossary_conservation_check_reads_the_raw_lines():
     """The guard for the guard: verify() must not re-derive its own input.
 
@@ -325,6 +332,7 @@ def test_spirit_vision_keeps_its_two_colour_tables_apart():
     assert set(d["etherBody"][0]) == {"region", "color"}
 
 
+@needs_pdf
 def test_spirit_vision_prints_no_roll_table_and_no_spectator_row():
     """v6.9d's guide had a five-row reading table (with the book's only bare
     "Critical" label) and a Section C row for the Spectator that disagreed
@@ -338,6 +346,7 @@ def test_spirit_vision_prints_no_roll_table_and_no_spectator_row():
     assert re.findall(r"(?m)^(\d+): Critical$", book) == []
 
 
+@needs_pdf
 def test_the_crippling_paragraph_is_invisible_to_the_coverage_filter():
     """The rule no coverage number has ever reported missing.
 

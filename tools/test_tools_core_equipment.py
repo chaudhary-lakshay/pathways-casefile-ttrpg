@@ -134,6 +134,7 @@ def test_an_effect_that_lost_its_full_stop_fails_rather_than_shifting_the_table(
     assert len(rows) == 3  # the effect became a deity of its own
 
 
+@needs_pdf
 def test_the_price_has_no_source_if_its_one_sentence_goes():
     """The table prints no cost column at all -- the price is stated once, in
     prose, for all seven rows. That sentence is the only place it exists."""
@@ -149,6 +150,7 @@ def _knowledge_skills():
     return [{"name": "Occultism", "category": ebl.KNOWLEDGE_BANNER}]
 
 
+@needs_pdf
 def test_the_slash_reading_fails_the_day_the_book_prints_occult_skills():
     """THE WARRANT. "occult/knowledge skills" is read as chapter 3's KNOWLEDGE
     banner because "occult skill" is printed nowhere -- one half of the slash
@@ -163,6 +165,7 @@ def test_the_slash_reading_fails_the_day_the_book_prints_occult_skills():
         ebl.verify(widened, payload, [], [], _knowledge_skills())
 
 
+@needs_pdf
 def test_a_deity_that_is_also_a_catalogue_trait_is_a_second_printing():
     """Disjointness, the check extract_appearance.py already makes: a name in
     both lists would make matching a bare name ambiguous, and would mean this
@@ -174,6 +177,7 @@ def test_a_deity_that_is_also_a_catalogue_trait_is_a_second_printing():
         ebl.verify(byn, payload, clash, [], _knowledge_skills())
 
 
+@needs_pdf
 def test_the_two_mechanical_cells_are_pinned_exactly():
     """The screen quotes these, and a re-cut cell still reads plausibly."""
     byn = ebl.load_lines()
@@ -427,6 +431,7 @@ def secondary_rows():
     return core_entries("secondary_costs")
 
 
+@needs_pdf
 def test_the_book_prices_a_secondary_in_exactly_one_place():
     """`extract_core_rules` used to skip this table because "ch 3 prints the
     costs, which are already extracted". Chapter 3 prints no such thing -- its
@@ -567,6 +572,7 @@ def test_the_agreement_check_reads_both_printings_not_just_the_summary():
         extract_appendix.verify_major_wound(summary, drifted)
 
 
+@needs_pdf
 def test_the_recorded_disagreement_names_both_printings():
     """A prose-only record is invisible to every sweep this repo runs (6cj).
 
@@ -592,6 +598,7 @@ def test_the_recorded_disagreement_names_both_printings():
 # --- Appendix A's facing line (Ch. A, p. 159) ------------------------------
 
 
+@needs_pdf
 def test_the_appendix_prints_the_facing_penalty_a_second_time():
     """`ActiveDefenses`' KDoc used to say the facing rule "has no second
     printing anywhere in the book -- checked, not assumed". This is that
@@ -608,6 +615,7 @@ def test_the_appendix_prints_the_facing_penalty_a_second_time():
     assert "Parry" in byn[8925] and "Block" in byn[8925]
 
 
+@needs_pdf
 def test_the_appendix_line_names_no_defence_so_it_widens_nothing():
     """The whole refusal now rests on ONE property of line 9667: it carries no
     noun (8926 since v6.9i). To widen chapter 5's singular "to defense", a second printing has to
@@ -702,6 +710,7 @@ def test_spirit_vision_reports_a_completion_it_earned():
 # --- The fatigue row's silence about rounding (Ch. 5, p. 42) ----------------
 
 
+@needs_pdf
 def test_the_fatigue_row_prints_no_rounding_direction():
     """`Pools.halvedForFatigue` rounds UP and its KDoc says the direction is
     this app's choice because the row prints none. That is an argument resting
@@ -715,6 +724,7 @@ def test_the_fatigue_row_prints_no_rounding_direction():
     assert not re.search(r"round(ed)?\s+(up|down)", byn[3490], re.I), byn[3490]
 
 
+@needs_pdf
 def test_the_book_does_print_a_direction_where_it_cares():
     """The other half of the argument: the row's silence means something only
     because this book DOES print directions elsewhere. Two of them, in both

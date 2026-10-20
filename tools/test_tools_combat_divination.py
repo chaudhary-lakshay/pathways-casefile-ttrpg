@@ -181,6 +181,7 @@ def test_strong_blows_scope_sentence_is_pinned_whole():
             extract_combat.verify(maneuvers, drifted, options)
 
 
+@needs_pdf
 def test_the_stun_penalty_is_pinned_whole_and_corroborated():
     """The -4 is a Kotlin constant and the cell is quoted verbatim on screen.
 

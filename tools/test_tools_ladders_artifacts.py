@@ -92,6 +92,7 @@ def row_named(result):
     return next(r for r in ladder_rows() if r["result"] == result)
 
 
+@needs_pdf
 def test_the_two_degrees_are_printed_nowhere_else_in_the_book():
     """The whole reason this is a definition rather than a summary. If either
     phrase ever turns up in a chapter, that chapter is the authority and this
