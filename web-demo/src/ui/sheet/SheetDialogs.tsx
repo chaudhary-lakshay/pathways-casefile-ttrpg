@@ -1,7 +1,7 @@
 // SheetDialogs.kt: which dialog a sheet has open, and what each is handed.
 import type { CharacterDice, SheetScene } from '../../app/RollLog'
 import type { BeyonderSession } from '../../app/session/BeyonderSession'
-import { skillRollTarget, spiNow, type RollableSkill, type SheetModel } from '../../app/SheetModel'
+import { ritualConditionPenalty, shockOnSkill, skillRollTarget, spiNow, type RollableSkill, type SheetModel } from '../../app/SheetModel'
 import { skillKeyLabel } from '../../app/SheetText'
 import * as AttributeRoll from '../../rules/AttributeRoll'
 import * as EffortBurn from '../../rules/EffortBurn'
@@ -12,6 +12,9 @@ import type { SelfControlCheck } from '../../rules/SelfControl'
 import * as SkillDefaults from '../../rules/SkillDefaults'
 import * as SkillRoll from '../../rules/SkillRoll'
 import * as TraitClauses from '../../rules/TraitClauses'
+import { ConcentrateDialog, RestDialog, SpiritVisionDialog } from '../dialogs/CalmDialogs'
+import { ContractDialog } from '../dialogs/ContractDialog'
+import * as SpiritContract from '../../rules/SpiritContract'
 import { burnOffer, RollDialog } from '../dialogs/RollDialog'
 import { AttributeRollDialog, SelfControlDialog, UntrainedDialog } from '../dialogs/SmallRolls'
 import type { SheetDialog } from './SheetParts'
@@ -73,6 +76,41 @@ export function SheetDialogs({ m, sheet, session, scene, dice, open, onClose, ro
       )}
       {controlling !== null && standingTarget !== undefined && (
         <SelfControlDialog check={controlling} standing={standingTarget} clauses={willClauses} states={m.states} dice={dice} onDismiss={() => onControlling(null)} />
+      )}
+      {open.has('REST') && (
+        <RestDialog maxFp={vitals.maxFp} drawn={[session.fpLost, session.spiSpent]} onRest={(r, drawn) => session.rest(r, drawn)} onDismiss={() => onClose('REST')} />
+      )}
+      {open.has('CONCENTRATE') && (
+        <ConcentrateDialog
+          will={vitals.will}
+          clauses={TraitClauses.concentrationClauses(traits)}
+          shock={m.shockOnAttribute}
+          hurt={m.hurtOnAttribute}
+          states={m.states}
+          dice={dice}
+          onDismiss={() => onClose('CONCENTRATE')}
+        />
+      )}
+      {open.has('SPIRIT_VISION') && m.hasSpiritVision && (
+        <SpiritVisionDialog
+          spiAvailable={vitals.maxSpi - session.spiSpent}
+          onSpendSpi={(n) => session.usePower(n, vitals.maxSpi, m.maxCor)}
+          onDismiss={() => onClose('SPIRIT_VISION')}
+        />
+      )}
+      {open.has('CONTRACT') && m.ritualLevel !== null && drunk !== null && (
+        <ContractDialog
+          skillLevel={m.ritualLevel}
+          conditionPenalty={ritualConditionPenalty(m, session)}
+          shock={shockOnSkill(m)}
+          states={m.states}
+          cor={session.cor}
+          sequence={drunk.sequence}
+          maxContracts={SpiritContract.maxContracts(drunk)}
+          dice={dice('Contract')}
+          onSpendSpi={(n) => session.spend('SPI', n, vitals.maxSpi, m.maxCor)}
+          onDismiss={() => onClose('CONTRACT')}
+        />
       )}
       {ROLL_DIALOGS.map(([kind, dialog]) =>
         open.has(dialog) && (

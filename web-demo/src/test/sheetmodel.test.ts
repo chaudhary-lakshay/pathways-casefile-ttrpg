@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { sheetModel, skillRollTarget } from '../app/SheetModel'
+import { ritualConditionPenalty, sheetModel, skillRollTarget } from '../app/SheetModel'
 import { BeyonderSession } from '../app/session/BeyonderSession'
 import { SavedSession } from '../app/session/SessionStore'
 import * as Premades from '../rules/Premades'
@@ -41,6 +41,16 @@ describe('the sheet model', () => {
     expect(m.vitals.maxSpi).toBeGreaterThan(0)
     expect(m.pools.map((it) => it.pool)).toEqual(['HP', 'FP', 'SPI'])
     expect(m.sensesOffered).toBe(true)
+  })
+
+  test("the ritual skill's condition penalty: the hurt and tired rows, never the corruption or the states", () => {
+    const session = new BeyonderSession(SavedSession({ cor: 5 }), cop)
+    expect(ritualConditionPenalty(sheetModel(cop, session, { ...scene, shocked: true }), session)).toBe(0)
+    const max = sheetModel(cop, session, scene).vitals.maxHp
+    session.spend('HP', max - 1, max, 10)
+    const hurt = sheetModel(cop, session, scene)
+    expect(ritualConditionPenalty(hurt, session)).toBe(hurt.hurtOnAttribute)
+    expect(ritualConditionPenalty(hurt, session)).toBeLessThan(0)
   })
 
   test('a skill roll stands on its level, less a wound, plus the chosen circumstances', () => {

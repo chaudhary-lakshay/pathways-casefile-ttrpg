@@ -6,7 +6,7 @@ import * as Derive from '../rules/Derive'
 import * as Divination from '../rules/Divination'
 import * as EffortBurn from '../rules/EffortBurn'
 import { SpiritualSenses } from '../rules/Mystical'
-import type { Attributes, BeyonderState, BoonState, Modifier, SkillKey, Trait } from '../rules/model'
+import { Buyable, SkillKey, type Attributes, type BeyonderState, type BoonState, type Modifier, type Trait } from '../rules/model'
 import * as NonStandardPathways from '../rules/NonStandardPathways'
 import * as Pools from '../rules/Pools'
 import type { PoolStatus } from '../rules/Pools'
@@ -161,6 +161,14 @@ export function conditionsFor(
     ...(withDeclared ? stateModifiers(m, EffortBurn.isPhysical(key)) : []),
   ]
 }
+
+/** SheetDialogs.kt's `conditionsFor` on the ritual skill, cor = 0, no states, summed: the Ritual, Contract and Boon dialogs' hurt term. */
+export const ritualConditionPenalty = (m: SheetModel, session: BeyonderSession) =>
+  conditionsFor(m, session, SkillKey(Conditions.RITUAL_SKILL, null, Buyable('IQ'), 'VERY_HARD'), { cor: 0, withStates: false })
+    .reduce((sum, it) => sum + (it.effect.type === 'Flat' ? it.effect.n : 0), 0)
+
+/** SheetDialogs.kt `shockOnSkill`. */
+export const shockOnSkill = (m: SheetModel) => Shock.penaltyFor('SKILL', m.shocked, m.traits)
 
 /** SheetRows.kt `RollableSkill`. */
 export interface RollableSkill {
