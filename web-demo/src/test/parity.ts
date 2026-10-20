@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { expect, test } from 'vitest'
 import { canonical, ValueMap } from '../rules/kt'
 
@@ -9,11 +10,16 @@ export interface Case {
   throws?: string
 }
 
-const files = import.meta.glob<Case[]>('./vectors/*.json', { eager: true, import: 'default' })
+// Read per file, not import.meta.glob: an eager glob put every vector file in
+// every worker, and the workers ran out of memory.
+const files = new Map<string, Case[]>()
 
 export function cases(file: string): Case[] {
-  const found = files[`./vectors/${file}.json`]
-  if (!found) throw new Error(`no vector file ${file}.json in ${Object.keys(files)}; run npm run parity`)
+  let found = files.get(file)
+  if (!found) {
+    found = JSON.parse(readFileSync(new URL(`./vectors/${file}.json`, import.meta.url), 'utf8')) as Case[]
+    files.set(file, found)
+  }
   return found
 }
 
