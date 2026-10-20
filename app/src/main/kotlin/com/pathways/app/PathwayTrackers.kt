@@ -116,11 +116,12 @@ internal fun DigestionTracker(
         }
         // Ch. 6: "1 character point = 1% digestion progress". Earned points,
         // like study points, sit outside the 70-point budget and bill nothing.
+        // Labelled by what it shows: nothing stores the points spent.
         OptionStepper(
-            label = "Earned CP",
+            label = "Digestion",
             value = state.digestion,
             shown = "${state.digestion}%",
-            note = "1 earned character point buys 1% digestion",
+            note = "Earned CP: 1 point buys 1%",
         ) { onDigest(it) }
         // Drawn always, live at 0% only, so it moves no row when spent.
         InkAction(

@@ -271,14 +271,17 @@ internal fun DefenseDialog(
     // weapons can parry at all. The two other tiers stay modelled in
     // [ParryClass] for the GM's own smallsword, and the note under these rows
     // says on screen that they exist and that nothing here reaches them.
-    val parryPenalty = ParryBlock.parryPenalty(round.priorParries) +
-        if (round.holdingPin) ActiveDefenses.PIN_HOLD_PARRY else 0
+    // The stepper's note names the repeat term alone: the pin's -4 is on its own chip.
+    val repeatPenalty = ParryBlock.parryPenalty(round.priorParries)
+    val parryPenalty = repeatPenalty + if (round.holdingPin) ActiveDefenses.PIN_HOLD_PARRY else 0
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
         title = { FormTitle(FORM_DEFEND) { Text("Active defenses") } },
-        text = {
+        // Steady: a refusal hides every row, and the re-centred dialog moved
+        // Pinned and Surprised under the finger (6ia's rule, missed here).
+        text = steadyBody {
             LazyColumn {
                 item {
                     // At the TOP, and unlike the parry stepper that is not a
@@ -552,7 +555,7 @@ internal fun DefenseDialog(
                     // survives, and a stepper over nothing would be a control
                     // that does nothing.
                     if (armed.isNotEmpty() || standing.isNotEmpty()) {
-                        ParriesThisRound(round.priorParries, parryPenalty) {
+                        ParriesThisRound(round.priorParries, repeatPenalty) {
                             round = round.copy(priorParries = it)
                         }
                     }

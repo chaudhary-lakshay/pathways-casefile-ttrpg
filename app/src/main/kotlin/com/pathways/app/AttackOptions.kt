@@ -3,6 +3,7 @@ package com.pathways.app
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
 import com.pathways.model.SkillKey
@@ -39,6 +42,8 @@ import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.UnarmedAttack
 import com.pathways.rules.content.WeaponMode
 import com.pathways.rules.EffortBurn
+
+private fun strikeNote(attack: UnarmedAttack) = "${attack.damage} — ${attack.notes}"
 
 @Composable
 internal fun AttackOptions(
@@ -148,15 +153,21 @@ internal fun AttackOptions(
                     }
                 }
                 // Drawn empty with a weapon in hand, so picking one moves no
-                // row under the finger (play session 5).
-                Text(
-                    // Shove prints "Special" and rolls nothing; saying so beats
-                    // showing a damage line it does not have.
-                    unarmed?.let { "${it.damage} — ${it.notes}" }.orEmpty(),
-                    style = MaterialTheme.typography.bodySmall,
-                    minLines = 1,
-                    modifier = Modifier.padding(vertical = 4.dp),
-                )
+                // row under the finger (play session 5). Every offered note is
+                // laid out unseen beneath, so the slot holds the tallest at any
+                // width: Pin's wraps where Grapple's does not.
+                // Shove prints "Special" and rolls nothing; saying so beats
+                // showing a damage line it does not have.
+                Box(Modifier.padding(vertical = 4.dp)) {
+                    attacks.forEach {
+                        Text(
+                            strikeNote(it),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.alpha(0f).clearAndSetSemantics {},
+                        )
+                    }
+                    Text(unarmed?.let(::strikeNote).orEmpty(), style = MaterialTheme.typography.bodySmall)
+                }
                 // v6.9i's Escalation: drawn wherever a Pin is on offer, live on
                 // the Pin alone, so picking it moves no row. The ST difference
                 // beside it needs the opponent's ST: the Modifier stepper's.
