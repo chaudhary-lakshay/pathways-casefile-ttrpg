@@ -6899,16 +6899,19 @@ parry 8 to 9); the 4d20% start at 0% (48%, a second tap ignored) and the
 1% stepper (48, 49, 47). Four faults, fixed in `d8f1e73`, each re-seen:
 
 - Pin's strike note wraps to two lines, so picking it moved the +4 chip
-  and the maneuvers 30 dp under the finger. The slot now lays out every
+  and the maneuvers down 40 px (dump y 680 to 710). The slot now lays out every
   offered note unseen beneath the live one and holds the tallest: the
   chip sits at one y for Grapple, Takedown and Pin.
 - With a pin held and no prior parry, the parry stepper's note read
   "Parry rows above include −4", the pin's -4 blamed on repeated
   parries. It takes the repeat term alone; the rows keep the sum.
-- Defend was the one roll dialog 6ia's `steadyBody` never reached: a
-  refusal hides every row and the dialog re-centred, so Pinned jumped
-  from y 432 to 964 (Surprised the same, since before v6.9i). Wrapped;
-  both now stay put.
+- Defend never took 6ia's `steadyBody`: a refusal hides every row and
+  the dialog re-centred, so Pinned jumped from dump y 432 to 924
+  (Surprised the same, since before v6.9i). Wrapped; both now stay put.
+  The census (`AlertDialog(` without `steadyBody`) names eight more
+  files. Damage is the one roll dialog among them: its body fills the
+  dialog in portrait, and swapping HP and Spirit body moved no row, only
+  the Apply label. The other seven are pickers and menus, not checked.
 - "Earned CP 48%" printed digestion as a count of points; nothing stores
   the points. Labelled "Digestion", the rule in its note, and the guide's
   sentence with it.
