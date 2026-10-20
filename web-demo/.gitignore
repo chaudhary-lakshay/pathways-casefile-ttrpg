@@ -5,3 +5,6 @@ parity/.gradle/
 parity/.kotlin/
 test-results/
 playwright-report/
+
+# tsc -b incremental state
+*.tsbuildinfo

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 // The owner's validation list: no backend, 390 px, the frame on desktop,
 // progress that survives a reload, and a one-shot that a double tap charges once.
@@ -15,6 +15,12 @@ function onlyLocal(page: Page) {
 }
 
 const fp = (page: Page) => page.locator('.pool-count').nth(1)
+
+/**
+ * Two taps inside one frame (6ei): both clicks in one task, so React has not
+ * re-rendered between them and only the handler's own guard can stop the second.
+ */
+const doubleTap = (target: Locator) => target.evaluate((el: HTMLElement) => { el.click(); el.click() })
 
 test.describe('on a phone, 390 px', () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
@@ -44,7 +50,7 @@ test.describe('on a phone, 390 px', () => {
     await expect(fp(page)).toHaveAttribute('aria-label', '9 of 9')
     await page.getByText('Guns (Pistol)').first().click()
     await page.getByRole('button', { name: /One more Burn FP/ }).click()
-    await page.locator('.dialog .ink-button').dblclick()
+    await doubleTap(page.locator('.dialog .ink-button'))
     await expect(page.locator('.dialog .stamp')).toBeVisible()
     await page.getByRole('button', { name: 'Close' }).click()
     await expect(fp(page)).toHaveAttribute('aria-label', '8 of 9')
