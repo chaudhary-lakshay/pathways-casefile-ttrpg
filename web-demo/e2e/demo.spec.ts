@@ -34,7 +34,7 @@ test.describe('on a phone, 390 px', () => {
     await page.getByText('Beat Cop').first().click()
     await expect(page.getByRole('heading', { name: 'Beat Cop' })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
-    for (const route of ['#/c/Beat%20Cop/pathway', '#/glossary', '#/credits']) {
+    for (const route of ['#/c/Beat%20Cop/pathway', '#/c/Beat%20Cop/builder', '#/glossary', '#/credits']) {
       await page.goto(`./${route}`)
       await expect(page.locator('h1, .pathway-tile').first()).toBeVisible()
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
@@ -54,6 +54,16 @@ test.describe('on a phone, 390 px', () => {
     await page.getByRole('button', { name: 'More' }).click()
     await page.getByRole('menuitem', { name: 'Roll log' }).click()
     await expect(page.locator('.dialog').getByText('Potion Consumption Roll')).toHaveCount(1)
+  })
+
+  test('a raised attribute is billed by the ledger and kept on reload', async ({ page }) => {
+    await page.goto('./#/c/Beat%20Cop/builder')
+    const spent = page.locator('.budget-card .headlineLarge')
+    const before = Number(await spent.textContent())
+    await page.getByRole('button', { name: 'Raise IQ' }).click()
+    await expect(spent).toHaveText(String(before + 20))
+    await page.reload()
+    await expect(spent).toHaveText(String(before + 20))
   })
 
   test('a lost point survives a reload', async ({ page }) => {

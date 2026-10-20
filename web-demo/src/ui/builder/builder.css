@@ -1,0 +1,32 @@
+/* BuilderLedger.kt and BuilderRows.kt, dp = px. Shapes (Theme.kt): extraSmall 2, small 4. */
+.ledger-bar { padding: 8px 16px 4px 12px; flex: none; }
+.ledger-title { padding: 8px 16px; }
+.budget-sticky { position: sticky; top: 0; z-index: 2; background: var(--surface); }
+.budget-card { margin: 8px 16px; padding: 14px 20px; background: var(--surface-container-low); border: 2px solid var(--outline); border-radius: 4px; color: var(--on-surface); }
+.spare { margin-left: 8px; padding: 3px 10px; border: 1.5px solid; border-radius: 2px; font-weight: 700; white-space: nowrap; }
+.budget-pips { display: flex; gap: 3px; padding-top: 12px; height: 28px; }
+.budget-pips span { flex: 0 1 16px; height: 16px; min-width: 0; border: 1px solid var(--outline-variant); box-sizing: border-box; }
+
+.ledger-row { margin: 0 16px; padding: 10px 0; border-bottom: 1px dashed var(--outline-variant); color: var(--on-surface); }
+.ledger-name { min-width: 72px; padding-right: 8px; font-weight: 700; }
+.held-row { gap: 8px; padding: 4px 16px; color: var(--on-surface); }
+.before-potions { display: inline-block; margin: 12px 0 0 16px; padding: 3px 10px; border: 1.5px solid var(--outline); border-radius: 2px; font-weight: 700; color: var(--on-surface); }
+
+.study-toggle { display: flex; background: var(--surface-container-low); border: 2px solid var(--outline); border-radius: 2px; }
+.study-toggle button { flex: 1 1 0; min-height: 48px; padding: 10px 8px; color: var(--on-surface); text-align: center; }
+.study-toggle button + button { border-left: 2px solid var(--outline); }
+.study-toggle button.picked { background: var(--secondary-container); color: var(--on-secondary-container); }
+
+.skill-ledger-row { margin: 0 16px; padding: 10px 0; border-bottom: 1px solid var(--outline-variant); color: var(--on-surface); }
+.study-open { display: block; width: 100%; text-align: left; color: inherit; }
+.study-tag { display: inline-block; margin-top: 6px; padding: 3px 8px; border: 1px solid var(--outline-variant); border-radius: 2px; color: var(--on-surface-variant); }
+.study-tag.dashed-tag { border: 1px dashed var(--outline); }
+.study-stepper { gap: 0; }
+.level-badge { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--on-surface); border-radius: 2px; color: var(--on-surface); }
+.text-button { min-width: 48px; min-height: 40px; padding: 0 12px; color: var(--primary); }
+.text-button:disabled { color: color-mix(in srgb, var(--on-surface) 38%, transparent); }
+
+/* The pickers */
+.pick-row { display: flex; flex-direction: column; width: 100%; padding: 8px 0; text-align: left; color: var(--on-surface-variant); }
+.pick-row:disabled { cursor: default; }
+.picker-head { width: 100%; text-align: left; color: var(--on-surface); }
