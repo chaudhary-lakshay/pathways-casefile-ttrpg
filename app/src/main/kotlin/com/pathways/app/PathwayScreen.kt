@@ -318,12 +318,12 @@ private fun DrinkRow(
     val ceilingAfter = if (rerolling || drinking) maxCorFor(target) else null
     val caption = when {
         rerolling -> listOfNotNull(
-            drinkCaption(target!!, drunk, session.cor, ceilingAfter!!, pcrModifier),
+            drinkCaption(target, drunk, session.cor, ceilingAfter!!, pcrModifier),
             "lost to the Rampager, unless the reroll succeeds; the GM counts the session's rerolls",
         ).joinToString(". ")
         // Built from what stillShows compares, so it is the roll the tap
         // makes or the tap does nothing.
-        drinking -> drinkCaption(target!!, drunk, printedCor, ceilingAfter!!, pcrModifier)
+        drinking -> drinkCaption(target, drunk, printedCor, ceilingAfter!!, pcrModifier)
         else -> null
     }
     Column {
@@ -342,7 +342,7 @@ private fun DrinkRow(
                         "Reroll the PCR ($rerollSource)",
                         ScoreFloors.holdsCeiling(ceilingAfter!!),
                         Modifier.fillMaxWidth(),
-                    ) { onReroll(target!!) }
+                    ) { onReroll(target) }
                     session.lost -> Note("lost to the Rampager")
                     session.corrupted -> Note("lost to corruption at ${session.cor} CoR")
                     // `drink` refuses a ceiling below the floor too, before
@@ -351,7 +351,7 @@ private fun DrinkRow(
                         if (drunk == null) "Drink this potion" else "Drink and roll",
                         ScoreFloors.holdsCeiling(ceilingAfter!!),
                         Modifier.fillMaxWidth(),
-                    ) { onDrink(target!!) }
+                    ) { onDrink(target) }
                     // A pathway is walked one potion at a time.
                     drunk == null -> Note("a pathway begins at Sequence ${PotionDigestion.STARTING_SEQUENCE}")
                     else -> Note(
