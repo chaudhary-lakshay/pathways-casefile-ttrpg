@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.4.0](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/compare/v0.3.1...v0.4.0) (2026-10-22)
+
+
+### Features
+
+* **web:** app shell, routes, saves and the gallery ([5e05c63](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/5e05c638be95b4391f5112630a72cbdf2d7104e9))
+* **web:** browser store that keeps a bad save aside ([f71ecf8](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/f71ecf830574a29577c766e99a2920d708a5c188))
+* **web:** builder helpers ([d72075f](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/d72075f059ce52ea2514fbcde7a41c61d2226310))
+* **web:** damage and divination dialogs ([74f82b8](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/74f82b86cc67ac7bd3b711c767c1a29772c143ef))
+* **web:** defence helpers ([9951853](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/99518539f5283dc01e632c24b33a89f637f292af))
+* **web:** fright and detection dialogs ([c8ef269](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/c8ef269b35ef01335705dc2fc6160e23590665ee))
+* **web:** glossary, credits, e2e and Pages workflow ([1162606](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/116260653a54d7fda70fe7bd02d219d25d044593))
+* **web:** parity harness, content loader, derivation port ([e89a32a](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/e89a32a4591547e8140cd373e37de23bf3ad94d6))
+* **web:** pathway helpers and screen parts ([66cad2d](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/66cad2d5d30c09409afc3168d57ddca2c1f444ff))
+* **web:** port the remaining rules with parity ([4360c93](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/4360c939c9055979678a63bbd074b7646ee7ae47))
+* **web:** port the session, saves and sheet text ([88a899d](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/88a899ddd98ce8396488fdf5b48d9af6e017c84c))
+* **web:** port trait, pool, wound, weapon and digestion rules ([e14f2f1](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/e14f2f1a052a619331460e642fb8480afc93a21b))
+* **web:** rest, concentrate, sight, contract ([200f57e](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/200f57e2ed8ec3cd38e939460be0f4937c6bc2c8))
+* **web:** ritual and boon dialogs ([440c200](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/440c200b06dcd34624c3e372f7388632d0ce62d4))
+* **web:** roll log, sheet scene and round state ([fd93945](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/fd93945845344151de57f133f905ea03af9c07aa))
+* **web:** sheet derivation and sheet text ([a6ba39a](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/a6ba39a69488b59cffc28152cf5d36a9c8bb55ae))
+* **web:** sheet parts, tabs and the skill roll dialog ([fd64405](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/fd644059bd909e9dee7ee0c66dd0385118062dfb))
+* **web:** the attack dialog ([25dfd8c](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/25dfd8c6b3ae0842a955ad36b5c9ea2f154f67ac))
+* **web:** the builder and its pickers ([b87bc76](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/b87bc76bd65332ff33333d9edbb46bde943ffc2c))
+* **web:** the defend dialog ([87bbb73](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/87bbb733bf428a0cfa29b7957ef2752a44436a75))
+* **web:** the pathway screen ([e9e7fc0](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/e9e7fc0be0d5a1b81c50afec21c9a24eece62ab6))
+* **web:** the sheet screen and three short rolls ([9677f2b](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/9677f2b1ff3ad3afe6b59016c0e48ab074ba7ea9))
+* **web:** theme, fonts and the phone frame ([a4a9779](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/a4a977939fe444b11beb47576da3b4a920507c35))
+
+
+### Bug Fixes
+
+* **web:** defer a stale reload met while rendering ([c8f9848](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/c8f98484f3f33400034f93a5f98ac7eca6f73a9a))
+* **web:** dialog controls keep room in landscape ([6e4e30c](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/6e4e30cf553eda931522a8da33be0b4c54118f83))
+* **web:** never overwrite a save that is not safe ([e47034f](https://github.com/chaudhary-lakshay/pathways-casefile-ttrpg/commit/e47034f356bdf319becdb94017f2f2d9a409588f))
+
 ## 0.3.1 (2026-10-20): four fixes from a play session
 
 - **Spirit contract:** the list under the target now shows every term in it:
