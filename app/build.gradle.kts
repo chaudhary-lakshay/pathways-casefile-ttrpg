@@ -15,8 +15,12 @@ android {
         applicationId = "com.pathways.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.3.1"
+        // release-please bumps version.txt; both fields derive from it.
+        // ponytail: MMmmpp packing, so a minor or patch of 100 collides; widen then.
+        val appVersion = rootProject.file("version.txt").readText().trim()
+        versionName = appVersion
+        versionCode = appVersion.split(".").map(String::toInt)
+            .let { (major, minor, patch) -> major * 10000 + minor * 100 + patch }
     }
 
     // Release signing reads ~/.gradle/gradle.properties, never this repo.

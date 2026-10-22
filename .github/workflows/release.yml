@@ -1,0 +1,86 @@
+# release-please keeps a release PR open from the conventional commits on
+# master. Merging it bumps version.txt, writes CHANGELOG.md, tags vX.Y.Z and
+# creates the GitHub release; this same job then attaches the signed APK.
+# One job on purpose: a tag pushed with GITHUB_TOKEN triggers no other workflow.
+# If the APK step fails, rerun it from the Actions tab with the release's tag.
+name: Release
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build and attach the APK to (e.g. v0.4.0)
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - id: rp
+        if: ${{ github.event_name == 'push' }}
+        uses: googleapis/release-please-action@v4
+
+      - id: tag
+        env:
+          CREATED: ${{ steps.rp.outputs.tag_name }}
+          REQUESTED: ${{ inputs.tag }}
+        run: echo "tag=${CREATED:-$REQUESTED}" >> "$GITHUB_OUTPUT"
+
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      # 17 for the Kotlin toolchain, 21 (listed last, so JAVA_HOME) for the daemon.
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            21
+
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        uses: gradle/actions/setup-gradle@v4
+
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        name: Test and build the signed release APK
+        env:
+          KEYSTORE_B64: ${{ secrets.PATHWAYS_KEYSTORE_B64 }}
+          ORG_GRADLE_PROJECT_PATHWAYS_STORE_FILE: ${{ runner.temp }}/release.jks
+          ORG_GRADLE_PROJECT_PATHWAYS_STORE_PASSWORD: ${{ secrets.PATHWAYS_STORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_PATHWAYS_KEY_ALIAS: pathways
+          ORG_GRADLE_PROJECT_PATHWAYS_KEY_PASSWORD: ${{ secrets.PATHWAYS_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          ./gradlew test :app:assembleRelease
+
+      # The only guard against shipping an APK signed with another key: the
+      # digest of the certificate every release since v0.1 carries.
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        name: Verify the signing certificate
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner"
+          "$apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk \
+            | grep -F "certificate SHA-256 digest: 1c6eb326584614785b9d871527b9e229df514776465f12f2d5d74b3a2b283054"
+
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        name: Attach the APK and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          mkdir dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/pathways-$TAG-release.apk"
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+          gh release upload "$TAG" dist/* --clobber
