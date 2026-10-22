@@ -34,12 +34,22 @@ jobs:
         env:
           CREATED: ${{ steps.rp.outputs.tag_name }}
           REQUESTED: ${{ inputs.tag }}
-        run: echo "tag=${CREATED:-$REQUESTED}" >> "$GITHUB_OUTPUT"
+        run: |
+          tag="${CREATED:-$REQUESTED}"
+          if [ -n "$tag" ] && ! [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::not a release tag: $tag"; exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - if: ${{ steps.tag.outputs.tag != '' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.tag.outputs.tag }}
+          fetch-depth: 0
+
+      # The signing secrets only ever build a commit already on master.
+      - if: ${{ steps.tag.outputs.tag != '' }}
+        run: git merge-base --is-ancestor HEAD origin/master
 
       # 17 for the Kotlin toolchain, 21 (listed last, so JAVA_HOME) for the daemon.
       - if: ${{ steps.tag.outputs.tag != '' }}
